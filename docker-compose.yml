@@ -87,6 +87,29 @@ services:
       timeout: 3s
       retries: 5
 
+  # ── One-shot migration runner (explicit, reviewed step) ──
+  # Not started by `up` (profile: tools). Run explicitly by scripts/deploy.sh
+  # or CI: `docker compose run --rm migrate`. Reuses the built backend image
+  # (prisma CLI is a runtime dependency) with the schema mounted in.
+  migrate:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: matriq-migrate
+    profiles: ["tools"]
+    command: ["sh", "-c", "npx prisma migrate deploy"]
+    working_dir: /app
+    volumes:
+      - ./backend/prisma:/app/prisma
+      - ./backend/prisma.config.ts:/app/prisma.config.ts
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-matriq}:${POSTGRES_PASSWORD:?err}@postgres:5432/${POSTGRES_DB:-matriq}
+    networks:
+      - matriq-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   # ── Ollama model server (internal network only — never exposed publicly) ──
   ollama:
     image: ollama/ollama:latest
