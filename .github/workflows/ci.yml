@@ -1,6 +1,6 @@
 # Matriq — CI Pipeline (GitHub Actions)
 # Per ci-cd.md: lint, type-check, tests, vulnerability scan, secret scan on every PR.
-# This is the skeleton — it should pass green before Phase 0 is considered done.
+# Covers all four codebases + the backend container image (build only, not pushed).
 
 name: CI
 
@@ -11,7 +11,7 @@ on:
     branches: [main, develop]
 
 jobs:
-  # ── Backend checks ──
+  # ── Backend: lint + typecheck + tests + prisma + migrations ──
   backend:
     name: Backend (lint + typecheck + test)
     runs-on: ubuntu-latest
@@ -37,10 +37,145 @@ jobs:
       - name: Type-check
         run: npx tsc --noEmit
 
+      - name: Validate Prisma schema
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+        run: npx prisma validate
+
+      # No-DB drift gate: regenerate the baseline from the schema and compare
+      # against the committed 0_init migration. Fails if schema.prisma changed
+      # without an accompanying migration.
+      - name: Migration baseline matches schema
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+        run: |
+          npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/baseline.sql
+          diff /tmp/baseline.sql prisma/migrations/0_init/migration.sql
+
       - name: Run tests
         run: npm test -- --passWithNoTests
 
-  # ── Dependency vulnerability scan ──
+  # ── Backend container image (build only — catches Dockerfile breakage) ──
+  backend-image:
+    name: Backend Docker image build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          load: true
+          tags: matriq-backend:ci
+
+      - name: Smoke-test image boots and serves /health
+        run: |
+          docker run -d --name matriq-ci -p 3000:3000 \
+            -e NODE_ENV=test \
+            -e DATABASE_URL=postgresql://ci:ci@localhost:5432/ci \
+            -e JWT_SECRET=ci-secret \
+            -e JWT_REFRESH_SECRET=ci-secret \
+            -e RESEND_API_KEY=re_dummy \
+            matriq-backend:ci
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000/health > /dev/null 2>&1; then
+              echo "health OK"; exit 0
+            fi
+            sleep 1
+          done
+          docker logs matriq-ci 2>&1 | tail -30
+          exit 1
+
+  # ── Mobile (Expo): typecheck + Android bundle ──
+  mobile:
+    name: Mobile (typecheck + bundle)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Bundle Android (catches Metro/bundling errors)
+        run: npx expo export --platform android --output-dir /tmp/expo-export
+
+  # ── Association Dashboard (Next.js) ──
+  dashboard:
+    name: Dashboard (lint + typecheck + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./dashboard
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
+
+  # ── Admin Console (Next.js) ──
+  admin:
+    name: Admin (lint + typecheck + build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./admin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+      - name: Production build
+        run: npm run build
+
+  # ── Dependency vulnerability scan (report-only until Phase 6) ──
   audit:
     name: Vulnerability Scan
     runs-on: ubuntu-latest
@@ -57,7 +192,7 @@ jobs:
 
       - name: npm audit
         run: npm audit --audit-level=high
-        continue-on-error: true # Report but don't block yet — tighten in Phase 6
+        continue-on-error: true # Report but don't block — tighten to a gate in Phase 6
 
   # ── Secret scanning (gitleaks) ──
   secrets:
