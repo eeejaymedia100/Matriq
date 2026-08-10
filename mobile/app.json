@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Matriq",
+    "slug": "matriq",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.matriq.mobile"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundColor": "#6C3BAA"
+      },
+      "package": "app.matriq.mobile"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#6C3BAA",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Matriq uses your photos to upload a student ID for identity verification.",
+          "cameraPermission": "Matriq uses your camera to photograph your student ID for identity verification."
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "https://api.matriq.app/v1"
+    }
+  }
+}
