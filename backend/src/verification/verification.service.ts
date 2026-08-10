@@ -7,6 +7,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { EmailService } from "../email/email.service";
 
 @Injectable()
 export class VerificationService {
@@ -16,6 +17,7 @@ export class VerificationService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
   // ── Student: upload verification document ────────────────────
@@ -223,6 +225,8 @@ export class VerificationService {
       `Verification approved: request=${requestId}, user=${request.userId}, by=${reviewerExecutiveId}`,
     );
 
+    await this.notifyStudent(request.userId, associationId, "approved");
+
     return { message: "Student identity verified. Account confirmed." };
   }
 
@@ -284,6 +288,113 @@ export class VerificationService {
       `Verification rejected: request=${requestId}, user=${request.userId}, by=${reviewerExecutiveId}, reason="${reason}"`,
     );
 
+    await this.notifyStudent(request.userId, associationId, "rejected", reason);
+
     return { message: "Verification rejected. Student has been notified." };
+  }
+
+  // ── Student notification (transactional email) ───────────────
+
+  /**
+   * Notify the student that their verification document was approved or
+   * rejected. Failures are logged and swallowed — a notification problem
+   * must never roll back or break the review action itself.
+   */
+  private async notifyStudent(
+    userId: string,
+    associationId: string,
+    outcome: "approved" | "rejected",
+    rejectionReason?: string,
+  ): Promise<void> {
+    try {
+      const [user, association] = await Promise.all([
+        this.prisma.user.findUnique({
+          where: { id: userId },
+          select: { email: true, fullName: true },
+        }),
+        this.prisma.association.findUnique({
+          where: { id: associationId },
+          select: { name: true },
+        }),
+      ]);
+
+      if (!user?.email) {
+        this.logger.warn(
+          `Verification ${outcome}: user ${userId} has no email — notification skipped`,
+        );
+        return;
+      }
+
+      const associationName = association?.name ?? "your association";
+      const firstName = user.fullName?.split(" ")[0] || "there";
+      const isApproved = outcome === "approved";
+
+      const subject = isApproved
+        ? "Your Matriq verification was approved"
+        : "Your Matriq verification needs attention";
+
+      const html = isApproved
+        ? `
+        <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+          <h2 style="color: #0D0620;">Your identity has been verified</h2>
+          <p>Hi ${firstName},</p>
+          <p>
+            An executive of <strong>${associationName}</strong> has approved your
+            verification document. Your account is now confirmed, and you have
+            full access to association features, including dues payments and
+            receipts.
+          </p>
+          <p style="font-size: 12px; color: #8B7AAE;">
+            Matriq &middot; Identity verification
+          </p>
+        </div>`
+        : `
+        <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
+          <h2 style="color: #0D0620;">Your verification needs attention</h2>
+          <p>Hi ${firstName},</p>
+          <p>
+            An executive of <strong>${associationName}</strong> could not approve
+            the document you uploaded.
+          </p>
+          <p><strong>Reason:</strong> ${this.escapeHtml(rejectionReason ?? "No reason provided")}</p>
+          <p>
+            You can upload a new, clearer document from the Matriq app and
+            resubmit for review.
+          </p>
+          <p style="font-size: 12px; color: #8B7AAE;">
+            Matriq &middot; Identity verification
+          </p>
+        </div>`;
+
+      const text = isApproved
+        ? `Hi ${firstName},\n\nAn executive of ${associationName} has approved your verification document. Your account is now confirmed and you have full access to association features, including dues payments and receipts.\n\nMatriq`
+        : `Hi ${firstName},\n\nAn executive of ${associationName} could not approve the document you uploaded.\n\nReason: ${rejectionReason ?? "No reason provided"}\n\nYou can upload a new, clearer document from the Matriq app and resubmit for review.\n\nMatriq`;
+
+      const result = await this.emailService.send({
+        to: user.email,
+        subject,
+        html,
+        text,
+      });
+
+      if (!result.success) {
+        this.logger.warn(
+          `Verification ${outcome} email failed for ${user.email}: ${result.error}`,
+        );
+      }
+    } catch (err) {
+      this.logger.error(
+        `Verification ${outcome} notification error: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
   }
 }

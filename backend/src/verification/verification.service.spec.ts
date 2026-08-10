@@ -3,11 +3,13 @@ import { ConfigService } from "@nestjs/config";
 import { VerificationService } from "./verification.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { EmailService } from "../email/email.service";
 import { NotFoundException, ForbiddenException } from "@nestjs/common";
 
 describe("VerificationService", () => {
   let service: VerificationService;
   let prisma: jest.Mocked<PrismaService>;
+  let email: jest.Mocked<EmailService>;
 
   const mockMembership = {
     id: "mem-1",
@@ -51,7 +53,16 @@ describe("VerificationService", () => {
         findMany: jest.fn(),
         findUnique: jest.fn(),
       },
-      user: { update: jest.fn() },
+      user: {
+        update: jest.fn(),
+        findUnique: jest.fn().mockResolvedValue({
+          email: "test@example.com",
+          fullName: "Test Student",
+        }),
+      },
+      association: {
+        findUnique: jest.fn().mockResolvedValue({ name: "Test Association" }),
+      },
       $transaction: jest.fn((calls: unknown[]) => Promise.all(calls as [])),
     } as unknown as jest.Mocked<PrismaService>;
 
@@ -63,12 +74,17 @@ describe("VerificationService", () => {
       get: jest.fn().mockReturnValue("test-bucket"),
     };
 
+    email = {
+      send: jest.fn().mockResolvedValue({ success: true, messageId: "m-1" }),
+    } as unknown as jest.Mocked<EmailService>;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         VerificationService,
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: mockAudit },
         { provide: ConfigService, useValue: mockConfig },
+        { provide: EmailService, useValue: email },
       ],
     }).compile();
 
@@ -187,6 +203,95 @@ describe("VerificationService", () => {
       await expect(
         service.reject("req-1", "assoc-1", "exec-1", "bad", "127.0.0.1"),
       ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe("student notifications", () => {
+    it("should email the student on approval", async () => {
+      (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
+        mockRequest,
+      );
+
+      await service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1");
+
+      expect(email.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+          subject: expect.stringContaining("approved"),
+          html: expect.stringContaining("Test Association"),
+        }),
+      );
+    });
+
+    it("should email the student the rejection reason", async () => {
+      (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
+        mockRequest,
+      );
+
+      await service.reject(
+        "req-1",
+        "assoc-1",
+        "exec-1",
+        "ID card is blurry",
+        "127.0.0.1",
+      );
+
+      expect(email.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: "test@example.com",
+          subject: expect.stringContaining("verification"),
+          html: expect.stringContaining("blurry"),
+        }),
+      );
+    });
+
+    it("should not throw when the notification email fails", async () => {
+      (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
+        mockRequest,
+      );
+      email.send.mockResolvedValue({
+        success: false,
+        error: "smtp unavailable",
+      });
+
+      await expect(
+        service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1"),
+      ).resolves.toBeDefined();
+      expect(email.send).toHaveBeenCalled();
+    });
+
+    it("should skip email when the student has no address", async () => {
+      (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
+        mockRequest,
+      );
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        email: null,
+        fullName: "No Email",
+      });
+
+      await service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1");
+
+      expect(email.send).not.toHaveBeenCalled();
+    });
+
+    it("should escape the rejection reason in HTML", async () => {
+      (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
+        mockRequest,
+      );
+
+      await service.reject(
+        "req-1",
+        "assoc-1",
+        "exec-1",
+        "<script>alert(1)</script>",
+        "127.0.0.1",
+      );
+
+      expect(email.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining("&lt;script&gt;"),
+        }),
+      );
     });
   });
 });
