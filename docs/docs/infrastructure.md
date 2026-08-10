@@ -50,6 +50,16 @@ services:
   or deployed to Vercel (recommended for simplicity — keep the GCP VM focused on the backend +
   database + AI model).
 
+## Deploying (migrations + stack)
+
+- `scripts/deploy.sh` is the single entry point on the VM: it starts postgres/redis, waits for
+  health, applies migrations explicitly via `docker compose run --rm migrate` (a one-shot
+  `migrate` service, profile `tools`, reusing the backend image with the schema mounted in),
+  builds and starts backend/caddy/ollama, and waits for `/health`. Idempotent — safe to re-run.
+- **Migrations are never applied silently** by a generic deploy (per `docs/ci-cd.md`). The
+  baseline is `backend/prisma/migrations/0_init/migration.sql`; new schema changes must add a
+  new numbered migration, and a no-DB CI gate fails if `schema.prisma` drifts from the baseline.
+
 ## Environments on the same VM
 
 Given single-VM constraints, staging and production can run as separate Docker Compose stacks
