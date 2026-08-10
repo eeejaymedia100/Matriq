@@ -1,0 +1,434 @@
+// Matriq — Prisma Schema
+// Every table and field matches docs/data-model.md.
+// Money stored as integer minor units (kobo), never float.
+// Soft deletes on financial/audit-relevant tables.
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgvector(map: "vector", schema: "public")]
+}
+
+// ── Enums ──────────────────────────────────────────────────────────
+
+enum RegistrationType {
+  staylite
+  fresher
+}
+
+enum MatricStatus {
+  confirmed
+  provisional
+}
+
+enum AssociationStatus {
+  active
+  suspended
+}
+
+enum ExecutiveRole {
+  president
+  treasurer
+  pro
+}
+
+enum MembershipStatus {
+  live
+  pending
+}
+
+enum PaymentStatus {
+  pending
+  processing
+  successful
+  failed
+  cancelled
+  refunded
+  disputed
+}
+
+enum DocumentType {
+  privacy_policy
+  terms_and_conditions
+}
+
+enum ModerationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum AuditActorType {
+  executive
+  admin
+}
+
+enum VerificationStatus {
+  pending
+  approved
+  rejected
+}
+
+// ── Tables ─────────────────────────────────────────────────────────
+
+model User {
+  id               String           @id @default(uuid()) @db.Uuid
+  fullName         String           @map("full_name")
+  email            String           @unique
+  passwordHash     String?          @map("password_hash") // null for accounts not yet fully registered
+  registrationType RegistrationType @map("registration_type")
+  matricNumber     String?          @map("matric_number")
+  jambNumber       String?          @map("jamb_number")
+  matricStatus     MatricStatus?    @map("matric_status")
+  faculty          String
+  department       String
+  level            String
+  emailVerified    Boolean          @default(false) @map("email_verified")
+  verificationToken String?         @unique @map("verification_token")
+  mfaEnabled       Boolean          @default(false) @map("mfa_enabled")
+  mfaSecret        String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  deletedAt        DateTime?        @map("deleted_at")
+
+  // Relations
+  memberships           Membership[]
+  payments              Payment[]
+  referralsGiven        Referral[]        @relation("Referrer")
+  referralsReceived     Referral[]        @relation("ReferredUser")
+  announcementReads     AnnouncementRead[]
+  eventRsvps            EventRsvp[]
+  executiveRoles        AssociationExecutive[]
+  verificationRequests  VerificationRequest[]
+  aiQueryLogs           AiQueryLog[]
+  aiDocumentsSubmitted  AiDocument[]      @relation("Submitter")
+  legalAcceptances      LegalAcceptance[]
+  refreshTokenFamilies  RefreshTokenFamily[]
+
+  @@map("users")
+}
+
+model Association {
+  id             String            @id @default(uuid()) @db.Uuid
+  name           String
+  shortCode      String            @unique @map("short_code")
+  faculty        String
+  whatsappNumber String            @map("whatsapp_number")
+  status         AssociationStatus @default(active)
+  transparency   Json?             // president-editable "where dues go" breakdown
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  // Relations
+  executives       AssociationExecutive[]
+  memberships      Membership[]
+  fees             Fee[]
+  announcements    Announcement[]
+  events           Event[]
+  aiDocuments      AiDocument[]
+  verificationRequests VerificationRequest[]
+
+  @@map("associations")
+}
+
+model AssociationExecutive {
+  id            String        @id @default(uuid()) @db.Uuid
+  userId        String?       @map("user_id") @db.Uuid // nullable — separate exec accounts per docs/data-model.md
+  associationId String        @map("association_id") @db.Uuid
+  role          ExecutiveRole
+  mfaEnabled    Boolean       @default(false) @map("mfa_enabled") // must be true before usable — security.md
+  mfaSecret     String?       @map("mfa_secret") // TOTP secret
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  // Relations
+  user         User?         @relation(fields: [userId], references: [id])
+  association  Association   @relation(fields: [associationId], references: [id])
+  announcements Announcement[]
+  eventsCreated Event[]      @relation("EventAuthor")
+  receiptVerified Receipt[]
+  verificationReviews VerificationRequest[] @relation("Reviewer")
+
+  @@unique([userId, associationId])
+  @@map("association_executives")
+}
+
+model Membership {
+  id            String           @id @default(uuid()) @db.Uuid
+  userId        String           @map("user_id") @db.Uuid
+  associationId String           @map("association_id") @db.Uuid
+  status        MembershipStatus @default(pending)
+  joinedAt      DateTime         @default(now()) @map("joined_at")
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  association Association @relation(fields: [associationId], references: [id])
+
+  @@unique([userId, associationId])
+  @@map("memberships")
+}
+
+model VerificationRequest {
+  id                  String             @id @default(uuid()) @db.Uuid
+  userId              String             @map("user_id") @db.Uuid
+  associationId       String             @map("association_id") @db.Uuid
+  documentStorageRef  String             @map("document_storage_ref") // GCS object path — private bucket
+  documentOriginalName String            @map("document_original_name")
+  documentMimeType    String             @map("document_mime_type")
+  status              VerificationStatus @default(pending)
+  reviewedBy          String?            @map("reviewed_by") @db.Uuid
+  reviewedAt          DateTime?          @map("reviewed_at")
+  rejectionReason     String?            @map("rejection_reason")
+  createdAt           DateTime           @default(now()) @map("created_at")
+
+  // Relations
+  user        User                  @relation(fields: [userId], references: [id])
+  association Association            @relation(fields: [associationId], references: [id])
+  reviewer    AssociationExecutive?  @relation("Reviewer", fields: [reviewedBy], references: [id])
+
+  @@index([userId])
+  @@index([associationId, status])
+  @@map("verification_requests")
+}
+
+model Fee {
+  id            String   @id @default(uuid()) @db.Uuid
+  associationId String   @map("association_id") @db.Uuid
+  name          String
+  amountKobo    Int      @map("amount_kobo") // integer minor units, never float
+  currency      String   @default("NGN")
+  dueDate       DateTime @map("due_date") @db.Date
+  session       String   // e.g. "2026/2027"
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  association Association @relation(fields: [associationId], references: [id])
+  payments    Payment[]
+
+  @@map("fees")
+}
+
+model Payment {
+  id                String        @id @default(uuid()) @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  feeId             String        @map("fee_id") @db.Uuid
+  amountKobo        Int           @map("amount_kobo") // snapshot at payment time
+  status            PaymentStatus @default(pending)
+  gatewayReference  String?       @unique @map("gateway_reference")
+  internalReference String        @unique @map("internal_reference")
+  method            String?       // card / bank transfer / USSD from gateway
+  paidAt            DateTime?     @map("paid_at")
+  refundedAt        DateTime?     @map("refunded_at")
+  refundReason      String?       @map("refund_reason")
+  disputeReference  String?       @map("dispute_reference")
+  rankAtPayment     Int?          @map("rank_at_payment")
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id])
+  fee     Fee      @relation(fields: [feeId], references: [id])
+  receipt Receipt?
+
+  @@map("payments")
+}
+
+model Receipt {
+  id                     String    @id @default(uuid()) @db.Uuid
+  paymentId              String    @unique @map("payment_id") @db.Uuid
+  receiptNumber          String    @unique @map("receipt_number")
+  qrPayload              String    @map("qr_payload") // signed/verifiable payload, not just display
+  issuedAt               DateTime  @default(now()) @map("issued_at")
+  verifiedByExecutiveId  String?   @map("verified_by_executive_id") @db.Uuid
+  verifiedAt             DateTime? @map("verified_at")
+
+  // Relations
+  payment           Payment                @relation(fields: [paymentId], references: [id])
+  verifiedByExecutive AssociationExecutive? @relation(fields: [verifiedByExecutiveId], references: [id])
+
+  @@map("receipts")
+}
+
+model Announcement {
+  id                 String   @id @default(uuid()) @db.Uuid
+  associationId      String   @map("association_id") @db.Uuid
+  authorExecutiveId  String   @map("author_executive_id") @db.Uuid
+  title              String
+  body               String
+  pinned             Boolean  @default(false)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  // Relations
+  association Association          @relation(fields: [associationId], references: [id])
+  author      AssociationExecutive @relation(fields: [authorExecutiveId], references: [id])
+  reads       AnnouncementRead[]
+
+  @@map("announcements")
+}
+
+model AnnouncementRead {
+  announcementId String   @map("announcement_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  readAt         DateTime @default(now()) @map("read_at")
+
+  // Relations
+  announcement Announcement @relation(fields: [announcementId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@id([announcementId, userId])
+  @@map("announcement_reads")
+}
+
+model Event {
+  id            String   @id @default(uuid()) @db.Uuid
+  associationId String   @map("association_id") @db.Uuid
+  authorExecutiveId String @map("author_executive_id") @db.Uuid
+  title         String
+  description   String
+  location      String
+  eventDate     DateTime @map("event_date")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  // Relations
+  association Association          @relation(fields: [associationId], references: [id])
+  author      AssociationExecutive @relation("EventAuthor", fields: [authorExecutiveId], references: [id])
+  rsvps       EventRsvp[]
+
+  @@map("events")
+}
+
+model EventRsvp {
+  eventId String   @map("event_id") @db.Uuid
+  userId  String   @map("user_id") @db.Uuid
+  rsvpAt  DateTime @default(now()) @map("rsvp_at")
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+
+  @@id([eventId, userId])
+  @@map("event_rsvps")
+}
+
+model Referral {
+  id              String    @id @default(uuid()) @db.Uuid
+  referrerId      String    @map("referrer_id") @db.Uuid
+  referredUserId  String?   @unique @map("referred_user_id") @db.Uuid // set only on actual signup
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  referrer       User  @relation("Referrer", fields: [referrerId], references: [id])
+  referredUser   User? @relation("ReferredUser", fields: [referredUserId], references: [id])
+
+  @@map("referrals")
+}
+
+model AdminAccount {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  mfaEnabled   Boolean  @default(false) @map("mfa_enabled") // must be true before login
+  mfaSecret    String?  @map("mfa_secret") // TOTP secret
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("admin_accounts")
+}
+
+model AuditLog {
+  id         String          @id @default(uuid()) @db.Uuid
+  actorType  AuditActorType  @map("actor_type")
+  actorId    String          @map("actor_id") @db.Uuid
+  action     String          // e.g. "announcement.created", "association.suspended"
+  targetType String?         @map("target_type")
+  targetId   String?         @map("target_id") @db.Uuid
+  ipAddress  String          @map("ip_address")
+  metadata   Json?           // before/after values, freeform
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  @@index([actorType, actorId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model AiDocument {
+  id               String           @id @default(uuid()) @db.Uuid
+  sourceType       String           @map("source_type") // past_question, handout
+  courseCode       String?          @map("course_code")
+  associationId    String?          @map("association_id") @db.Uuid
+  contentChunk     String           @map("content_chunk")
+  embedding        Unsupported("vector(1536)")? // pgvector — Ollama embeddings
+  moderationStatus ModerationStatus @default(pending) @map("moderation_status")
+  submittedByUserId String?         @map("submitted_by_user_id") @db.Uuid
+  createdAt        DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  association Association? @relation(fields: [associationId], references: [id])
+  submitter   User?        @relation("Submitter", fields: [submittedByUserId], references: [id])
+
+  @@map("ai_documents")
+}
+
+model AiQueryLog {
+  id                    String    @id @default(uuid()) @db.Uuid
+  userId                String    @map("user_id") @db.Uuid
+  queryText             String    @map("query_text")
+  responseText          String    @map("response_text")
+  retrievedDocumentIds  String[]  @map("retrieved_document_ids") @db.Uuid
+  createdAt             DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("ai_query_logs")
+}
+
+model LegalAcceptance {
+  id              String       @id @default(uuid()) @db.Uuid
+  userId          String       @map("user_id") @db.Uuid
+  documentType    DocumentType @map("document_type")
+  documentVersion String       @map("document_version") // e.g. "1.0"
+  acceptedAt      DateTime     @default(now()) @map("accepted_at")
+  ipAddress       String       @map("ip_address")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, documentType, documentVersion])
+  @@map("legal_acceptances")
+}
+
+// ── Refresh token rotation ──────────────────────────────────────
+
+model RefreshTokenFamily {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokens RefreshToken[]
+
+  @@map("refresh_token_families")
+}
+
+model RefreshToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  familyId   String    @map("family_id") @db.Uuid
+  tokenHash  String    @map("token_hash") // SHA-256 of the JWT refresh token
+  used       Boolean   @default(false)
+  replacedBy String?   @map("replaced_by") @db.Uuid
+  expiresAt  DateTime  @map("expires_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  family RefreshTokenFamily @relation(fields: [familyId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
