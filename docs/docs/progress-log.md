@@ -40,6 +40,12 @@ Entry format:
   backend image) + `scripts/deploy.sh` — idempotent: prerequisites check, postgres/redis up,
   `prisma migrate deploy`, build+start the stack, `/health` wait. Compose YAML validated; the
   script itself is **written but not executed** (this box has no Docker).
+- **Post-review fixes applied:** email HTML now escapes all interpolated values (reason,
+  student name, association name); notifications are fire-and-forget so a stalled Resend can
+  never hang an approve/reject request; CI drift gate replaced with a real `pgvector` Postgres
+  service + `prisma migrate diff --from-migrations --exit-code` (future-proof for later
+  migrations); CI smoke test boots the image against a real Postgres (PrismaService connects at
+  boot); dashboard/admin CI lint aligned to the locally verified `npx eslint src`.
 
 **Next:** push to GitHub (needs a registered SSH key) so CI actually runs; provision Docker on
   the target VM and run `scripts/deploy.sh`; then the Tier 1 remainder (Paystack keys, GCS
