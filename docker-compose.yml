@@ -1,0 +1,112 @@
+# Matriq — Docker Compose (development / single-VM)
+# Per infrastructure.md: single GCP VM, all services containerized.
+# Only caddy binds to a public interface. Everything else is internal.
+
+services:
+  # ── Reverse proxy (the only service with an external port) ──
+  caddy:
+    image: caddy:2-alpine
+    container_name: matriq-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - matriq-net
+    depends_on:
+      - backend
+
+  # ── NestJS Backend API ──
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: matriq-backend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-matriq}:${POSTGRES_PASSWORD:?err}@postgres:5432/${POSTGRES_DB:-matriq}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET:?err}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:?err}
+      - RESEND_API_KEY=${RESEND_API_KEY:?err}
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-nemotron-3-super:cloud}
+      - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY:-}
+    expose:
+      - "3000" # internal only — caddy routes via Docker network
+    networks:
+      - matriq-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── PostgreSQL + pgvector ──
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: matriq-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-matriq}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
+      - POSTGRES_DB=${POSTGRES_DB:-matriq}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - matriq-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-matriq} -d ${POSTGRES_DB:-matriq}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis (cache + BullMQ queue) ──
+  redis:
+    image: redis:7-alpine
+    container_name: matriq-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - matriq-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ── Ollama model server (internal network only — never exposed publicly) ──
+  ollama:
+    image: ollama/ollama:latest
+    container_name: matriq-ollama
+    restart: unless-stopped
+    # No ports published — reachable only within the Docker network
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - matriq-net
+    # Start with no model pulled; pull on first use or via init script
+    # CPU-only by default; add `deploy.resources.reservations.devices` for GPU
+
+networks:
+  matriq-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  ollama_data:
+  caddy_data:
+  caddy_config:

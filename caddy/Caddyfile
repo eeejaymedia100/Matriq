@@ -1,0 +1,26 @@
+# Caddy reverse proxy — terminates TLS, routes to backend
+# Per security.md: TLS 1.3, HTTPS only. The only service binding to public ports.
+
+:443 {
+    # tls directive will be filled in when DOMAIN is available
+    # tls {$DOMAIN}
+
+    reverse_proxy backend:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}
+
+# HTTP -> HTTPS redirect
+:80 {
+    redir https://{host}{uri} permanent
+}

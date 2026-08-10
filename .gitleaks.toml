@@ -1,0 +1,16 @@
+# Matriq — gitleaks configuration for CI secret scanning
+# Detects secrets accidentally committed to the repo.
+
+title = "Matriq gitleaks config"
+
+# Allow .env.example as it contains template values, not real secrets
+[allowlist]
+  paths = [
+    '''\.env\.example$''',
+    '''\.claude/.*''',
+  ]
+  description = "Allow .env.example (templates only) and Claude config files"
+
+# Default rules are sufficient — enable all built-in detectors
+[extend]
+  useDefault = true

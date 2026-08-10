@@ -1,0 +1,647 @@
+# Progress Log
+
+**Read this first at the start of every session. Update it before ending every session.**
+Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
+understand "what happened since I last looked" in under a minute.
+
+Entry format:
+```
+## YYYY-MM-DD — Phase N — [short title]
+**Status:** on track / blocked / needs human input
+**Did:** what actually got done this session
+**Next:** the next concrete step, specific enough to start from cold
+**Blockers/flags:** anything a human needs to weigh in on before work continues
+```
+
+## 2026-08-10 — Phase 5 — Admin console hardened: httpOnly sessions + MFA login
+
+**Status:** on track
+
+**Did:**
+- **Backend — enforced MFA on admin login.** `AdminAccount.mfaEnabled` had "must be true
+  before login" in the schema but login ignored it. Now enforced: admin login returns
+  `{ mfaRequired: true, challengeToken }` (5-minute, single-purpose JWT) instead of a token
+  when MFA is enabled, and `POST /v1/admin/auth/mfa/challenge` (`{ challengeToken, code }`)
+  verifies the TOTP before issuing the access token. Added enrollment/verify/disable/status
+  endpoints and `GET /v1/admin/auth/me`. 12 new admin tests (suite now **102 tests / 13
+  suites green**, lint + typecheck clean).
+- **Admin console (`admin/`) — localStorage JWT replaced with httpOnly-cookie session and
+  two-step MFA login:** `src/lib/session.ts`, `middleware.ts`, 4 API routes
+  (`/api/auth/{login,challenge,logout,session}`), a client `SessionProvider`, a two-step
+  login page (password → MFA code), and `AdminLayout` + all 4 pages read the session context
+  instead of localStorage. Lint warnings in the pages fixed (missing hook deps, unused
+  `loading`) and a loading skeleton added to the associations page. Production `next build`
+  succeeds.
+
+This closes the last documented Phase 5 gap: **both web dashboards now use server-side
+sessions, and both enforce MFA for the accounts that require it.**
+
+**Next:** Deploy the backend so both dashboards + the APK have a real API.
+
+## 2026-08-10 — Phase 5 — Dashboard auth hardening: httpOnly sessions + MFA login
+
+**Status:** on track
+
+**Did:**
+- **Backend — two-step MFA login.** `POST /v1/auth/login` now returns
+  `{ mfaRequired: true, challengeToken }` (5-minute, single-purpose JWT) instead of tokens
+  when the account has MFA enabled; `POST /v1/auth/mfa/challenge` (`{ challengeToken, code }`)
+  verifies the TOTP and issues the real token pair. Enrollment endpoints unchanged. 6 new tests
+  (suite now **90 tests / 13 suites green**, lint + typecheck clean).
+- **Backend — `/v1/me` now returns `executive: [{ id, associationId, role, associationName,
+  shortCode }]`** for every association the user is an executive of — powers the dashboard's
+  auto association-detection.
+- **Dashboard (`dashboard/`) — localStorage JWT replaced with httpOnly-cookie sessions:**
+  `src/lib/session.ts` (JWT sign/verify helpers), `middleware.ts` (route protection), 5 API
+  routes (`/api/auth/{login,challenge,refresh,logout,session}`), a client `SessionProvider`,
+  a two-step login page (password → MFA code), and `DashboardLayout` now reads the session
+  context (executive roles + association picker). All 4 pages wired to the session context.
+  Production `next build` succeeds.
+- **Mobile — MFA-aware login:** `AuthContext` + `LoginScreen` now handle the
+  `{ mfaRequired, challengeToken }` response with a second code-entry step, so MFA-enabled
+  accounts aren't locked out. Typecheck + Android bundle clean.
+- **Admin (`admin/`) — lint cleanup** (missing hook deps, unused `loading`), plus a proper
+  loading skeleton on the associations page.
+
+**Next:** Apply the same httpOnly-session hardening to the admin console (still localStorage
+JWT), then deploy the backend so both dashboards + the APK have a real API.
+
+## 2026-08-10 — Phase 4 — AI Study Companion wired to a real LLM (Ollama)
+
+**Status:** on track
+
+**Did:**
+- `backend/src/ai/ai.service.ts` now calls the self-hosted Ollama model for real answers
+  instead of returning the Phase-4 placeholder. Retrieval → grounded prompt → LLM flow per
+  `docs/ai-model.md`:
+  - Reads `OLLAMA_HOST` (default `http://localhost:11434`) and `OLLAMA_MODEL` (default
+    `nemotron-3-super:cloud` — the model registered on the VM's Ollama) from env via
+    `ConfigService`. Added both to `docker-compose.yml` and `.env.example`.
+  - Builds a system prompt + retrieved-context user prompt, POSTs to `{host}/api/chat` with
+    `stream:false`, a 45s AbortController timeout, and response sanitization (HTML-tag strip,
+    length cap) before storing/returning.
+  - **Graceful degradation:** if Ollama is unreachable/times out/errors, falls back to a
+    placeholder so the endpoint never hard-fails (logs a warning; no user-visible breakage).
+- Live-verified against the running Ollama (`backend/scripts/smoke-ollama.js`): the model
+  correctly answered a grounded question using provided study-material context (PASS).
+- Tests: rewrote `ai.service.spec.ts` with ConfigService + `global.fetch` mocks — 9 tests
+  covering real-LLM response, context inclusion in the prompt, both fallback paths, and HTML
+  sanitization. Full backend suite now **83 tests / 13 suites green**, lint + typecheck clean.
+
+**Next:** Pull/register a local embedding model (`nomic-embed-text`) and wire pgvector
+similarity search for retrieval (blocked on a running Postgres). Deploy the backend so the
+mobile APK can hit `/ai/query` for real.
+
+**Blockers/flags:**
+- Model inference for `nemotron-3-super:cloud` happens on Ollama's cloud (proxied by local
+  Ollama) — no local GPU/RAM cost, but a network dependency. If fully self-hosted inference is
+  required, pull a small local model (e.g. `llama3.2:3b`) instead; this VM's 3.8GB RAM will
+  make it slow but usable.
+- Docker is not installed on the VM, so the compose stack (Postgres/Redis/Caddy) is still not
+  running — end-to-end API testing from a phone remains blocked until Docker (or a native
+  Postgres) is provisioned.
+
+## 2026-08-10 — Phase 2 — Skeleton loading UI (YouTube-style) across all 7 data screens
+
+**Status:** on track
+
+**Did:**
+- Built a reusable skeleton loading system in `mobile/src/components/`:
+  - `Skeleton.tsx` — pulsing placeholder block (`Skeleton`, `SkeletonCircle`, `SkeletonText`,
+    `SkeletonCard`). **All blocks share ONE Animated.Value + one native animation loop**
+    (ref-counted start/stop), so a whole screen costs a single native animation — right for
+    low-end devices on slow networks. Respects the OS "reduce motion" setting (static blocks),
+    and blocks are hidden from screen readers (`accessible={false}`).
+  - `SkeletonScreens.tsx` — screen-shaped layouts that mirror the real content: `DashboardSkeleton`
+    (header, verification banner, membership card, 7 quick actions, dues rows), `ListScreenSkeleton`
+    (title + card rows, used by Announcements/Events/Dues), `ReferralsSkeleton`, `ReceiptSkeleton`,
+    `VerificationStatusSkeleton`.
+- Wired skeletons into all 7 screens that previously showed a bare spinner: Dashboard,
+  Announcements, Events, Referrals, FeeDetails, Receipt, VerificationStatus.
+  `LoadingScreen` kept for ReceiptScreen's "not found" state and auth flows.
+- **CI:** mobile tsc ✓, `expo export --platform android` ✓ (bundle builds).
+- Rebuilt the APK with the new skeletons (incremental `assembleRelease`, running in tmux).
+
+**Next:**
+- Confirm the rebuilt `matriq-student.apk` and copy to repo root.
+- (Existing next steps unchanged: sideload + point `extra.apiUrl` at a real backend; push to
+  GitHub; wire next-auth + MFA for the web dashboards; pull an Ollama model for Phase 4.)
+
+**Blockers/flags:** none.
+
+---
+
+## 2026-08-10 — Phase 2 — Android APK built successfully + configurable API URL
+
+**Status:** on track — APK ready to sideload
+
+**Did:**
+- Completed the incremental APK build (updated with configurable API URL): `./gradlew assembleRelease`
+  → **BUILD SUCCESSFUL in 6m 2s** (53 exec, 334 cached).
+- **Fixed the OOM killer** that had crashed the first build. Fixes:
+  - Added 8GB second swap file (`/swapfile2`, 9.6GB total)
+  - Restricted to `arm64-v8a` (single ABI, ~95% device coverage)
+  - Lowered Gradle JVM heap to 1536m, disabled parallel, capped 2 workers
+- **API URL now configurable at build time** via `app.json` `extra.apiUrl`. The `api/client.ts`
+  reads from `Constants.expoConfig?.extra?.apiUrl` (via `expo-constants`), falling back to the
+  current dev/production defaults. This means you can change the backend URL the APK connects to
+  without editing source code — just change `app.json` and rebuild.
+- **CI verified:** backend lint ✓, typecheck ✓, 79 tests ✓; dashboard tsc ✓; admin tsc ✓;
+  mobile tsc ✓.
+
+**APK verification:**
+- Signed with Android Debug cert — installable via sideload (`adb install` or direct download)
+- Package: `app.matriq.mobile`, versionName 0.1.0 (versionCode 1)
+- 31.4MB, Hermes engine, arm64-v8a native libs, 3 DEX files, 1185 total files
+- `apksigner verify` passes
+
+**APK location:** `/home/akpevwejulius1/matriq/matriq-student.apk`
+
+**Next:**
+- Sideload on a real device — use `adb install matriq-student.apk` or transfer via cloud download
+- Before installing, set `app.json` `extra.apiUrl` to your actual backend URL and rebuild
+- Push repo to GitHub to trigger CI
+
+## 2026-08-10 — Phase 2 — Android APK built successfully (first installable build)
+
+**Status:** on track — APK done
+
+**Did:**
+- **Completed the local Android build** that was in progress last session:
+  `./gradlew assembleRelease` → **BUILD SUCCESSFUL in 50m 46s**, 387 tasks (343 executed,
+  44 up-to-date).
+- **Fixed the OOM killer that had crashed the first build attempt** (Gradle daemon
+disappeared). Root cause: 3.8GB RAM + 4GB swap exhausted while building all 4 ABIs.
+  Fixes applied:
+  - Added an 8GB second swap file (`/swapfile2`, persisted in `/etc/fstab`) → 9.6GB total swap
+  - Restricted `reactNativeArchitectures` to **arm64-v8a only** in `gradle.properties`
+    (single-ABI build, ~4× less native compile work; covers ~95% of modern devices)
+  - Lowered `org.gradle.jvmargs` to `-Xmx1536m`, disabled `org.gradle.parallel`,
+    capped workers at 2
+- **APK verified:** `mobile/matriq-student.apk` (also copied to repo root) — 31.4MB,
+  package `app.matriq.mobile`, versionName 0.1.0 (versionCode 1), targetSdk 36,
+  label "Matriq". Signed with the Android debug keystore (installable). Contains
+  Hermes engine, arm64-v8a native libs (libreactnative, libhermesvm, expo-modules-core,
+  codegen for screens/svg/safe-area), 3 DEX files, 1185 total files. `apksigner verify`
+  passes.
+- **CI re-verified after all changes:** backend lint ✓, typecheck ✓, **79 tests ✓**;
+  dashboard typecheck ✓; admin typecheck ✓.
+
+**What's real vs. scaffolded (per production-directive.md §25):**
+- The APK is a real, installable Android build of the Matriq student app.
+- Signed with the debug key — fine for sideloading/testing; Play Store requires an
+  upload key + EAS Build (`eas.json` already configured with a preview profile).
+- arm64-v8a only — a Play-ready AAB should include all ABIs (build via EAS).
+- The `android/` native project is generated by `expo prebuild` and gitignored.
+
+**Next:**
+- Sideload `matriq-student.apk` on a real device (`adb install` or direct download).
+- Configure the backend API base URL for production (currently localhost default in
+  `mobile/src/api/client.ts` — needs the real `api.<domain>` endpoint).
+- Push repo to GitHub so backend CI runs on push.
+- Long-term: EAS Build for Play-ready signed AABs with all ABIs.
+
+**Blockers/flags:**
+- No Android device connected to this VM for install testing.
+- Real production signing key + Play Console account required for store release.
+
+## 2026-08-09 — Phase 2 — Mobile app dependencies fixed + first local Android APK build
+
+**Status:** on track
+
+**Did:**
+- **Mobile deps installed** (the long-standing blocker): all 10 packages now present —
+  `@react-navigation/*` (native, native-stack, bottom-tabs), `react-native-screens`,
+  `react-native-safe-area-context`, `expo-secure-store`, `@tanstack/react-query`,
+  `react-native-svg`, `expo-image-picker`, `expo-document-picker`. Also installed
+  `expo-splash-screen` and re-pinned safe-area-context/screens/svg to SDK-57-compatible
+  versions via `npx expo install`.
+- **Fixed 16 mobile type errors** that were blocking compilation:
+  - Syntax error in `Register*Screen` props (`navigate: (screen: string);` → `=> void`)
+  - `PayFeeScreen`/`ReceiptScreen` now use `NativeStackScreenProps` + typed navigation
+    param lists (new `src/navigation/types.ts`)
+  - `checkoutUrl` added to mobile `Payment` type (backend `initiate` returns it)
+  - `AuthContext` now stores the full `User` profile (fixes ProfileScreen fields)
+  - `Card` children optional (ReferralsScreen stat cards)
+  - Removed broken `colors as Record<string,string>` casts in VerificationStatusScreen
+    (colors already has `warning`/`warningBg`)
+- **Fixed runtime navigation bugs** in DashboardScreen: quick actions pointed at
+  non-existent routes (`FeeDetails`, `PaymentHistory`, `AiCompanion`) → now correct
+  tab names (`Fees`, `Fees`, `AI`).
+- **VerificationUploadScreen is now REAL**: wired `expo-image-picker` (camera + gallery,
+  permission requests), removed the dead "Bearer TODO" fetch scaffold, uploads via
+  `AuthContext.uploadVerification` (multipart FormData), which now uses the shared
+  `API_BASE` instead of a hardcoded `10.0.2.2` URL.
+- **app.json fixed for SDK 57**: removed invalid `splash` field, added
+  `expo-splash-screen` plugin, fixed adaptive icon path to the real asset files,
+  added `expo-image-picker` plugin with permission strings. `expo-doctor` now passes
+  **20/20 checks**.
+- **`expo export --platform android` succeeds** — Android bundle (916 modules, 2.2MB hbc)
+  builds clean.
+- **First local Android build attempt**: installed Android SDK cmdline-tools + platform 36
+  + build-tools 36 on this VM, ran `expo prebuild --platform android`, and kicked off
+  `./gradlew assembleRelease` in a persistent tmux session (build in progress at time of
+  writing). Release builds are signed with the debug keystore so the APK will be
+  installable.
+- **CI:** backend lint ✓, typecheck ✓, 79 tests ✓; mobile tsc ✓.
+
+**What's real vs. scaffolded (per production-directive.md §25):**
+- All mobile screens, navigation, API wiring, verification upload (real image picker) — real.
+- The `android/` native project is generated (`expo prebuild`) — real native code.
+- APK build is a local `assembleRelease` — see "Next" for how to ship it to a phone.
+- Backend document storage still the base64 data-URI scaffold (GCS signed URLs pending).
+
+**Next:**
+- Finish the Gradle build; copy `app-release.apk` to a reachable path for download.
+- `adb install` / side-load the APK on a real device.
+- Push repo to GitHub (backend CI runs on push).
+- Long-term: EAS Build (`eas build -p android --profile preview`) for signed Play-ready
+  AABs — `eas.json` is already configured.
+
+**Blockers/flags:**
+- VM has only 3.8GB RAM — Gradle builds are slow and risk OOM; builds must run in tmux.
+- Real APK needs a phone for install testing; no device connected to this VM.
+
+## 2026-08-09 — Phase 2 — Mobile verification screens + dashboard updates
+
+**Status:** on track
+
+**Did:**
+- **VerificationUploadScreen** — camera/gallery document picker UI, membership check, FormData
+  multipart upload to `POST /v1/me/verification/upload`. Designed for `expo-image-picker` 
+  (camera + gallery) — scaffolded with simulated picker that walks through the full flow.
+- **VerificationStatusScreen** — pending/approved/rejected status card with color-coded states,
+  rejection reason display, submission history list, refresh-to-refetch, "Re-submit" button when
+  rejected. Wired to `GET /v1/me/verification`.
+- **DashboardScreen updated** — yellow verification banner at top when `matricStatus === "provisional"`,
+  "✓ Verified" or "Provisional" badge in membership card, new "Verify ID" quick action button.
+- **RegisterStayliteScreen** — fixed stray `Alert` import, added subtitle explaining provisional
+  status, updated success message to prompt document upload.
+- **AppNavigator** — added `VerificationUpload` and `VerificationStatus` screens to MainStack.
+- **AuthContext** — added `uploadVerification(associationId, fileUri, fileName)` and
+  `getVerificationStatus()` methods; `login()` now fetches full profile for `matricStatus`.
+- **Mobile types updated** — removed `portalVerified`, added `matricStatus`, `jambNumber`,
+  `VerificationRequest` type.
+- **CI:** backend lint ✓, typecheck ✓, 79 tests ✓; dashboard typecheck ✓; admin typecheck ✓.
+
+**What's real vs. scaffolded:**
+- Screen layout, navigation, API wiring, auth integration — all real.
+- `expo-image-picker` not installed — camera/gallery buttons show Alert explaining the production
+  flow but don't open native pickers yet. `npm install expo-image-picker expo-document-picker`
+  needed.
+- FormData multipart upload is coded but untested (requires a running backend + real file).
+
+**Next:**
+- `npm install` in `mobile/` to get all dependencies (navigation, secure-store, image-picker).
+- Configure EAS Build for Android APK generation.
+- Push to GitHub.
+
+**Blockers/flags:**
+- Mobile packages not installed (connectivity issue on GCP VM — retry with better network).
+
+## 2026-08-09 — Phase 5 — Association Dashboard + Admin Console scaffolded (Next.js)
+
+**Status:** on track
+
+**Did:**
+- **Association Dashboard** (`dashboard/`) — Next.js + TypeScript + Tailwind:
+  - Login page with JWT token storage
+  - Dashboard overview: stats cards (members, collected, payment rate), top payers, quick actions
+  - Verification review: list pending/approved/rejected, view document modal, approve button,
+    reject with required reason textarea, all wired to backend verification endpoints
+  - Announcements: list with pinned-first ordering, composer (title, body, pin toggle)
+  - Transparency: president-only JSON editor for "where dues go" breakdown
+  - Shared layout with purple-themed nav (Overview, Verification, Announcements, Transparency)
+- **Admin Console** (`admin/`) — Next.js + TypeScript + Tailwind:
+  - Dark-themed login page against `POST /v1/admin/auth/login`
+  - Dashboard: cross-association stats, revenue overview table
+  - Associations: CRUD table, creation form, suspend/reactivate toggle
+  - Analytics: revenue by association, total stats
+  - Audit Logs: paginated table viewer with actor, action, target, IP, timestamp
+  - Shared dark-themed layout (Dashboard, Associations, Analytics, Audit Logs)
+- **CI:** backend lint ✓, typecheck ✓, 79 tests ✓; dashboard typecheck ✓; admin typecheck ✓
+
+**What's real vs. scaffolded:**
+- All pages are real React components with loading/error states.
+- API calls are real fetch requests to the backend endpoints.
+- Auth is real: JWT token stored in localStorage, sent in Authorization header.
+- **Not yet done:** session-based auth with httpOnly cookies (currently using Bearer JWT from localStorage — the architecture doc calls for httpOnly cookies for the web dashboards; this is a scaffold compromise until next-auth is wired up).
+- **Not yet done:** Executive MFA enforcement on the dashboard login (currently no MFA prompt).
+- **Not yet done:** association detection (dashboard currently needs the associationId manually — the login flow should detect which association the executive belongs to and scope accordingly).
+
+**Next:**
+- Wire `next-auth` for session-based auth (httpOnly cookies) replacing localStorage JWT.
+- Add MFA flow to Association Dashboard login.
+- Auto-detect executive's association on login.
+- Continue building mobile app screens (the student-facing verification upload flow).
+- Push to GitHub.
+
+**Blockers/flags:** none.
+
+## 2026-08-09 — Phase 1 — Identity verification overhaul (document upload + executive review)
+
+**Status:** on track
+
+**Did:**
+- **Decision finalized:** portal password collection removed entirely from both Staylite and
+  Fresher paths. No portal password field exists anywhere in the system.
+- **New model:** both paths now start as `matric_status = provisional`. Student uploads a
+  verification document (student ID photo or portal screenshot). Document enters a review queue
+  for the association's executives (Treasurer/President/P.R.O. — any can review). Executive
+  approves (flips to `confirmed`) or rejects (student re-submits).
+- **Documentation updated:**
+  - `docs/onboarding-flows.md` — fully rewritten, no portal password fields, document upload
+    flow described for both paths
+  - `docs/data-model.md` — removed `portal_verified` from `users`; added `verification_requests`
+    table (GCS-backed document storage via signed URLs, status tracking, reviewed_by FK to
+    association_executives)
+  - `docs/backend-api.md` — removed portal-password fields from staylite registration; added
+    six new endpoints under "Identity Verification" section (upload, list, view document, approve,
+    reject, own status)
+  - `docs/mobile-app.md` — updated Identity Bridge row, removed password references
+  - `security.md` — updated fresher/provisional section to reflect both paths start provisional
+  - `docs/compliance-privacy.md` — added verification document storage disclosure
+  - `docs/legal/data-processing.md` — added "Identity verification document" row with
+    retention/access policy
+- **Backend code implemented and tested:**
+  - `VerificationRequest` model added to Prisma schema (with VerificationStatus enum)
+  - `portal_verified` field removed from User model
+  - `portalPassword` field removed from `RegisterStayliteDto`
+  - `VerificationService` — uploadDocument (membership-gated), getMyVerification, listRequests,
+    getDocument (data URI scaffold, production-ready for signed URL), approve (atomic: request +
+    user matric_status flipped), reject (with reason, audit-logged). All review actions are
+    association-scoped.
+  - `VerificationController` — 6 endpoints, executive ID extracted from JWT's executive roles
+  - `VerificationModule` wired into `AppModule`
+- **CI:** lint ✓, typecheck ✓, **79 tests across 13 suites** ✓ (8 new verification tests).
+
+**What's real vs. scaffolded (per production-directive.md §25):**
+- Verification document storage: scaffolded as inline base64 data URI. Production requires GCS
+  private bucket with signed-URL access.
+- Multer file upload: real, works with the `FileInterceptor`.
+- Executive RBAC enforcement on review endpoints: real (association-scoped via JWT executive
+  roles, association mismatch rejected).
+- Audit logging of approve/reject: real.
+- Student notification on approve/reject: not yet implemented (scaffold — needs push notification
+  service or email).
+
+**Next:** Part 2 — three-dashboard architecture split (Student mobile app, Association Dashboard
+web app, Admin Console separate Next.js app).
+
+**Blockers/flags:** none new.
+
+## 2026-08-09 — Phase 1→2 — Three-dashboard architecture split (docs only, no code)
+
+**Status:** decision recorded, code deferred to a later session
+
+**Did:**
+- **Decision finalized:** Student, Association, and Admin are three separate deployables with
+  genuinely separate codebases, auth models, and attack surfaces.
+- **Student** — the existing React Native/Expo mobile app. The only thing that ships to app
+  stores.
+- **Association Dashboard** — a separate Next.js web app (TypeScript). Session-based auth
+  (httpOnly, secure, sameSite cookie), MFA required. Reachable at `dashboard.<domain>`
+  (placeholder subdomain). Used by Treasurer/President/P.R.O.
+- **Admin Console** — a second, fully separate Next.js app. Its own deployment, its own
+  subdomain (`admin.<domain>`). Separate auth against `admin_accounts` table. Highest
+  privilege, smallest attack surface — no code path in the mobile app or Association Dashboard
+  leads to an admin route.
+- **Auth model differs by deployable:**
+  - Student: Bearer JWT (access + refresh), stored in `expo-secure-store`.
+  - Association Dashboard: session-based (httpOnly cookie), scoped to one association.
+  - Admin Console: session-based against `admin_accounts`, separate `ADMIN_JWT_SECRET`.
+- **Documentation updated:**
+  - `docs/architecture.md` — new three-deployable architecture diagram, auth model differences
+    documented
+  - `docs/tech-stack.md` — added Next.js row, updated summary table (Vercel deployment for
+    dashboards)
+  - `docs/infrastructure.md` — subdomain structure table (`api.<dom>`, `dashboard.<dom>`,
+    `admin.<dom>`), Caddy routing
+  - `docs/mobile-app.md` — clarified this is the Student app ONLY; removed Association/Admin
+    screen inventory sections; added verification upload screens
+  - `docs/data-model.md` — replaced open "Phase 1 decision" note with final auth model;
+    `association_executives` now documented as linked to student identity via `user_id` but
+    with session-based auth for the web dashboard
+
+**Next:**
+- Scaffold the Association Dashboard Next.js app (`npx create-next-app@latest dashboard`).
+- Scaffold the Admin Console Next.js app (`npx create-next-app@latest admin`).
+- Implement session-based auth with `next-auth`.
+- Implement the verification review UI (the executive-facing list/approve/reject screens).
+
+**Blockers/flags:** none.
+
+## 2026-08-09 — Phase 1→2 — MFA, Payments, AI Companion, Mobile App (React Native + Expo)
+
+**Status:** on track
+
+**Did:**
+- **MFA (TOTP):** `POST /v1/auth/mfa/enroll` (generates QR code + secret), `POST /v1/auth/mfa/verify`
+  (verifies and enables), `GET /v1/me/mfa-status`, `POST /v1/auth/mfa/disable`. Uses otplib v13.
+  Added `mfaSecret` field to User, AdminAccount, and AssociationExecutive models.
+- **Payments module:** `POST /v1/payments/initiate` (with Paystack integration, offline fallback),
+  `POST /v1/payments/webhook/paystack` (HMAC-SHA512 signature verification, the ONLY path
+  to mark payment `successful`), `GET /v1/payments/:id`, `GET /v1/payments/:id/receipt`,
+  `POST /v1/payments/:id/share-card`. Auto-generates receipts with signed QR payloads.
+  Membership-gated and association-scoped.
+- **AI Study Companion:** `POST /v1/ai/query` (keyword search + placeholder responses until
+  Ollama is wired in Phase 4), `GET /v1/ai/conversations` (cursor-paginated),
+  `POST /v1/ai/materials` (ingestion → `moderation_status = pending`). Query logging preserved.
+- **Mobile app initialized:** React Native + Expo (blank-typescript), complete project structure:
+  - `src/api/client.ts` — JWT-secured HTTP client with auto-refresh, token stored in `expo-secure-store`
+  - `src/contexts/AuthContext.tsx` — login, register (Staylite + Fresher), logout, session restore
+  - `src/theme/colors.ts` — full Matriq design system (light/dark tokens, typography, spacing, radii)
+  - **12 screens:** Welcome, Login, RegisterChoice, RegisterStaylite, RegisterFresher,
+    Dashboard (profile card, membership, quick actions, dues summary), FeeDetails/PaymentHistory,
+    PayFee (Paystack redirect), Receipt (signed QR, share), Announcements (pinned-first + read receipts),
+    Events (RSVP toggle), AICompanion (chat interface), Referrals (ambassador progress, share code),
+    Profile (edit, MFA setup, logout)
+  - `src/navigation/AppNavigator.tsx` — auth stack + 5-tab main navigator, auto-routing based on auth state
+  - Shared components: Button (4 variants, 3 sizes, loading), Input (label, error, password toggle),
+    Card (title, subtitle, shadow), LoadingScreen
+- **CI:** lint ✓, typecheck ✓, **71 tests across 12 suites** ✓.
+- Updated Prisma schema with `mfaSecret` on User, AdminAccount, AssociationExecutive.
+
+**Next:**
+- `npm install` in `mobile/` to finish dependency setup.
+- Configure EAS Build for Android APK generation.
+- Wire mobile app to a running backend for end-to-end testing.
+- Implement association browsing/joining in mobile app.
+- Push to GitHub.
+
+**Blockers/flags:**
+- npm install in mobile/ timed out (large Expo SDK download) — retry with better connectivity.
+- No Android SDK on the GCP VM — APK must be built via EAS Build cloud service.
+- Paystack secret key not configured — payments module falls back to offline mode.
+- Ollama not yet deployed — AI Companion returns placeholder responses.
+
+## 2026-08-09 — Phase 1 — Dashboard, admin module, refresh token rotation, associations, memberships, announcements, events, referrals, executive auth
+
+**Status:** on track
+
+**Did:**
+- **Refresh token rotation:** SHA-256 hashed token families in DB, replay-attack detection
+  (entire family revoked if a used token is presented), logout/logout-all endpoints.
+  19 tests for token lifecycle.
+- **Associations + Memberships:** `GET /v1/associations` (cursor-paginated), `GET /v1/associations/:id`,
+  `GET /v1/associations/:id/fees`, `POST/DELETE /v1/associations/:id/join|leave`,
+  `GET /v1/me/memberships`. Idempotent join with pending status.
+- **Announcements:** `GET/POST /v1/associations/:id/announcements`, `POST /v1/announcements/:id/read`,
+  `GET /v1/associations/:id/announcements/:id/reads`. Pinned-first ordering, exec-only create.
+- **Events:** `GET/POST /v1/associations/:id/events`, `POST /v1/events/:id/rsvp`.
+  RSVP toggle, exec-only create.
+- **Referrals:** `POST/GET /v1/me/referrals` with ambassador status (10+ conversions).
+- **Executive auth:** JWT payload enriched with executive roles from DB (no re-login on role
+  change), RolesGuard enforces `@Roles()` on write endpoints, ExecutivesService for scoping.
+- **Dashboard:** `GET /v1/associations/:id/dashboard` (stats, top payers, activity),
+  `GET /v1/associations/:id/activity`, `POST /v1/associations/:id/verify-receipt`
+  (association-scoped), `PATCH /v1/associations/:id/transparency` (president-only, persists
+  to new `transparency` JSON column on Association).
+- **Admin module:** completely separate `POST /v1/admin/auth/login` (AdminAccount table,
+  ADMIN_JWT_SECRET env var), `GET/POST /v1/admin/associations`,
+  `PATCH /v1/admin/associations/:id/status` (suspend/reactivate),
+  `GET /v1/admin/analytics` (cross-association revenue), `GET /v1/admin/audit-logs`,
+  `POST /v1/admin/auth/setup` (bootstrap). All admin CRUD audit-logged.
+- **Post-review fixes:** receipt verification scoped to association, transparency persisted,
+  admin CRUD audit-logged, separate ADMIN_JWT_SECRET, real IP in admin login.
+- Added `transparency` JSON column to Association model.
+- **CI:** lint ✓, typecheck ✓, **56 tests across 9 suites** ✓.
+
+**Next:**
+- MFA: `POST /v1/auth/mfa/enroll` + `POST /v1/auth/mfa/verify` (TOTP) for exec/admin.
+- Payments: `POST /v1/payments/initiate`, webhook, receipt generation.
+- AI Study Companion: query endpoint, ingestion pipeline.
+- Push to GitHub.
+
+**Blockers/flags:**
+- GCP Secret Manager still not configured.
+- Staylite portal verification mechanism still pending.
+- No payment gateway integrated yet (Paystack integration is Phase 3 per agenda).
+
+## 2026-08-09 — Phase 0→1 — CI green, Prisma schema, Auth module, RBAC, audit logging
+
+**Status:** on track
+
+**Did:**
+- Completed Phase 0 CI gap: created `.gitleaks.toml`, `.eslintrc.js`, `jest.config.js`.
+  All three CI checks now pass locally (lint, typecheck, 5 tests).
+- Installed Prisma ORM + created full database schema: all 17 tables from
+  `docs/data-model.md` including users, associations, executives, memberships, fees, payments,
+  receipts, announcements, events, referrals, admin_accounts, audit_logs, ai_documents,
+  ai_query_logs, legal_acceptances. Enums match the directive's full state machine.
+- Implemented Auth module: registration (Staylite + Fresher paths), login (Argon2id hashing),
+  JWT token generation (15m access + 7d refresh), token refresh, profile endpoint.
+  Legal acceptance recorded during registration (privacy policy + T&C version tracking).
+- Built RBAC foundation: JwtAuthGuard, RolesGuard, Roles decorator, CurrentUser param decorator.
+  Roles: student, president, treasurer, pro, admin.
+- Created AuditModule: fire-and-forget append-only audit logging for all admin/executive actions.
+- Global ValidationPipe with whitelist + forbidNonWhitelisted enabled.
+- 5 passing unit tests for AuthService (login failures, duplicate email, missing profile).
+
+**What's running:** Same — all Docker containers healthy on matriq-server.
+
+**Next:**
+- Push this commit to GitHub (CI will run automatically on push).
+- Write remaining Phase 1 endpoints: `GET /v1/me`, `PATCH /v1/me` profile endpoints,
+  association CRUD, membership endpoints.
+- Implement executive auth (separate from student auth per data-model recommendation).
+- Wire real IP capture for audit logs and legal acceptances (currently placeholder `0.0.0.0`).
+
+**Blockers/flags:**
+- GitHub push needs to happen (repo already exists at `git@github.com:eeejaymedia100/Matriq.git`).
+- Phase 1 decision still pending: Staylite portal verification mechanism.
+- GCP Secret Manager not yet configured — JWT secrets still in `.env`.
+
+## 2026-08-09 — Phase 0 — Git initialized, skills copied, ready for GitHub push
+
+**Status:** on track — blocked on GitHub repo creation
+
+**Did:** Initialized git repo on matriq-server (branch `main`, commit `b5af69d`, 50 files).
+Fixed `.gitignore` to track `.env.example` via `!.env.example` exception while still ignoring
+`.env.*`. Copied all three Claude skills (brand-identity, payment-safety, rbac-patterns) into
+`.claude/skills/` and committed them. Verified `.env` is correctly git-ignored and contains no
+secrets in the tracked state. Fixed backend port exposure: changed from `ports: 3000:3000`
+(0.0.0.0 bind, bypassed UFW) to `expose: ["3000"]` (Docker network only). Verified externally:
+port 3000 now times out from the internet.
+
+**What's running on the VM right now:** Same as previous entry — all five containers healthy,
+UFW/fail2ban/unattended-upgrades active.
+
+**What's still pending for Phase 0 Done:**
+- Push to GitHub (needs repo URL from user)
+- GCP Secret Manager setup + secrets migration from .env
+- GCP console firewall rules audit
+- CI pipeline first green run (depends on GitHub push)
+
+**Blockers/flags:**
+- GitHub repo needs to be created by the user before we can push.
+- GCP Secret Manager: needs the project ID and API enabled before we can migrate secrets.
+
+## 2026-08-08 — Phase 0 — Production directive integrated, legal drafts and design system added
+
+**Status:** on track
+
+**Did:** Integrated the human-authored `production-directive.md` as the project's
+highest-authority document (all other docs are now explicitly subordinate to it where they
+conflict). Concrete follow-through on its requirements: created `docs/legal/` with
+`privacy-policy.md`, `terms-and-conditions.md`, `data-processing.md`, and
+`legal-requirements.md` — all clearly marked as unreviewed drafts per the directive's §15
+restriction on presenting AI-drafted legal text as authoritative. Added `docs/design-system.md`
+consolidating the directive's anti-vibe-code, anti-animation, UX, and branding standards. Updated
+`docs/data-model.md`'s `payments.status` enum to the directive's full required state machine
+(`pending/processing/successful/failed/cancelled/refunded/disputed`, was previously missing
+`cancelled`/`refunded`/`disputed`) and added the `legal_acceptances` table (versioned consent
+tracking, not a bare boolean, per §14). Updated `docs/payment-integration.md` with the explicit
+state machine diagram and refund/dispute handling notes. Added legal-document and
+consent-tracking endpoints to `docs/backend-api.md`. Updated `README.md`'s reading order and
+index accordingly, and cross-referenced the directive from `docs/agent-workflow.md`.
+
+**Next:** Begin Phase 0 infrastructure work per `agenda.md`. Before Phase 1 backend work starts
+building the `payments` table for real, confirm the refund/dispute workflow (who can trigger a
+refund, and through what endpoint) is fully specified — `payment-integration.md`'s state machine
+defines the states but not yet the full transition-triggering logic for `refunded`/`disputed`.
+
+**Blockers/flags:**
+- Every `docs/legal/legal-requirements.md` checkbox needs an actual lawyer, not an engineering
+  decision — do not let Phase 9 (Launch) approach without this being scheduled.
+- Same open items as the previous entry (Staylite portal verification mechanism, executive
+  account/login separation from student accounts, Apple/Google developer account budget, GPU vs
+  CPU for the AI model) remain open.
+
+## 2026-08-07 — Phase 0 — Skills and MCP integrations added
+
+**Status:** on track
+
+**Did:** Added `docs/agent-skills.md` and `docs/mcp-integrations.md`. Three ready-to-use Skills
+shipped in `claude-skills/` (`matriq-brand-identity`, `matriq-rbac-patterns`,
+`matriq-payment-safety`) — copy these into `.claude/skills/` before starting Phase 1 so RBAC and
+payment code follow the established pattern from the first endpoint written, not retrofitted
+later.
+
+**Next:** Copy `claude-skills/*` into `.claude/skills/` in the repo. Connect the "high priority"
+MCP servers from `docs/mcp-integrations.md` (GitHub, Context7, Postgres-staging) before Phase 1
+backend work begins.
+
+**Blockers/flags:** none new.
+
+## 2026-08-07 — Phase 0 — Documentation and planning complete
+
+**Status:** on track
+
+**Did:** Full documentation set generated — `agenda.md`, `security.md`, and the complete
+`docs/` set (architecture, tech stack, AI model design, data model, backend API surface, payment
+integration plan, mobile app requirements, onboarding flows, CI/CD, infrastructure, agent
+workflow rules, testing/QA plan, release/distribution plan, compliance/privacy). No code written
+yet.
+
+**Next:** Begin Phase 0 execution — provision and harden the GCP VM per `docs/infrastructure.md`,
+initialize the repo with branch protection, set up the tmux workflow, get an empty CI pipeline
+green.
+
+**Blockers/flags:**
+- Human decisions needed before Phase 1 can fully close: how Staylite portal identity is really
+  verified (`docs/onboarding-flows.md`), and whether executive accounts share a login with
+  student accounts or stay fully separate (`docs/data-model.md`).
+- Budget confirmation needed before Phase 2/8: Apple Developer Program ($99/yr), Google Play
+  Console ($25 one-time), and whether a GPU VM is provisioned for the AI model or CPU-only is
+  acceptable to start (`docs/ai-model.md`, `docs/release-distribution.md`).
