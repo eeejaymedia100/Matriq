@@ -225,7 +225,10 @@ export class VerificationService {
       `Verification approved: request=${requestId}, user=${request.userId}, by=${reviewerExecutiveId}`,
     );
 
-    await this.notifyStudent(request.userId, associationId, "approved");
+    // Fire-and-forget: notifyStudent swallows its own errors, so this can
+    // never break the review action, and the request is not held hostage by
+    // email latency (Resend has no explicit timeout).
+    void this.notifyStudent(request.userId, associationId, "approved");
 
     return { message: "Student identity verified. Account confirmed." };
   }
@@ -288,7 +291,7 @@ export class VerificationService {
       `Verification rejected: request=${requestId}, user=${request.userId}, by=${reviewerExecutiveId}, reason="${reason}"`,
     );
 
-    await this.notifyStudent(request.userId, associationId, "rejected", reason);
+    void this.notifyStudent(request.userId, associationId, "rejected", reason);
 
     return { message: "Verification rejected. Student has been notified." };
   }
@@ -327,6 +330,11 @@ export class VerificationService {
 
       const associationName = association?.name ?? "your association";
       const firstName = user.fullName?.split(" ")[0] || "there";
+      // Every value interpolated into the HTML body is attacker- or
+      // user-influenced (rejection reason, student name, association name) —
+      // escape them all. The plain-text version stays raw.
+      const safeAssociationName = this.escapeHtml(associationName);
+      const safeFirstName = this.escapeHtml(firstName);
       const isApproved = outcome === "approved";
 
       const subject = isApproved
@@ -337,9 +345,9 @@ export class VerificationService {
         ? `
         <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
           <h2 style="color: #0D0620;">Your identity has been verified</h2>
-          <p>Hi ${firstName},</p>
+          <p>Hi ${safeFirstName},</p>
           <p>
-            An executive of <strong>${associationName}</strong> has approved your
+            An executive of <strong>${safeAssociationName}</strong> has approved your
             verification document. Your account is now confirmed, and you have
             full access to association features, including dues payments and
             receipts.
@@ -351,9 +359,9 @@ export class VerificationService {
         : `
         <div style="font-family: Inter, Arial, sans-serif; max-width: 480px; margin: 0 auto; color: #1a1a1a;">
           <h2 style="color: #0D0620;">Your verification needs attention</h2>
-          <p>Hi ${firstName},</p>
+          <p>Hi ${safeFirstName},</p>
           <p>
-            An executive of <strong>${associationName}</strong> could not approve
+            An executive of <strong>${safeAssociationName}</strong> could not approve
             the document you uploaded.
           </p>
           <p><strong>Reason:</strong> ${this.escapeHtml(rejectionReason ?? "No reason provided")}</p>

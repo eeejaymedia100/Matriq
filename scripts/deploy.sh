@@ -29,7 +29,7 @@ echo "==> Starting postgres + redis"
 docker compose up -d postgres redis
 
 echo "==> Waiting for postgres to be healthy"
-for _ in $(seq 1 30); do
+for _ in $(seq 1 60); do
   if docker compose ps postgres | grep -q healthy; then
     break
   fi
@@ -48,7 +48,7 @@ docker compose up -d --build backend caddy ollama
 
 # ── 4. Health check ─────────────────────────────────────────────
 echo "==> Waiting for backend /health"
-for _ in $(seq 1 30); do
+for _ in $(seq 1 60); do
   if docker compose ps backend | grep -q healthy; then
     echo "==> Backend healthy. Deploy complete."
     docker compose ps

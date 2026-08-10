@@ -207,12 +207,18 @@ describe("VerificationService", () => {
   });
 
   describe("student notifications", () => {
+    // notifyStudent is fire-and-forget — flush the microtask/macrotask queue
+    // so the mocked email call has definitely been made before asserting.
+    const flush = (): Promise<void> =>
+      new Promise((resolve) => setTimeout(resolve, 0));
+
     it("should email the student on approval", async () => {
       (prisma.verificationRequest.findUnique as jest.Mock).mockResolvedValue(
         mockRequest,
       );
 
       await service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1");
+      await flush();
 
       expect(email.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -235,6 +241,7 @@ describe("VerificationService", () => {
         "ID card is blurry",
         "127.0.0.1",
       );
+      await flush();
 
       expect(email.send).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -257,6 +264,7 @@ describe("VerificationService", () => {
       await expect(
         service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1"),
       ).resolves.toBeDefined();
+      await flush();
       expect(email.send).toHaveBeenCalled();
     });
 
@@ -270,6 +278,7 @@ describe("VerificationService", () => {
       });
 
       await service.approve("req-1", "assoc-1", "exec-1", "127.0.0.1");
+      await flush();
 
       expect(email.send).not.toHaveBeenCalled();
     });
@@ -286,6 +295,7 @@ describe("VerificationService", () => {
         "<script>alert(1)</script>",
         "127.0.0.1",
       );
+      await flush();
 
       expect(email.send).toHaveBeenCalledWith(
         expect.objectContaining({

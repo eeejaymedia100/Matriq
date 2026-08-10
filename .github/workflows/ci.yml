@@ -19,6 +19,22 @@ jobs:
       run:
         working-directory: ./backend
 
+    # Postgres with the pgvector extension — used by the migration drift check.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: matriq
+          POSTGRES_PASSWORD: matriq
+          POSTGRES_DB: matriq
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U matriq"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -39,18 +55,21 @@ jobs:
 
       - name: Validate Prisma schema
         env:
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          DATABASE_URL: postgresql://matriq:matriq@localhost:5432/matriq
         run: npx prisma validate
 
-      # No-DB drift gate: regenerate the baseline from the schema and compare
-      # against the committed 0_init migration. Fails if schema.prisma changed
-      # without an accompanying migration.
-      - name: Migration baseline matches schema
+      # Drift gate: replay all committed migrations into a shadow schema and
+      # compare against schema.prisma. Fails with --exit-code if the schema
+      # changed without an accompanying migration. Works for any number of
+      # migrations, unlike a from-empty baseline comparison.
+      - name: Migration drift check
         env:
-          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+          DATABASE_URL: postgresql://matriq:matriq@localhost:5432/matriq
         run: |
-          npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > /tmp/baseline.sql
-          diff /tmp/baseline.sql prisma/migrations/0_init/migration.sql
+          npx prisma migrate diff --from-migrations prisma/migrations \
+            --to-schema prisma/schema.prisma \
+            --shadow-database-url "postgresql://matriq:matriq@localhost:5432/matriq" \
+            --exit-code
 
       - name: Run tests
         run: npm test -- --passWithNoTests
@@ -59,6 +78,24 @@ jobs:
   backend-image:
     name: Backend Docker image build
     runs-on: ubuntu-latest
+
+    # PrismaService connects to the database at boot, so the smoke test needs a
+    # real Postgres (with the pgvector extension) to serve /health.
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: matriq
+          POSTGRES_PASSWORD: matriq
+          POSTGRES_DB: matriq
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U matriq"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -77,7 +114,7 @@ jobs:
         run: |
           docker run -d --name matriq-ci -p 3000:3000 \
             -e NODE_ENV=test \
-            -e DATABASE_URL=postgresql://ci:ci@localhost:5432/ci \
+            -e DATABASE_URL=postgresql://matriq:matriq@localhost:5432/matriq \
             -e JWT_SECRET=ci-secret \
             -e JWT_REFRESH_SECRET=ci-secret \
             -e RESEND_API_KEY=re_dummy \
@@ -138,7 +175,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npx eslint src
 
       - name: Type-check
         run: npx tsc --noEmit
@@ -167,7 +204,7 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint
+        run: npx eslint src
 
       - name: Type-check
         run: npx tsc --noEmit
