@@ -109,7 +109,16 @@ Certificate** (free, 15-year validity, generated in 30 seconds):
 Both apps live in this monorepo (`admin/`, `dashboard/`). Create **two separate Vercel
 projects**, each importing the same GitHub repo with a different root directory.
 
-**Project 1 — Association Dashboard:**
+> ⚠️ **Each app needs its own project.** Do NOT change the Root Directory of an existing
+> project — that just swaps which app it serves (the association dashboard and admin
+> console would overwrite each other). Create a brand-new project for each.
+
+**Project 1 — Admin Console (DONE — live at `matriq-ebon.vercel.app`):**
+- Project `matriq`, Root Directory `admin`, env `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`.
+- Deployment Protection (SSO) must be **off** — it was toggled on during setup and made
+  the site redirect to Vercel's login page; it has been disabled via API.
+
+**Project 2 — Association Dashboard (still to create):**
 1. [vercel.com](https://vercel.com) → **Add New… → Project** → import `eeejaymedia100/Matriq`.
 2. **Root Directory:** `dashboard`.
 3. Framework preset auto-detects **Next.js**.
@@ -119,11 +128,6 @@ projects**, each importing the same GitHub repo with a different root directory.
 6. **Project → Settings → Domains** → add `dashboard.matriq.app`.
    - If Vercel shows a TXT verification record, add it in Cloudflare DNS first, then the
      CNAME (already in Part C). Vercel auto-provisions a Let's Encrypt cert.
-
-**Project 2 — Admin Console:**
-1. Repeat the same steps with **Root Directory:** `admin`.
-2. Same env var: `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`.
-3. **Settings → Domains** → add `admin.matriq.app`.
 
 After this, pushing to `main` auto-deploys both apps (Vercel watches the repo).
 
@@ -159,10 +163,16 @@ restores the pre-domain config).
 | Check | Expected |
 |---|---|
 | `curl -I https://api.matriq.app/health` | `200` + `server: cloudflare` header |
-| `https://admin.matriq.app` | Admin login page loads (TLS from Vercel) |
-| `https://dashboard.matriq.app` | Dashboard login page loads |
+| `https://admin.matriq.app` (or `matriq-ebon.vercel.app` until domain) | Admin login page loads (TLS from Vercel) |
+| `https://dashboard.matriq.app` (or its `*.vercel.app` until domain) | Dashboard login page loads |
 | Login on both, then a browser call to `/v1/associations/…` | No CORS errors in DevTools |
 | Mobile APK (already `https://api.matriq.app/v1`) | Register/login works from the phone |
+
+**CORS note:** the backend whitelist is set via `CORS_ORIGIN` in `.env` on the VM. It
+currently allows `https://matriq-ebon.vercel.app` (admin console) + `http://localhost:8081`
+(dev). After the dashboard project deploys, add its `*.vercel.app` URL too; once the
+custom domains are live, switch to `https://admin.matriq.app,https://dashboard.matriq.app`
+(the `enable-cloudflare.sh` script does this automatically).
 
 ---
 
