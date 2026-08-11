@@ -820,3 +820,30 @@ green.
 - Budget confirmation needed before Phase 2/8: Apple Developer Program ($99/yr), Google Play
   Console ($25 one-time), and whether a GPU VM is provisioned for the AI model or CPU-only is
   acceptable to start (`docs/ai-model.md`, `docs/release-distribution.md`).
+
+---
+
+## 2026-08-11 — Waitlist live, DNS staged, student app test-ready
+
+**Status:** deployed; one manual step pending (GCP firewall 80/443)
+
+**Did:**
+- Waitlist: `WaitlistEntry` model + migration, public `POST /v1/waitlist` (rate-limited,
+  honeypot, dedupe, confirmation email, ntfy push), `GET /v1/waitlist/count`, admin list/stats.
+  Static landing page at `matriq.com.ng` served by Caddy. Admin console Waitlist viewer page.
+- DNS: Cloudflare zone `matriq.com.ng` created; A records root/www/api → `34.28.210.233`;
+  removed conflicting registrar records. Zone pending activation until .ng nameserver change
+  propagates (up to 24h).
+- Mobile testability: temporary Caddy route `http://34.28.210.233` → `/v1` proxy; `app.json`
+  `apiUrl` → `http://34.28.210.233/v1`; Expo tunnel dev server running in tmux session `expo`
+  (`exp://trnccto-anonymous-8081.exp.direct`), `@expo/ngrok` added as devDependency.
+- Fix: ntfy push crashed on emoji in Title/Tags (fetch ByteString limit) — header values now
+  sanitized to Latin-1. Verified live.
+- Verified end-to-end: member login, profile, memberships, fees, announcements, events+RSVP,
+  verification, referrals, payment history, executive dashboard, AI query (Ollama, ~28s CPU).
+
+**Blocker (user action):** open TCP 80/443 on the GCP firewall (VM service account lacks
+`compute` scopes — cannot be automated from the box).
+
+**Flags:** Resend still in test mode (emails only to `juliusemmanueloghenegare@gmail.com` until a
+sending domain is verified — do once DNS is live).

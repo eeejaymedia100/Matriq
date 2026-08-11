@@ -40,6 +40,15 @@ export class NotificationsService {
     return this.enabled;
   }
 
+  /**
+   * ntfy headers flow through fetch()'s ByteString conversion, which rejects
+   * any character above U+00FF (e.g. emoji in a title). Strip non-Latin-1
+   * characters so a decorative emoji can never break a notification.
+   */
+  private static toHeaderValue(value: string, maxLen: number): string {
+    return value.replace(/[^\x00-\xff]/g, "").slice(0, maxLen);
+  }
+
   /** Send a push to an association-wide topic. */
   notifyAssociation(
     associationId: string,
@@ -99,12 +108,21 @@ export class NotificationsService {
       try {
         const headers: Record<string, string> = {
           "Content-Type": "text/plain",
-          Title: params.title.slice(0, 200),
+          Title: NotificationsService.toHeaderValue(params.title, 200),
           Priority: String(params.priority ?? 3),
         };
         const tags = params.tags ?? [];
-        if (tags.length > 0) headers.Tags = tags.join(",");
-        if (params.clickUrl) headers.Click = params.clickUrl.slice(0, 500);
+        if (tags.length > 0) {
+          headers.Tags = tags
+            .map((t) => NotificationsService.toHeaderValue(t, 50))
+            .join(",");
+        }
+        if (params.clickUrl) {
+          headers.Click = NotificationsService.toHeaderValue(
+            params.clickUrl,
+            500,
+          );
+        }
 
         const res = await fetch(`${this.ntfyUrl}/${params.topic}`, {
           method: "POST",

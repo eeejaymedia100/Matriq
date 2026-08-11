@@ -52,3 +52,21 @@ api.matriq.com.ng {
 http://matriq.com.ng, http://api.matriq.com.ng {
     redir https://{host}{uri} permanent
 }
+
+# ── Temporary: raw VM IP API endpoint ───────────────────────────────
+# Lets the mobile student app be tested TODAY while the .ng nameserver
+# change propagates (up to 24h). Once DNS is live, clients switch to
+# https://api.matriq.com.ng/v1 and this block can be removed.
+http://34.28.210.233 {
+    handle /v1/* {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto http
+        }
+    }
+    handle {
+        respond "Matriq API — use /v1/*" 200
+    }
+}
