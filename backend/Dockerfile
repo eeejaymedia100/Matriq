@@ -1,6 +1,8 @@
 # Matriq Backend — Dockerfile (NestJS, multi-stage)
 # Stage 1: build
-FROM node:20-alpine AS builder
+# node:22-slim (glibc) — argon2 0.45.1's shipped musl prebuild segfaults on
+# node:20-alpine; the glibc prebuild loads cleanly (matches local Node 22).
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
@@ -20,11 +22,11 @@ RUN npm run build && \
     npm prune --omit=dev
 
 # Stage 2: production runtime
-FROM node:20-alpine AS runner
+FROM node:22-slim AS runner
 
 # Non-root user per security.md
-RUN addgroup -g 1001 -S matriq && \
-    adduser -S matriq -u 1001 -G matriq
+RUN groupadd -g 1001 matriq && \
+    useradd -m -u 1001 -g matriq matriq
 
 WORKDIR /app
 
@@ -34,7 +36,8 @@ COPY --from=builder --chown=matriq:matriq /app/node_modules ./node_modules
 COPY --from=builder --chown=matriq:matriq /app/package.json ./
 
 # Health check tool
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 USER matriq
 

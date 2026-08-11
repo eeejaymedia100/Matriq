@@ -10,5 +10,11 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DATABASE_URL"],
+    // Prisma 7: `migrate diff --from-migrations` requires the shadow DB URL
+    // to be declared here (the old --shadow-database-url CLI flag is gone).
+    // Reuses DATABASE_URL when SHADOW_DATABASE_URL is unset (dev convenience);
+    // CI and deploys can point it at a dedicated shadow database.
+    shadowDatabaseUrl:
+      process.env["SHADOW_DATABASE_URL"] || process.env["DATABASE_URL"],
   },
 });

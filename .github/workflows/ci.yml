@@ -40,7 +40,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          # Node 22 (glibc) — matches local dev and the production image.
+          # argon2 0.45.1's musl prebuild segfaults on node:20-alpine, so the
+          # whole stack pins to glibc builds.
+          node-version: "22"
           cache: "npm"
           cache-dependency-path: backend/package-lock.json
 
@@ -62,13 +65,15 @@ jobs:
       # compare against schema.prisma. Fails with --exit-code if the schema
       # changed without an accompanying migration. Works for any number of
       # migrations, unlike a from-empty baseline comparison.
+      # Note: Prisma 7 removed --shadow-database-url; the shadow DB URL now
+      # comes from datasource.shadowDatabaseUrl in prisma.config.ts.
       - name: Migration drift check
         env:
           DATABASE_URL: postgresql://matriq:matriq@localhost:5432/matriq
+          SHADOW_DATABASE_URL: postgresql://matriq:matriq@localhost:5432/matriq
         run: |
           npx prisma migrate diff --from-migrations prisma/migrations \
             --to-schema prisma/schema.prisma \
-            --shadow-database-url "postgresql://matriq:matriq@localhost:5432/matriq" \
             --exit-code
 
       - name: Run tests
