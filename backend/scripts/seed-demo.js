@@ -12,27 +12,39 @@
  *   - 5 successful + 2 pending payments (internal refs, no gateway calls)
  *   - 2 announcements, 1 event with RSVPs
  *
- * Idempotent: safe to re-run. It deletes the seeded emails/shortCode first,
- * so it never duplicates. Passwords below are for DEMO ONLY — change them in
- * production. Run inside the backend container or locally:
+ * Idempotent: safe to re-run. It deletes the seeded emails AND the NAISS
+ * shortCode first, so it never duplicates — BUT it also erases any existing
+ * data tied to that shortCode (real members/executives/payments included).
+ * Only run this against a dev/demo database. Passwords below are for DEMO
+ * ONLY — change them in production (override via SEED_*_PASSWORD env vars).
+ * Run inside the backend container or locally:
  *
  *   docker exec -i matriq-backend node /app/scripts/seed-demo.js
  *   DATABASE_URL=... node backend/scripts/seed-demo.js
  *
  * All money is stored as integer kobo (minor units), never float.
  */
+const fs = require("node:fs");
 const path = require("node:path");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
 // Resolve the generated Prisma client from the repo layout OR the compiled
-// dist/ layout (production container). Base defaults to /app for docker exec.
-const base = __dirname === "/tmp" ? "/app" : path.resolve(__dirname, "..");
-let PrismaClient;
-try {
-  ({ PrismaClient } = require(path.join(base, "src/generated/prisma/client")));
-} catch {
-  ({ PrismaClient } = require(path.join(base, "dist/generated/prisma/client")));
+// dist/ layout (production container only ships dist/).
+const base = process.env.SEED_BASE_DIR || path.resolve(__dirname, "..");
+const clientCandidates = [
+  path.join(base, "src/generated/prisma/client"),
+  path.join(base, "dist/generated/prisma/client"),
+];
+const clientPath = clientCandidates.find((p) =>
+  fs.existsSync(`${p}.js`) || fs.existsSync(`${p}.cjs`),
+);
+if (!clientPath) {
+  console.error(
+    `Prisma client not found. Set SEED_BASE_DIR (tried: ${clientCandidates.join(", ")})`,
+  );
+  process.exit(1);
 }
+const { PrismaClient } = require(clientPath);
 const argon2 = require("argon2");
 
 const connectionString =
@@ -239,14 +251,14 @@ async function main() {
     });
   }
   // 2 more pending from remaining members
-  for (const uid of memberUserIds.slice(5, 7)) {
+  for (const [i, uid] of memberUserIds.slice(5, 7).entries()) {
     await prisma.payment.create({
       data: {
         userId: uid,
         feeId: fee.id,
         amountKobo: 500000,
         status: "pending",
-        internalReference: `SEED-${fee.id.slice(0, 8)}-P${uid.slice(0, 4)}`,
+        internalReference: `SEED-${fee.id.slice(0, 8)}-P${i + 1}`,
       },
     });
   }
