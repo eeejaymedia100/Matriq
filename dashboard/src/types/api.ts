@@ -70,6 +70,19 @@ export interface DashboardStats {
   }>;
 }
 
+export interface Fee {
+  id: string;
+  name: string;
+  amountKobo: number;
+  currency: string;
+  dueDate: string;
+  session: string;
+  expectedKobo: number;
+  paidCount: number;
+  collectedKobo: number;
+  paymentCount: number;
+}
+
 export interface Announcement {
   id: string;
   title: string;

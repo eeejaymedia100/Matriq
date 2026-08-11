@@ -100,6 +100,11 @@ export type Event = Prisma.EventModel
  */
 export type EventRsvp = Prisma.EventRsvpModel
 /**
+ * Model EventAttendance
+ * 
+ */
+export type EventAttendance = Prisma.EventAttendanceModel
+/**
  * Model Referral
  * 
  */
@@ -129,6 +134,11 @@ export type AiQueryLog = Prisma.AiQueryLogModel
  * 
  */
 export type LegalAcceptance = Prisma.LegalAcceptanceModel
+/**
+ * Model WaitlistEntry
+ * 
+ */
+export type WaitlistEntry = Prisma.WaitlistEntryModel
 /**
  * Model RefreshTokenFamily
  * 

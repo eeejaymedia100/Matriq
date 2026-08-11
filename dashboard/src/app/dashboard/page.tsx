@@ -110,6 +110,16 @@ export default function DashboardPage() {
               </h2>
               <div className="grid grid-cols-2 gap-3">
                 <ActionButton
+                  label="Manage Dues"
+                  href="/fees"
+                  icon="💳"
+                />
+                <ActionButton
+                  label="Event Check-in"
+                  href="/checkin"
+                  icon="📱"
+                />
+                <ActionButton
                   label="Review IDs"
                   href="/verification"
                   icon="🪪"
@@ -124,7 +134,6 @@ export default function DashboardPage() {
                   href="/transparency"
                   icon="💰"
                 />
-                <ActionButton label="Scan QR" href="#" icon="📱" />
               </div>
             </div>
           </div>

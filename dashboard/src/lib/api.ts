@@ -2,6 +2,7 @@ import type {
   DashboardStats,
   VerificationRequest,
   Announcement,
+  Fee,
 } from "@/types/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/v1";
@@ -142,6 +143,92 @@ export async function createAnnouncement(
       body: JSON.stringify(data),
     },
   );
+}
+
+// ── Fees (treasurer) ──────────────────────────────────────────────
+
+export async function getFeesOverview(
+  associationId: string,
+  token: string,
+) {
+  return fetchApi<{
+    association: { id: string; name: string };
+    memberCount: number;
+    fees: Fee[];
+    total: number;
+  }>(`/associations/${associationId}/fees/overview`, { token });
+}
+
+export async function createFee(
+  associationId: string,
+  data: {
+    name: string;
+    amountKobo: number;
+    dueDate: string;
+    session: string;
+  },
+  token: string,
+) {
+  return fetchApi<Fee>(`/associations/${associationId}/fees`, {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateFee(
+  feeId: string,
+  data: { name?: string; amountKobo?: number; dueDate?: string; session?: string },
+  token: string,
+) {
+  return fetchApi<Fee>(`/fees/${feeId}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+// ── Events / QR check-in ──────────────────────────────────────────
+
+export async function getEvents(associationId: string, token: string) {
+  return fetchApi<{
+    events: Array<{
+      id: string;
+      title: string;
+      description: string;
+      location: string;
+      eventDate: string;
+      rsvpCount: number;
+      attendanceCount: number;
+    }>;
+  }>(`/associations/${associationId}/events`, { token });
+}
+
+export async function getCheckinToken(eventId: string, token: string) {
+  return fetchApi<{
+    token: string;
+    expiresInSeconds: number;
+    windowStartsAt: string;
+  }>(`/events/${eventId}/checkin-token`, { method: "POST", token });
+}
+
+export async function getEventAttendance(eventId: string, token: string) {
+  return fetchApi<{
+    event: { id: string; title: string };
+    total: number;
+    attendance: Array<{
+      id: string;
+      checkedInAt: string;
+      method: string;
+      user: {
+        id: string;
+        fullName: string;
+        email: string;
+        department: string;
+        level: string;
+      };
+    }>;
+  }>(`/events/${eventId}/attendance`, { token });
 }
 
 // ── Transparency ──────────────────────────────────────────────────

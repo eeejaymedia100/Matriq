@@ -409,12 +409,14 @@ export const ModelName = {
   AnnouncementRead: 'AnnouncementRead',
   Event: 'Event',
   EventRsvp: 'EventRsvp',
+  EventAttendance: 'EventAttendance',
   Referral: 'Referral',
   AdminAccount: 'AdminAccount',
   AuditLog: 'AuditLog',
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
   LegalAcceptance: 'LegalAcceptance',
+  WaitlistEntry: 'WaitlistEntry',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
 } as const
@@ -432,7 +434,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "legalAcceptance" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "legalAcceptance" | "waitlistEntry" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1324,6 +1326,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    EventAttendance: {
+      payload: Prisma.$EventAttendancePayload<ExtArgs>
+      fields: Prisma.EventAttendanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.EventAttendanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.EventAttendanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        findFirst: {
+          args: Prisma.EventAttendanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.EventAttendanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        findMany: {
+          args: Prisma.EventAttendanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>[]
+        }
+        create: {
+          args: Prisma.EventAttendanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        createMany: {
+          args: Prisma.EventAttendanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.EventAttendanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>[]
+        }
+        delete: {
+          args: Prisma.EventAttendanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        update: {
+          args: Prisma.EventAttendanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        deleteMany: {
+          args: Prisma.EventAttendanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.EventAttendanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.EventAttendanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>[]
+        }
+        upsert: {
+          args: Prisma.EventAttendanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EventAttendancePayload>
+        }
+        aggregate: {
+          args: Prisma.EventAttendanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEventAttendance>
+        }
+        groupBy: {
+          args: Prisma.EventAttendanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EventAttendanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.EventAttendanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EventAttendanceCountAggregateOutputType> | number
+        }
+      }
+    }
     Referral: {
       payload: Prisma.$ReferralPayload<ExtArgs>
       fields: Prisma.ReferralFieldRefs
@@ -1768,6 +1844,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WaitlistEntry: {
+      payload: Prisma.$WaitlistEntryPayload<ExtArgs>
+      fields: Prisma.WaitlistEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WaitlistEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WaitlistEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.WaitlistEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WaitlistEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        findMany: {
+          args: Prisma.WaitlistEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>[]
+        }
+        create: {
+          args: Prisma.WaitlistEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        createMany: {
+          args: Prisma.WaitlistEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WaitlistEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.WaitlistEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        update: {
+          args: Prisma.WaitlistEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.WaitlistEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WaitlistEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WaitlistEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.WaitlistEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WaitlistEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.WaitlistEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWaitlistEntry>
+        }
+        groupBy: {
+          args: Prisma.WaitlistEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WaitlistEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WaitlistEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WaitlistEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     RefreshTokenFamily: {
       payload: Prisma.$RefreshTokenFamilyPayload<ExtArgs>
       fields: Prisma.RefreshTokenFamilyFieldRefs
@@ -2128,6 +2278,18 @@ export const EventRsvpScalarFieldEnum = {
 export type EventRsvpScalarFieldEnum = (typeof EventRsvpScalarFieldEnum)[keyof typeof EventRsvpScalarFieldEnum]
 
 
+export const EventAttendanceScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  userId: 'userId',
+  checkedInAt: 'checkedInAt',
+  method: 'method',
+  createdAt: 'createdAt'
+} as const
+
+export type EventAttendanceScalarFieldEnum = (typeof EventAttendanceScalarFieldEnum)[keyof typeof EventAttendanceScalarFieldEnum]
+
+
 export const ReferralScalarFieldEnum = {
   id: 'id',
   referrerId: 'referrerId',
@@ -2201,6 +2363,20 @@ export const LegalAcceptanceScalarFieldEnum = {
 } as const
 
 export type LegalAcceptanceScalarFieldEnum = (typeof LegalAcceptanceScalarFieldEnum)[keyof typeof LegalAcceptanceScalarFieldEnum]
+
+
+export const WaitlistEntryScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  fullName: 'fullName',
+  source: 'source',
+  status: 'status',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type WaitlistEntryScalarFieldEnum = (typeof WaitlistEntryScalarFieldEnum)[keyof typeof WaitlistEntryScalarFieldEnum]
 
 
 export const RefreshTokenFamilyScalarFieldEnum = {
@@ -2651,12 +2827,14 @@ export type GlobalOmitConfig = {
   announcementRead?: Prisma.AnnouncementReadOmit
   event?: Prisma.EventOmit
   eventRsvp?: Prisma.EventRsvpOmit
+  eventAttendance?: Prisma.EventAttendanceOmit
   referral?: Prisma.ReferralOmit
   adminAccount?: Prisma.AdminAccountOmit
   auditLog?: Prisma.AuditLogOmit
   aiDocument?: Prisma.AiDocumentOmit
   aiQueryLog?: Prisma.AiQueryLogOmit
   legalAcceptance?: Prisma.LegalAcceptanceOmit
+  waitlistEntry?: Prisma.WaitlistEntryOmit
   refreshTokenFamily?: Prisma.RefreshTokenFamilyOmit
   refreshToken?: Prisma.RefreshTokenOmit
 }

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matriq — Student associations, all in one app</title>
+  <meta name="description" content="Matriq helps Nigerian student associations collect dues, verify members, share announcements and study smarter. Join the waitlist." />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236C3BAA'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3EM%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Ambient background -->
+  <div class="bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <!-- Nav -->
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-mark">M</span>
+        <span class="logo-text">Matriq</span>
+      </a>
+      <a href="#join" class="nav-cta">Join the waitlist</a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="join">
+      <div class="badge fade-up">🚀 Early access — opening soon</div>
+      <h1 class="fade-up delay-1">
+        Student associations,<br />
+        <span class="grad">all in one app.</span>
+      </h1>
+      <p class="hero-sub fade-up delay-2">
+        Matriq helps your association collect dues, verify members, share
+        announcements, plan events and study smarter — no more WhatsApp
+        spreadsheets and cash chasing.
+      </p>
+
+      <!-- Waitlist form -->
+      <div class="join-card fade-up delay-3" id="join-card">
+        <form id="waitlist-form" novalidate>
+          <!-- Honeypot (bots fill this; it stays hidden) -->
+          <input type="text" name="website" id="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <div class="join-row">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Enter your email"
+              autocomplete="email"
+              required
+              aria-label="Email address"
+            />
+            <button type="submit" id="join-btn">
+              <span class="btn-label">Join the list</span>
+              <span class="btn-spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p class="form-msg" id="form-msg" role="status"></p>
+        </form>
+        <p class="join-note">
+          <span id="count">0</span> students already on the list · no spam, just the launch email
+        </p>
+      </div>
+    </section>
+
+    <!-- Social proof -->
+    <section class="proof fade-up delay-4" aria-hidden="true">
+      <div class="proof-item"><span>🏛️</span> Every association type</div>
+      <div class="proof-item"><span>🇳🇬</span> Built for Nigerian campuses</div>
+      <div class="proof-item"><span>🔒</span> Secure payments</div>
+      <div class="proof-item"><span>🤖</span> AI study companion</div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+      <h2 class="section-title">Everything your association needs</h2>
+      <p class="section-sub">One app for executives, members and the treasury.</p>
+      <div class="feature-grid">
+        <article class="feature-card fade-up">
+          <div class="feature-icon">💳</div>
+          <h3>Dues & payments</h3>
+          <p>Create session dues, collect payments securely, and get instant receipts your members can share and verify.</p>
+        </article>
+        <article class="feature-card fade-up delay-1">
+          <div class="feature-icon">🪪</div>
+          <h3>Identity verification</h3>
+          <p>Members upload their student ID once. Executives approve it — no more fake memberships or guesswork.</p>
+        </article>
+        <article class="feature-card fade-up delay-2">
+          <div class="feature-icon">📢</div>
+          <h3>Announcements & events</h3>
+          <p>Pin important updates, plan events with RSVPs, and check members in at the door with rotating QR codes.</p>
+        </article>
+        <article class="feature-card fade-up delay-3">
+          <div class="feature-icon">🤖</div>
+          <h3>AI study companion</h3>
+          <p>A study assistant grounded in your association's own past questions and materials — answered in real time.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how" id="how">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps">
+        <div class="step fade-up">
+          <span class="step-num">1</span>
+          <h3>Join the waitlist</h3>
+          <p>Enter your email above. You'll get early access the moment we open.</p>
+        </div>
+        <div class="step fade-up delay-1">
+          <span class="step-num">2</span>
+          <h3>We set up your association</h3>
+          <p>Executives get their dashboard — dues, verification queue, treasury overview.</p>
+        </div>
+        <div class="step fade-up delay-2">
+          <span class="step-num">3</span>
+          <h3>Members join in seconds</h3>
+          <p>Students download the app, verify their ID, and pay dues from their phone.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta fade-up">
+      <h2>Ready when you are.</h2>
+      <p>Be first in line for your association.</p>
+      <a href="#join" class="cta-btn">Get early access →</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© <span id="year">2026</span> Matriq · Built for Nigerian student communities</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

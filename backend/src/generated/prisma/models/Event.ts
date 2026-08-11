@@ -209,6 +209,7 @@ export type EventWhereInput = {
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
   author?: Prisma.XOR<Prisma.AssociationExecutiveScalarRelationFilter, Prisma.AssociationExecutiveWhereInput>
   rsvps?: Prisma.EventRsvpListRelationFilter
+  attendance?: Prisma.EventAttendanceListRelationFilter
 }
 
 export type EventOrderByWithRelationInput = {
@@ -223,6 +224,7 @@ export type EventOrderByWithRelationInput = {
   association?: Prisma.AssociationOrderByWithRelationInput
   author?: Prisma.AssociationExecutiveOrderByWithRelationInput
   rsvps?: Prisma.EventRsvpOrderByRelationAggregateInput
+  attendance?: Prisma.EventAttendanceOrderByRelationAggregateInput
 }
 
 export type EventWhereUniqueInput = Prisma.AtLeast<{
@@ -240,6 +242,7 @@ export type EventWhereUniqueInput = Prisma.AtLeast<{
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
   author?: Prisma.XOR<Prisma.AssociationExecutiveScalarRelationFilter, Prisma.AssociationExecutiveWhereInput>
   rsvps?: Prisma.EventRsvpListRelationFilter
+  attendance?: Prisma.EventAttendanceListRelationFilter
 }, "id">
 
 export type EventOrderByWithAggregationInput = {
@@ -280,6 +283,7 @@ export type EventCreateInput = {
   association: Prisma.AssociationCreateNestedOneWithoutEventsInput
   author: Prisma.AssociationExecutiveCreateNestedOneWithoutEventsCreatedInput
   rsvps?: Prisma.EventRsvpCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateInput = {
@@ -292,6 +296,7 @@ export type EventUncheckedCreateInput = {
   eventDate: Date | string
   createdAt?: Date | string
   rsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventUpdateInput = {
@@ -304,6 +309,7 @@ export type EventUpdateInput = {
   association?: Prisma.AssociationUpdateOneRequiredWithoutEventsNestedInput
   author?: Prisma.AssociationExecutiveUpdateOneRequiredWithoutEventsCreatedNestedInput
   rsvps?: Prisma.EventRsvpUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateInput = {
@@ -316,6 +322,7 @@ export type EventUncheckedUpdateInput = {
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyInput = {
@@ -495,6 +502,20 @@ export type EventUpdateOneRequiredWithoutRsvpsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EventUpdateToOneWithWhereWithoutRsvpsInput, Prisma.EventUpdateWithoutRsvpsInput>, Prisma.EventUncheckedUpdateWithoutRsvpsInput>
 }
 
+export type EventCreateNestedOneWithoutAttendanceInput = {
+  create?: Prisma.XOR<Prisma.EventCreateWithoutAttendanceInput, Prisma.EventUncheckedCreateWithoutAttendanceInput>
+  connectOrCreate?: Prisma.EventCreateOrConnectWithoutAttendanceInput
+  connect?: Prisma.EventWhereUniqueInput
+}
+
+export type EventUpdateOneRequiredWithoutAttendanceNestedInput = {
+  create?: Prisma.XOR<Prisma.EventCreateWithoutAttendanceInput, Prisma.EventUncheckedCreateWithoutAttendanceInput>
+  connectOrCreate?: Prisma.EventCreateOrConnectWithoutAttendanceInput
+  upsert?: Prisma.EventUpsertWithoutAttendanceInput
+  connect?: Prisma.EventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EventUpdateToOneWithWhereWithoutAttendanceInput, Prisma.EventUpdateWithoutAttendanceInput>, Prisma.EventUncheckedUpdateWithoutAttendanceInput>
+}
+
 export type EventCreateWithoutAssociationInput = {
   id?: string
   title: string
@@ -504,6 +525,7 @@ export type EventCreateWithoutAssociationInput = {
   createdAt?: Date | string
   author: Prisma.AssociationExecutiveCreateNestedOneWithoutEventsCreatedInput
   rsvps?: Prisma.EventRsvpCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutAssociationInput = {
@@ -515,6 +537,7 @@ export type EventUncheckedCreateWithoutAssociationInput = {
   eventDate: Date | string
   createdAt?: Date | string
   rsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutAssociationInput = {
@@ -566,6 +589,7 @@ export type EventCreateWithoutAuthorInput = {
   createdAt?: Date | string
   association: Prisma.AssociationCreateNestedOneWithoutEventsInput
   rsvps?: Prisma.EventRsvpCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutAuthorInput = {
@@ -577,6 +601,7 @@ export type EventUncheckedCreateWithoutAuthorInput = {
   eventDate: Date | string
   createdAt?: Date | string
   rsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutEventInput
+  attendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutAuthorInput = {
@@ -614,6 +639,7 @@ export type EventCreateWithoutRsvpsInput = {
   createdAt?: Date | string
   association: Prisma.AssociationCreateNestedOneWithoutEventsInput
   author: Prisma.AssociationExecutiveCreateNestedOneWithoutEventsCreatedInput
+  attendance?: Prisma.EventAttendanceCreateNestedManyWithoutEventInput
 }
 
 export type EventUncheckedCreateWithoutRsvpsInput = {
@@ -625,6 +651,7 @@ export type EventUncheckedCreateWithoutRsvpsInput = {
   location: string
   eventDate: Date | string
   createdAt?: Date | string
+  attendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutEventInput
 }
 
 export type EventCreateOrConnectWithoutRsvpsInput = {
@@ -652,6 +679,7 @@ export type EventUpdateWithoutRsvpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   association?: Prisma.AssociationUpdateOneRequiredWithoutEventsNestedInput
   author?: Prisma.AssociationExecutiveUpdateOneRequiredWithoutEventsCreatedNestedInput
+  attendance?: Prisma.EventAttendanceUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutRsvpsInput = {
@@ -663,6 +691,71 @@ export type EventUncheckedUpdateWithoutRsvpsInput = {
   location?: Prisma.StringFieldUpdateOperationsInput | string
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutEventNestedInput
+}
+
+export type EventCreateWithoutAttendanceInput = {
+  id?: string
+  title: string
+  description: string
+  location: string
+  eventDate: Date | string
+  createdAt?: Date | string
+  association: Prisma.AssociationCreateNestedOneWithoutEventsInput
+  author: Prisma.AssociationExecutiveCreateNestedOneWithoutEventsCreatedInput
+  rsvps?: Prisma.EventRsvpCreateNestedManyWithoutEventInput
+}
+
+export type EventUncheckedCreateWithoutAttendanceInput = {
+  id?: string
+  associationId: string
+  authorExecutiveId: string
+  title: string
+  description: string
+  location: string
+  eventDate: Date | string
+  createdAt?: Date | string
+  rsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutEventInput
+}
+
+export type EventCreateOrConnectWithoutAttendanceInput = {
+  where: Prisma.EventWhereUniqueInput
+  create: Prisma.XOR<Prisma.EventCreateWithoutAttendanceInput, Prisma.EventUncheckedCreateWithoutAttendanceInput>
+}
+
+export type EventUpsertWithoutAttendanceInput = {
+  update: Prisma.XOR<Prisma.EventUpdateWithoutAttendanceInput, Prisma.EventUncheckedUpdateWithoutAttendanceInput>
+  create: Prisma.XOR<Prisma.EventCreateWithoutAttendanceInput, Prisma.EventUncheckedCreateWithoutAttendanceInput>
+  where?: Prisma.EventWhereInput
+}
+
+export type EventUpdateToOneWithWhereWithoutAttendanceInput = {
+  where?: Prisma.EventWhereInput
+  data: Prisma.XOR<Prisma.EventUpdateWithoutAttendanceInput, Prisma.EventUncheckedUpdateWithoutAttendanceInput>
+}
+
+export type EventUpdateWithoutAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  association?: Prisma.AssociationUpdateOneRequiredWithoutEventsNestedInput
+  author?: Prisma.AssociationExecutiveUpdateOneRequiredWithoutEventsCreatedNestedInput
+  rsvps?: Prisma.EventRsvpUpdateManyWithoutEventNestedInput
+}
+
+export type EventUncheckedUpdateWithoutAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorExecutiveId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  location?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventCreateManyAssociationInput = {
@@ -684,6 +777,7 @@ export type EventUpdateWithoutAssociationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.AssociationExecutiveUpdateOneRequiredWithoutEventsCreatedNestedInput
   rsvps?: Prisma.EventRsvpUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutAssociationInput = {
@@ -695,6 +789,7 @@ export type EventUncheckedUpdateWithoutAssociationInput = {
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateManyWithoutAssociationInput = {
@@ -726,6 +821,7 @@ export type EventUpdateWithoutAuthorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   association?: Prisma.AssociationUpdateOneRequiredWithoutEventsNestedInput
   rsvps?: Prisma.EventRsvpUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateWithoutAuthorInput = {
@@ -737,6 +833,7 @@ export type EventUncheckedUpdateWithoutAuthorInput = {
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutEventNestedInput
+  attendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutEventNestedInput
 }
 
 export type EventUncheckedUpdateManyWithoutAuthorInput = {
@@ -756,10 +853,12 @@ export type EventUncheckedUpdateManyWithoutAuthorInput = {
 
 export type EventCountOutputType = {
   rsvps: number
+  attendance: number
 }
 
 export type EventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rsvps?: boolean | EventCountOutputTypeCountRsvpsArgs
+  attendance?: boolean | EventCountOutputTypeCountAttendanceArgs
 }
 
 /**
@@ -779,6 +878,13 @@ export type EventCountOutputTypeCountRsvpsArgs<ExtArgs extends runtime.Types.Ext
   where?: Prisma.EventRsvpWhereInput
 }
 
+/**
+ * EventCountOutputType without action
+ */
+export type EventCountOutputTypeCountAttendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventAttendanceWhereInput
+}
+
 
 export type EventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -792,6 +898,7 @@ export type EventSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
   author?: boolean | Prisma.AssociationExecutiveDefaultArgs<ExtArgs>
   rsvps?: boolean | Prisma.Event$rsvpsArgs<ExtArgs>
+  attendance?: boolean | Prisma.Event$attendanceArgs<ExtArgs>
   _count?: boolean | Prisma.EventCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["event"]>
 
@@ -837,6 +944,7 @@ export type EventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
   author?: boolean | Prisma.AssociationExecutiveDefaultArgs<ExtArgs>
   rsvps?: boolean | Prisma.Event$rsvpsArgs<ExtArgs>
+  attendance?: boolean | Prisma.Event$attendanceArgs<ExtArgs>
   _count?: boolean | Prisma.EventCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -854,6 +962,7 @@ export type $EventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     association: Prisma.$AssociationPayload<ExtArgs>
     author: Prisma.$AssociationExecutivePayload<ExtArgs>
     rsvps: Prisma.$EventRsvpPayload<ExtArgs>[]
+    attendance: Prisma.$EventAttendancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1261,6 +1370,7 @@ export interface Prisma__EventClient<T, Null = never, ExtArgs extends runtime.Ty
   association<T extends Prisma.AssociationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationDefaultArgs<ExtArgs>>): Prisma.Prisma__AssociationClient<runtime.Types.Result.GetResult<Prisma.$AssociationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   author<T extends Prisma.AssociationExecutiveDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationExecutiveDefaultArgs<ExtArgs>>): Prisma.Prisma__AssociationExecutiveClient<runtime.Types.Result.GetResult<Prisma.$AssociationExecutivePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   rsvps<T extends Prisma.Event$rsvpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$rsvpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventRsvpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attendance<T extends Prisma.Event$attendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Event$attendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1720,6 +1830,30 @@ export type Event$rsvpsArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   distinct?: Prisma.EventRsvpScalarFieldEnum | Prisma.EventRsvpScalarFieldEnum[]
+}
+
+/**
+ * Event.attendance
+ */
+export type Event$attendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventAttendance
+   */
+  select?: Prisma.EventAttendanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EventAttendance
+   */
+  omit?: Prisma.EventAttendanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventAttendanceInclude<ExtArgs> | null
+  where?: Prisma.EventAttendanceWhereInput
+  orderBy?: Prisma.EventAttendanceOrderByWithRelationInput | Prisma.EventAttendanceOrderByWithRelationInput[]
+  cursor?: Prisma.EventAttendanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventAttendanceScalarFieldEnum | Prisma.EventAttendanceScalarFieldEnum[]
 }
 
 /**

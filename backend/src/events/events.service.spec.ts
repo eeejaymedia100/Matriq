@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { ConfigService } from "@nestjs/config";
 import { NotFoundException } from "@nestjs/common";
 import { EventsService } from "./events.service";
 import { PrismaService } from "../prisma/prisma.service";
@@ -41,6 +42,10 @@ describe("EventsService", () => {
       providers: [
         EventsService,
         { provide: PrismaService, useValue: mockPrisma },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue("test-secret") },
+        },
       ],
     }).compile();
 

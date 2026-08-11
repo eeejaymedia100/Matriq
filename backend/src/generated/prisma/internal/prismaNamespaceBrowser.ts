@@ -63,12 +63,14 @@ export const ModelName = {
   AnnouncementRead: 'AnnouncementRead',
   Event: 'Event',
   EventRsvp: 'EventRsvp',
+  EventAttendance: 'EventAttendance',
   Referral: 'Referral',
   AdminAccount: 'AdminAccount',
   AuditLog: 'AuditLog',
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
   LegalAcceptance: 'LegalAcceptance',
+  WaitlistEntry: 'WaitlistEntry',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
 } as const
@@ -262,6 +264,18 @@ export const EventRsvpScalarFieldEnum = {
 export type EventRsvpScalarFieldEnum = (typeof EventRsvpScalarFieldEnum)[keyof typeof EventRsvpScalarFieldEnum]
 
 
+export const EventAttendanceScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  userId: 'userId',
+  checkedInAt: 'checkedInAt',
+  method: 'method',
+  createdAt: 'createdAt'
+} as const
+
+export type EventAttendanceScalarFieldEnum = (typeof EventAttendanceScalarFieldEnum)[keyof typeof EventAttendanceScalarFieldEnum]
+
+
 export const ReferralScalarFieldEnum = {
   id: 'id',
   referrerId: 'referrerId',
@@ -335,6 +349,20 @@ export const LegalAcceptanceScalarFieldEnum = {
 } as const
 
 export type LegalAcceptanceScalarFieldEnum = (typeof LegalAcceptanceScalarFieldEnum)[keyof typeof LegalAcceptanceScalarFieldEnum]
+
+
+export const WaitlistEntryScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  fullName: 'fullName',
+  source: 'source',
+  status: 'status',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type WaitlistEntryScalarFieldEnum = (typeof WaitlistEntryScalarFieldEnum)[keyof typeof WaitlistEntryScalarFieldEnum]
 
 
 export const RefreshTokenFamilyScalarFieldEnum = {

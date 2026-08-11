@@ -15,6 +15,8 @@ import { AdminModule } from "./admin/admin.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { AiModule } from "./ai/ai.module";
 import { VerificationModule } from "./verification/verification.module";
+import { FeesModule } from "./fees/fees.module";
+import { WaitlistModule } from "./waitlist/waitlist.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
 
@@ -44,6 +46,8 @@ import { EmailModule } from "./email/email.module";
     PaymentsModule,
     AiModule,
     VerificationModule,
+    FeesModule,
+    WaitlistModule,
     HealthModule,
     EmailModule,
   ],

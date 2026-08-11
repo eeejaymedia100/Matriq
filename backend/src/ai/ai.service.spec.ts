@@ -15,6 +15,8 @@ describe("AiService", () => {
       findMany: jest.fn(),
       create: jest.fn(),
     },
+    $queryRaw: jest.fn().mockResolvedValue([]), // vector search: no matches
+    $executeRaw: jest.fn().mockResolvedValue([{ id: "x" }]),
   };
 
   const env: Record<string, string> = {
@@ -76,9 +78,13 @@ describe("AiService", () => {
     expect(result.sources).toEqual([]);
 
     // The Ollama chat endpoint should be called with the configured model.
-    const [url, init] = mockFetch.mock.calls[0];
+    const chatCall = mockFetch.mock.calls.find(([url]) =>
+      String(url).endsWith("/api/chat"),
+    );
+    expect(chatCall).toBeDefined();
+    const [url, init] = chatCall as [string, RequestInit];
     expect(url).toBe("http://ollama:11434/api/chat");
-    const body = JSON.parse((init as RequestInit).body as string);
+    const body = JSON.parse(init.body as string);
     expect(body.model).toBe("test-model");
     expect(body.stream).toBe(false);
     expect(mockPrisma.aiQueryLog.create).toHaveBeenCalledWith(
@@ -106,8 +112,11 @@ describe("AiService", () => {
     });
 
     expect(result.sources).toEqual(["doc1"]);
-    const [, init] = mockFetch.mock.calls[0];
-    const body = JSON.parse((init as RequestInit).body as string);
+    const chatCall = mockFetch.mock.calls.find(([url]) =>
+      String(url).endsWith("/api/chat"),
+    );
+    const [, init] = chatCall as [string, RequestInit];
+    const body = JSON.parse(init.body as string);
     const messages = body.messages as Array<{ role: string; content: string }>;
     expect(messages[0].role).toBe("system");
     expect(messages[1].content).toContain("BIO101");

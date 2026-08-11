@@ -298,6 +298,7 @@ export type UserWhereInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentListRelationFilter
   legalAcceptances?: Prisma.LegalAcceptanceListRelationFilter
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyListRelationFilter
+  eventAttendance?: Prisma.EventAttendanceListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -331,6 +332,7 @@ export type UserOrderByWithRelationInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentOrderByRelationAggregateInput
   legalAcceptances?: Prisma.LegalAcceptanceOrderByRelationAggregateInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyOrderByRelationAggregateInput
+  eventAttendance?: Prisma.EventAttendanceOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -367,6 +369,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   aiDocumentsSubmitted?: Prisma.AiDocumentListRelationFilter
   legalAcceptances?: Prisma.LegalAcceptanceListRelationFilter
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyListRelationFilter
+  eventAttendance?: Prisma.EventAttendanceListRelationFilter
 }, "id" | "email" | "verificationToken">
 
 export type UserOrderByWithAggregationInput = {
@@ -448,6 +451,7 @@ export type UserCreateInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -481,6 +485,7 @@ export type UserUncheckedCreateInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -514,6 +519,7 @@ export type UserUpdateInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -547,6 +553,7 @@ export type UserUncheckedUpdateInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -799,6 +806,20 @@ export type UserUpdateOneRequiredWithoutEventRsvpsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEventRsvpsInput, Prisma.UserUpdateWithoutEventRsvpsInput>, Prisma.UserUncheckedUpdateWithoutEventRsvpsInput>
 }
 
+export type UserCreateNestedOneWithoutEventAttendanceInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEventAttendanceInput, Prisma.UserUncheckedCreateWithoutEventAttendanceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEventAttendanceInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutEventAttendanceNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEventAttendanceInput, Prisma.UserUncheckedCreateWithoutEventAttendanceInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEventAttendanceInput
+  upsert?: Prisma.UserUpsertWithoutEventAttendanceInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEventAttendanceInput, Prisma.UserUpdateWithoutEventAttendanceInput>, Prisma.UserUncheckedUpdateWithoutEventAttendanceInput>
+}
+
 export type UserCreateNestedOneWithoutReferralsGivenInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutReferralsGivenInput, Prisma.UserUncheckedCreateWithoutReferralsGivenInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutReferralsGivenInput
@@ -917,6 +938,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -949,6 +971,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExecutiveRolesInput = {
@@ -997,6 +1020,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -1029,6 +1053,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1061,6 +1086,7 @@ export type UserCreateWithoutMembershipsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1093,6 +1119,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1141,6 +1168,7 @@ export type UserUpdateWithoutMembershipsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1173,6 +1201,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVerificationRequestsInput = {
@@ -1205,6 +1234,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -1237,6 +1267,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationRequestsInput = {
@@ -1285,6 +1316,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -1317,6 +1349,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -1349,6 +1382,7 @@ export type UserCreateWithoutPaymentsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -1381,6 +1415,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -1429,6 +1464,7 @@ export type UserUpdateWithoutPaymentsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -1461,6 +1497,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAnnouncementReadsInput = {
@@ -1493,6 +1530,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -1525,6 +1563,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAnnouncementReadsInput = {
@@ -1573,6 +1612,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -1605,6 +1645,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventRsvpsInput = {
@@ -1637,6 +1678,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -1669,6 +1711,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventRsvpsInput = {
@@ -1717,6 +1760,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -1743,6 +1787,155 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
   referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
   announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutEventAttendanceInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutEventAttendanceInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutEventAttendanceInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEventAttendanceInput, Prisma.UserUncheckedCreateWithoutEventAttendanceInput>
+}
+
+export type UserUpsertWithoutEventAttendanceInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEventAttendanceInput, Prisma.UserUncheckedUpdateWithoutEventAttendanceInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEventAttendanceInput, Prisma.UserUncheckedCreateWithoutEventAttendanceInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEventAttendanceInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEventAttendanceInput, Prisma.UserUncheckedUpdateWithoutEventAttendanceInput>
+}
+
+export type UserUpdateWithoutEventAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEventAttendanceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
   executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
   aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
@@ -1781,6 +1974,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -1813,6 +2007,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsGivenInput = {
@@ -1850,6 +2045,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -1882,6 +2078,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -1930,6 +2127,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -1962,6 +2160,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -2005,6 +2204,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -2037,6 +2237,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiDocumentsSubmittedInput = {
@@ -2069,6 +2270,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -2101,6 +2303,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiDocumentsSubmittedInput = {
@@ -2149,6 +2352,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -2181,6 +2385,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiQueryLogsInput = {
@@ -2213,6 +2418,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -2245,6 +2451,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiQueryLogsInput = {
@@ -2293,6 +2500,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -2325,6 +2533,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLegalAcceptancesInput = {
@@ -2357,6 +2566,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -2389,6 +2599,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLegalAcceptancesInput = {
@@ -2437,6 +2648,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -2469,6 +2681,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRefreshTokenFamiliesInput = {
@@ -2501,6 +2714,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -2533,6 +2747,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokenFamiliesInput = {
@@ -2581,6 +2796,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
@@ -2613,6 +2829,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2633,6 +2850,7 @@ export type UserCountOutputType = {
   aiDocumentsSubmitted: number
   legalAcceptances: number
   refreshTokenFamilies: number
+  eventAttendance: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2648,6 +2866,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   aiDocumentsSubmitted?: boolean | UserCountOutputTypeCountAiDocumentsSubmittedArgs
   legalAcceptances?: boolean | UserCountOutputTypeCountLegalAcceptancesArgs
   refreshTokenFamilies?: boolean | UserCountOutputTypeCountRefreshTokenFamiliesArgs
+  eventAttendance?: boolean | UserCountOutputTypeCountEventAttendanceArgs
 }
 
 /**
@@ -2744,6 +2963,13 @@ export type UserCountOutputTypeCountRefreshTokenFamiliesArgs<ExtArgs extends run
   where?: Prisma.RefreshTokenFamilyWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEventAttendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventAttendanceWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2776,6 +3002,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   aiDocumentsSubmitted?: boolean | Prisma.User$aiDocumentsSubmittedArgs<ExtArgs>
   legalAcceptances?: boolean | Prisma.User$legalAcceptancesArgs<ExtArgs>
   refreshTokenFamilies?: boolean | Prisma.User$refreshTokenFamiliesArgs<ExtArgs>
+  eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2856,6 +3083,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   aiDocumentsSubmitted?: boolean | Prisma.User$aiDocumentsSubmittedArgs<ExtArgs>
   legalAcceptances?: boolean | Prisma.User$legalAcceptancesArgs<ExtArgs>
   refreshTokenFamilies?: boolean | Prisma.User$refreshTokenFamiliesArgs<ExtArgs>
+  eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2876,6 +3104,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     aiDocumentsSubmitted: Prisma.$AiDocumentPayload<ExtArgs>[]
     legalAcceptances: Prisma.$LegalAcceptancePayload<ExtArgs>[]
     refreshTokenFamilies: Prisma.$RefreshTokenFamilyPayload<ExtArgs>[]
+    eventAttendance: Prisma.$EventAttendancePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3302,6 +3531,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   aiDocumentsSubmitted<T extends Prisma.User$aiDocumentsSubmittedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiDocumentsSubmittedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   legalAcceptances<T extends Prisma.User$legalAcceptancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$legalAcceptancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LegalAcceptancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokenFamilies<T extends Prisma.User$refreshTokenFamiliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokenFamiliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenFamilyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  eventAttendance<T extends Prisma.User$eventAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4027,6 +4257,30 @@ export type User$refreshTokenFamiliesArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.RefreshTokenFamilyScalarFieldEnum | Prisma.RefreshTokenFamilyScalarFieldEnum[]
+}
+
+/**
+ * User.eventAttendance
+ */
+export type User$eventAttendanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EventAttendance
+   */
+  select?: Prisma.EventAttendanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EventAttendance
+   */
+  omit?: Prisma.EventAttendanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventAttendanceInclude<ExtArgs> | null
+  where?: Prisma.EventAttendanceWhereInput
+  orderBy?: Prisma.EventAttendanceOrderByWithRelationInput | Prisma.EventAttendanceOrderByWithRelationInput[]
+  cursor?: Prisma.EventAttendanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventAttendanceScalarFieldEnum | Prisma.EventAttendanceScalarFieldEnum[]
 }
 
 /**

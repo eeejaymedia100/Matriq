@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { PaymentsService } from "./payments.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 describe("PaymentsService", () => {
   let service: PaymentsService;
@@ -44,6 +45,13 @@ describe("PaymentsService", () => {
     log: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockNotifications = {
+    push: jest.fn().mockResolvedValue(false),
+    notifyUser: jest.fn().mockResolvedValue(false),
+    notifyAssociation: jest.fn().mockResolvedValue(false),
+    securityAlert: jest.fn().mockResolvedValue(false),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -51,6 +59,7 @@ describe("PaymentsService", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: ConfigService, useValue: mockConfig },
         { provide: AuditService, useValue: mockAudit },
+        { provide: NotificationsService, useValue: mockNotifications },
       ],
     }).compile();
 

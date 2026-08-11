@@ -184,8 +184,10 @@ export class AdminController {
   async createAssociation(
     @Body() dto: CreateAssociationDto,
     @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
   ) {
     const result = await this.adminService.createAssociation(dto);
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
 
     await this.auditService.log({
       actorType: "admin",
@@ -193,7 +195,7 @@ export class AdminController {
       action: "association.created",
       targetType: "association",
       targetId: result.id,
-      ipAddress: "0.0.0.0", // TODO: use request IP
+      ipAddress: ip,
       metadata: { name: result.name, shortCode: result.shortCode },
     });
 
@@ -206,11 +208,13 @@ export class AdminController {
     @Param("id") id: string,
     @Body() dto: UpdateStatusDto,
     @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
   ) {
     const result = await this.adminService.updateAssociationStatus(
       id,
       dto.status,
     );
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
 
     await this.auditService.log({
       actorType: "admin",
@@ -218,7 +222,7 @@ export class AdminController {
       action: "association.status_changed",
       targetType: "association",
       targetId: id,
-      ipAddress: "0.0.0.0", // TODO: use request IP
+      ipAddress: ip,
       metadata: {
         previousStatus: (result as { previousStatus: string }).previousStatus,
         newStatus: dto.status,
@@ -252,6 +256,119 @@ export class AdminController {
       limit: take ? Math.min(Number(take), 100) : 50,
       offset: cursor ? Number(cursor) : 0,
     });
+  }
+
+  // ── Payments & fees oversight ─────────────────────────────────
+
+  @Get("payments")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listPayments(
+    @Query("status") status?: string,
+    @Query("associationId") associationId?: string,
+    @Query("cursor") cursor?: string,
+    @Query("take") take?: string,
+  ) {
+    return this.adminService.listPayments({
+      status,
+      associationId,
+      cursor,
+      take: take ? Math.min(Number(take), 100) : undefined,
+    });
+  }
+
+  @Get("fees")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listFees(@Query("associationId") associationId?: string) {
+    return this.adminService.listFees(associationId);
+  }
+
+  // ── Global verification queue ─────────────────────────────────
+
+  @Get("verification-requests")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listVerificationRequests(
+    @Query("status") status?: string,
+    @Query("associationId") associationId?: string,
+  ) {
+    return this.adminService.listVerificationRequests({
+      status,
+      associationId,
+    });
+  }
+
+  // ── AI document moderation ────────────────────────────────────
+
+  @Get("ai-documents")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listAiDocuments(@Query("status") status?: string) {
+    return this.adminService.listAiDocuments(status);
+  }
+
+  @Post("ai-documents/:id/moderate")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  moderateAiDocument(
+    @Param("id") id: string,
+    @Body() dto: { status: "approved" | "rejected"; reason?: string },
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.moderateAiDocument(
+      id,
+      dto.status,
+      user.sub,
+      ip,
+      dto.reason,
+    );
+  }
+
+  // ── Users ─────────────────────────────────────────────────────
+
+  @Get("users")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  searchUsers(@Query("q") q?: string) {
+    return this.adminService.searchUsers(q);
+  }
+
+  // ── Executive role management ─────────────────────────────────
+
+  @Get("executives")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listExecutives(@Query("associationId") associationId?: string) {
+    return this.adminService.listExecutives(associationId);
+  }
+
+  @Post("executives")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  grantExecutiveRole(
+    @Body() dto: { userId: string; associationId: string; role: string },
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.grantExecutiveRole(dto, user.sub, ip);
+  }
+
+  // ── Admin account management ──────────────────────────────────
+
+  @Get("admins")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listAdmins() {
+    return this.adminService.listAdmins();
+  }
+
+  @Post("admins")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  createAdmin(
+    @Body() dto: CreateAdminDto,
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.createAdmin(dto, user.sub, ip);
   }
 
   // ── Bootstrap (development only) ──────────────────────────────

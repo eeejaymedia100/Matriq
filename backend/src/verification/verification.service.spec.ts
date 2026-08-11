@@ -4,6 +4,8 @@ import { VerificationService } from "./verification.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { EmailService } from "../email/email.service";
+import { StorageService } from "../storage/storage.service";
+import { NotificationsService } from "../notifications/notifications.service";
 import { NotFoundException, ForbiddenException } from "@nestjs/common";
 
 describe("VerificationService", () => {
@@ -78,6 +80,20 @@ describe("VerificationService", () => {
       send: jest.fn().mockResolvedValue({ success: true, messageId: "m-1" }),
     } as unknown as jest.Mocked<EmailService>;
 
+    // Object storage disabled by default — verification falls back to the
+    // legacy data-URI path (existing behaviour).
+    const mockStorage = {
+      put: jest.fn().mockResolvedValue(null),
+      getDataUri: jest.fn().mockResolvedValue(null),
+      isEnabled: false,
+    };
+    const mockNotifications = {
+      push: jest.fn().mockResolvedValue(false),
+      notifyUser: jest.fn().mockResolvedValue(false),
+      notifyAssociation: jest.fn().mockResolvedValue(false),
+      securityAlert: jest.fn().mockResolvedValue(false),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         VerificationService,
@@ -85,6 +101,8 @@ describe("VerificationService", () => {
         { provide: AuditService, useValue: mockAudit },
         { provide: ConfigService, useValue: mockConfig },
         { provide: EmailService, useValue: email },
+        { provide: StorageService, useValue: mockStorage },
+        { provide: NotificationsService, useValue: mockNotifications },
       ],
     }).compile();
 

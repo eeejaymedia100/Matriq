@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import * as crypto from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 export interface InitiatePaymentDto {
   feeId: string;
@@ -31,6 +32,7 @@ export class PaymentsService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly auditService: AuditService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -42,6 +44,7 @@ export class PaymentsService {
     userId: string,
     dto: InitiatePaymentDto,
     ipAddress: string,
+    idempotencyKey?: string,
   ): Promise<PaymentResponse> {
     // Verify the fee exists and the user is a member of its association
     const fee = await this.prisma.fee.findUnique({
@@ -82,7 +85,44 @@ export class PaymentsService {
       throw new BadRequestException("You have already paid this fee");
     }
 
-    const internalReference = `MTQ-${crypto.randomBytes(8).toString("hex").toUpperCase()}`;
+    // Idempotency (per security.md): when the client supplies an
+    // Idempotency-Key header, derive a deterministic internal reference so a
+    // double-tap or retried request reuses the same payment row instead of
+    // creating a duplicate charge. The reference is unguessable (HMAC) and
+    // scoped to (user, fee, key).
+    const internalReference = idempotencyKey
+      ? `MTQ-${crypto
+          .createHmac(
+            "sha256",
+            this.configService.get<string>("JWT_SECRET") ?? "dev-secret",
+          )
+          .update(`${userId}:${fee.id}:${idempotencyKey}`)
+          .digest("hex")
+          .slice(0, 12)
+          .toUpperCase()}`
+      : `MTQ-${crypto.randomBytes(8).toString("hex").toUpperCase()}`;
+
+    // Idempotent replay: an identical previous initiate returns the same
+    // payment rather than a new one. (The original checkout URL is not
+    // persisted, so a replay returns the payment without a fresh URL.)
+    if (idempotencyKey) {
+      const replayed = await this.prisma.payment.findFirst({
+        where: { internalReference },
+      });
+      if (replayed) {
+        this.logger.log(
+          `Idempotent replay: returning existing payment ${replayed.id}`,
+        );
+        return {
+          id: replayed.id,
+          amountKobo: replayed.amountKobo,
+          status: replayed.status,
+          internalReference: replayed.internalReference,
+          checkoutUrl: null,
+          createdAt: replayed.createdAt,
+        };
+      }
+    }
 
     const paystackSecret = this.configService.get<string>(
       "PAYSTACK_SECRET_KEY",
@@ -390,6 +430,56 @@ export class PaymentsService {
     this.logger.log(
       `Payment ${payment.id} marked successful, receipt ${receiptNumber} issued`,
     );
+
+    // Fire-and-forget push notifications (never break the webhook path).
+    void this.notifyPaymentSuccess(payment);
+  }
+
+  private async notifyPaymentSuccess(payment: {
+    id: string;
+    userId: string;
+    feeId: string;
+    amountKobo: number;
+    internalReference: string;
+  }): Promise<void> {
+    try {
+      const [fee, user] = await Promise.all([
+        this.prisma.fee.findUnique({
+          where: { id: payment.feeId },
+          select: { name: true, associationId: true },
+        }),
+        this.prisma.user.findUnique({
+          where: { id: payment.userId },
+          select: { fullName: true },
+        }),
+      ]);
+
+      const feeName = fee?.name ?? "Dues";
+      const amount = (payment.amountKobo / 100).toLocaleString("en-NG", {
+        style: "currency",
+        currency: "NGN",
+      });
+
+      await this.notificationsService.notifyUser(
+        payment.userId,
+        "Payment received 🎉",
+        `Your payment of ${amount} for "${feeName}" was successful. A receipt has been issued.`,
+        { tags: ["money-bag"], priority: 4 },
+      );
+
+      if (fee) {
+        await this.notificationsService.notifyAssociation(
+          fee.associationId,
+          "New payment received",
+          `${user?.fullName ?? "A member"} paid ${amount} for "${feeName}".`,
+          { tags: ["money-bag"] },
+        );
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Payment notification failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   private async markPaymentFailed(reference: string): Promise<void> {

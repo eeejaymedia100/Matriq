@@ -8,6 +8,8 @@ import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { EmailService } from "../email/email.service";
+import { StorageService } from "../storage/storage.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 @Injectable()
 export class VerificationService {
@@ -18,6 +20,8 @@ export class VerificationService {
     private readonly auditService: AuditService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly storageService: StorageService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   // ── Student: upload verification document ────────────────────
@@ -38,33 +42,34 @@ export class VerificationService {
       throw new ForbiddenException("You are not a member of this association");
     }
 
-    // In production: upload file.buffer to a private GCS bucket,
-    // store the object path in documentStorageRef.
-    // For now: store as base64 data URI (scaffold — not production-safe
-    // for large files, but demonstrates the flow end-to-end).
-    const storageRef = `verification/${associationId}/${userId}/${Date.now()}-${file.originalname}`;
-    const dataUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    // Storage strategy (per security.md — documents must live in a private
+    // bucket, never inline in the DB):
+    // 1. If object storage is configured, upload the buffer and store the
+    //    object key (files are private; access is mediated by the API).
+    // 2. Otherwise fall back to a base64 data-URI (scaffold behaviour — fine
+    //    for small files, never for production).
+    const objectKey = `verification/${associationId}/${userId}/${Date.now()}-${file.originalname}`;
+    let documentStorageRef: string;
 
-    // In production, this would be the GCS object URL after upload.
-    // For the scaffold, we store the data URI itself (small files only).
+    const storedKey = await this.storageService.put(
+      objectKey,
+      file.buffer,
+      file.mimetype,
+    );
+    if (storedKey) {
+      documentStorageRef = storedKey; // object key in the private bucket
+    } else {
+      documentStorageRef = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    }
+
     const request = await this.prisma.verificationRequest.create({
       data: {
         userId,
         associationId,
-        documentStorageRef: storageRef,
+        documentStorageRef,
         documentOriginalName: file.originalname,
         documentMimeType: file.mimetype,
         status: "pending",
-      },
-    });
-
-    // Store the actual file content separately for the scaffold
-    // (see note in document endpoint below)
-    await this.prisma.verificationRequest.update({
-      where: { id: request.id },
-      data: {
-        // Overload storageRef with the data URI for scaffold access
-        documentStorageRef: dataUri,
       },
     });
 
@@ -157,12 +162,25 @@ export class VerificationService {
       );
     }
 
-    // Scaffold: the documentStorageRef currently holds the data URI.
-    // In production: generate a signed URL from the private GCS bucket,
-    // return that URL (or redirect to it).
+    // The ref is either an object key (private bucket) or a legacy data URI.
+    let dataUri = request.documentStorageRef;
+    if (!dataUri.startsWith("data:")) {
+      const fetched = await this.storageService.getDataUri(
+        dataUri,
+        request.documentMimeType,
+      );
+      if (fetched) {
+        dataUri = fetched;
+      } else {
+        throw new NotFoundException(
+          "Document could not be retrieved from storage",
+        );
+      }
+    }
+
     return {
       mimeType: request.documentMimeType,
-      dataUri: request.documentStorageRef,
+      dataUri,
     };
   }
 
@@ -229,6 +247,12 @@ export class VerificationService {
     // never break the review action, and the request is not held hostage by
     // email latency (Resend has no explicit timeout).
     void this.notifyStudent(request.userId, associationId, "approved");
+    void this.notificationsService.notifyUser(
+      request.userId,
+      "Identity verified ✅",
+      "An executive approved your verification document. Your account is now confirmed.",
+      { tags: ["white_check_mark"], priority: 4 },
+    );
 
     return { message: "Student identity verified. Account confirmed." };
   }
@@ -292,6 +316,12 @@ export class VerificationService {
     );
 
     void this.notifyStudent(request.userId, associationId, "rejected", reason);
+    void this.notificationsService.notifyUser(
+      request.userId,
+      "Verification needs attention",
+      `Your document was rejected: ${reason ?? "No reason provided"}. You can re-submit from the app.`,
+      { tags: ["warning"], priority: 4 },
+    );
 
     return { message: "Verification rejected. Student has been notified." };
   }

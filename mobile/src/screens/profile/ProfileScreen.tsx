@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
+  Platform,
 } from "react-native";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, Input } from "../../components";
@@ -130,6 +131,22 @@ export function ProfileScreen() {
           )}
         </Card>
 
+        {/* Notifications */}
+        <Card title="Notifications">
+          <View style={styles.row}>
+            <Text style={styles.label}>Push alerts</Text>
+            <Text style={styles.value}>Available</Text>
+          </View>
+          <Text style={styles.notifHint}>
+            You'll get push alerts for verification results, payment receipts,
+            new dues and announcements. To receive them on this device, subscribe
+            to your personal channel in the Matriq ntfy feed (topic:
+            {" "}
+            <Text style={styles.notifCode}>matriq-user-{user?.id ?? "…"}</Text>)
+            using the ntfy app or the web feed.
+          </Text>
+        </Card>
+
         {/* Security */}
         <Card title="Security">
           <View style={styles.row}>
@@ -194,6 +211,17 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  notifHint: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: spacing.sm,
+    lineHeight: 20,
+  },
+  notifCode: {
+    fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace",
+    fontSize: 12,
+    color: colors.primary,
   },
   version: { ...typography.small, color: colors.textMuted, textAlign: "center", marginTop: spacing.lg },
 });

@@ -12,6 +12,7 @@ import { generateSecret, generateURI, verify as verifyTotp } from "otplib";
 import * as qrcode from "qrcode";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 export interface AdminPayload {
   sub: string;
@@ -40,15 +41,28 @@ export interface AdminMfaEnrollResponse {
   uri: string;
 }
 
+// Sentinel actorId for audit entries where no admin account exists yet
+// (e.g. failed login with an unknown email). The audit_logs.actor_id column
+// is a UUID, so we use the nil UUID for "unknown actor".
+const UNKNOWN_ACTOR_ID = "00000000-0000-0000-0000-000000000000";
+const FAILURE_ALERT_THRESHOLD = 3;
+const FAILURE_ALERT_WINDOW_MS = 15 * 60 * 1000;
+
 @Injectable()
 export class AdminAuthService {
   private readonly logger = new Logger(AdminAuthService.name);
+
+  private readonly failuresByEmail = new Map<
+    string,
+    Array<{ at: number; ip: string }>
+  >();
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly auditService: AuditService,
     private readonly configService: ConfigService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   /**
@@ -72,11 +86,34 @@ export class AdminAuthService {
     });
 
     if (!admin) {
+      // Unknown email — still log a failed-login security event (nil UUID
+      // actor) and alert if the pattern repeats. Never reveal whether the
+      // email exists.
+      await this.auditService.log({
+        actorType: "admin",
+        actorId: UNKNOWN_ACTOR_ID,
+        action: "admin.login_failed",
+        targetType: "admin_account",
+        ipAddress: ip,
+        metadata: { email: email.toLowerCase().trim() },
+      });
+      this.trackFailure(email.toLowerCase().trim(), ip);
       throw new UnauthorizedException("Invalid credentials");
     }
 
     const valid = await argon2.verify(admin.passwordHash, password);
     if (!valid) {
+      // Wrong password for a known account — security event + alerting.
+      await this.auditService.log({
+        actorType: "admin",
+        actorId: admin.id,
+        action: "admin.login_failed",
+        targetType: "admin_account",
+        targetId: admin.id,
+        ipAddress: ip,
+        metadata: { email: admin.email },
+      });
+      this.trackFailure(admin.email, ip);
       throw new UnauthorizedException("Invalid credentials");
     }
 
@@ -128,6 +165,17 @@ export class AdminAuthService {
 
     const result = await verifyTotp({ token: code, secret: admin.mfaSecret });
     if (!result.valid) {
+      // MFA failure — security event + alerting.
+      await this.auditService.log({
+        actorType: "admin",
+        actorId: admin.id,
+        action: "admin.mfa_failed",
+        targetType: "admin_account",
+        targetId: admin.id,
+        ipAddress: ip,
+        metadata: { email: admin.email },
+      });
+      this.trackFailure(admin.email, ip);
       throw new UnauthorizedException("Invalid authentication code");
     }
 
@@ -283,6 +331,29 @@ export class AdminAuthService {
     this.logger.log(`Initial admin account created: ${email}`);
 
     return { message: "Admin account created", adminId: admin.id };
+  }
+
+  /**
+   * Track auth failures per identity and raise a security alert once the
+   * threshold is crossed within the window (per security.md incident
+   * response: "IP-based alerting on new login locations"). In-memory only —
+   * per-instance, good enough for alerting.
+   */
+  private trackFailure(identity: string, ip: string): void {
+    const now = Date.now();
+    const list = this.failuresByEmail.get(identity) ?? [];
+    const recent = list.filter((f) => now - f.at < FAILURE_ALERT_WINDOW_MS);
+    recent.push({ at: now, ip });
+    this.failuresByEmail.set(identity, recent);
+
+    if (recent.length >= FAILURE_ALERT_THRESHOLD) {
+      this.failuresByEmail.delete(identity); // reset so the next burst re-alerts
+      void this.notificationsService.securityAlert(
+        "Possible brute-force on admin login",
+        `${recent.length} failed admin auth attempts for ${identity} within 15 minutes (last from ${ip}). Investigate immediately.`,
+        { tags: ["rotating_light", "admin"], priority: 5 },
+      );
+    }
   }
 
   private jwtSecret(): string {

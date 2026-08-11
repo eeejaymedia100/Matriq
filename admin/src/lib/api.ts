@@ -2,6 +2,15 @@ import type {
   Association,
   AnalyticsData,
   AuditLogEntry,
+  AdminPayment,
+  AdminFee,
+  AdminVerificationRequest,
+  AiDocument,
+  AdminUser,
+  AdminExecutive,
+  AdminAccount,
+  WaitlistEntry,
+  WaitlistStats,
 } from "@/types/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/v1";
@@ -77,4 +86,123 @@ export async function getAnalytics(token: string) {
 
 export async function getAuditLogs(token: string) {
   return fetchApi<{ logs: AuditLogEntry[] }>("/admin/audit-logs", { token });
+}
+
+// ── Payments & Fees oversight ─────────────────────────────────────
+
+export async function listPayments(
+  token: string,
+  opts: { status?: string; associationId?: string } = {},
+) {
+  const qs = new URLSearchParams();
+  if (opts.status) qs.set("status", opts.status);
+  if (opts.associationId) qs.set("associationId", opts.associationId);
+  const query = qs.toString();
+  return fetchApi<{
+    payments: AdminPayment[];
+    pagination: { cursor: string | null; hasMore: boolean; total: number };
+  }>(`/admin/payments${query ? `?${query}` : ""}`, { token });
+}
+
+export async function listFees(token: string) {
+  return fetchApi<{ fees: AdminFee[]; total: number }>("/admin/fees", {
+    token,
+  });
+}
+
+// ── Global verification queue ─────────────────────────────────────
+
+export async function listVerificationRequests(
+  token: string,
+  status?: string,
+) {
+  const qs = status ? `?status=${status}` : "";
+  return fetchApi<{ requests: AdminVerificationRequest[]; total: number }>(
+    `/admin/verification-requests${qs}`,
+    { token },
+  );
+}
+
+// ── AI document moderation ────────────────────────────────────────
+
+export async function listAiDocuments(token: string, status?: string) {
+  const qs = status ? `?status=${status}` : "";
+  return fetchApi<{ documents: AiDocument[]; total: number }>(
+    `/admin/ai-documents${qs}`,
+    { token },
+  );
+}
+
+export async function moderateAiDocument(
+  id: string,
+  status: "approved" | "rejected",
+  token: string,
+) {
+  return fetchApi<{ message: string }>(`/admin/ai-documents/${id}/moderate`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ status }),
+  });
+}
+
+// ── Users ─────────────────────────────────────────────────────────
+
+export async function searchUsers(token: string, q?: string) {
+  const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+  return fetchApi<{ users: AdminUser[]; total: number }>(
+    `/admin/users${qs}`,
+    { token },
+  );
+}
+
+// ── Executives ────────────────────────────────────────────────────
+
+export async function listExecutives(token: string) {
+  return fetchApi<{ executives: AdminExecutive[]; total: number }>(
+    "/admin/executives",
+    { token },
+  );
+}
+
+export async function grantExecutiveRole(
+  data: { userId: string; associationId: string; role: string },
+  token: string,
+) {
+  return fetchApi<{ id: string; role: string }>("/admin/executives", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+// ── Admins ────────────────────────────────────────────────────────
+
+export async function listAdmins(token: string) {
+  return fetchApi<{ admins: AdminAccount[]; total: number }>("/admin/admins", {
+    token,
+  });
+}
+
+export async function createAdmin(
+  data: { email: string; password: string },
+  token: string,
+) {
+  return fetchApi<{ message: string; id: string; email: string }>(
+    "/admin/admins",
+    { method: "POST", token, body: JSON.stringify(data) },
+  );
+}
+
+// ── Waitlist ───────────────────────────────────────────────────────
+
+export async function listWaitlist(token: string, cursor?: string) {
+  const qs = cursor ? `?cursor=${encodeURIComponent(cursor)}` : "";
+  return fetchApi<{
+    entries: WaitlistEntry[];
+    pagination: { cursor: string | null; hasMore: boolean };
+  }>(`/admin/waitlist${qs}`, { token });
+}
+
+export async function getWaitlistStats(token: string) {
+  return fetchApi<WaitlistStats>("/admin/waitlist/stats", { token });
 }

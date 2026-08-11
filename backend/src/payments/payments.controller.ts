@@ -28,9 +28,15 @@ export class PaymentsController {
     @CurrentUser() user: JwtPayload,
     @Body() dto: InitiatePaymentDto,
     @Req() req: Request,
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
     const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
-    return this.paymentsService.initiate(user.sub, dto, ip);
+    return this.paymentsService.initiate(
+      user.sub,
+      dto,
+      ip,
+      idempotencyKey ? idempotencyKey.slice(0, 128) : undefined,
+    );
   }
 
   @Post("payments/webhook/paystack")

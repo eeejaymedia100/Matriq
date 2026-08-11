@@ -5,6 +5,8 @@ import { AdminAuthService } from "./admin-auth.service";
 import { AdminService } from "./admin.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
+import { AiService } from "../ai/ai.service";
+import { NotificationsService } from "../notifications/notifications.service";
 
 // Mock otplib to avoid ESM/CJS compatibility issues
 jest.mock("otplib", () => ({
@@ -63,6 +65,15 @@ describe("AdminAuthService", () => {
           useValue: {
             get: jest.fn().mockReturnValue(undefined),
             getOrThrow: jest.fn().mockReturnValue("test-secret"),
+          },
+        },
+        {
+          provide: NotificationsService,
+          useValue: {
+            push: jest.fn().mockResolvedValue(false),
+            notifyUser: jest.fn().mockResolvedValue(false),
+            notifyAssociation: jest.fn().mockResolvedValue(false),
+            securityAlert: jest.fn().mockResolvedValue(false),
           },
         },
       ],
@@ -323,8 +334,22 @@ describe("AdminService", () => {
       fee: { findMany: jest.fn().mockResolvedValue([]) },
     };
 
+    const mockAudit = { log: jest.fn().mockResolvedValue(undefined) };
+    const mockAiService = {
+      embedAndStore: jest.fn().mockResolvedValue(undefined),
+      query: jest.fn(),
+      streamQuery: jest.fn(),
+      getConversations: jest.fn(),
+      submitMaterial: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AdminService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        AdminService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: AuditService, useValue: mockAudit },
+        { provide: AiService, useValue: mockAiService },
+      ],
     }).compile();
 
     service = module.get<AdminService>(AdminService);
