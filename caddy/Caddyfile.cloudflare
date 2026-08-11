@@ -1,0 +1,31 @@
+# Caddy — Cloudflare origin config (domain live, enabled by scripts/enable-cloudflare.sh).
+# Cloudflare terminates client TLS at the edge; Caddy serves the Cloudflare Origin
+# certificate so the zone can use SSL/TLS mode "Full (strict)".
+#
+# Placeholder {{DOMAIN}} is substituted by scripts/enable-cloudflare.sh.
+# Cert files: caddy/certs/origin.pem (cert) + caddy/certs/origin.key (key).
+
+{{DOMAIN}}:443 {
+    tls /certs/origin.pem /certs/origin.key
+
+    reverse_proxy backend:3000 {
+        header_up Host {host}
+        # Behind Cloudflare, the real client IP is CF-Connecting-IP — pass it through
+        # so rate limiting and audit logs see actual users, not Cloudflare edge IPs.
+        header_up X-Real-IP {http.request.header.CF-Connecting-IP}
+        header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    # Security headers
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}
+
+# HTTP -> HTTPS redirect
+:80 {
+    redir https://{{DOMAIN}}{uri} permanent
+}

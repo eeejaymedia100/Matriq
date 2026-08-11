@@ -16,18 +16,23 @@ Single VM to start (see `docs/architecture.md` for why this is enough for v1).
   fail2ban installed, automatic security updates enabled, a non-root deploy user created (the
   agent should not operate as root day-to-day).
 
-## Subdomain structure (placeholder — domain not yet registered)
+## Subdomain structure — Cloudflare DNS + Vercel (see `docs/cloudflare-vercel.md`)
 
-Once a domain is registered, subdomain routing via Caddy:
+`matriq.app` is registered and its DNS is managed by **Cloudflare** (nameservers pointed at
+Cloudflare, all records proxied). Cloudflare terminates TLS at the edge (Free plan: CDN, WAF,
+DDoS protection) and forwards to the origin:
 
-| Subdomain | Service | Notes |
-|---|---|---|
-| `api.<domain>` | NestJS backend | Primary API for all three clients |
-| `dashboard.<domain>` | Association Dashboard (Next.js web app) | Used by Treasurer/President/P.R.O. |
-| `admin.<domain>` | Admin Console (Next.js web app) | Separate deployable, highest privilege |
+| Subdomain | Service | Hosting | Notes |
+|---|---|---|---|
+| `api.matriq.app` | NestJS backend | GCP VM (Caddy) | Cloudflare proxies to Caddy, which serves the Cloudflare Origin cert (SSL mode Full strict) and reverse-proxies to `backend:3000` |
+| `dashboard.matriq.app` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1` |
+| `admin.matriq.app` | Admin Console (Next.js) | **Vercel** | `admin/` root dir; separate Vercel project |
 
-Caddy terminates TLS (Let's Encrypt) for all three and reverse-proxies to the appropriate
-container or deployed service (Vercel for the Next.js apps, or Dockerized on the same VM).
+- Caddy no longer needs Let's Encrypt: Cloudflare is the TLS terminator and Caddy serves the
+  origin cert. See `caddy/Caddyfile.cloudflare` (swapped in by `scripts/enable-cloudflare.sh`).
+- The two Next.js apps are **deployed on Vercel** (independent projects from this monorepo,
+  root directories `admin/` and `dashboard/`) — the GCP VM stays focused on backend +
+  database + AI model. Pushing to `main` auto-deploys both.
 
 ## Docker Compose services
 
@@ -48,7 +53,8 @@ services:
   restarts/redeploys.
 - The two Next.js dashboards can either be Dockerized and added as additional Compose services,
   or deployed to Vercel (recommended for simplicity — keep the GCP VM focused on the backend +
-  database + AI model).
+  database + AI model). **Decision: the two dashboards are deployed to Vercel** (see
+  `docs/cloudflare-vercel.md`).
 
 ## Deploying (migrations + stack)
 

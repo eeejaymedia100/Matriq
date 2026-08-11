@@ -13,6 +13,45 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-11 — Phase 6 — Cloudflare + Vercel wiring prepared (waiting on user account steps)
+
+**Status:** waiting on user action — no account credentials needed from the server side; the
+user must register the domain + add it to Cloudflare + create the two Vercel projects.
+
+**Did:**
+- **Confirmed: no Cloudflare/Vercel in use today.** Everything (backend, Postgres, Redis,
+  Ollama, Caddy) runs on the GCP VM (`34.28.210.233`). The two Next.js dashboards
+  (`admin/`, `dashboard/`) are separate codebases reading `NEXT_PUBLIC_API_URL` — they're
+  built to deploy to Vercel, they just weren't deployed anywhere.
+- **Domain verified unregistered:** `matriq.app` returns nothing on whois/DNS; the mobile
+  APK already targets `https://api.matriq.app/v1` (`mobile/app.json`).
+- **Chosen architecture:** Cloudflare edge in front of everything (DNS, CDN, WAF, DDoS,
+  edge TLS — Free plan). `api.matriq.app` → Cloudflare → Caddy (origin cert) → backend.
+  `admin.matriq.app` + `dashboard.matriq.app` → Cloudflare → Vercel (two independent
+  projects from this monorepo).
+- **Repo prepared (all committed):**
+  - `docs/docs/cloudflare-vercel.md` — full click-by-click runbook (Parts A–F).
+  - `caddy/Caddyfile.cloudflare` — domain-aware config: serves the Cloudflare Origin cert
+    (SSL mode Full strict), forwards `CF-Connecting-IP` so rate limiting/audit IPs stay
+    correct behind Cloudflare.
+  - `scripts/enable-cloudflare.sh` — idempotent, reversible: swaps the Caddyfile, sets
+    `CORS_ORIGIN=https://admin.matriq.app,https://dashboard.matriq.app,http://localhost:8081`,
+    restarts caddy+backend, verifies `https://api.matriq.app/health` → 200.
+  - `docker-compose.yml` — `DOMAIN` env to caddy, `CORS_ORIGIN` to backend, `caddy/certs`
+    volume mounted; `.env.example` documents both; `caddy/certs/` gitignored (key never
+    committed). Compose config validates; script syntax-checked.
+
+**Next (user, per runbook Parts A–E):** register `matriq.app`; add zone to Cloudflare
+(+ nameservers); add DNS records (`api` A → VM IP proxied, `admin`/`dashboard` CNAME →
+`cname.vercel-dns.com` proxied); set SSL mode Full (strict); generate the Origin cert and
+paste PEMs (I'll write them to `caddy/certs/`); create the two Vercel projects (root dirs
+`admin` and `dashboard`, `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`) with domains.
+Then I run `bash scripts/enable-cloudflare.sh` and verify end-to-end.
+
+**Blockers/flags:**
+- Domain must be registered before anything is publicly reachable.
+- `.app` TLD requires HTTPS — fine, everything is HTTPS.
+
 ## 2026-08-10 — Phase 6 prep — LIVE STACK DEPLOYED: Docker, Postgres, Redis, Ollama, backend healthy + CI green
 
 **Status:** on track — first live deployment of the full stack

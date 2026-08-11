@@ -82,9 +82,20 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 - [ ] Type-check step runs and passes (not yet triggered)
 - [ ] "Hello world" test passes (not yet triggered)
 
+## Cloudflare + Vercel (see docs/docs/cloudflare-vercel.md)
+
+- [ ] Domain `matriq.app` registered
+- [ ] Cloudflare zone `matriq.app` active (nameservers pointed at Cloudflare)
+- [ ] DNS: `api` A → VM IP (proxied); `admin`/`dashboard` CNAME → `cname.vercel-dns.com` (proxied)
+- [ ] Cloudflare SSL/TLS mode: **Full (strict)**
+- [ ] Origin cert generated; `caddy/certs/origin.pem` + `origin.key` on VM (gitignored)
+- [ ] Vercel project `dashboard` (root dir `dashboard/`, `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`)
+- [ ] Vercel project `admin` (root dir `admin/`, same env var)
+- [ ] `scripts/enable-cloudflare.sh` run; `https://api.matriq.app/health` → 200
+
 ## Notes
 
-- Domain: not yet registered. Caddy will use HTTP-only until a domain is pointed at this IP.
+- Domain + Cloudflare + Vercel configured (or in progress) — see Cloudflare + Vercel section above.
 - Ollama: container running but no model pulled. Pull a model (e.g., `llama3.1:8b`) in Phase 4.
 - Machine type: e2-medium is undersized for Ollama. This is intentional per infrastructure.md —
   upgrade to e2-standard-4 or add a GPU VM when AI companion work begins in Phase 4.
