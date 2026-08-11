@@ -67,3 +67,5 @@ caddy/certs/
 # but block any secrets that might slide in alongside it)
 .claude/*.env
 .claude/secrets/
+.vercel-token
+.cloudflare-token
