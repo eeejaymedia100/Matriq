@@ -37,7 +37,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "http://34.28.210.233/v1"
+      "apiUrl": "https://societies-license-music-voices.trycloudflare.com/v1"
     }
   }
 }

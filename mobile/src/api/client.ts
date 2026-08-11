@@ -1,14 +1,23 @@
 import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
-// API base URL from app.json extra, overridable via app.config.js or environment.
-// Default: https://api.matriq.app/v1 (production).
-// Use app.json extra.apiUrl to change without recompiling.
+// API base URL: app.json extra.apiUrl is honoured when present (dev
+// manifests always carry it). Release builds embed config at prebuild
+// time, so this fallback is baked into the bundle as a plain constant.
 const EXPO_API_URL = Constants.expoConfig?.extra?.apiUrl as string | undefined;
 
+// TEMP test-build endpoint — public Cloudflare tunnel while the GCP
+// firewall is still closed and .ng DNS propagates. Replace with
+// https://api.matriq.com.ng/v1 once both are live.
+const TEST_API_URL =
+  "https://societies-license-music-voices.trycloudflare.com/v1";
+
+// Release builds MUST hit the tunnel: the embedded expo config was
+// frozen at prebuild time and may still point at the old IP. Dev builds
+// honour app.json extra.apiUrl (the dev-server manifest is always fresh).
 export const API_BASE = __DEV__
-  ? (EXPO_API_URL ?? "http://10.0.2.2:3000/v1")
-  : (EXPO_API_URL ?? "https://api.matriq.app/v1");
+  ? (EXPO_API_URL ?? TEST_API_URL)
+  : TEST_API_URL;
 
 const TOKEN_KEY = "auth_tokens";
 

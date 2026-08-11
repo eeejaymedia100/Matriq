@@ -70,3 +70,27 @@ http://34.28.210.233 {
         respond "Matriq API — use /v1/*" 200
     }
 }
+
+# ── Catch-all (ngrok/dev tunnel): any host → API + APK download ─────
+# Lets phones reach the API TODAY via an OUTBOUND ngrok tunnel (no
+# inbound firewall needed). The tunnel forwards with a random *.ngrok
+# Host header, so this block matches any unknown host on :80.
+# Once the GCP firewall is open and DNS propagates, clients switch to
+# https://api.matriq.com.ng/v1 and this block can be removed.
+http:// {
+    handle /v1/* {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+    handle_path /download/* {
+        root * /srv/waitlist
+        file_server
+    }
+    handle {
+        respond "Matriq API — use /v1/*" 200
+    }
+}
