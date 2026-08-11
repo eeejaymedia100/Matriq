@@ -13,6 +13,59 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-10 — Phase 6 prep — LIVE STACK DEPLOYED: Docker, Postgres, Redis, Ollama, backend healthy + CI green
+
+**Status:** on track — first live deployment of the full stack
+
+**Did:**
+- **GitHub connected + pushed.** User registered the machine's SSH key; remote `main`/`develop`
+  reconciled (force-pushed the local 11-commit history over an unrelated early "Phase 0"
+  snapshot — the old snapshot's content is fully contained in the local tree). CI now runs on
+  every push.
+- **Secrets configured.** Root `.env` created (0600, gitignored) with user-provided Resend key,
+  Paystack test keys, and user-specified JWT/POSTGRES secrets; mirrored to `backend/.env`.
+  Verified live: Resend key valid (send-restricted ✓), Paystack balance endpoint ✓.
+- **Docker installed** on this Ubuntu 22.04 box (Engine 29.7.2 + compose v5.4.0, user added to
+  docker group). `scripts/deploy.sh` executed for the first time: Postgres (pgvector), Redis,
+  Ollama, Caddy, and the backend are all up; migrations applied.
+- **Fixed a container crash-loop (exit 139).** `argon2@0.45.1`'s shipped **musl** prebuild
+  segfaults on `node:20-alpine`; the glibc prebuild loads cleanly. Root-caused via probes,
+  fixed by switching `backend/Dockerfile` to **`node:22-slim`** (matches local Node 22, where
+  all 107 tests pass) with Debian equivalents for the non-root user + curl.
+- **Fixed Prisma 7 runtime + drift issues.** (1) The new `prisma-client` generator requires a
+  driver adapter — added `@prisma/adapter-pg@7.9.1` and wired `PrismaPg` into `PrismaService`
+  (only surfaced at real runtime; unit tests mock PrismaService). (2) `migrate diff` removed
+  `--shadow-database-url` — declared `datasource.shadowDatabaseUrl` in `prisma.config.ts`
+  (falls back to `DATABASE_URL`) and updated CI to pass `SHADOW_DATABASE_URL`. Backend CI job
+  pinned to Node 22 for glibc parity. **Drift check verified locally: "No difference
+  detected".**
+- **CI green on GitHub for the first time** (run 31445335141: all 7 jobs pass — backend
+  lint/tsc/tests, image build + /health smoke, mobile bundle, dashboard, admin, audit, secrets).
+- **AI pipeline live.** Pulled `nomic-embed-text` (embeddings) and `llama3.2:3b` (generation).
+  `nemotron-3-super:cloud` requires an Ollama cloud login, so it's no longer the default.
+  Cold CPU model load is ~90s > the 45s default timeout, and `docker-compose.yml` wasn't
+  forwarding `OLLAMA_TIMEOUT_MS` — added it (180s default) and switched default model to
+  `llama3.2:3b`. E2E verified: register → verify email → login → `/v1/ai/query` returns a real
+  Ollama-generated answer.
+- **Full-stack E2E verified live:** register (argon2 hashing + legal acceptance + Resend email
+  fired), verify (token from DB), login (JWT), `/v1/associations` 200. Test data cleaned.
+
+**Next:**
+- **Domain + TLS:** Caddy currently 301s :80 → https://{host} with no cert. Point
+  `api.matriq.app` (or chosen domain) at this VM's public IP (`34.28.210.233`), uncomment
+  `tls {$DOMAIN}` in `caddy/Caddyfile`, set `DOMAIN` in `.env`, then the APK
+  (`https://api.matriq.app/v1`) works from real devices. Caddy will auto-provision Let's
+  Encrypt certs.
+- **GCS bucket** for verification document storage (currently base64 data-URI scaffold) —
+  private bucket + service account JSON, then wire signed URLs.
+- Seed an association + fees + a real student for the first live test on a phone.
+
+**Blockers/flags:**
+- Paystack keys are **test** keys — switch to live keys before real money moves.
+- Ollama runs CPU-only on 2 vCPU / 3.8GB RAM — warm inference ~14s, cold ~90s. Acceptable for
+  dev; a GPU VM changes the calculus for production latency.
+- `api.matriq.app` DNS is not yet pointed at this VM (TLS blocked until then).
+
 ## 2026-08-10 — Phase 6 prep — Tier 1 production groundwork: git, migrations, CI, notification emails
 
 **Status:** on track
