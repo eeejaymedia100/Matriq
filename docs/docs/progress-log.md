@@ -13,6 +13,51 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-11 — Phase 6 — Both Vercel dashboards LIVE + DB seeded (waiting on domain approval)
+
+**Status:** on track — domain purchased by user, under registrar approval; everything that
+doesn't need the domain is done.
+
+**Did:**
+- **Admin Console LIVE** at `https://matriq-ebon.vercel.app` ("Matriq — Admin Console"; all
+  routes 200: login, dashboard, associations, analytics, audit-logs).
+- **Association Dashboard LIVE** at `https://matriq-dashboard.vercel.app` ("Matriq —
+  Association Dashboard"; all routes 200: login, dashboard, announcements, verification,
+  transparency).
+  - Both are independent Vercel projects from this monorepo: `matriq` (root `admin`) and
+    `matriq-dashboard` (root `dashboard`), auto-deploying from GitHub `main`.
+  - The dashboard project needed a fresh production deploy — its first build was made before
+    the Root Directory was set and served Vercel's 404 on every route.
+- **Fixed: Deployment Protection (SSO) was blocking public access** on both projects — the
+  sites redirected visitors to Vercel's login page. Disabled via API (project `ssoProtection`
+  = null).
+- **New full-access Vercel token** — the original token was SAML-scope-restricted and could
+  only manage the `matriq` project (this blocked diagnosing the dashboard project). Replaced;
+  tokens stored 0600 + gitignored.
+- **Backend CORS updated** to `CORS_ORIGIN=https://matriq-ebon.vercel.app,https://matriq-dashboard.vercel.app,http://localhost:8081`
+  — preflight (204 + correct allow-origin) verified for both origins from inside the Docker
+  network. Backend healthy.
+- **Demo database seeded** (`backend/scripts/seed-demo.js`, idempotent, committed):
+  - admin@matriq.app / Admin@Matriq2026 (admin console)
+  - president@matriq.app, treasurer@matriq.app, pro@matriq.app / Exec@Matriq2026 (dashboard)
+  - member1..8@matriq.app / Member@Matriq2026 (mobile app)
+  - Association NAISS, 1 fee (₦5,000 dues), 7 payments (5 successful = ₦25,000 collected,
+    2 pending), 2 announcements, 1 event + 4 RSVPs.
+  - Verified live: admin login → associations list + analytics (11 users, ₦25,000); executive
+    login → profile carries `executive` roles → `/associations/:id/dashboard` (11 members,
+    top payers, 45% payment rate), announcements, events all return data.
+
+**Next:** when the domain finishes registrar approval: user pastes it here → I add it to
+Cloudflare (zone + DNS + origin cert), run `bash scripts/enable-cloudflare.sh`, update
+`NEXT_PUBLIC_API_URL` on both Vercel projects to `https://api.<domain>/v1`, point the mobile
+APK at the new API URL, and verify the full chain (API health via Cloudflare, both dashboards
+login over custom domains, APK from a phone).
+
+**Blockers/flags:**
+- Domain is under registrar approval (user purchased it; TLD/registrar unknown — likely
+  cheaper than `.app`). Everything else is ready.
+- Test keys remain: Paystack test keys, Resend sandbox domain (onboarding@resend.dev).
+
 ## 2026-08-11 — Phase 6 — Cloudflare + Vercel wiring prepared (waiting on user account steps)
 
 **Status:** waiting on user action — no account credentials needed from the server side; the
