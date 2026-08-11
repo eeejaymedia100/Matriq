@@ -118,18 +118,13 @@ projects**, each importing the same GitHub repo with a different root directory.
 - Deployment Protection (SSO) must be **off** — it was toggled on during setup and made
   the site redirect to Vercel's login page; it has been disabled via API.
 
-**Project 2 — Association Dashboard (still to create):**
-1. [vercel.com](https://vercel.com) → **Add New… → Project** → import `eeejaymedia100/Matriq`.
-2. **Root Directory:** `dashboard`.
-3. Framework preset auto-detects **Next.js**.
-4. **Environment Variables:**
-   - `NEXT_PUBLIC_API_URL` = `https://api.matriq.app/v1` (apply to Production, Preview, Development)
-5. **Deploy** (build uses the existing CI-verified `next build`).
-6. **Project → Settings → Domains** → add `dashboard.matriq.app`.
-   - If Vercel shows a TXT verification record, add it in Cloudflare DNS first, then the
-     CNAME (already in Part C). Vercel auto-provisions a Let's Encrypt cert.
-
-After this, pushing to `main` auto-deploys both apps (Vercel watches the repo).
+**Project 2 — Association Dashboard (DONE — live at `matriq-dashboard.vercel.app`):**
+- Project `matriq-dashboard`, Root Directory `dashboard`, env `NEXT_PUBLIC_API_URL` set
+  for Production + Preview.
+- Deployment Protection (SSO) must be **off** (it was on by default and made the site
+  redirect to Vercel's login page).
+- The first deployment 404'd because it built before the Root Directory was set;
+  redeploying after the fix produces the working build.
 
 ---
 
@@ -164,14 +159,14 @@ restores the pre-domain config).
 |---|---|
 | `curl -I https://api.matriq.app/health` | `200` + `server: cloudflare` header |
 | `https://admin.matriq.app` (or `matriq-ebon.vercel.app` until domain) | Admin login page loads (TLS from Vercel) |
-| `https://dashboard.matriq.app` (or its `*.vercel.app` until domain) | Dashboard login page loads |
+| `https://dashboard.matriq.app` (or `matriq-dashboard.vercel.app` until domain) | Dashboard login page loads |
 | Login on both, then a browser call to `/v1/associations/…` | No CORS errors in DevTools |
 | Mobile APK (already `https://api.matriq.app/v1`) | Register/login works from the phone |
 
 **CORS note:** the backend whitelist is set via `CORS_ORIGIN` in `.env` on the VM. It
-currently allows `https://matriq-ebon.vercel.app` (admin console) + `http://localhost:8081`
-(dev). After the dashboard project deploys, add its `*.vercel.app` URL too; once the
-custom domains are live, switch to `https://admin.matriq.app,https://dashboard.matriq.app`
+currently allows `https://matriq-ebon.vercel.app` (admin console),
+`https://matriq-dashboard.vercel.app` (dashboard), and `http://localhost:8081` (dev). Once
+the custom domains are live, switch to `https://admin.matriq.app,https://dashboard.matriq.app`
 (the `enable-cloudflare.sh` script does this automatically).
 
 ---
