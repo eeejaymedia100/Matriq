@@ -8,6 +8,7 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, DashboardSkeleton } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
@@ -82,7 +83,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>
-              Hello, {user?.fullName?.split(" ")[0] ?? "Student"} 👋
+              Hello, {user?.fullName?.split(" ")[0] ?? "Student"}
             </Text>
             <Text style={styles.email}>{user?.email}</Text>
           </View>
@@ -100,7 +101,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.verificationBanner}
           >
             <View style={styles.verificationBannerInner}>
-              <Text style={styles.verificationIcon}>⏳</Text>
+              <Ionicons name="hourglass-outline" size={26} color="#8B6914" />
               <View style={{ flex: 1 }}>
                 <Text style={styles.verificationTitle}>Identity Verification Pending</Text>
                 <Text style={styles.verificationSub}>
@@ -124,7 +125,10 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
               </View>
               {user?.matricStatus === "confirmed" && (
                 <View style={[styles.badge, { backgroundColor: colors.successBg }]}>
-                  <Text style={[styles.badgeText, { color: colors.success }]}>✓ Verified</Text>
+                  <View style={styles.verifiedRow}>
+                    <Ionicons name="checkmark-circle" size={13} color={colors.success} />
+                    <Text style={[styles.badgeText, { color: colors.success }]}>Verified</Text>
+                  </View>
                 </View>
               )}
               {user?.matricStatus === "provisional" && (
@@ -162,7 +166,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("Fees")}
           >
-            <Text style={styles.actionIcon}>💰</Text>
+            <Ionicons name="wallet-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>Dues</Text>
           </TouchableOpacity>
 
@@ -170,7 +174,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("Fees")}
           >
-            <Text style={styles.actionIcon}>🧾</Text>
+            <Ionicons name="receipt-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>Receipts</Text>
           </TouchableOpacity>
 
@@ -178,7 +182,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("VerificationStatus")}
           >
-            <Text style={styles.actionIcon}>🪪</Text>
+            <Ionicons name="shield-checkmark-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>Verify ID</Text>
           </TouchableOpacity>
 
@@ -186,7 +190,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("Announcements")}
           >
-            <Text style={styles.actionIcon}>📢</Text>
+            <Ionicons name="megaphone-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>News</Text>
           </TouchableOpacity>
 
@@ -194,7 +198,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("Events")}
           >
-            <Text style={styles.actionIcon}>📅</Text>
+            <Ionicons name="calendar-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>Events</Text>
           </TouchableOpacity>
 
@@ -202,7 +206,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("AI")}
           >
-            <Text style={styles.actionIcon}>🤖</Text>
+            <Ionicons name="sparkles-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>AI Tutor</Text>
           </TouchableOpacity>
 
@@ -210,7 +214,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
             style={styles.actionCard}
             onPress={() => navigation.navigate("Referrals")}
           >
-            <Text style={styles.actionIcon}>🔗</Text>
+            <Ionicons name="link-outline" size={28} color={colors.primary} />
             <Text style={styles.actionLabel}>Refer</Text>
           </TouchableOpacity>
         </View>
@@ -251,9 +255,12 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
         {/* Services */}
         {association?.whatsappNumber && (
           <Card title="Association Services" subtitle="Contact via WhatsApp">
-            <Text style={styles.serviceText}>
-              📞 WhatsApp: {association.whatsappNumber}
-            </Text>
+            <View style={styles.serviceRow}>
+              <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
+              <Text style={styles.serviceText}>
+                WhatsApp: {association.whatsappNumber}
+              </Text>
+            </View>
           </Card>
         )}
 
@@ -295,6 +302,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.full,
   },
   badgeText: { ...typography.captionBold },
+  verifiedRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: spacing.md },
   joinBtn: {
     backgroundColor: colors.primary,
@@ -345,6 +353,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   payBtnText: { ...typography.captionBold, color: colors.textOnPrimary },
+  serviceRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   serviceText: { ...typography.body, color: colors.textSecondary },
   logoutBtn: { alignSelf: "center", marginTop: spacing.lg, padding: spacing.md },
   logoutText: { ...typography.body, color: colors.error },

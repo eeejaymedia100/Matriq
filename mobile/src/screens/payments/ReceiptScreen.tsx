@@ -7,6 +7,7 @@ import {
   ScrollView,
   Share,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, LoadingScreen, ReceiptSkeleton } from "../../components";
 import { api } from "../../api/client";
@@ -64,11 +65,14 @@ export function ReceiptScreen({ route }: ReceiptScreenProps) {
             <View style={styles.qrPlaceholder}>
               <Text style={styles.qrLabel}>Receipt #{payment.receipt.receiptNumber}</Text>
               <View style={styles.qrBox}>
-                <Text style={styles.qrEmoji}>▣</Text>
+                <Ionicons name="qr-code" size={64} color={colors.textPrimary} />
               </View>
               {payment.receipt.verifiedAt && (
                 <View style={styles.verifiedBadge}>
-                  <Text style={styles.verifiedText}>✓ Verified</Text>
+                  <View style={styles.verifiedRow}>
+                    <Ionicons name="checkmark-circle" size={15} color={colors.success} />
+                    <Text style={styles.verifiedText}>Verified</Text>
+                  </View>
                 </View>
               )}
             </View>
@@ -149,7 +153,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  qrEmoji: { fontSize: 64, color: colors.textPrimary },
   verifiedBadge: {
     marginTop: spacing.sm,
     backgroundColor: colors.successBg,
@@ -158,6 +161,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.full,
   },
   verifiedText: { ...typography.captionBold, color: colors.success },
+  verifiedRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   details: { gap: spacing.sm },
   detailRow: {
     flexDirection: "row",

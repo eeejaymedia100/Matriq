@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Button, Card } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
@@ -158,12 +159,12 @@ export function VerificationUploadScreen({ navigation, route }: Props) {
             <View style={styles.pickerArea}>
               <View style={styles.pickerRow}>
                 <TouchableOpacity style={styles.pickerBtn} onPress={takePhoto}>
-                  <Text style={styles.pickerIcon}>📷</Text>
+                  <Ionicons name="camera-outline" size={36} color={colors.primary} />
                   <Text style={styles.pickerLabel}>Take Photo</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.pickerBtn} onPress={pickImage}>
-                  <Text style={styles.pickerIcon}>🖼️</Text>
+                  <Ionicons name="image-outline" size={36} color={colors.primary} />
                   <Text style={styles.pickerLabel}>From Gallery</Text>
                 </TouchableOpacity>
               </View>
@@ -183,7 +184,7 @@ export function VerificationUploadScreen({ navigation, route }: Props) {
         </Card>
 
         {!associationId && (
-          <Card title="⚠️ No Association">
+          <Card title="No Association">
             <Text style={styles.warningText}>
               You need to join an association before uploading verification
               documents. Visit the Explore tab to browse available associations.
@@ -224,7 +225,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xl,
     gap: spacing.sm,
   },
-  pickerIcon: { fontSize: 36 },
   pickerLabel: { ...typography.captionBold, color: colors.textSecondary },
   hint: { ...typography.small, color: colors.textMuted, textAlign: "center" },
   previewContainer: { alignItems: "center", marginBottom: spacing.md },

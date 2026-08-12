@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, ListScreenSkeleton } from "../../components";
 import { api } from "../../api/client";
@@ -85,9 +86,12 @@ export function EventsScreen() {
               {item.description}
             </Text>
             <View style={styles.footer}>
-              <Text style={styles.count}>👥 {item.rsvpCount} attending</Text>
+              <View style={styles.countRow}>
+                <Ionicons name="people-outline" size={14} color={colors.textMuted} />
+                <Text style={styles.count}>{item.rsvpCount} attending</Text>
+              </View>
               <Button
-                title={item.rsvpByMe ? "Going ✓" : "RSVP"}
+                title={item.rsvpByMe ? "Going" : "RSVP"}
                 onPress={() => toggleRsvp(item.id, item.rsvpByMe)}
                 variant={item.rsvpByMe ? "ghost" : "primary"}
                 size="sm"
@@ -114,5 +118,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   count: { ...typography.caption, color: colors.textMuted },
+  countRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   emptyText: { ...typography.body, color: colors.textSecondary },
 });

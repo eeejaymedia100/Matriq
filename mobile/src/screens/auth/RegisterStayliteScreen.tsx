@@ -8,10 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Linking,
 } from "react-native";
 import { colors, spacing, typography } from "../../theme/colors";
 import { Input, Button } from "../../components";
 import { useAuth, type StayliteData } from "../../contexts/AuthContext";
+import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface Props {
   navigation: { navigate: (screen: string) => void; goBack: () => void };
@@ -135,8 +137,15 @@ export function RegisterStayliteScreen({ navigation }: Props) {
             size="lg"
           />
           <Text style={styles.legal}>
-            By registering, you agree to our Terms & Conditions (v1.0) and Privacy
-            Policy (v1.0).
+            By registering, you agree to our{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+              Terms & Conditions
+            </Text>{" "}
+            and{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+              Privacy Policy
+            </Text>
+            .
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -169,5 +178,11 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textAlign: "center",
     marginTop: spacing.md,
+    lineHeight: 18,
+  },
+  link: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    fontWeight: "600",
   },
 });

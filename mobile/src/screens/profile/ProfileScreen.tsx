@@ -152,7 +152,7 @@ export function ProfileScreen() {
           <View style={styles.row}>
             <Text style={styles.label}>MFA</Text>
             <Text style={styles.value}>
-              {user?.mfaEnabled ? "Enabled ✓" : "Not set up"}
+              {user?.mfaEnabled ? "Enabled" : "Not set up"}
             </Text>
           </View>
           {!user?.mfaEnabled && (

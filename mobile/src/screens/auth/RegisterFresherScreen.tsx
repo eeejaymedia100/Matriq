@@ -8,10 +8,12 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Linking,
 } from "react-native";
 import { colors, spacing, typography } from "../../theme/colors";
 import { Input, Button } from "../../components";
 import { useAuth, type FresherData } from "../../contexts/AuthContext";
+import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface Props {
   navigation: { navigate: (screen: string) => void; goBack: () => void };
@@ -80,7 +82,15 @@ export function RegisterFresherScreen({ navigation }: Props) {
           <Input label="Password" placeholder="Min. 8 characters" secureTextEntry value={form.password} onChangeText={(v) => update("password", v)} />
           <Button title="Create Account" onPress={handleRegister} loading={loading} size="lg" />
           <Text style={styles.legal}>
-            By registering, you agree to our Terms & Conditions (v1.0) and Privacy Policy (v1.0).
+            By registering, you agree to our{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+              Terms & Conditions
+            </Text>{" "}
+            and{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+              Privacy Policy
+            </Text>
+            .
           </Text>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -95,5 +105,16 @@ const styles = StyleSheet.create({
   subtitle: { ...typography.body, color: colors.textSecondary, marginBottom: spacing.md },
   errorBox: { backgroundColor: colors.errorBg, borderRadius: 8, padding: spacing.md, marginBottom: spacing.md },
   errorText: { ...typography.caption, color: colors.error },
-  legal: { ...typography.small, color: colors.textMuted, textAlign: "center", marginTop: spacing.md },
+  legal: {
+    ...typography.small,
+    color: colors.textMuted,
+    textAlign: "center",
+    marginTop: spacing.md,
+    lineHeight: 18,
+  },
+  link: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    fontWeight: "600",
+  },
 });

@@ -7,6 +7,7 @@ import {
   ScrollView,
   Share,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, ReferralsSkeleton } from "../../components";
 import { api } from "../../api/client";
@@ -54,10 +55,11 @@ export function ReferralsScreen() {
         {/* Ambassador Card */}
         {data?.isAmbassador ? (
           <Card
-            title="🏆 Ambassador Status"
+            title="Ambassador Status"
             subtitle="You're a Matriq Ambassador!"
           >
             <View style={styles.ambassadorBox}>
+              <Ionicons name="trophy" size={22} color={colors.success} />
               <Text style={styles.ambassadorText}>
                 You've referred {data.totalReferrals}+ students! Enjoy exclusive perks.
               </Text>
@@ -65,10 +67,11 @@ export function ReferralsScreen() {
           </Card>
         ) : (
           <Card
-            title="🎯 Be an Ambassador"
+            title="Be an Ambassador"
             subtitle="Refer 10+ students to unlock Ambassador status"
           >
             <View style={styles.progressBox}>
+              <Ionicons name="flag" size={20} color={colors.primary} style={styles.progressIcon} />
               <Text style={styles.progressText}>
                 {data?.completedReferrals ?? 0} / 10 referrals completed
               </Text>
@@ -114,9 +117,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.successBg,
     borderRadius: radii.md,
     padding: spacing.md,
+    alignItems: "center",
+    gap: spacing.sm,
   },
-  ambassadorText: { ...typography.body, color: colors.success },
+  ambassadorText: { ...typography.body, color: colors.success, textAlign: "center" },
   progressBox: { marginTop: spacing.sm },
+  progressIcon: { alignSelf: "center", marginBottom: spacing.sm },
   progressText: { ...typography.captionBold, color: colors.textSecondary, marginBottom: spacing.sm },
   progressBar: {
     height: 8,

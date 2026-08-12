@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { colors, radii, spacing, typography } from "../theme/colors";
+import { Ionicons } from "@expo/vector-icons";
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -55,7 +56,11 @@ export function Input({
             onPress={() => setShowPassword(!showPassword)}
             style={styles.iconBtn}
           >
-            <Text style={styles.iconText}>{showPassword ? "🙈" : "👁"}</Text>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={20}
+              color={colors.textMuted}
+            />
           </TouchableOpacity>
         ) : rightIcon ? (
           <View style={styles.iconBtn}>{rightIcon}</View>
@@ -98,7 +103,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  iconText: { fontSize: 18 },
   error: {
     ...typography.caption,
     color: colors.error,

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Text } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
+
+type IoniconName = keyof typeof Ionicons.glyphMap;
 import { colors, typography } from "../theme/colors";
 import { useAuth } from "../contexts/AuthContext";
 import { LoadingScreen } from "../components";
@@ -12,6 +15,7 @@ import type {
 } from "./types";
 
 // Auth screens
+import { OnboardingScreen } from "../screens/auth/OnboardingScreen";
 import { WelcomeScreen } from "../screens/auth/WelcomeScreen";
 import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterChoiceScreen } from "../screens/auth/RegisterChoiceScreen";
@@ -37,14 +41,18 @@ const MainStack = createNativeStackNavigator<MainStackParamList>();
 
 // ── Auth navigator ─────────────────────────────────────────────
 
-function AuthNavigator() {
+const ONBOARDING_SEEN_KEY = "onboarding_seen";
+
+function AuthNavigator({ showOnboarding }: { showOnboarding: boolean }) {
   return (
     <AuthStack.Navigator
+      initialRouteName={showOnboarding ? "Onboarding" : "Welcome"}
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
+      <AuthStack.Screen name="Onboarding" component={OnboardingScreen} />
       <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="RegisterChoice" component={RegisterChoiceScreen} />
@@ -56,12 +64,12 @@ function AuthNavigator() {
 
 // ── Main tab navigator ─────────────────────────────────────────
 
-const TAB_ICONS: Record<string, string> = {
-  Dashboard: "🏠",
-  Fees: "💰",
-  Announcements: "📢",
-  Events: "📅",
-  AI: "🤖",
+const TAB_ICONS: Record<string, { active: IoniconName; inactive: IoniconName }> = {
+  Dashboard: { active: "home", inactive: "home-outline" },
+  Fees: { active: "wallet", inactive: "wallet-outline" },
+  Announcements: { active: "megaphone", inactive: "megaphone-outline" },
+  Events: { active: "calendar", inactive: "calendar-outline" },
+  AI: { active: "sparkles", inactive: "sparkles-outline" },
 };
 
 function MainTabs() {
@@ -81,11 +89,16 @@ function MainTabs() {
         tabBarLabelStyle: {
           ...typography.small,
         },
-        tabBarIcon: ({ focused }) => (
-          <Text style={{ fontSize: focused ? 22 : 20, opacity: focused ? 1 : 0.6 }}>
-            {TAB_ICONS[route.name] ?? "📱"}
-          </Text>
-        ),
+        tabBarIcon: ({ focused, color, size }) => {
+          const icons = TAB_ICONS[route.name];
+          return (
+            <Ionicons
+              name={focused ? icons.active : icons.inactive}
+              size={size}
+              color={color}
+            />
+          );
+        },
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
@@ -129,10 +142,26 @@ function MainNavigator() {
 
 export function AppNavigator() {
   const { isAuthenticated, isLoading } = useAuth();
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
 
-  if (isLoading) {
+  useEffect(() => {
+    (async () => {
+      try {
+        const seen = await SecureStore.getItemAsync(ONBOARDING_SEEN_KEY);
+        setShowOnboarding(seen !== "1");
+      } catch {
+        setShowOnboarding(false);
+      }
+    })();
+  }, []);
+
+  if (isLoading || showOnboarding === null) {
     return <LoadingScreen message="Loading Matriq..." />;
   }
 
-  return isAuthenticated ? <MainNavigator /> : <AuthNavigator />;
+  if (isAuthenticated) {
+    return <MainNavigator />;
+  }
+
+  return <AuthNavigator showOnboarding={showOnboarding} />;
 }

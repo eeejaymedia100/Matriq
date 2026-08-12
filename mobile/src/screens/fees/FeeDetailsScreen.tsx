@@ -7,6 +7,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, ListScreenSkeleton } from "../../components";
 import { api } from "../../api/client";
@@ -99,7 +100,10 @@ export function FeeDetailsScreen({ navigation }: { navigation: { navigate: (s: s
                       style={styles.receiptLink}
                       onPress={() => navigation.navigate("Receipt", { paymentId: payment.id })}
                     >
-                      <Text style={styles.receiptText}>📄 View Receipt</Text>
+                      <View style={styles.receiptRow}>
+                        <Ionicons name="document-text-outline" size={16} color={colors.primary} />
+                        <Text style={styles.receiptText}>View Receipt</Text>
+                      </View>
                     </TouchableOpacity>
                   )}
                 </Card>
@@ -138,6 +142,7 @@ const styles = StyleSheet.create({
   },
   statusText: { ...typography.captionBold },
   receiptLink: { marginTop: spacing.sm },
+  receiptRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   receiptText: { ...typography.captionBold, color: colors.primary },
   emptyText: { ...typography.body, color: colors.textSecondary },
 });

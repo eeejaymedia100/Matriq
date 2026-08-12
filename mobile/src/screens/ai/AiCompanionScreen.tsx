@@ -11,6 +11,7 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { api, API_BASE, getTokens } from "../../api/client";
 
@@ -279,7 +280,8 @@ export function AiCompanionScreen() {
           )}
           ListHeaderComponent={
             <View style={styles.header}>
-              <Text style={styles.title}>🤖 AI Study Companion</Text>
+              <Ionicons name="sparkles" size={30} color={colors.primary} />
+              <Text style={styles.title}>AI Study Companion</Text>
               <Text style={styles.subtitle}>
                 Answers grounded in your association's approved study materials
               </Text>
@@ -306,7 +308,7 @@ export function AiCompanionScreen() {
             {loading ? (
               <ActivityIndicator size="small" color={colors.textOnPrimary} />
             ) : (
-              <Text style={styles.sendIcon}>➤</Text>
+              <Ionicons name="arrow-up" size={20} color={colors.textOnPrimary} />
             )}
           </TouchableOpacity>
         </View>
@@ -320,6 +322,7 @@ const styles = StyleSheet.create({
   list: { padding: spacing.md, paddingBottom: spacing.xxl },
   header: {
     alignItems: "center",
+    gap: spacing.sm,
     paddingVertical: spacing.lg,
     marginBottom: spacing.md,
   },
@@ -376,5 +379,4 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   sendBtnDisabled: { backgroundColor: colors.border },
-  sendIcon: { color: colors.textOnPrimary, fontSize: 18 },
 });

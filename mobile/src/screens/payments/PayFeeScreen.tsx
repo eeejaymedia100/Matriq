@@ -8,6 +8,7 @@ import {
   Linking,
   Alert,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button } from "../../components";
 import { api } from "../../api/client";
@@ -61,9 +62,18 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
             </Text>
             <View style={styles.infoBox}>
               <Text style={styles.infoTitle}>Payment Methods Available:</Text>
-              <Text style={styles.infoItem}>💳 Debit/Credit Card</Text>
-              <Text style={styles.infoItem}>🏦 Bank Transfer</Text>
-              <Text style={styles.infoItem}>📱 USSD</Text>
+              <View style={styles.infoItemRow}>
+                <Ionicons name="card-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.infoItem}>Debit/Credit Card</Text>
+              </View>
+              <View style={styles.infoItemRow}>
+                <Ionicons name="business-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.infoItem}>Bank Transfer</Text>
+              </View>
+              <View style={styles.infoItemRow}>
+                <Ionicons name="phone-portrait-outline" size={16} color={colors.textSecondary} />
+                <Text style={styles.infoItem}>USSD</Text>
+              </View>
             </View>
             <Button
               title="Proceed to Payment"
@@ -74,7 +84,10 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
           </Card>
         ) : (
           <Card title="Payment Initiated">
-            <Text style={styles.successText}>✅ Payment reference created</Text>
+            <View style={styles.successRow}>
+              <Ionicons name="checkmark-circle" size={20} color={colors.success} />
+              <Text style={styles.successText}>Payment reference created</Text>
+            </View>
             <View style={styles.refBox}>
               <Text style={styles.refLabel}>Reference:</Text>
               <Text style={styles.refValue}>{payment.internalReference}</Text>
@@ -110,8 +123,15 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   infoTitle: { ...typography.captionBold, color: colors.textPrimary, marginBottom: spacing.xs },
-  infoItem: { ...typography.caption, color: colors.textSecondary, marginVertical: 2 },
-  successText: { ...typography.h3, color: colors.success, marginBottom: spacing.md },
+  infoItem: { ...typography.caption, color: colors.textSecondary },
+  infoItemRow: { flexDirection: "row", alignItems: "center", gap: 8, marginVertical: 2 },
+  successText: { ...typography.h3, color: colors.success },
+  successRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: spacing.md,
+  },
   refBox: {
     flexDirection: "row",
     gap: spacing.sm,

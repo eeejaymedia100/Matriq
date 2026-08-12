@@ -10,6 +10,7 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, VerificationStatusSkeleton } from "../../components";
+import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../api/client";
 import type { VerificationRequest } from "../../types/api";
@@ -50,7 +51,7 @@ export function VerificationStatusScreen({ navigation }: Props) {
 
   const statusConfig = {
     pending: {
-      icon: "⏳",
+      icon: "hourglass-outline",
       color: colors.warning,
       bg: colors.warningBg,
       title: "Verification Pending",
@@ -58,7 +59,7 @@ export function VerificationStatusScreen({ navigation }: Props) {
         "Your document has been submitted and is awaiting review by an association executive. This usually takes 1-3 business days.",
     },
     approved: {
-      icon: "✅",
+      icon: "checkmark-circle",
       color: colors.success,
       bg: colors.successBg,
       title: "Identity Confirmed",
@@ -66,7 +67,7 @@ export function VerificationStatusScreen({ navigation }: Props) {
         "Your identity has been verified. You now have full access to all Matriq features.",
     },
     rejected: {
-      icon: "❌",
+      icon: "close-circle",
       color: colors.error,
       bg: colors.errorBg,
       title: "Verification Rejected",
@@ -95,7 +96,11 @@ export function VerificationStatusScreen({ navigation }: Props) {
       >
         {/* Current Status Card */}
         <View style={[styles.statusCard, { backgroundColor: config.bg }]}>
-          <Text style={styles.statusIcon}>{config.icon}</Text>
+          <Ionicons
+            name={config.icon as keyof typeof Ionicons.glyphMap}
+            size={48}
+            color={config.color}
+          />
           <Text style={[styles.statusTitle, { color: config.color }]}>
             {config.title}
           </Text>

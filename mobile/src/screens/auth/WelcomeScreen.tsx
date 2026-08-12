@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Linking } from "react-native";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Button } from "../../components";
+import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface WelcomeScreenProps {
   navigation: { navigate: (screen: string) => void };
@@ -36,9 +37,19 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
           />
         </View>
 
-        <Text style={styles.footer}>
-          By continuing, you agree to our Terms & Conditions and Privacy Policy.
-        </Text>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            By continuing, you agree to our{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+              Terms & Conditions
+            </Text>{" "}
+            and{" "}
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+              Privacy Policy
+            </Text>
+            .
+          </Text>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -81,8 +92,18 @@ const styles = StyleSheet.create({
   },
   actions: { gap: spacing.md },
   footer: {
+    alignItems: "center",
+    paddingHorizontal: spacing.sm,
+  },
+  footerText: {
     ...typography.caption,
     color: colors.textMuted,
     textAlign: "center",
+    lineHeight: 18,
+  },
+  link: {
+    color: colors.primary,
+    textDecorationLine: "underline",
+    fontWeight: "600",
   },
 });

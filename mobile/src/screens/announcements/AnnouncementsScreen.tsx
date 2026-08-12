@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, ListScreenSkeleton } from "../../components";
 import { api } from "../../api/client";
@@ -73,16 +74,27 @@ export function AnnouncementsScreen() {
         renderItem={({ item }) => (
           <TouchableOpacity onPress={() => markAsRead(item.id)}>
             <Card
-              title={item.pinned ? `📌 ${item.title}` : item.title}
+              title={item.title}
               subtitle={`${item.author.role} · ${new Date(item.createdAt).toLocaleDateString()}`}
             >
               <Text style={styles.body} numberOfLines={3}>
                 {item.body}
               </Text>
               <View style={styles.footer}>
-                <Text style={styles.readCount}>
-                  👁 {item._count?.reads ?? 0} read
-                </Text>
+                <View style={styles.footerLeft}>
+                  {item.pinned && (
+                    <View style={styles.pinBadge}>
+                      <Ionicons name="pin" size={11} color={colors.primary} />
+                      <Text style={styles.pinText}>Pinned</Text>
+                    </View>
+                  )}
+                  <View style={styles.readRow}>
+                    <Ionicons name="eye-outline" size={14} color={colors.textMuted} />
+                    <Text style={styles.readCount}>
+                      {item._count?.reads ?? 0} read
+                    </Text>
+                  </View>
+                </View>
                 {!item.readByMe && (
                   <View style={styles.unreadBadge}>
                     <Text style={styles.unreadText}>New</Text>
@@ -109,7 +121,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: spacing.sm,
   },
+  footerLeft: { flexDirection: "row", alignItems: "center", gap: spacing.md },
   readCount: { ...typography.caption, color: colors.textMuted },
+  readRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+  pinBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: colors.primaryLight + "22",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: radii.full,
+  },
+  pinText: { ...typography.small, color: colors.primary, fontWeight: "600" },
   unreadBadge: {
     backgroundColor: colors.primary,
     paddingHorizontal: spacing.md,
