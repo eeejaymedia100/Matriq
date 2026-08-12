@@ -137,6 +137,9 @@ services:
       - ./backend/prisma.config.ts:/app/prisma.config.ts
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-matriq}:${POSTGRES_PASSWORD:?err}@postgres:5432/${POSTGRES_DB:-matriq}
+      # Prisma 7 requires a shadow DB different from the main DB (even for
+      # migrate deploy). Create it once: CREATE DATABASE matriq_shadow;
+      - SHADOW_DATABASE_URL=${SHADOW_DATABASE_URL:-postgresql://${POSTGRES_USER:-matriq}:${POSTGRES_PASSWORD}@postgres:5432/matriq_shadow}
     networks:
       - matriq-net
     depends_on:
