@@ -89,7 +89,7 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 - [ ] DNS: `api` A → VM IP (proxied); `admin`/`dashboard` CNAME → `cname.vercel-dns.com` (proxied)
 - [ ] Cloudflare SSL/TLS mode: **Full (strict)**
 - [ ] Origin cert generated; `caddy/certs/origin.pem` + `origin.key` on VM (gitignored)
-- [ ] Vercel project `dashboard` (root dir `dashboard/`, `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`)
+- [ ] Vercel project `dashboard` (root dir `dashboard/`, `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1`)
 - [ ] Vercel project `admin` (root dir `admin/`, same env var)
 - [ ] `scripts/enable-cloudflare.sh` run; `https://api.matriq.app/health` → 200
 

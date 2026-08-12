@@ -25,7 +25,7 @@ DDoS protection) and forwards to the origin:
 | Subdomain | Service | Hosting | Notes |
 |---|---|---|---|
 | `api.matriq.app` | NestJS backend | GCP VM (Caddy) | Cloudflare proxies to Caddy, which serves the Cloudflare Origin cert (SSL mode Full strict) and reverse-proxies to `backend:3000` |
-| `dashboard.matriq.app` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1` |
+| `dashboard.matriq.app` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1` |
 | `admin.matriq.app` | Admin Console (Next.js) | **Vercel** | `admin/` root dir; separate Vercel project |
 
 - Caddy no longer needs Let's Encrypt: Cloudflare is the TLS terminator and Caddy serves the

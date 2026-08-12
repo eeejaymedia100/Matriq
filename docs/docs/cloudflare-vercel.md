@@ -120,7 +120,7 @@ projects**, each importing the same GitHub repo with a different root directory.
 > console would overwrite each other). Create a brand-new project for each.
 
 **Project 1 — Admin Console (DONE — live at `matriq-ebon.vercel.app`):**
-- Project `matriq`, Root Directory `admin`, env `NEXT_PUBLIC_API_URL=https://api.matriq.app/v1`.
+- Project `matriq`, Root Directory `admin`, env `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1`.
 - Deployment Protection (SSO) must be **off** — it was toggled on during setup and made
   the site redirect to Vercel's login page; it has been disabled via API.
 
