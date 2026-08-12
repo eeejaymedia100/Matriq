@@ -89,6 +89,15 @@ export class AuthService {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
       }
+      // Unverified accounts have no real data, but legal acceptances (and any
+      // refresh-token family) reference the row — remove them first so the
+      // delete doesn't trip an FK constraint (was a 500 on re-registration).
+      await this.prisma.legalAcceptance.deleteMany({
+        where: { userId: existing.id },
+      });
+      await this.prisma.refreshTokenFamily.deleteMany({
+        where: { userId: existing.id },
+      });
       await this.prisma.user.delete({ where: { id: existing.id } });
     }
 
@@ -161,6 +170,15 @@ export class AuthService {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
       }
+      // Unverified accounts have no real data, but legal acceptances (and any
+      // refresh-token family) reference the row — remove them first so the
+      // delete doesn't trip an FK constraint (was a 500 on re-registration).
+      await this.prisma.legalAcceptance.deleteMany({
+        where: { userId: existing.id },
+      });
+      await this.prisma.refreshTokenFamily.deleteMany({
+        where: { userId: existing.id },
+      });
       await this.prisma.user.delete({ where: { id: existing.id } });
     }
 

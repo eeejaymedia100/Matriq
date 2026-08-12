@@ -113,6 +113,7 @@ describe("AuthService", () => {
       legalAcceptance: {
         upsert: jest.fn(),
         findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
       payment: {
         findMany: jest.fn().mockResolvedValue([]),
@@ -120,6 +121,7 @@ describe("AuthService", () => {
       refreshTokenFamily: {
         create: jest.fn().mockResolvedValue(tokenFamily),
         findMany: jest.fn().mockResolvedValue([]),
+        deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
       },
       refreshToken: {
         findFirst: jest.fn(),
