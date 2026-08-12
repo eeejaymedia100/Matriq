@@ -46,6 +46,56 @@ services:
                 # externally exposed port
 ```
 
+## Capacity: serving 1,000 concurrent students
+
+The stack is built to absorb ~1,000 concurrent mobile users at typical request
+rates. The load-bearing pieces (all configurable via `.env`):
+
+- **Cluster mode (multi-core).** NestJS is single-threaded. In production the
+  backend forks one worker per CPU core (`WORKERS=0` → `os.availableParallelism()`,
+  or pin with `WORKERS=4`; `WORKERS=1` forces single-process for dev/debug).
+  Crashed workers are respawned automatically; SIGTERM/SIGINT drain gracefully.
+- **Redis-backed rate limiting.** The throttler stores limits in Redis
+  (`nestjs-throttler-storage-redis`), so limits are shared across cluster
+  workers and keyed by real client IP (`trust proxy` is already set). If Redis
+  is unreachable it degrades to in-memory per-worker limits instead of 500ing
+  (`src/throttler/throttler-storage.ts`).
+- **Per-user login burst protection.** Login/register/admin-login are limited by
+  **IP + email** (`src/throttler/trackers.ts`): 1,000 students behind campus NAT
+  each get their own 5/min bucket per account, while a single source still can't
+  spray many accounts. (A plain per-IP limit would let one student burn the
+  bucket for everyone else.)
+- **AI concurrency caps.** Ollama is CPU-bound, so chat generations are capped
+  at `OLLAMA_MAX_CONCURRENCY` (default 2) with a FIFO queue; requests that wait
+  longer than `AI_QUEUE_TIMEOUT_MS` get a 503 "busy" rather than stalling the
+  box. Embeddings use a separate pool (`OLLAMA_EMBED_MAX_CONCURRENCY`) so
+  retrieval stays fast during chat. See `src/ai/semaphore.ts`.
+- **Bounded DB connections.** Each worker runs its own Postgres pool capped at
+  `DATABASE_POOL_MAX` (default 5) → ~10 connections on the 2-core box instead
+  of pg's default 20+.
+
+### Honest limits on the current box (2 vCPU / 3.8 GB)
+
+- Normal API traffic (JWT + Prisma): fine for 1,000 concurrent users.
+- **Login stampede:** argon2 hashing is CPU-heavy (~100–300 ms, 64 MB per
+  hash). A mass login moment is the realistic bottleneck. The per-IP+email
+  throttle (5/min) plus 2 workers absorbs normal bursts; a real enrollment-day
+  stampede wants the VM upgrade below.
+- **AI:** ~2 concurrent generations max on CPU. More students than that queue
+  (then 503) — acceptable for a study companion, not for a lecture tool.
+
+### Upgrade path (when the current box is the bottleneck)
+
+1. **Right-size the VM → 4 vCPU / 16 GB** (this doc's original recommendation).
+   Kills swap thrash; cluster mode immediately uses all cores; login-OOM risk
+   disappears. GCP: stop the instance, change machine type, start.
+2. **Decouple Ollama** to its own instance (ideally GPU, or at least a separate
+   CPU box) and point `OLLAMA_HOST` at it. Then `OLLAMA_MAX_CONCURRENCY` can
+   grow past 2 without hurting the API box.
+3. **Load test before the big day:** `cd backend && npm run loadtest`
+   (autocannon; see `backend/scripts/load-test.mjs`) to turn estimates into
+   measured numbers.
+
 - `caddy` (or nginx + certbot if preferred) terminates TLS and routes to `backend`. This is the
   only service that should ever bind to a public interface.
 - Each service runs as a non-root user inside its container.

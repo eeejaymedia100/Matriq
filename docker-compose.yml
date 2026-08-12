@@ -43,6 +43,16 @@ services:
       - OLLAMA_HOST=http://ollama:11434
       - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:3b}
       - OLLAMA_TIMEOUT_MS=${OLLAMA_TIMEOUT_MS:-180000}
+      # AI capacity: cap concurrent Ollama calls (CPU-bound server). Excess
+      # requests queue; after AI_QUEUE_TIMEOUT_MS they get a 503 "busy".
+      - OLLAMA_MAX_CONCURRENCY=${OLLAMA_MAX_CONCURRENCY:-2}
+      - OLLAMA_EMBED_MAX_CONCURRENCY=${OLLAMA_EMBED_MAX_CONCURRENCY:-2}
+      - AI_QUEUE_TIMEOUT_MS=${AI_QUEUE_TIMEOUT_MS:-30000}
+      # Process scaling: WORKERS=0 -> one process per CPU core (production
+      # default); WORKERS=1 forces single-process (dev/debug); WORKERS=4 pins 4.
+      - WORKERS=${WORKERS:-0}
+      # Postgres pool per worker (workers × this = max DB connections).
+      - DATABASE_POOL_MAX=${DATABASE_POOL_MAX:-5}
       - PAYSTACK_SECRET_KEY=${PAYSTACK_SECRET_KEY:-}
       - OLLAMA_EMBED_MODEL=${OLLAMA_EMBED_MODEL:-nomic-embed-text}
       # Push notifications (self-hosted ntfy). Disabled unless NTFY_ENABLED=true.

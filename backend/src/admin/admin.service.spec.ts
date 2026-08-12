@@ -24,9 +24,21 @@ jest.mock("otplib", () => ({
   verify: jest.fn(),
 }));
 
+// Mock argon2 to avoid real hashing in tests (same factory pattern as
+// auth.service.spec.ts — dynamic-import + spyOn breaks under esModuleInterop
+// because module namespace objects are non-configurable).
+jest.mock("argon2", () => ({
+  hash: jest.fn().mockResolvedValue("hashed"),
+  verify: jest.fn(),
+}));
+
+import { verify as verifyArgon2 } from "argon2";
 import { verify as verifyTotp } from "otplib";
 
 const mockVerifyTotp = verifyTotp as jest.MockedFunction<typeof verifyTotp>;
+const mockVerifyArgon2 = verifyArgon2 as jest.MockedFunction<
+  typeof verifyArgon2
+>;
 
 describe("AdminAuthService", () => {
   let service: AdminAuthService;
@@ -103,8 +115,7 @@ describe("AdminAuthService", () => {
         mfaEnabled: false,
         mfaSecret: null,
       });
-      const argon2 = await import("argon2");
-      jest.spyOn(argon2, "verify").mockResolvedValueOnce(false);
+      mockVerifyArgon2.mockResolvedValueOnce(false);
 
       await expect(
         service.login("admin@test.com", "wrong", "127.0.0.1"),
@@ -119,8 +130,7 @@ describe("AdminAuthService", () => {
         mfaEnabled: false,
         mfaSecret: null,
       });
-      const argon2 = await import("argon2");
-      jest.spyOn(argon2, "verify").mockResolvedValueOnce(true);
+      mockVerifyArgon2.mockResolvedValueOnce(true);
 
       const result = await service.login("admin@test.com", "pass", "127.0.0.1");
 
@@ -139,8 +149,7 @@ describe("AdminAuthService", () => {
         mfaEnabled: true,
         mfaSecret: "SECRET",
       });
-      const argon2 = await import("argon2");
-      jest.spyOn(argon2, "verify").mockResolvedValueOnce(true);
+      mockVerifyArgon2.mockResolvedValueOnce(true);
 
       const result = await service.login("admin@test.com", "pass", "127.0.0.1");
 

@@ -14,6 +14,7 @@ import {
 } from "@nestjs/common";
 import { Request } from "express";
 import { Throttle } from "@nestjs/throttler";
+import { ipAndEmailTracker } from "../throttler/trackers";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AdminGuard } from "./admin.guard";
 import {
@@ -105,7 +106,10 @@ export class AdminController {
 
   @Post("auth/login")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // Per-IP+email bucket — same rationale as student login (trackers.ts).
+  @Throttle({
+    default: { ttl: 60000, limit: 5, getTracker: ipAndEmailTracker },
+  })
   login(
     @Body() dto: AdminLoginDto,
     @Req() req: Request,

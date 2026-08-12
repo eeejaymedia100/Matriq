@@ -11,6 +11,7 @@ import {
 } from "@nestjs/common";
 import { Request } from "express";
 import { Throttle } from "@nestjs/throttler";
+import { ipAndEmailTracker } from "../throttler/trackers";
 import { AuthService, AuthResponse, LoginResult } from "./auth.service";
 import { MfaService } from "./mfa.service";
 import { RegisterStayliteDto } from "./dto/register-staylite.dto";
@@ -36,7 +37,11 @@ export class AuthController {
   // ── Auth: Registration ──────────────────────────────────────
 
   @Post("auth/register/staylite")
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // Per-IP+email bucket: 1000 students behind campus NAT each get their own
+  // 5/min, and one source can't spam many accounts (see trackers.ts).
+  @Throttle({
+    default: { ttl: 60000, limit: 5, getTracker: ipAndEmailTracker },
+  })
   registerStaylite(
     @Body() dto: RegisterStayliteDto,
     @Req() req: Request,
@@ -46,7 +51,9 @@ export class AuthController {
   }
 
   @Post("auth/register/fresher")
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  @Throttle({
+    default: { ttl: 60000, limit: 5, getTracker: ipAndEmailTracker },
+  })
   registerFresher(
     @Body() dto: RegisterFresherDto,
     @Req() req: Request,
@@ -67,7 +74,11 @@ export class AuthController {
 
   @Post("auth/login")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  // Per-IP+email bucket (5/min): an attacker rotating emails from one IP is
+  // capped, and a legit user behind a shared NAT keeps their own bucket.
+  @Throttle({
+    default: { ttl: 60000, limit: 5, getTracker: ipAndEmailTracker },
+  })
   login(@Body() dto: LoginDto): Promise<LoginResult> {
     return this.authService.login(dto);
   }

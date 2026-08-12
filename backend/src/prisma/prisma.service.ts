@@ -20,7 +20,13 @@ export class PrismaService
     const connectionString =
       process.env.DATABASE_URL ??
       "postgresql://matriq:matriq@localhost:5432/matriq";
-    const adapter = new PrismaPg({ connectionString });
+    // Cap the pool per worker: the backend now runs clustered (one worker per
+    // CPU core), so N workers × this max = total DB connections. Default 5 per
+    // worker keeps a 2-worker box at ~10 connections instead of pg's default
+    // 10-per-worker (20 total) on a 3.8GB VM.
+    const rawPoolMax = Number(process.env.DATABASE_POOL_MAX ?? 5);
+    const poolMax = Number.isFinite(rawPoolMax) ? Math.max(1, rawPoolMax) : 5;
+    const adapter = new PrismaPg({ connectionString, max: poolMax });
     super({ adapter });
   }
 

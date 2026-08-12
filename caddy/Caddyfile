@@ -66,6 +66,16 @@ http://34.28.210.233 {
             header_up X-Forwarded-Proto http
         }
     }
+    # /health is proxied to the backend so external monitors and load tests
+    # measure the API, not this static respond block.
+    handle /health {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto http
+        }
+    }
     handle {
         respond "Matriq API — use /v1/*" 200
     }
@@ -79,6 +89,16 @@ http://34.28.210.233 {
 # https://api.matriq.com.ng/v1 and this block can be removed.
 http:// {
     handle /v1/* {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+    # /health is proxied to the backend so external monitors and load tests
+    # measure the API, not this static respond block.
+    handle /health {
         reverse_proxy backend:3000 {
             header_up Host api.matriq.com.ng
             header_up X-Real-IP {remote_host}

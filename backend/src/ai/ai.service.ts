@@ -1,7 +1,13 @@
-import { Injectable, BadRequestException, Logger } from "@nestjs/common";
+import {
+  Injectable,
+  BadRequestException,
+  Logger,
+  ServiceUnavailableException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 import { PrismaService } from "../prisma/prisma.service";
+import { Semaphore } from "./semaphore";
 
 export interface AiQueryDto {
   query: string;
@@ -32,6 +38,9 @@ const DEFAULT_OLLAMA_HOST = "http://localhost:11434";
 const DEFAULT_OLLAMA_MODEL = "nemotron-3-super:cloud";
 const DEFAULT_OLLAMA_EMBED_MODEL = "nomic-embed-text";
 const DEFAULT_TIMEOUT_MS = 45_000;
+const DEFAULT_MAX_CHAT_CONCURRENCY = 2;
+const DEFAULT_MAX_EMBED_CONCURRENCY = 2;
+const DEFAULT_QUEUE_TIMEOUT_MS = 30_000;
 const MAX_RESPONSE_LENGTH = 4000;
 // The ai_documents.embedding column is vector(1536). nomic-embed-text emits
 // 768-dim vectors; we pad to 1536 with zeros — both query and document vectors
@@ -44,6 +53,17 @@ export class AiService {
   private readonly ollamaHost: string;
   private readonly ollamaModel: string;
   private readonly ollamaEmbedModel: string;
+  private readonly chatSemaphore: Semaphore;
+  private readonly embedSemaphore: Semaphore;
+
+  /** Parse an env var as a positive int, falling back to `fallback` on NaN/≤0. */
+  private clampPositiveInt(raw: string | undefined, fallback: number): number {
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return fallback;
+    }
+    return Math.floor(parsed);
+  }
 
   constructor(
     private readonly prisma: PrismaService,
@@ -57,6 +77,30 @@ export class AiService {
     this.ollamaEmbedModel =
       this.configService.get<string>("OLLAMA_EMBED_MODEL") ??
       DEFAULT_OLLAMA_EMBED_MODEL;
+
+    // Concurrency caps: the model server is CPU-bound, so cap simultaneous
+    // calls and queue the excess (fail fast with 503 after the wait timeout).
+    // Chat generations hold a slot for the whole (possibly long) call; embed
+    // calls are short, so a separate pool keeps retrieval snappy during chat.
+    // Env values are clamped to sane bounds — a typo'd env var must never turn
+    // into NaN (NaN would make every acquire wait forever → all-AI 503s).
+    const maxChat = this.clampPositiveInt(
+      this.configService.get<string>("OLLAMA_MAX_CONCURRENCY"),
+      DEFAULT_MAX_CHAT_CONCURRENCY,
+    );
+    const maxEmbed = this.clampPositiveInt(
+      this.configService.get<string>("OLLAMA_EMBED_MAX_CONCURRENCY"),
+      DEFAULT_MAX_EMBED_CONCURRENCY,
+    );
+    const queueTimeoutMs = this.clampPositiveInt(
+      this.configService.get<string>("AI_QUEUE_TIMEOUT_MS"),
+      DEFAULT_QUEUE_TIMEOUT_MS,
+    );
+    this.chatSemaphore = new Semaphore(maxChat, queueTimeoutMs);
+    this.embedSemaphore = new Semaphore(
+      maxEmbed,
+      Math.min(queueTimeoutMs, 10_000),
+    );
   }
 
   /**
@@ -93,6 +137,11 @@ export class AiService {
         `AI query from user ${userId}: "${dto.query.slice(0, 80)}..." (Ollama)`,
       );
     } catch (err) {
+      // Capacity (503) is a real answer to the client — retry later — not a
+      // reason to serve a placeholder. Only infrastructure failures fall back.
+      if (err instanceof ServiceUnavailableException) {
+        throw err;
+      }
       const reason = err instanceof Error ? err.message : "unknown error";
       this.logger.warn(
         `Ollama call failed, using fallback response: ${reason}`,
@@ -145,11 +194,18 @@ export class AiService {
         `AI stream query from user ${userId}: "${dto.query.slice(0, 80)}..." (Ollama)`,
       );
     } catch (err) {
+      // Capacity (503) propagates as an SSE error event — honest backpressure.
+      if (err instanceof ServiceUnavailableException) {
+        throw err;
+      }
       const reason = err instanceof Error ? err.message : "unknown error";
       this.logger.warn(`Ollama stream failed, falling back: ${reason}`);
       try {
         response = await this.generateFromOllama(dto.query, relevantDocs);
-      } catch {
+      } catch (fallbackErr) {
+        if (fallbackErr instanceof ServiceUnavailableException) {
+          throw fallbackErr;
+        }
         response = this.buildFallbackResponse(dto.query, relevantDocs);
       }
       this.writeSse(
@@ -392,9 +448,20 @@ export class AiService {
 
   /**
    * Embed text via Ollama's /api/embed. Returns a 1536-dim vector (padded
-   * from the model's native dims) or null on any failure.
+   * from the model's native dims) or null on any failure (including a busy
+   * model server — retrieval then gracefully falls back to keyword search).
    */
   private async embedText(text: string): Promise<number[] | null> {
+    let release: () => void;
+    try {
+      release = await this.embedSemaphore.acquire();
+    } catch (err) {
+      this.logger.warn(
+        `Embed queue busy, skipping vector search: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return null;
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15_000);
 
@@ -434,6 +501,7 @@ export class AiService {
       return null;
     } finally {
       clearTimeout(timeout);
+      release();
     }
   }
 
@@ -449,6 +517,11 @@ export class AiService {
 
     const timeoutMs =
       this.configService.get<number>("OLLAMA_TIMEOUT_MS") ?? DEFAULT_TIMEOUT_MS;
+
+    // Bound concurrent generations — one student's long query must not stall
+    // the model server for everyone else. 503 on queue wait timeout.
+    const release = await this.chatSemaphore.acquire();
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -481,6 +554,7 @@ export class AiService {
       return this.sanitize(content);
     } finally {
       clearTimeout(timeout);
+      release();
     }
   }
 
@@ -499,6 +573,11 @@ export class AiService {
 
     const timeoutMs =
       this.configService.get<number>("OLLAMA_TIMEOUT_MS") ?? DEFAULT_TIMEOUT_MS;
+
+    // Same concurrency cap as the non-streaming path — a stream holds its
+    // slot for the whole generation, so at most N streams run at once.
+    const release = await this.chatSemaphore.acquire();
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -565,6 +644,7 @@ export class AiService {
       return this.sanitize(assembled);
     } finally {
       clearTimeout(timeout);
+      release();
     }
   }
 

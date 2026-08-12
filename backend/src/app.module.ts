@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { ResilientThrottlerStorage } from "./throttler/throttler-storage";
 import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { AuditModule } from "./audit/audit.module";
@@ -26,12 +27,18 @@ import { EmailModule } from "./email/email.module";
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === "test" ? ".env.test" : ".env",
     }),
-    ThrottlerModule.forRoot([
-      {
-        ttl: 60000,
-        limit: 60,
-      },
-    ]),
+    // Redis-backed rate limiting (shared across cluster workers) with an
+    // automatic in-memory fallback so throttling never takes the API down
+    // with a Redis outage. See src/throttler/throttler-storage.ts.
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 60,
+        },
+      ],
+      storage: new ResilientThrottlerStorage(),
+    }),
     PrismaModule,
     AuthModule,
     AuditModule,

@@ -13,6 +13,53 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-11 — Capacity upgrades DEPLOYED + load-tested (live stack)
+
+**Status:** deployed & verified live; VM right-sizing remains the one manual step
+
+**Did:**
+- **Redeployed the backend** (`docker compose up -d --build backend`) — the capacity
+  upgrades from the previous entry are now LIVE: cluster mode (2 workers forked,
+  confirmed in logs), Redis-backed throttler storage, AI concurrency semaphore.
+  Backend healthy in ~14s; no migration needed (no schema change).
+- **A/B tested cluster scaling** (`WORKERS=1` vs `WORKERS=2`): identical throughput —
+  clustering is NOT a bottleneck; the box is CPU-starved instead (2 vCPU, and the
+  box also runs 4 agent sessions + Ollama, host load 5+ during tests).
+- **Load-tested with autocannon** (new `backend/scripts/load-test.mjs`,
+  `npm run loadtest`):
+  - /health: **~200-430 rps**, p95 276-356ms at 20-30 conns (direct to backend)
+  - /v1/associations (JWT+DB): **~60-90 rps**, p95 up to 464ms (20 conns) / 1.8s
+    (30 conns direct) under concurrent load; single-request latency is 1-7ms —
+    API itself is fast, ceiling is the 2-core box
+  - Single-request checks: health 1.2ms, associations 7ms — healthy
+- **Found + fixed a load-test footgun:** Caddy's catch-all block answered `/health`
+  with a static respond ("Matriq API — use /v1/*") instead of proxying it — so
+  earlier "health" benchmarks measured Caddy's static path, not the API. Added
+  `/health` proxy blocks (IP + catch-all) and reloaded Caddy live; verified real
+  backend JSON now returned.
+- **Fixed load-test script for autocannon v8**: v8 renamed percentiles (no `p95`;
+  interpolate from `p90`/`p97_5`) and dropped `printResult` output — summary now
+  prints rps, status codes, avg/p95, throughput.
+- **Flag (pre-existing, not introduced here):** `ThrottlerGuard` is not registered
+  anywhere, so the `@Throttle` decorators (login 5/min etc.) are NOT enforced. The
+  Redis storage is wired and cluster-safe, but no guard activates it. Decision
+  needed: register as global APP_GUARD (enforces 60/min default everywhere) or
+  per-route on sensitive endpoints (login/register/AI/payments) — see Blockers.
+
+**Next:**
+- **Right-size the VM → 4 vCPU / 16 GB** (stop VM → change machine type → start;
+  GCP console, ~$25-35/mo). This is the single biggest capacity lever; with it,
+  cluster mode + Redis throttling + AI queue comfortably serve 1,000 concurrent
+  students. Everything in the previous entry's code work stays as-is.
+- Optional: register `ThrottlerGuard` (see flag) once the 1,000-student decision
+  is confirmed — this makes the pre-existing login/AI/payment rate limits real.
+- Re-run `npm run loadtest` after the resize to record the real before/after.
+
+**Blockers/flags:**
+- VM resize is a manual GCP console action (stop → machine type → start).
+- Load-test numbers on this box are pessimistic: tests run while 4 agent sessions
+  + Ollama contend for the same 2 cores.
+
 ## 2026-08-11 — Phase 6 — Both Vercel dashboards LIVE + DB seeded (waiting on domain approval)
 
 **Status:** on track — domain purchased by user, under registrar approval; everything that
@@ -847,3 +894,35 @@ green.
 
 **Flags:** Resend still in test mode (emails only to `juliusemmanueloghenegare@gmail.com` until a
 sending domain is verified — do once DNS is live).
+
+---
+
+## 2026-08-11 — Capacity upgrades: clustering, Redis throttling, AI queue
+
+**Status:** code complete; requires redeploy
+
+**Did** (per the capacity assessment for 1,000 students):
+- **Cluster mode** — backend forks one worker per CPU core in production
+  (`WORKERS` env, `os.availableParallelism()` default), respawns crashed
+  workers, graceful shutdown. Uses both vCPUs instead of one.
+- **Redis-backed rate limiting** — `nestjs-throttler-storage-redis` wired in,
+  shared across workers, with automatic in-memory fallback if Redis is down
+  (never 500s on throttling). New `src/throttler/throttler-storage.ts`.
+- **Per-IP+email login burst protection** — login/register/admin-login keyed by
+  IP **and** email (campus-NAT-safe; each student gets their own 5/min bucket;
+  attackers can't spray accounts from one IP). `src/throttler/trackers.ts`.
+- **AI concurrency cap** — semaphore (`src/ai/semaphore.ts`) limits concurrent
+  Ollama chat calls (`OLLAMA_MAX_CONCURRENCY`, default 2) + embed pool; queued
+  requests past `AI_QUEUE_TIMEOUT_MS` get an honest 503 instead of a stalled
+  box or a fake placeholder.
+- **DB pool bounds** — `DATABASE_POOL_MAX` (default 5 per worker) so cluster
+  mode doesn't multiply Postgres connections past what 3.8 GB can hold.
+- **Load test** — `cd backend && npm run loadtest` (autocannon; health /
+  associations / login / ai scenarios, env-configurable).
+
+**Next:** redeploy (`scripts/deploy.sh`); then right-size the VM to 4 vCPU / 16
+GB and optionally decouple Ollama (see `docs/infrastructure.md` "Capacity"
+section) when real load testing demands it.
+
+**Blockers/flags:** VM resize is a manual GCP action (stop → change machine
+type → start); no code change required for cluster mode to benefit.
