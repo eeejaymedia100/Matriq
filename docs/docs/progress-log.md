@@ -13,6 +13,31 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — Custom subdomains LIVE: admin.matriq.com.ng + dashboard.matriq.com.ng
+
+**Status:** done — both verified end-to-end over HTTPS
+
+**Did:**
+- **Put the dashboards on branded subdomains** (user request after the Vercel env fix):
+  - Cloudflare API (token in `matriq/.cloudflare-token`, 0600, gitignored): added two
+    DNS-only CNAMEs → `cname.vercel-dns.com` (TTL 300, matching existing records).
+  - Vercel API: attached `admin.matriq.com.ng` to project `matriq` and
+    `dashboard.matriq.com.ng` to `matriq-dashboard` — both `verified: True` instantly.
+  - Old `*.vercel.app` URLs still work (they stay attached) — no breaking change.
+- **Backend CORS extended** on the target (`.env`): added
+  `https://admin.matriq.com.ng,https://dashboard.matriq.com.ng`; backend restarted,
+  health 200. (Also updated the local `.env` copy.)
+- **Verified live:** both domains serve 200 (login pages, valid auto-issued certs — the
+  dashboard cert took ~1 min to provision); admin + executive logins through the new
+  domains return 200 with authenticated sessions; CORS preflights from both new origins
+  → 204 with correct allow-origin.
+- Docs updated (infrastructure subdomain table now reflects the real topology).
+
+**Next:**
+- User: bookmarks are now https://admin.matriq.com.ng and
+  https://dashboard.matriq.com.ng (same seed creds as before).
+- Optional later: proxy the VM hosts through Cloudflare (origin certs) for WAF/CDN.
+
 ## 2026-08-12 — Admin console + association dashboard made FUNCTIONAL (Vercel env fix)
 
 **Status:** done — both sites were up but login 500'd; now fixed and verified

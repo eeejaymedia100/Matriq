@@ -24,12 +24,14 @@ DDoS protection) and forwards to the origin:
 
 | Subdomain | Service | Hosting | Notes |
 |---|---|---|---|
-| `api.matriq.app` | NestJS backend | GCP VM (Caddy) | Cloudflare proxies to Caddy, which serves the Cloudflare Origin cert (SSL mode Full strict) and reverse-proxies to `backend:3000` |
-| `dashboard.matriq.app` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1` |
-| `admin.matriq.app` | Admin Console (Next.js) | **Vercel** | `admin/` root dir; separate Vercel project |
+| `matriq.com.ng` | Waitlist landing page (static) | GCP VM (Caddy) | DNS-only Cloudflare A → `35.204.163.157`; Caddy serves `/srv/waitlist` + issues Let's Encrypt |
+| `api.matriq.com.ng` | NestJS backend | GCP VM (Caddy) | DNS-only Cloudflare A → `35.204.163.157`; Caddy reverse-proxies to `backend:3000` |
+| `admin.matriq.com.ng` | Admin Console (Next.js) | **Vercel** | `admin/` root dir; separate Vercel project; DNS-only CNAME → `cname.vercel-dns.com` |
+| `dashboard.matriq.com.ng` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1`; DNS-only CNAME → `cname.vercel-dns.com` |
 
-- Caddy no longer needs Let's Encrypt: Cloudflare is the TLS terminator and Caddy serves the
-  origin cert. See `caddy/Caddyfile.cloudflare` (swapped in by `scripts/enable-cloudflare.sh`).
+- The Vercel subdomains terminate TLS at Vercel's edge (certs auto-provisioned). The GCP VM
+  hosts are DNS-only on Cloudflare so Caddy can use Let's Encrypt HTTP-01. (Proxying the VM
+  hosts through Cloudflare would require origin certs — see `caddy/Caddyfile.cloudflare`.)
 - The two Next.js apps are **deployed on Vercel** (independent projects from this monorepo,
   root directories `admin/` and `dashboard/`) — the GCP VM stays focused on backend +
   database + AI model. Pushing to `main` auto-deploys both.
