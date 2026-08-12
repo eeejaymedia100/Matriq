@@ -27,7 +27,7 @@ Target architecture (everything behind Cloudflare, dashboards on Vercel):
   certificate; Cloudflare proxies + protects it).
 - `admin.matriq.app` — Admin Console (`admin/`), deployed on Vercel.
 - `dashboard.matriq.app` — Association Dashboard (`dashboard/`), deployed on Vercel.
-- Mobile APK already points at `https://api.matriq.app/v1` (`mobile/app.json`).
+- Mobile APK points at `https://api.matriq.com.ng/v1` (release) / `http://35.204.163.157/v1` (dev, until the domain + 443 are live).
 
 Estimated cost: domain ~$12–15/yr (`.app` TLD) + Cloudflare Free + Vercel Hobby (both free).
 
@@ -74,7 +74,7 @@ Cloudflare protection):
 
 | Type | Name | Content | Proxy |
 |---|---|---|---|
-| A | `api` | `35.204.163.157` (`matriq-server` VM's static IP) | ⛅ Proxied |
+| A | `api` | `35.204.163.157` (`matriq-server` VM's static IP) | DNS-only (grey cloud) — Caddy issues Let's Encrypt on :80 |
 | CNAME | `admin` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `dashboard` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `@` (root) | `cname.vercel-dns.com` *(optional — see note)* | ⛅ Proxied |
@@ -167,7 +167,7 @@ restores the pre-domain config).
 | `https://admin.matriq.app` (or `matriq-ebon.vercel.app` until domain) | Admin login page loads (TLS from Vercel) |
 | `https://dashboard.matriq.app` (or `matriq-dashboard.vercel.app` until domain) | Dashboard login page loads |
 | Login on both, then a browser call to `/v1/associations/…` | No CORS errors in DevTools |
-| Mobile APK (already `https://api.matriq.app/v1`) | Register/login works from the phone |
+| Mobile APK (`https://api.matriq.com.ng/v1`) | Register/login works from the phone |
 
 **CORS note:** the backend whitelist is set via `CORS_ORIGIN` in `.env` on the VM. It
 currently allows `https://matriq-ebon.vercel.app` (admin console),

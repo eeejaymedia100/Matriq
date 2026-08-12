@@ -6,15 +6,16 @@ import * as SecureStore from "expo-secure-store";
 // time, so this fallback is baked into the bundle as a plain constant.
 const EXPO_API_URL = Constants.expoConfig?.extra?.apiUrl as string | undefined;
 
-// Production API — api.matriq.com.ng now resolves to the matriq-server
-// VM (35.204.163.157, e2-standard-4). The temporary trycloudflare tunnel
-// is retired; it served the old cliptonite-server box (34.28.210.233).
-// Note: the GCP firewall must allow TCP 443 and DNS must point at the new
-// VM before https works end-to-end.
+// Production API for release builds. https://api.matriq.com.ng works once
+// the GCP firewall allows TCP 443 and DNS points at the matriq-server VM
+// (35.204.163.157, e2-standard-4). Until then, dev builds use app.json
+// extra.apiUrl (http://35.204.163.157/v1), which works right now over the
+// publicly open port 80.
 const TEST_API_URL = "https://api.matriq.com.ng/v1";
 
-// Release builds embed this constant at prebuild time (dev builds honour
-// app.json extra.apiUrl, which is kept in sync below).
+// Release builds embed this constant at prebuild time; dev builds honour
+// app.json extra.apiUrl (kept in sync below) so development keeps working
+// while the production HTTPS domain is being wired up.
 export const API_BASE = __DEV__
   ? (EXPO_API_URL ?? TEST_API_URL)
   : TEST_API_URL;

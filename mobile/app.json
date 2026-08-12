@@ -37,7 +37,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "https://api.matriq.com.ng/v1"
+      "apiUrl": "http://35.204.163.157/v1"
     }
   }
 }

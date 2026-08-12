@@ -79,7 +79,7 @@ rates. The load-bearing pieces (all configurable via `.env`):
 - Normal API traffic (JWT + Prisma): fine for 1,000 concurrent users.
 - **Login stampede:** argon2 hashing is CPU-heavy (~100–300 ms, 64 MB per
   hash). A mass login moment is the realistic bottleneck. The per-IP+email
-  throttle (5/min) plus 2 workers absorbs normal bursts; a real enrollment-day
+  throttle (5/min) plus 4 workers absorbs normal bursts; a real enrollment-day
   stampede wants a bigger box (see below).
 - **AI:** ~2 concurrent generations max on CPU (semaphore-capped). More
   students than that queue (then 503) — acceptable for a study companion, not

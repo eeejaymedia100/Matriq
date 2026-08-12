@@ -46,8 +46,12 @@ Entry format:
    the `matriq-server` VM. Port 80 is already open (verified 200 from the internet).
 2. **Cloudflare** → DNS: change the `api` (and root) **A records from `34.28.210.233` →
    `35.204.163.157`** (keep records DNS-only for Caddy's Let's Encrypt).
-3. Rebuild the student APK when convenient (source already points at the new URL); the
-   existing test APK still works via the trycloudflare tunnel → old box (stale data).
+3. Rebuild the student APK when convenient (release source points at the new URL; dev
+   builds use `http://35.204.163.157/v1` so dev keeps working). The existing test APK
+   still works via the trycloudflare tunnel → old box (stale data).
+4. Update `NEXT_PUBLIC_API_URL` on BOTH Vercel projects from `https://api.matriq.app/v1`
+   → `https://api.matriq.com.ng/v1` (pre-existing drift — the .app plan was superseded
+   by the live .com.ng domain; see docs/docs/cloudflare-vercel.md).
 
 **Blockers/flags:**
 - Old box `cliptonite-server` left running as a warm standby/failover until launch is
