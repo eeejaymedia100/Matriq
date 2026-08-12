@@ -67,8 +67,12 @@ export function UpdateOverlay() {
     setDownloading(true);
     setProgress(0);
     try {
+      const cacheDir = FileSystem.cacheDirectory;
+      if (!cacheDir) {
+        throw new Error("Storage is unavailable on this device");
+      }
       const fileName = `matriq-${update.versionCode}.apk`;
-      const fileUri = `${FileSystem.cacheDirectory}${fileName}`;
+      const fileUri = `${cacheDir}${fileName}`;
 
       // Clear any partial download from a previous attempt.
       const existing = await FileSystem.getInfoAsync(fileUri).catch(

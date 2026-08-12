@@ -107,9 +107,7 @@ export class AuthController {
   })
   resendVerification(
     @Body() dto: ResendVerificationDto,
-    @Req() req: Request,
   ): Promise<{ message: string }> {
-    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
     return this.authService.resendVerification(dto.email);
   }
 

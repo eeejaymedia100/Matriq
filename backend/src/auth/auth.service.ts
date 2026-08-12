@@ -89,25 +89,25 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const { verificationToken, verificationCodeExpiresAt } =
-      this.newVerificationCode();
-
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        fullName: dto.fullName,
-        passwordHash,
-        registrationType: "staylite",
-        matricNumber: dto.matricNumber,
-        matricStatus: "provisional",
-        faculty: dto.faculty,
-        department: dto.department,
-        level: dto.level,
-        emailVerified: false,
-        verificationToken,
-        verificationCodeExpiresAt,
-      },
-    });
+    const { code, result: user } = await this.withUniqueVerificationCode(
+      (c) =>
+        this.prisma.user.create({
+          data: {
+            email: dto.email,
+            fullName: dto.fullName,
+            passwordHash,
+            registrationType: "staylite",
+            matricNumber: dto.matricNumber,
+            matricStatus: "provisional",
+            faculty: dto.faculty,
+            department: dto.department,
+            level: dto.level,
+            emailVerified: false,
+            verificationToken: c.verificationToken,
+            verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+          },
+        }),
+    );
 
     await this.recordLegalAcceptance(
       user.id,
@@ -122,7 +122,7 @@ export class AuthService {
       ipAddress,
     );
 
-    await this.sendVerificationEmail(user.email, verificationToken);
+    await this.sendVerificationEmail(user.email, code.verificationToken);
 
     this.logger.log(
       `Staylite user registered (unverified): ${user.id} (${user.email})`,
@@ -156,25 +156,25 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const { verificationToken, verificationCodeExpiresAt } =
-      this.newVerificationCode();
-
-    const user = await this.prisma.user.create({
-      data: {
-        email: dto.email,
-        fullName: dto.fullName,
-        passwordHash,
-        registrationType: "fresher",
-        jambNumber: dto.jambNumber,
-        matricStatus: "provisional",
-        faculty: dto.faculty,
-        department: dto.department,
-        level: "100",
-        emailVerified: false,
-        verificationToken,
-        verificationCodeExpiresAt,
-      },
-    });
+    const { code, result: user } = await this.withUniqueVerificationCode(
+      (c) =>
+        this.prisma.user.create({
+          data: {
+            email: dto.email,
+            fullName: dto.fullName,
+            passwordHash,
+            registrationType: "fresher",
+            jambNumber: dto.jambNumber,
+            matricStatus: "provisional",
+            faculty: dto.faculty,
+            department: dto.department,
+            level: "100",
+            emailVerified: false,
+            verificationToken: c.verificationToken,
+            verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+          },
+        }),
+    );
 
     await this.recordLegalAcceptance(
       user.id,
@@ -189,7 +189,7 @@ export class AuthService {
       ipAddress,
     );
 
-    await this.sendVerificationEmail(user.email, verificationToken);
+    await this.sendVerificationEmail(user.email, code.verificationToken);
 
     this.logger.log(
       `Fresher user registered (unverified): ${user.id} (${user.email})`,
@@ -262,15 +262,17 @@ export class AuthService {
       };
     }
 
-    const { verificationToken, verificationCodeExpiresAt } =
-      this.newVerificationCode();
+    const { code } = await this.withUniqueVerificationCode((c) =>
+      this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          verificationToken: c.verificationToken,
+          verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+        },
+      }),
+    );
 
-    await this.prisma.user.update({
-      where: { id: user.id },
-      data: { verificationToken, verificationCodeExpiresAt },
-    });
-
-    await this.sendVerificationEmail(user.email, verificationToken);
+    await this.sendVerificationEmail(user.email, code.verificationToken);
     this.logger.log(`Verification code re-sent to ${user.email}`);
     return { message: "A new verification code has been sent to your email." };
   }
@@ -286,20 +288,22 @@ export class AuthService {
       throw new UnauthorizedException("Invalid email or password");
     }
 
+    const valid = await argon2.verify(user.passwordHash, dto.password);
+    if (!valid) {
+      throw new UnauthorizedException("Invalid email or password");
+    }
+
+    // Password verified first so EMAIL_NOT_VERIFIED only fires for correct
+    // credentials (an attacker can't enumerate registered emails by probing
+    // with wrong passwords). Structured error routes the app to the OTP
+    // screen instead of a dead "401".
     if (!user.emailVerified) {
-      // Structured error (code + friendly message) so the app can route the
-      // user to the verify-email screen instead of showing a dead "401".
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         code: "EMAIL_NOT_VERIFIED",
         message:
           "Please verify your email address first — we sent you a verification code.",
       });
-    }
-
-    const valid = await argon2.verify(user.passwordHash, dto.password);
-    if (!valid) {
-      throw new UnauthorizedException("Invalid email or password");
     }
 
     // MFA: if the account has MFA enabled, require a TOTP challenge before
@@ -629,6 +633,39 @@ export class AuthService {
       verificationToken: crypto.randomInt(100000, 1000000).toString(),
       verificationCodeExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     };
+  }
+
+  /**
+   * Run `fn` with a fresh 6-digit code, regenerating and retrying when the
+   * unique verificationToken index collides (rare — 900k space — but would
+   * otherwise surface as a confusing 500 on register/resend as the user base
+   * grows). Gives up after 5 attempts.
+   */
+  private async withUniqueVerificationCode<T>(
+    fn: (code: {
+      verificationToken: string;
+      verificationCodeExpiresAt: Date;
+    }) => Promise<T>,
+  ): Promise<{ code: { verificationToken: string } } & { result: T }> {
+    for (let attempt = 0; ; attempt += 1) {
+      const code = this.newVerificationCode();
+      try {
+        return { code, result: await fn(code) };
+      } catch (err) {
+        if (attempt >= 4 || !this.isVerificationCodeCollision(err)) {
+          throw err;
+        }
+      }
+    }
+  }
+
+  private isVerificationCodeCollision(err: unknown): boolean {
+    if ((err as { code?: string })?.code !== "P2002") return false;
+    const target = (err as { meta?: { target?: unknown } })?.meta?.target;
+    const targetStr = Array.isArray(target)
+      ? target.join(",")
+      : String(target ?? "");
+    return targetStr.includes("verification_token");
   }
 
   /**
