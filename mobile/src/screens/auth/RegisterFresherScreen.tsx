@@ -83,11 +83,11 @@ export function RegisterFresherScreen({ navigation }: Props) {
           <Button title="Create Account" onPress={handleRegister} loading={loading} size="lg" />
           <Text style={styles.legal}>
             By registering, you agree to our{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}>
               Terms & Conditions
             </Text>{" "}
             and{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}>
               Privacy Policy
             </Text>
             .

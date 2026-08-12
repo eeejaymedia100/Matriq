@@ -138,11 +138,11 @@ export function RegisterStayliteScreen({ navigation }: Props) {
           />
           <Text style={styles.legal}>
             By registering, you agree to our{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}>
               Terms & Conditions
             </Text>{" "}
             and{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}>
               Privacy Policy
             </Text>
             .

@@ -15,7 +15,7 @@ import type {
 } from "./types";
 
 // Auth screens
-import { OnboardingScreen } from "../screens/auth/OnboardingScreen";
+import { OnboardingScreen, ONBOARDING_SEEN_KEY } from "../screens/auth/OnboardingScreen";
 import { WelcomeScreen } from "../screens/auth/WelcomeScreen";
 import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterChoiceScreen } from "../screens/auth/RegisterChoiceScreen";
@@ -40,8 +40,6 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 
 // ── Auth navigator ─────────────────────────────────────────────
-
-const ONBOARDING_SEEN_KEY = "onboarding_seen";
 
 function AuthNavigator({ showOnboarding }: { showOnboarding: boolean }) {
   return (
@@ -155,12 +153,17 @@ export function AppNavigator() {
     })();
   }, []);
 
-  if (isLoading || showOnboarding === null) {
+  if (isLoading) {
     return <LoadingScreen message="Loading Matriq..." />;
   }
 
+  // Authenticated users never need onboarding, so don't wait on storage.
   if (isAuthenticated) {
     return <MainNavigator />;
+  }
+
+  if (showOnboarding === null) {
+    return <LoadingScreen message="Loading Matriq..." />;
   }
 
   return <AuthNavigator showOnboarding={showOnboarding} />;

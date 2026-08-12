@@ -15,7 +15,7 @@ import * as SecureStore from "expo-secure-store";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Button } from "../../components";
 
-const ONBOARDING_SEEN_KEY = "onboarding_seen";
+export const ONBOARDING_SEEN_KEY = "onboarding_seen";
 
 interface Slide {
   icon: keyof typeof Ionicons.glyphMap;

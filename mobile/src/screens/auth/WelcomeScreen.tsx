@@ -40,11 +40,11 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
         <View style={styles.footer}>
           <Text style={styles.footerText}>
             By continuing, you agree to our{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}>
               Terms & Conditions
             </Text>{" "}
             and{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL)}>
+            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}>
               Privacy Policy
             </Text>
             .
