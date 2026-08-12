@@ -13,6 +13,28 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — Student APK rebuilt → https://api.matriq.com.ng/v1
+
+**Status:** done — new APK live on both servers
+
+**Did:**
+- Production HTTPS verified live (user opened GCP 443 + flipped the `api` A record):
+  `https://api.matriq.com.ng/health` → 200, and login + `/v1/associations` return real
+  JWTs/200s through the production URL.
+- Rebuilt `app-release.apk` (Gradle incremental `assembleRelease`, 6m 1s, tmux session
+  `apk-build`, debug-signed, 31.4 MB): JS bundle now embeds `https://api.matriq.com.ng/v1`;
+  the old trycloudflare URL is gone (verified by unzipping the bundle). No source change
+  was needed — `client.ts` already had the production URL.
+- Distributed: `waitlist/matriq.apk` on BOTH boxes + repo root `matriq-student.apk` (all
+  `*.apk` gitignored). The existing tunnel download URL serves the new file
+  (200, 31,485,148 bytes). Added a `/download/*` route to the new IP block in
+  `caddy/Caddyfile` so `http://35.204.163.157/download/matriq.apk` works too.
+
+**Next:**
+- User: flip the **root** `matriq.com.ng` A record → `35.204.163.157` (its LE cert is
+  failing because it still points at the old box).
+- Sideload the new APK on a phone and test against the production API.
+
 ## 2026-08-12 — PRODUCTION MIGRATED to matriq-server (e2-standard-4, 4 vCPU / 16GB)
 
 **Status:** deployed & verified on the new box; 2 manual console steps left (GCP firewall 443 + Cloudflare A records)

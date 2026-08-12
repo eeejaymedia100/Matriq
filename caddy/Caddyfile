@@ -76,6 +76,11 @@ http://35.204.163.157 {
             header_up X-Forwarded-Proto http
         }
     }
+    # Student APK download (mirrors the catch-all block below).
+    handle_path /download/* {
+        root * /srv/waitlist
+        file_server
+    }
     handle {
         respond "Matriq API — use /v1/*" 200
     }
