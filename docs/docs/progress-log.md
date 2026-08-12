@@ -36,10 +36,12 @@ Entry format:
   payments (card/business/phone-portrait + checkmark-circle), receipt (qr-code icon),
   profile + dashboard "Verified". Final sweep: **0 emoji glyphs in `mobile/src` and in the
   release bundle**; `npx tsc --noEmit` green.
-- **Rebuilt + verified + delivered:** incremental `assembleRelease` (7m 9s, tmux), 33.9 MB;
-  bundle embeds `https://api.matriq.com.ng/v1` + onboarding copy, zero emojis. Distributed to
+- **Rebuilt + verified + delivered:** incremental `assembleRelease` (tmux), 33.9 MB; bundle
+  embeds `https://api.matriq.com.ng/v1` + onboarding copy, zero emojis. Distributed to
   `waitlist/matriq.apk` (both boxes), repo root `matriq-student.apk`, `/download/matriq.apk`
-  → 200 (33,922,184 bytes) on the new box, and **sent via Telegram (msg #233, @GareflyerBot)**.
+  → 200 (33,922,708 bytes) on the new box, and **sent via Telegram (msg #233 then final #234,
+  @GareflyerBot)**. A review pass (skip onboarding gate for authed users, dedupe flag key,
+  safe Linking) is committed (`aa70abf`) and included in the final APK.
 
 **Next:**
 - User: sideload the new APK (Telegram) and run through first-launch onboarding + a login.
