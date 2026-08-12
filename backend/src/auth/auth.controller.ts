@@ -4,6 +4,8 @@ import {
   Get,
   Patch,
   Body,
+  Query,
+  Header,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -18,6 +20,7 @@ import { RegisterStayliteDto } from "./dto/register-staylite.dto";
 import { RegisterFresherDto } from "./dto/register-fresher.dto";
 import { LoginDto } from "./dto/login.dto";
 import { VerifyEmailDto } from "./dto/verify-email.dto";
+import { ResendVerificationDto } from "./dto/resend-verification.dto";
 import { RefreshDto } from "./dto/refresh.dto";
 import { LogoutDto } from "./dto/logout.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
@@ -66,8 +69,48 @@ export class AuthController {
 
   @Post("auth/verify-email")
   @HttpCode(HttpStatus.OK)
+  // 6-digit codes are guessable (1M space) — tight per-IP limit + 24h expiry.
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
   verifyEmail(@Body() dto: VerifyEmailDto): Promise<AuthResponse> {
     return this.authService.verifyEmail(dto.token);
+  }
+
+  // Lets email clients verify by clicking the link in the verification email.
+  @Get("auth/verify-email")
+  @Header("Content-Type", "text/html; charset=utf-8")
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  async verifyEmailFromLink(@Query("token") token?: string): Promise<string> {
+    if (!token) {
+      return this.verificationPage(
+        false,
+        "Missing verification code. Open the link from your email again.",
+      );
+    }
+    try {
+      await this.authService.verifyEmail(token);
+      return this.verificationPage(
+        true,
+        "Your email has been verified. You can close this page and sign in to Matriq.",
+      );
+    } catch {
+      return this.verificationPage(
+        false,
+        "This verification code is invalid or has expired. Request a new one from the app.",
+      );
+    }
+  }
+
+  @Post("auth/resend-verification")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: { ttl: 60000, limit: 3, getTracker: ipAndEmailTracker },
+  })
+  resendVerification(
+    @Body() dto: ResendVerificationDto,
+    @Req() req: Request,
+  ): Promise<{ message: string }> {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.authService.resendVerification(dto.email);
   }
 
   // ── Auth: Login ──────────────────────────────────────────────
@@ -142,6 +185,22 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getPaymentHistory(@CurrentUser() user: JwtPayload) {
     return this.authService.getPaymentHistory(user.sub);
+  }
+
+  private verificationPage(success: boolean, message: string): string {
+    const color = success ? "#1E7A3C" : "#B3261E";
+    const title = success ? "Email verified" : "Verification failed";
+    return `<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>${title} — Matriq</title></head>
+  <body style="margin:0;font-family:Inter,-apple-system,sans-serif;background:#F7F4FB;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div style="background:#fff;border-radius:16px;padding:40px 32px;max-width:400px;text-align:center;box-shadow:0 8px 30px rgba(13,6,32,0.08);">
+      <div style="width:48px;height:48px;margin:0 auto 16px;border-radius:50%;background:#F4EEFB;display:flex;align-items:center;justify-content:center;color:${color};font-size:24px;font-weight:700;">${success ? "&#10003;" : "!"}</div>
+      <h1 style="color:#0D0620;font-size:20px;margin:0 0 8px;">${title}</h1>
+      <p style="color:#5C4D82;font-size:14px;line-height:1.6;margin:0;">${message}</p>
+    </div>
+  </body>
+</html>`;
   }
 
   // ── Legal ────────────────────────────────────────────────────

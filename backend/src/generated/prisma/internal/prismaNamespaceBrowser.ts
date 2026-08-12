@@ -105,6 +105,7 @@ export const UserScalarFieldEnum = {
   level: 'level',
   emailVerified: 'emailVerified',
   verificationToken: 'verificationToken',
+  verificationCodeExpiresAt: 'verificationCodeExpiresAt',
   mfaEnabled: 'mfaEnabled',
   mfaSecret: 'mfaSecret',
   createdAt: 'createdAt',

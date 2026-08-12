@@ -12,9 +12,10 @@ import {
 import { colors, spacing, typography } from "../../theme/colors";
 import { Input, Button } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
+import { ApiError } from "../../api/client";
 
 interface LoginScreenProps {
-  navigation: { navigate: (screen: string) => void };
+  navigation: { navigate: (screen: string, params?: unknown) => void };
 }
 
 export function LoginScreen({ navigation }: LoginScreenProps) {
@@ -41,6 +42,14 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         setChallengeToken(result.challengeToken ?? null);
       }
     } catch (err) {
+      // Unverified account → send them to the OTP entry screen instead of
+      // showing a dead 401 message.
+      if (err instanceof ApiError && err.code === "EMAIL_NOT_VERIFIED") {
+        navigation.navigate("VerifyEmail", {
+          email: email.trim().toLowerCase(),
+        });
+        return;
+      }
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);

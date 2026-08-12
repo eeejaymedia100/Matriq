@@ -4,6 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { AppNavigator } from "./src/navigation/AppNavigator";
+import { UpdateOverlay } from "./src/components/UpdateOverlay";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,6 +22,7 @@ export default function App() {
         <NavigationContainer>
           <StatusBar style="dark" />
           <AppNavigator />
+          <UpdateOverlay />
         </NavigationContainer>
       </AuthProvider>
     </QueryClientProvider>

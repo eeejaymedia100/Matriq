@@ -7,7 +7,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Linking,
 } from "react-native";
 import { colors, spacing, typography } from "../../theme/colors";
@@ -16,7 +15,10 @@ import { useAuth, type StayliteData } from "../../contexts/AuthContext";
 import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface Props {
-  navigation: { navigate: (screen: string) => void; goBack: () => void };
+  navigation: {
+    navigate: (screen: string, params?: unknown) => void;
+    goBack: () => void;
+  };
 }
 
 export function RegisterStayliteScreen({ navigation }: Props) {
@@ -47,17 +49,12 @@ export function RegisterStayliteScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      const msg = await registerStaylite(form);
-      Alert.alert(
-        "Registration Successful",
-        `${msg}\n\nNext step: upload your student ID for identity verification.`,
-        [
-          {
-            text: "Sign In",
-            onPress: () => navigation.navigate("Login"),
-          },
-        ],
-      );
+      await registerStaylite(form);
+      // Straight into OTP entry — the verification email has already been
+      // sent by the backend.
+      navigation.navigate("VerifyEmail", {
+        email: form.email.trim().toLowerCase(),
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {

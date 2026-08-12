@@ -46,6 +46,46 @@ export async function clearTokens(): Promise<void> {
   await SecureStore.deleteItemAsync(TOKEN_KEY);
 }
 
+// ── Errors ─────────────────────────────────────────────────────
+
+/**
+ * Error thrown by apiRequest. Carries the HTTP status and, when the backend
+ * provides one, a stable machine-readable `code` (e.g. EMAIL_NOT_VERIFIED)
+ * so screens can branch on it instead of parsing message text.
+ */
+export class ApiError extends Error {
+  readonly status?: number;
+  readonly code?: string;
+
+  constructor(
+    message: string,
+    options: { status?: number; code?: string } = {},
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.status = options.status;
+    this.code = options.code;
+  }
+}
+
+/**
+ * Extract a human-readable message from a NestJS error body, which is
+ * `{ message, error, statusCode }` (message may be a string or an array of
+ * validation messages). Falls back to a generic HTTP message.
+ */
+function extractErrorMessage(body: unknown, status: number): string {
+  if (body && typeof body === "object") {
+    const b = body as Record<string, unknown>;
+    if (typeof b.message === "string") return b.message;
+    if (b.error && typeof b.error === "object") {
+      const e = b.error as Record<string, unknown>;
+      if (typeof e.message === "string") return e.message;
+    }
+    if (typeof b.error === "string") return b.error;
+  }
+  return `HTTP ${status}`;
+}
+
 // ── HTTP client ────────────────────────────────────────────────
 
 async function refreshAccessToken(): Promise<string | null> {
@@ -111,10 +151,15 @@ export async function apiRequest<T>(
   }
 
   if (!res.ok) {
-    const err = (await res.json().catch(() => ({ error: { message: "Network error" } }))) as {
-      error: { message: string };
-    };
-    throw new Error(err.error?.message ?? `HTTP ${res.status}`);
+    const body = (await res.json().catch(() => null)) as Record<
+      string,
+      unknown
+    > | null;
+    const code = typeof body?.code === "string" ? body.code : undefined;
+    throw new ApiError(extractErrorMessage(body, res.status), {
+      status: res.status,
+      code,
+    });
   }
 
   return res.json() as Promise<T>;

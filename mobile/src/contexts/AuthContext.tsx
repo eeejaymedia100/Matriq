@@ -23,6 +23,8 @@ export interface LoginResult {
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<LoginResult>;
   completeMfaLogin: (challengeToken: string, code: string) => Promise<void>;
+  verifyEmail: (code: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<string>;
   registerStaylite: (data: StayliteData) => Promise<string>;
   registerFresher: (data: FresherData) => Promise<string>;
   logout: () => Promise<void>;
@@ -133,6 +135,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  /**
+   * Verify the email with the 6-digit code from the verification email.
+   * On success the backend issues a token pair, so the user is signed in
+   * immediately.
+   */
+  const verifyEmail = useCallback(async (code: string): Promise<void> => {
+    const data = await api.post<AuthResponse>("/auth/verify-email", {
+      token: code,
+    });
+    await saveTokens({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+
+    const profile = await api.get<User>("/me");
+    setState({
+      user: profile,
+      isLoading: false,
+      isAuthenticated: true,
+    });
+  }, []);
+
+  /** Request a fresh verification code. Returns the backend's message. */
+  const resendVerification = useCallback(async (email: string): Promise<string> => {
+    const data = await api.post<{ message: string }>(
+      "/auth/resend-verification",
+      { email },
+    );
+    return data.message;
+  }, []);
+
   const registerStaylite = useCallback(
     async (formData: StayliteData): Promise<string> => {
       const data = await api.post<{ message: string }>(
@@ -230,6 +263,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...state,
         login,
         completeMfaLogin,
+        verifyEmail,
+        resendVerification,
         registerStaylite,
         registerFresher,
         logout,

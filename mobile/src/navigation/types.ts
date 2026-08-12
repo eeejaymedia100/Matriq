@@ -7,6 +7,7 @@ export type AuthStackParamList = {
   RegisterChoice: undefined;
   RegisterStaylite: undefined;
   RegisterFresher: undefined;
+  VerifyEmail: { email: string };
 };
 
 export type MainTabParamList = {

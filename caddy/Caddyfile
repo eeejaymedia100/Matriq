@@ -12,6 +12,11 @@ matriq.com.ng {
 
     # Waitlist UI only — the page's form calls api.matriq.com.ng directly
     # (cross-origin, CORS-enabled). No API surface on the website domain.
+    # Stable APK download path for the app's in-app updater.
+    handle_path /download/* {
+        file_server
+    }
+
     handle {
         file_server
     }

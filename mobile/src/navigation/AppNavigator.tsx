@@ -21,6 +21,7 @@ import { LoginScreen } from "../screens/auth/LoginScreen";
 import { RegisterChoiceScreen } from "../screens/auth/RegisterChoiceScreen";
 import { RegisterStayliteScreen } from "../screens/auth/RegisterStayliteScreen";
 import { RegisterFresherScreen } from "../screens/auth/RegisterFresherScreen";
+import { VerifyEmailScreen } from "../screens/auth/VerifyEmailScreen";
 
 // Main screens
 import { DashboardScreen } from "../screens/dashboard/DashboardScreen";
@@ -56,6 +57,7 @@ function AuthNavigator({ showOnboarding }: { showOnboarding: boolean }) {
       <AuthStack.Screen name="RegisterChoice" component={RegisterChoiceScreen} />
       <AuthStack.Screen name="RegisterStaylite" component={RegisterStayliteScreen} />
       <AuthStack.Screen name="RegisterFresher" component={RegisterFresherScreen} />
+      <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
     </AuthStack.Navigator>
   );
 }

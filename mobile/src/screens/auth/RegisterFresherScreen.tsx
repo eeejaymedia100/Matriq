@@ -7,7 +7,6 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Linking,
 } from "react-native";
 import { colors, spacing, typography } from "../../theme/colors";
@@ -16,7 +15,10 @@ import { useAuth, type FresherData } from "../../contexts/AuthContext";
 import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface Props {
-  navigation: { navigate: (screen: string) => void; goBack: () => void };
+  navigation: {
+    navigate: (screen: string, params?: unknown) => void;
+    goBack: () => void;
+  };
 }
 
 export function RegisterFresherScreen({ navigation }: Props) {
@@ -46,10 +48,12 @@ export function RegisterFresherScreen({ navigation }: Props) {
     }
     setLoading(true);
     try {
-      const msg = await registerFresher(form);
-      Alert.alert("Success", msg, [
-        { text: "Sign In", onPress: () => navigation.navigate("Login") },
-      ]);
+      await registerFresher(form);
+      // Straight into OTP entry — the verification email has already been
+      // sent by the backend.
+      navigation.navigate("VerifyEmail", {
+        email: form.email.trim().toLowerCase(),
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {

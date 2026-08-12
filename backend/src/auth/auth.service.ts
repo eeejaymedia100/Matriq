@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  HttpStatus,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -88,7 +89,8 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const { verificationToken, verificationCodeExpiresAt } =
+      this.newVerificationCode();
 
     const user = await this.prisma.user.create({
       data: {
@@ -103,6 +105,7 @@ export class AuthService {
         level: dto.level,
         emailVerified: false,
         verificationToken,
+        verificationCodeExpiresAt,
       },
     });
 
@@ -153,7 +156,8 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const { verificationToken, verificationCodeExpiresAt } =
+      this.newVerificationCode();
 
     const user = await this.prisma.user.create({
       data: {
@@ -168,6 +172,7 @@ export class AuthService {
         level: "100",
         emailVerified: false,
         verificationToken,
+        verificationCodeExpiresAt,
       },
     });
 
@@ -197,13 +202,29 @@ export class AuthService {
 
   // ── Email verification ───────────────────────────────────────
 
+  /**
+   * Verify an email address with a 6-digit code (or the equivalent link
+   * token). On success the user is verified and a full token pair is issued.
+   * Accepts both the raw code and the legacy hex token so existing emails
+   * keep working.
+   */
   async verifyEmail(token: string): Promise<AuthResponse> {
+    const code = token.trim();
     const user = await this.prisma.user.findUnique({
-      where: { verificationToken: token },
+      where: { verificationToken: code },
     });
 
     if (!user) {
-      throw new BadRequestException("Invalid or expired verification token");
+      throw new BadRequestException("Invalid or expired verification code");
+    }
+
+    if (
+      user.verificationCodeExpiresAt &&
+      user.verificationCodeExpiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException(
+        "This verification code has expired. Request a new one.",
+      );
     }
 
     if (user.emailVerified) {
@@ -215,11 +236,43 @@ export class AuthService {
       data: {
         emailVerified: true,
         verificationToken: null,
+        verificationCodeExpiresAt: null,
       },
     });
 
     this.logger.log(`Email verified: ${updated.id} (${updated.email})`);
     return this.generateTokens(updated);
+  }
+
+  /**
+   * (Re)send a 6-digit verification code to an unverified account.
+   * The response is deliberately generic so the endpoint can't be used to
+   * enumerate which emails are registered.
+   */
+  async resendVerification(email: string): Promise<{ message: string }> {
+    const normalized = email.trim().toLowerCase();
+    const user = await this.prisma.user.findUnique({
+      where: { email: normalized },
+    });
+
+    if (!user || user.emailVerified) {
+      return {
+        message:
+          "If your email is registered, a new verification code has been sent.",
+      };
+    }
+
+    const { verificationToken, verificationCodeExpiresAt } =
+      this.newVerificationCode();
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { verificationToken, verificationCodeExpiresAt },
+    });
+
+    await this.sendVerificationEmail(user.email, verificationToken);
+    this.logger.log(`Verification code re-sent to ${user.email}`);
+    return { message: "A new verification code has been sent to your email." };
   }
 
   // ── Login ─────────────────────────────────────────────────────
@@ -234,7 +287,14 @@ export class AuthService {
     }
 
     if (!user.emailVerified) {
-      throw new UnauthorizedException("Invalid email or password");
+      // Structured error (code + friendly message) so the app can route the
+      // user to the verify-email screen instead of showing a dead "401".
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        code: "EMAIL_NOT_VERIFIED",
+        message:
+          "Please verify your email address first — we sent you a verification code.",
+      });
     }
 
     const valid = await argon2.verify(user.passwordHash, dto.password);
@@ -557,6 +617,21 @@ export class AuthService {
   // ── Private helpers ──────────────────────────────────────────
 
   /**
+   * Generate a fresh 6-digit verification code and its expiry (24h, matching
+   * the email copy). The code is stored in verificationToken (unique) and
+   * doubles as the token for the clickable email link.
+   */
+  private newVerificationCode(): {
+    verificationToken: string;
+    verificationCodeExpiresAt: Date;
+  } {
+    return {
+      verificationToken: crypto.randomInt(100000, 1000000).toString(),
+      verificationCodeExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    };
+  }
+
+  /**
    * Generate a token pair for a user. Creates a new RefreshTokenFamily
    * and persists a hashed copy of the refresh token.
    */
@@ -664,34 +739,31 @@ export class AuthService {
 
   private async sendVerificationEmail(
     email: string,
-    token: string,
+    code: string,
   ): Promise<void> {
     const appUrl =
       this.configService.get<string>("APP_URL") || "http://localhost:3000";
-    const verifyUrl = `${appUrl}/v1/auth/verify-email?token=${token}`;
+    const verifyUrl = `${appUrl}/v1/auth/verify-email?token=${code}`;
 
     const result = await this.emailService.send({
       to: email,
-      subject: "Verify your Matriq account",
+      subject: "Your Matriq verification code",
       html: `
         <div style="font-family: Inter, -apple-system, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 16px;">
           <h2 style="color: #0D0620; margin-bottom: 16px;">Welcome to Matriq</h2>
           <p style="color: #5C4D82; line-height: 1.6;">
-            Thanks for creating an account. Please verify your email address by clicking the button below.
+            Thanks for creating an account. Enter the 6-digit code below in the
+            app to verify your email address.
           </p>
-          <a href="${verifyUrl}" 
-             style="display: inline-block; background-color: #6C3BAA; color: white; 
-                    padding: 12px 32px; border-radius: 8px; text-decoration: none; 
-                    font-weight: 600; margin: 16px 0;">
-            Verify Email
-          </a>
+          <div style="background-color: #F4EEFB; border: 1px solid #E8E0F0; border-radius: 12px; padding: 24px; text-align: center; margin: 20px 0;">
+            <div style="font-size: 34px; font-weight: 700; letter-spacing: 10px; color: #6C3BAA; font-family: monospace;">${code}</div>
+          </div>
           <p style="color: #8B7AAE; font-size: 14px;">
-            This link expires after 24 hours. If you didn't create this account, you can safely ignore this email.
+            This code expires after 24 hours. If you didn't create this account, you can safely ignore this email.
           </p>
           <hr style="border: none; border-top: 1px solid #E8E0F0; margin: 24px 0;" />
           <p style="font-size: 12px; color: #8B7AAE;">
-            If the button doesn't work, copy and paste this link:<br/>
-            <a href="${verifyUrl}" style="color: #6C3BAA;">${verifyUrl}</a>
+            Prefer a link? <a href="${verifyUrl}" style="color: #6C3BAA;">Verify my email instead</a>
           </p>
         </div>
       `,
