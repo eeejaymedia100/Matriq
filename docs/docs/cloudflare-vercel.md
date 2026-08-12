@@ -1,5 +1,11 @@
 # Cloudflare + Vercel — Public Launch Runbook
 
+> **UPDATE (Aug 2026):** the live domain is `matriq.com.ng` (not `.app` — see
+> `caddy/Caddyfile` and `docs/progress-log.md`), and production now runs on the
+> `matriq-server` VM at **35.204.163.157** (`e2-standard-4`). The `matriq.app`
+> plan below is superseded; keep the A records (`api`, root) pointed at the
+> new VM IP.
+
 Target architecture (everything behind Cloudflare, dashboards on Vercel):
 
 ```
@@ -68,7 +74,7 @@ Cloudflare protection):
 
 | Type | Name | Content | Proxy |
 |---|---|---|---|
-| A | `api` | `34.28.210.233` (the VM's static IP) | ⛅ Proxied |
+| A | `api` | `35.204.163.157` (`matriq-server` VM's static IP) | ⛅ Proxied |
 | CNAME | `admin` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `dashboard` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `@` (root) | `cname.vercel-dns.com` *(optional — see note)* | ⛅ Proxied |

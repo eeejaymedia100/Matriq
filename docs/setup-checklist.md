@@ -8,7 +8,7 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 - [x] VM provisioned: `matriq-server`
 - [x] External IP: `35.204.163.157` (static, reserved)
 - [x] Region: `europe-west4` (Netherlands)
-- [x] Machine type: `e2-medium` (2 vCPU / 4GB RAM)
+- [x] Machine type: `e2-standard-4` (4 vCPU / 16GB RAM) — upgraded from `e2-medium` Aug 2026
 - [x] OS: Ubuntu 22.04 LTS
 - [x] Boot disk: 50GB
 
@@ -97,5 +97,6 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 
 - Domain + Cloudflare + Vercel configured (or in progress) — see Cloudflare + Vercel section above.
 - Ollama: container running but no model pulled. Pull a model (e.g., `llama3.1:8b`) in Phase 4.
-- Machine type: e2-medium is undersized for Ollama. This is intentional per infrastructure.md —
-  upgrade to e2-standard-4 or add a GPU VM when AI companion work begins in Phase 4.
+- Machine type upgraded to `e2-standard-4` (4 vCPU / 16GB) during the Aug 2026
+  production migration (old box `cliptonite-server` kept as standby — see docs/docs/progress-log.md).
+  Production now runs on this server (`matriq-server`, 35.204.163.157).

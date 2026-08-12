@@ -71,30 +71,39 @@ rates. The load-bearing pieces (all configurable via `.env`):
   box. Embeddings use a separate pool (`OLLAMA_EMBED_MAX_CONCURRENCY`) so
   retrieval stays fast during chat. See `src/ai/semaphore.ts`.
 - **Bounded DB connections.** Each worker runs its own Postgres pool capped at
-  `DATABASE_POOL_MAX` (default 5) → ~10 connections on the 2-core box instead
-  of pg's default 20+.
+  `DATABASE_POOL_MAX` (default 5) → ~20 connections on the 4-core box instead
+  of pg's default 20+ per process.
 
-### Honest limits on the current box (2 vCPU / 3.8 GB)
+### Honest limits on the current box (4 vCPU / 15 GB — `matriq-server`, e2-standard-4)
 
 - Normal API traffic (JWT + Prisma): fine for 1,000 concurrent users.
 - **Login stampede:** argon2 hashing is CPU-heavy (~100–300 ms, 64 MB per
   hash). A mass login moment is the realistic bottleneck. The per-IP+email
   throttle (5/min) plus 2 workers absorbs normal bursts; a real enrollment-day
-  stampede wants the VM upgrade below.
-- **AI:** ~2 concurrent generations max on CPU. More students than that queue
-  (then 503) — acceptable for a study companion, not for a lecture tool.
+  stampede wants a bigger box (see below).
+- **AI:** ~2 concurrent generations max on CPU (semaphore-capped). More
+  students than that queue (then 503) — acceptable for a study companion, not
+  for a lecture tool.
 
 ### Upgrade path (when the current box is the bottleneck)
 
-1. **Right-size the VM → 4 vCPU / 16 GB** (this doc's original recommendation).
-   Kills swap thrash; cluster mode immediately uses all cores; login-OOM risk
-   disappears. GCP: stop the instance, change machine type, start.
-2. **Decouple Ollama** to its own instance (ideally GPU, or at least a separate
+1. **Right-size the VM → 4 vCPU / 16 GB — DONE (Aug 2026).** Production moved
+   from the 2 vCPU / 4 GB box (`cliptonite-server`, 34.28.210.233, e2-medium)
+   to `matriq-server` (35.204.163.157, europe-west4, **e2-standard-4**). The
+   old box stays as a warm standby/failover until launch is verified. Cluster
+   mode now forks 4 workers; login-stampede capacity doubled. See
+   `docs/progress-log.md`.
+2. **Open GCP firewall for TCP 443** on `matriq-server` (port 80 is already
+   open) and flip the Cloudflare A records (`api`, root) to `35.204.163.157`
+   so `https://api.matriq.com.ng` terminates with a Let's Encrypt cert issued
+   by Caddy (plain `Caddyfile`, DNS-only records).
+3. **Decouple Ollama** to its own instance (ideally GPU, or at least a separate
    CPU box) and point `OLLAMA_HOST` at it. Then `OLLAMA_MAX_CONCURRENCY` can
    grow past 2 without hurting the API box.
-3. **Load test before the big day:** `cd backend && npm run loadtest`
-   (autocannon; see `backend/scripts/load-test.mjs`) to turn estimates into
-   measured numbers.
+4. **Load test before the big day:** `cd backend && npm run loadtest`
+   (autocannon; see `backend/scripts/load-test.mjs`). After the migration:
+   ~270 rps (JWT+DB) at p95 ≈ 113 ms across the public internet — flat
+   latency, no queuing.
 
 - `caddy` (or nginx + certbot if preferred) terminates TLS and routes to `backend`. This is the
   only service that should ever bind to a public interface.

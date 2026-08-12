@@ -13,6 +13,47 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — PRODUCTION MIGRATED to matriq-server (e2-standard-4, 4 vCPU / 16GB)
+
+**Status:** deployed & verified on the new box; 2 manual console steps left (GCP firewall 443 + Cloudflare A records)
+
+**Did:**
+- **Discovered two servers were in play:** the live stack was actually running on
+  `cliptonite-server` (34.28.210.233, e2-medium, **2 vCPU / 4GB**) while the documented
+  `matriq-server` (35.204.163.157, europe-west4, **e2-standard-4, 4 vCPU / 16GB**) ran only a
+  stale Phase-0 copy. User confirmed 35.204.163.157 is a separate, bigger VM — so we migrated
+  production onto it (the capacity goal: 1,000 concurrent students).
+- **Migration performed (all verified live):**
+  - Committed + pushed the pending capacity upgrades (`09ca92e`).
+  - Target: backed up stale local history (`backup-phase0` branch), reset to `origin/main`,
+    replaced `.env` (verified identical to source), torn down the old stack + volumes.
+  - Data ported: `pg_dump` (10 MB) → `pg_restore` on the new box (11 users present),
+    `prisma migrate deploy` no-op (already applied). Ollama models pulled
+    (llama3.2:3b 2.0 GB + nomic-embed-text 274 MB).
+  - Full stack up: backend (healthy), caddy, postgres, redis, ollama, ntfy, minio.
+  - **Cluster confirmed: 4 workers forked** (one per core). Throttler storage: Redis
+    (shared across workers).
+  - Load test from old box → new box (public IP :80, 15s, 30 conns, Caddy → 4 workers):
+    /health **277 rps p95 108ms**, /v1/associations (JWT+DB) **269 rps p95 113ms** — flat
+    latency (avg ≈ p95), zero queuing; the ~107 ms is cross-region internet RTT. Old box
+    numbers for comparison (contended 2-core): associations ~88 rps p95 464ms+.
+- **Cutover prep committed:** Caddyfile IP block → `35.204.163.157`; mobile `app.json` +
+  `client.ts` → `https://api.matriq.com.ng/v1` (tunnel URL retired); docs updated
+  (infrastructure capacity, setup-checklist machine type, cloudflare-vercel banner).
+
+**Next (user, ~2 min in consoles):**
+1. **GCP console** → VPC network → Firewall: allow **TCP 443** (and 80 if not already) to
+   the `matriq-server` VM. Port 80 is already open (verified 200 from the internet).
+2. **Cloudflare** → DNS: change the `api` (and root) **A records from `34.28.210.233` →
+   `35.204.163.157`** (keep records DNS-only for Caddy's Let's Encrypt).
+3. Rebuild the student APK when convenient (source already points at the new URL); the
+   existing test APK still works via the trycloudflare tunnel → old box (stale data).
+
+**Blockers/flags:**
+- Old box `cliptonite-server` left running as a warm standby/failover until launch is
+  verified — can be stopped later (or kept as staging).
+- `ThrottlerGuard` still not registered (pre-existing flag) — rate limits remain advisory.
+
 ## 2026-08-11 — Capacity upgrades DEPLOYED + load-tested (live stack)
 
 **Status:** deployed & verified live; VM right-sizing remains the one manual step
