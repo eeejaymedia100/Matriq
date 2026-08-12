@@ -13,6 +13,63 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — Sign-in 401 fixed (root cause), OTP email verification, in-app auto-updater; APK v0.2.0 shipped
+
+**Status:** done — all three requests delivered; new APK (Telegram msg #238)
+
+**Did:**
+- **Root cause of the sign-in 401 found and fixed.** Two compounding bugs:
+  1. `APP_URL` was never set on the server → verification emails contained
+     `http://localhost:3000/...` links that are dead on a phone. Students could
+     never verify, and login silently rejects unverified accounts → generic 401.
+  2. The mobile client's error parser read `err.error?.message`, but NestJS sends
+     `{ message, error, statusCode }` → users saw the raw "HTTP 401".
+  - Fix: `APP_URL` added to `.env` (both boxes) + forwarded in `docker-compose.yml`;
+    `mobile/src/api/client.ts` now parses NestJS bodies properly and throws a typed
+    `ApiError` with a stable `code`. Unverified logins return
+    `401 { code: "EMAIL_NOT_VERIFIED" }` and the app routes the user to the new
+    OTP screen instead of showing a dead error.
+- **OTP email verification implemented (not just links):**
+  - `verificationToken` now stores a **6-digit code** + new
+    `verification_code_expires_at` column (migration
+    `20260813000000_add_verification_code_expiry`, applied; shadow-DB compose fix
+    `b5794b3` — Prisma 7 requires a dedicated shadow database, created
+    `matriq_shadow`).
+  - Email shows the code big (plus a working clickable link → new `GET
+    /v1/auth/verify-email` HTML page). Expiry checked on verify; codes are
+    24h-valid, brute-force throttled (10/min).
+  - New `POST /v1/auth/resend-verification` (throttled 3/min, generic response so
+    it can't enumerate emails).
+  - New mobile `VerifyEmailScreen` (6-digit entry, resend w/ 30s cooldown) wired
+    after registration and from login on `EMAIL_NOT_VERIFIED`.
+  - **E2E verified live:** register → code `989260` stored with expiry → wrong code
+    400 → correct code returns JWT → login succeeds; GET verify-link page 200;
+    CORS preflight on resend 204. (Resend rejects `@example.com` test addresses by
+    design — real addresses deliver, same as the waitlist email.)
+- **In-app auto-updater (no more manual APK downloads):**
+  - New `waitlist/app-version.json` version manifest, served by the site
+    (`/download/*` also added to the `matriq.com.ng` Caddy block).
+  - App checks it on launch (4s in, non-blocking): `UpdateOverlay` modal offers
+    "Update now" → downloads the APK (`expo-file-system/legacy` + progress bar) →
+    opens the system installer via `expo-intent-launcher` + `getContentUriAsync`
+    (FileProvider). "Later" remembers the skipped version (secure-store).
+  - `versionCode 1 → 2`, `versionName 0.2.0` (gradle + app.json); new deps
+    `expo-file-system`, `expo-intent-launcher`, `expo-application`.
+- **Rebuilt + verified + delivered:** `assembleRelease` in tmux (7m 22s);
+  `aapt` confirms `versionCode='2' versionName='0.2.0'`; bundle embeds
+  app-version.json URL + VerifyEmail copy + `EMAIL_NOT_VERIFIED`; 0 emojis;
+  `npx tsc --noEmit` green (mobile + backend); all 33 auth tests green.
+  Distributed to `waitlist/matriq.apk` (both boxes), repo root, HTTPS download
+  `https://matriq.com.ng/download/matriq.apk` → 200 (33,999,424 bytes), and sent
+  via Telegram (msg #238). Commits `64f76b8` + `b5794b3`.
+
+**Next:**
+- User: sideload the new APK. From now on updates prompt in-app (this one must be
+  installed once by hand since it's the build that contains the updater).
+- Try the OTP flow: register (or sign in with an unverified account) → enter the
+  6-digit code from email → straight into the app.
+- The updater keeps `app-version.json` in sync with the next build's versionCode.
+
 ## 2026-08-12 — App v2: onboarding + vector icons + legal links; APK rebuilt & delivered
 
 **Status:** done — new APK shipped (Telegram msg #233); site legal pages live
