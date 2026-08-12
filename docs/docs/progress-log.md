@@ -13,6 +13,37 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — Admin console + association dashboard made FUNCTIONAL (Vercel env fix)
+
+**Status:** done — both sites were up but login 500'd; now fixed and verified
+
+**Did:**
+- **User asked "are the admin and association websites functional?".** Investigation:
+  both sites respond 200 (login pages served, auth middleware redirects work), but
+  the server-side login routes returned `{"error":"fetch failed"}` (HTTP 500).
+  Backend itself was fine (direct admin + executive logins return JWTs; CORS already
+  lists both Vercel origins).
+- **Root cause:** `NEXT_PUBLIC_API_URL` on Vercel pointed at the DEAD
+  `https://api.matriq.app/v1` (the old .app plan; the domain doesn't resolve). The
+  migration note from the production cutover ("update NEXT_PUBLIC_API_URL on both
+  Vercel projects") had never been applied — the sites rendered, but every login
+  failed against a dead domain.
+- **Fixed via Vercel API** (token in `matriq/.vercel-token`, 0600, gitignored):
+  - `matriq` (admin console): env var patched to `https://api.matriq.com.ng/v1`
+    (production+preview+development).
+  - `matriq-dashboard`: the var was type `sensitive` (which can't be patched) —
+    deleted and recreated as `encrypted` with the correct URL
+    (production+preview).
+  - Redeploys triggered via GitHub push (both projects auto-deploy from `main`).
+- **Verification:** after the rebuild, site login routes return a session cookie
+  (200) and `/api/auth/session` reports authenticated — full admin + executive
+  login flows now work against the live API.
+
+**Next:**
+- User can now use the sites: Admin Console at https://matriq-ebon.vercel.app
+  (admin@matriq.app / Admin@Matriq2026) and Association Dashboard at
+  https://matriq-dashboard.vercel.app (president@matriq.app / Exec@Matriq2026).
+
 ## 2026-08-12 — Sign-in 401 fixed (root cause), OTP email verification, in-app auto-updater; APK v0.2.0 shipped
 
 **Status:** done — all three requests delivered; new APK (Telegram msg #238)
