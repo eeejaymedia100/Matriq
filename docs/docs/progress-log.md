@@ -62,6 +62,14 @@ Entry format:
   Distributed to `waitlist/matriq.apk` (both boxes), repo root, HTTPS download
   `https://matriq.com.ng/download/matriq.apk` → 200 (33,999,424 bytes), and sent
   via Telegram (msg #238). Commits `64f76b8` + `b5794b3`.
+- **Review pass + final build (`caed959`, Telegram msg #239):** OTP generation now
+  retries on the rare unique-index collision (withUniqueVerificationCode, 5
+  attempts); login verifies the password BEFORE returning `EMAIL_NOT_VERIFIED`
+  (blocks account enumeration); removed dead code; updater guards a null cache
+  dir. Final APK is **v0.2.1 / versionCode 3** — install this over v0.2.0; it's
+  the last hand-sideload, and it will self-update to any future build via the
+  in-app updater (the manifest at `matriq.com.ng/app-version.json` is the
+  release switch). Backend redeployed with the fixes (health 200).
 
 **Next:**
 - User: sideload the new APK. From now on updates prompt in-app (this one must be
