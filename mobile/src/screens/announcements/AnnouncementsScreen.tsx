@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -10,26 +10,35 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
-import { Card, ListScreenSkeleton } from "../../components";
+import { Card, ListScreenSkeleton, ErrorBanner } from "../../components";
 import { api } from "../../api/client";
 import { useFocusEffect } from "@react-navigation/native";
-import type { Announcement } from "../../types/api";
+import type { Announcement, Association } from "../../types/api";
+import { formatApiError, type FriendlyError } from "../../utils/errors";
 
 export function AnnouncementsScreen() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<FriendlyError | null>(null);
+  const pending = useRef<Set<string>>(new Set());
 
   const fetch = useCallback(async () => {
     try {
-      // Use first association ID or fetch all
+      const memberships = await api.get<{
+        memberships: Array<{ association: Association }>;
+      }>("/me/memberships");
+      const assoc = memberships.memberships[0]?.association;
+      if (!assoc) {
+        setAnnouncements([]);
+        return;
+      }
       const data = await api.get<{ announcements: Announcement[] }>(
-        "/me/memberships",
+        `/associations/${assoc.id}/announcements`,
       );
-      // Simplified - in production, get announcements per association
-      setAnnouncements([]);
-    } catch {
-      // ignore
+      setAnnouncements(data.announcements);
+    } catch (err) {
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -42,15 +51,39 @@ export function AnnouncementsScreen() {
     }, [fetch]),
   );
 
-  if (loading) return <ListScreenSkeleton rows={5} titleWidth={185} />;
+  /**
+   * Optimistic mark-as-read: the "New" badge disappears and the read count
+   * ticks up instantly; rolled back if the request fails.
+   */
+  const markAsRead = async (id: string, currentlyRead: boolean) => {
+    if (currentlyRead || pending.current.has(id)) return;
+    pending.current.add(id);
 
-  const markAsRead = async (id: string) => {
+    setAnnouncements((prev) =>
+      prev.map((a) =>
+        a.id === id
+          ? { ...a, readByMe: true, readCount: a.readCount + 1 }
+          : a,
+      ),
+    );
+
     try {
       await api.post(`/announcements/${id}/read`, {});
-    } catch {
-      // ignore
+    } catch (err) {
+      setAnnouncements((prev) =>
+        prev.map((a) =>
+          a.id === id
+            ? { ...a, readByMe: false, readCount: Math.max(0, a.readCount - 1) }
+            : a,
+        ),
+      );
+      setError(formatApiError(err));
+    } finally {
+      pending.current.delete(id);
     }
   };
+
+  if (loading) return <ListScreenSkeleton rows={5} titleWidth={185} />;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -59,10 +92,19 @@ export function AnnouncementsScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.container}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetch(); }} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetch();
+            }}
+          />
         }
         ListHeaderComponent={
-          <Text style={styles.title}>Announcements</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>Announcements</Text>
+            {error ? <ErrorBanner error={error} /> : null}
+          </View>
         }
         ListEmptyComponent={
           <Card title="No announcements yet">
@@ -72,10 +114,15 @@ export function AnnouncementsScreen() {
           </Card>
         }
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => markAsRead(item.id)}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => markAsRead(item.id, !!item.readByMe)}
+          >
             <Card
               title={item.title}
-              subtitle={`${item.author.role} · ${new Date(item.createdAt).toLocaleDateString()}`}
+              subtitle={`${item.author.name} · ${item.author.role} · ${new Date(
+                item.createdAt,
+              ).toLocaleDateString()}`}
             >
               <Text style={styles.body} numberOfLines={3}>
                 {item.body}
@@ -90,9 +137,7 @@ export function AnnouncementsScreen() {
                   )}
                   <View style={styles.readRow}>
                     <Ionicons name="eye-outline" size={14} color={colors.textMuted} />
-                    <Text style={styles.readCount}>
-                      {item._count?.reads ?? 0} read
-                    </Text>
+                    <Text style={styles.readCount}>{item.readCount} read</Text>
                   </View>
                 </View>
                 {!item.readByMe && (
@@ -113,7 +158,8 @@ export function AnnouncementsScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   container: { padding: spacing.lg },
-  title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.md },
+  header: { marginBottom: spacing.md },
+  title: { ...typography.h2, color: colors.textPrimary },
   body: { ...typography.body, color: colors.textSecondary, marginTop: spacing.sm },
   footer: {
     flexDirection: "row",

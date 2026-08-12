@@ -46,6 +46,7 @@ export class EventsController {
   @UseGuards(JwtAuthGuard)
   list(
     @Param("id") associationId: string,
+    @CurrentUser() user: JwtPayload,
     @Query("cursor") cursor?: string,
     @Query("take") take?: string,
   ) {
@@ -53,6 +54,7 @@ export class EventsController {
       associationId,
       cursor,
       take ? Math.min(Number(take), 50) : undefined,
+      user.sub,
     );
   }
 

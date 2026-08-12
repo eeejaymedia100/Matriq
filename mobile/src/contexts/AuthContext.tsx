@@ -29,6 +29,7 @@ interface AuthContextType extends AuthState {
   registerFresher: (data: FresherData) => Promise<string>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  updateProfile: (data: ProfileUpdate) => Promise<User>;
   uploadVerification: (associationId: string, fileUri: string, fileName: string) => Promise<{ id: string; status: string }>;
   getVerificationStatus: () => Promise<VerificationRequest[]>;
 }
@@ -43,6 +44,14 @@ export interface StayliteData {
   level: string;
   privacyPolicyVersion: string;
   termsVersion: string;
+}
+
+export interface ProfileUpdate {
+  fullName?: string;
+  faculty?: string;
+  department?: string;
+  level?: string;
+  dateOfBirth?: string;
 }
 
 export interface FresherData {
@@ -210,6 +219,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  /** Update the current user's profile (PATCH /me) and refresh local state. */
+  const updateProfile = useCallback(
+    async (data: ProfileUpdate): Promise<User> => {
+      const profile = await api.patch<User>("/me", data);
+      setState((s) => ({ ...s, user: profile }));
+      return profile;
+    },
+    [],
+  );
+
   // ── Verification ──────────────────────────────────────────────
 
   const uploadVerification = useCallback(
@@ -269,6 +288,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         registerFresher,
         logout,
         refreshUser,
+        updateProfile,
         uploadVerification,
         getVerificationStatus,
       }}

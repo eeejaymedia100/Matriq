@@ -13,6 +13,8 @@ export interface User {
   level: string;
   emailVerified: boolean;
   mfaEnabled: boolean;
+  /** ISO date string; null until the user completes the post-verification step. */
+  dateOfBirth: string | null;
 }
 
 export interface AuthResponse {
@@ -69,8 +71,8 @@ export interface Announcement {
   body: string;
   pinned: boolean;
   createdAt: string;
-  author: { id: string; role: string };
-  _count?: { reads: number };
+  author: { name: string; role: string };
+  readCount: number;
   readByMe?: boolean;
 }
 
@@ -82,6 +84,7 @@ export interface Event {
   eventDate: string;
   createdAt: string;
   rsvpCount: number;
+  attendanceCount: number;
   rsvpByMe: boolean;
 }
 

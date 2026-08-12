@@ -5,14 +5,16 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { colors, spacing, typography } from "../../theme/colors";
-import { Input, Button } from "../../components";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, spacing, typography, radii } from "../../theme/colors";
+import { Input, Button, ErrorBanner } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../api/client";
+import { formatApiError, type FriendlyError } from "../../utils/errors";
+import { isValidEmail, isRequired } from "../../utils/validation";
 
 interface LoginScreenProps {
   navigation: { navigate: (screen: string, params?: unknown) => void };
@@ -25,12 +27,32 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   const [challengeToken, setChallengeToken] = useState<string | null>(null);
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<FriendlyError | null>(null);
+  const [touched, setTouched] = useState<{ email: boolean; password: boolean }>({
+    email: false,
+    password: false,
+  });
+
+  const emailInvalid = email.length > 0 && !isValidEmail(email);
+  const emailError = emailInvalid
+    ? "That email doesn't look right."
+    : touched.email && !isRequired(email)
+      ? "Please enter your email."
+      : undefined;
+  const passwordError =
+    touched.password && !isRequired(password)
+      ? "Please enter your password."
+      : undefined;
 
   const handleLogin = async () => {
-    setError("");
-    if (!email.trim() || !password) {
-      setError("Please enter your email and password");
+    setError(null);
+    setTouched({ email: true, password: true });
+    if (!isValidEmail(email) || !isRequired(password)) {
+      setError({
+        title: "Please check your details",
+        message: "Enter your email and password to sign in.",
+        action: "Fix the highlighted fields and try again.",
+      });
       return;
     }
 
@@ -50,16 +72,20 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
         });
         return;
       }
-      setError(err instanceof Error ? err.message : "Login failed");
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
     }
   };
 
   const handleMfaSubmit = async () => {
-    setError("");
+    setError(null);
     if (!challengeToken || code.length !== 6) {
-      setError("Enter the 6-digit code from your authenticator app");
+      setError({
+        title: "Enter the 6-digit code",
+        message: "The code from your authenticator app is 6 digits long.",
+        action: "Check your authenticator app and enter the code.",
+      });
       return;
     }
 
@@ -67,7 +93,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
     try {
       await completeMfaLogin(challengeToken, code);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
     }
@@ -83,20 +109,25 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.title}>
-            {challengeToken ? "Two-factor authentication" : "Welcome back"}
-          </Text>
-          <Text style={styles.subtitle}>
-            {challengeToken
-              ? "Enter the code from your authenticator app"
-              : "Sign in to your Matriq account"}
-          </Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+          <View style={styles.header}>
+            <View style={styles.logo}>
+              <Ionicons
+                name={challengeToken ? "shield-checkmark-outline" : "person-outline"}
+                size={28}
+                color={colors.primary}
+              />
             </View>
-          ) : null}
+            <Text style={styles.title}>
+              {challengeToken ? "Two-factor authentication" : "Welcome back"}
+            </Text>
+            <Text style={styles.subtitle}>
+              {challengeToken
+                ? "Enter the code from your authenticator app"
+                : "Sign in to your Matriq account"}
+            </Text>
+          </View>
+
+          {error ? <ErrorBanner error={error} /> : null}
 
           {challengeToken ? (
             <View style={styles.form}>
@@ -106,8 +137,12 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 keyboardType="number-pad"
                 maxLength={6}
                 value={code}
-                onChangeText={(t) => setCode(t.replace(/[^0-9]/g, ""))}
+                onChangeText={(t) => {
+                  setCode(t.replace(/[^0-9]/g, ""));
+                  if (error) setError(null);
+                }}
                 onSubmitEditing={handleMfaSubmit}
+                valid={code.length === 6}
               />
               <Button
                 title="Verify & Sign In"
@@ -120,7 +155,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 onPress={() => {
                   setChallengeToken(null);
                   setCode("");
-                  setError("");
+                  setError(null);
                 }}
               >
                 ← Back
@@ -135,14 +170,25 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 autoCapitalize="none"
                 autoCorrect={false}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(t) => {
+                  setEmail(t);
+                  if (error) setError(null);
+                }}
+                onBlur={() => setTouched((t) => ({ ...t, email: true }))}
+                error={emailError}
+                valid={!emailError && isRequired(email)}
               />
               <Input
                 label="Password"
                 placeholder="Enter your password"
                 secureTextEntry
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(t) => {
+                  setPassword(t);
+                  if (error) setError(null);
+                }}
+                onBlur={() => setTouched((t) => ({ ...t, password: true }))}
+                error={passwordError}
                 onSubmitEditing={handleLogin}
               />
               <Button
@@ -178,20 +224,23 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingTop: spacing.xxl,
   },
-  title: { ...typography.h1, color: colors.textPrimary },
+  header: { alignItems: "center", marginBottom: spacing.lg },
+  logo: {
+    width: 64,
+    height: 64,
+    borderRadius: radii.full,
+    backgroundColor: colors.primaryLight + "22",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
+  title: { ...typography.h1, color: colors.textPrimary, textAlign: "center" },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
     marginTop: spacing.xs,
-    marginBottom: spacing.lg,
+    textAlign: "center",
   },
-  errorBox: {
-    backgroundColor: colors.errorBg,
-    borderRadius: 8,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  errorText: { ...typography.caption, color: colors.error },
   form: { gap: spacing.sm },
   links: {
     flexDirection: "row",

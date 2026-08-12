@@ -51,35 +51,49 @@ export async function clearTokens(): Promise<void> {
 /**
  * Error thrown by apiRequest. Carries the HTTP status and, when the backend
  * provides one, a stable machine-readable `code` (e.g. EMAIL_NOT_VERIFIED)
- * so screens can branch on it instead of parsing message text.
+ * so screens can branch on it instead of parsing message text. Rate-limit
+ * errors carry `retryAfterMs` so the UI can show an exact countdown.
  */
 export class ApiError extends Error {
   readonly status?: number;
   readonly code?: string;
+  readonly retryAfterMs?: number;
 
   constructor(
     message: string,
-    options: { status?: number; code?: string } = {},
+    options: { status?: number; code?: string; retryAfterMs?: number } = {},
   ) {
     super(message);
     this.name = "ApiError";
     this.status = options.status;
     this.code = options.code;
+    this.retryAfterMs = options.retryAfterMs;
   }
 }
 
 /**
- * Extract a human-readable message from a NestJS error body, which is
- * `{ message, error, statusCode }` (message may be a string or an array of
- * validation messages). Falls back to a generic HTTP message.
+ * Extract a human-readable message from a structured error body, which is
+ * `{ statusCode, code, message, error: { message }, retryAfterMs? }`
+ * (message may be a string or an array of validation messages). Falls back
+ * to a generic HTTP message.
  */
 function extractErrorMessage(body: unknown, status: number): string {
   if (body && typeof body === "object") {
     const b = body as Record<string, unknown>;
     if (typeof b.message === "string") return b.message;
+    if (Array.isArray(b.message)) {
+      const msgs = b.message.filter((m): m is string => typeof m === "string");
+      if (msgs.length > 0) return msgs.join(" ");
+    }
     if (b.error && typeof b.error === "object") {
       const e = b.error as Record<string, unknown>;
       if (typeof e.message === "string") return e.message;
+      if (Array.isArray(e.message)) {
+        const msgs = e.message.filter(
+          (m): m is string => typeof m === "string",
+        );
+        if (msgs.length > 0) return msgs.join(" ");
+      }
     }
     if (typeof b.error === "string") return b.error;
   }
@@ -156,9 +170,12 @@ export async function apiRequest<T>(
       unknown
     > | null;
     const code = typeof body?.code === "string" ? body.code : undefined;
+    const retryAfterMs =
+      typeof body?.retryAfterMs === "number" ? body.retryAfterMs : undefined;
     throw new ApiError(extractErrorMessage(body, res.status), {
       status: res.status,
       code,
+      retryAfterMs,
     });
   }
 

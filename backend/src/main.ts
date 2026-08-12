@@ -4,6 +4,7 @@ import { ExpressAdapter } from "@nestjs/platform-express";
 import cluster from "cluster";
 import * as os from "os";
 import { AppModule } from "./app.module";
+import { AllExceptionsFilter } from "./common/all-exceptions.filter";
 
 /**
  * Cluster mode: one Node process per CPU core (production default).
@@ -44,6 +45,11 @@ async function bootstrap(): Promise<void> {
       transform: true,
     }),
   );
+
+  // Global structured errors — every failure returns the same envelope
+  // { statusCode, code, message, retryAfterMs? } so clients (mobile + web)
+  // can render friendly, actionable messages instead of raw HTTP text.
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Per security.md: CORS locked to actual origins, not '*'
   app.enableCors({

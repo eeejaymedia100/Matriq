@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { Prisma } from "../generated/prisma/client";
 
 @Injectable()
 export class AnnouncementsService {
@@ -7,7 +8,12 @@ export class AnnouncementsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(associationId: string, cursor?: string, take = 20) {
+  async list(
+    associationId: string,
+    cursor?: string,
+    take = 20,
+    userId?: string,
+  ) {
     const association = await this.prisma.association.findUnique({
       where: { id: associationId },
     });
@@ -30,6 +36,10 @@ export class AnnouncementsService {
           },
         },
         _count: { select: { reads: true } },
+        // Include the caller's own read marker only when we know who they are.
+        reads: userId
+          ? { where: { userId }, select: { readAt: true }, take: 1 }
+          : false,
       },
     });
 
@@ -47,6 +57,7 @@ export class AnnouncementsService {
           role: a.author.role,
         },
         readCount: a._count.reads,
+        readByMe: userId ? ((a.reads as unknown[] | undefined)?.length ?? 0) > 0 : false,
         createdAt: a.createdAt,
       })),
       pagination: {

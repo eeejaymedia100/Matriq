@@ -33,6 +33,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  HttpException,
 } from "@nestjs/common";
 import { JsonWebTokenError } from "jsonwebtoken";
 import { AuthService } from "./auth.service";
@@ -496,6 +497,52 @@ describe("AuthService", () => {
     });
   });
 
+  // ── Resend verification (5/hour budget) ───────────────────
+
+  describe("resendVerification", () => {
+    it("should throw TooManyRequests when the 5/hour budget is exhausted", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...unverifiedUser,
+        verificationEmailCount: 5,
+        verificationEmailWindowStart: new Date(Date.now() - 10 * 60000),
+      });
+
+      await expect(
+        service.resendVerification("new@example.com"),
+      ).rejects.toThrow(HttpException);
+      expect(mockSend).not.toHaveBeenCalled();
+    });
+
+    it("should reset the budget when the 1-hour window has elapsed", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...unverifiedUser,
+        verificationEmailCount: 5,
+        verificationEmailWindowStart: new Date(Date.now() - 61 * 60000),
+      });
+      (prisma.user.update as jest.Mock).mockResolvedValue({
+        ...unverifiedUser,
+        verificationEmailCount: 1,
+      });
+
+      const result = await service.resendVerification("new@example.com");
+      expect(result.message).toContain("sent");
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ verificationEmailCount: 1 }),
+        }),
+      );
+      expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+
+    it("should keep the generic response for unknown/verified emails", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+
+      const result = await service.resendVerification("nobody@example.com");
+      expect(result.message).toContain("If your email is registered");
+      expect(mockSend).not.toHaveBeenCalled();
+    });
+  });
+
   // ── Email verification ────────────────────────────────────
 
   describe("verifyEmail", () => {
@@ -572,6 +619,35 @@ describe("AuthService", () => {
       });
 
       expect(result.fullName).toBe("Updated Name");
+    });
+
+    it("should persist dateOfBirth when provided", async () => {
+      (prisma.user.update as jest.Mock).mockResolvedValue({
+        ...verifiedUser,
+        dateOfBirth: new Date("2000-05-15T00:00:00.000Z"),
+      });
+
+      const result = await service.updateProfile("uuid-1", {
+        dateOfBirth: "2000-05-15",
+      });
+
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            dateOfBirth: expect.any(Date),
+          }),
+        }),
+      );
+      expect(result.dateOfBirth).toEqual(new Date("2000-05-15T00:00:00.000Z"));
+    });
+
+    it("should reject a future date of birth", async () => {
+      await expect(
+        service.updateProfile("uuid-1", {
+          dateOfBirth: new Date(Date.now() + 86400000).toISOString(),
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
     });
   });
 });

@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  HttpException,
   HttpStatus,
   Logger,
 } from "@nestjs/common";
@@ -58,6 +59,12 @@ export interface ExecutiveProfile {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  // Verification emails (register + resend) share ONE rolling 1-hour budget
+  // of 5 per account. Exceeding it returns a 429 with retryAfterMs so the app
+  // can show exactly when the user can request another code.
+  private static readonly VERIFICATION_EMAIL_WINDOW_MS = 60 * 60 * 1000;
+  private static readonly VERIFICATION_EMAIL_MAX = 5;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -75,6 +82,9 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
+    // Carry the verification-email budget across re-registrations so a user
+    // can't burn 5 emails by deleting/recreating the account.
+    const carried = this.carriedCounter(existing);
     if (existing) {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
@@ -88,6 +98,8 @@ export class AuthService {
       timeCost: 3,
       parallelism: 4,
     });
+
+    const nextCounter = this.nextVerificationCounter(carried);
 
     const { code, result: user } = await this.withUniqueVerificationCode(
       (c) =>
@@ -105,6 +117,8 @@ export class AuthService {
             emailVerified: false,
             verificationToken: c.verificationToken,
             verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+            verificationEmailCount: nextCounter.count,
+            verificationEmailWindowStart: nextCounter.windowStart,
           },
         }),
     );
@@ -142,6 +156,7 @@ export class AuthService {
     const existing = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
+    const carried = this.carriedCounter(existing);
     if (existing) {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
@@ -155,6 +170,8 @@ export class AuthService {
       timeCost: 3,
       parallelism: 4,
     });
+
+    const nextCounter = this.nextVerificationCounter(carried);
 
     const { code, result: user } = await this.withUniqueVerificationCode(
       (c) =>
@@ -172,6 +189,8 @@ export class AuthService {
             emailVerified: false,
             verificationToken: c.verificationToken,
             verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+            verificationEmailCount: nextCounter.count,
+            verificationEmailWindowStart: nextCounter.windowStart,
           },
         }),
     );
@@ -262,12 +281,17 @@ export class AuthService {
       };
     }
 
+    // Enforce the shared 5-per-hour budget before issuing a new code.
+    const nextCounter = this.nextVerificationCounter(this.carriedCounter(user));
+
     const { code } = await this.withUniqueVerificationCode((c) =>
       this.prisma.user.update({
         where: { id: user.id },
         data: {
           verificationToken: c.verificationToken,
           verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+          verificationEmailCount: nextCounter.count,
+          verificationEmailWindowStart: nextCounter.windowStart,
         },
       }),
     );
@@ -290,7 +314,12 @@ export class AuthService {
 
     const valid = await argon2.verify(user.passwordHash, dto.password);
     if (!valid) {
-      throw new UnauthorizedException("Invalid email or password");
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        code: "INVALID_CREDENTIALS",
+        message:
+          "Incorrect email or password. Please check your details and try again.",
+      });
     }
 
     // Password verified first so EMAIL_NOT_VERIFIED only fires for correct
@@ -554,6 +583,33 @@ export class AuthService {
     userId: string,
     dto: UpdateProfileDto,
   ): Promise<Omit<User, "passwordHash" | "verificationToken">> {
+    let dateOfBirth: Date | undefined;
+    if (dto.dateOfBirth !== undefined) {
+      const dob = new Date(dto.dateOfBirth);
+      if (Number.isNaN(dob.getTime())) {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          code: "VALIDATION_FAILED",
+          message: "That date of birth doesn't look right. Please pick it again.",
+        });
+      }
+      if (dob.getTime() >= Date.now()) {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          code: "VALIDATION_FAILED",
+          message: "Your date of birth can't be in the future.",
+        });
+      }
+      if (dob.getFullYear() < 1900) {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          code: "VALIDATION_FAILED",
+          message: "Please enter a valid year (1900 or later).",
+        });
+      }
+      dateOfBirth = dob;
+    }
+
     const user = await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -561,6 +617,7 @@ export class AuthService {
         ...(dto.faculty !== undefined && { faculty: dto.faculty }),
         ...(dto.department !== undefined && { department: dto.department }),
         ...(dto.level !== undefined && { level: dto.level }),
+        ...(dateOfBirth !== undefined && { dateOfBirth }),
       },
     });
 
@@ -615,6 +672,65 @@ export class AuthService {
         privacyPolicy: latest.privacyPolicy !== "1.0",
         termsAndConditions: latest.termsAndConditions !== "1.0",
       },
+    };
+  }
+
+  // ── Verification email budget (5/hour per account) ───────────
+
+  /**
+   * Read the email budget from an existing (possibly about-to-be-deleted)
+   * account so re-registration can't reset the limit.
+   */
+  private carriedCounter(user: {
+    verificationEmailCount: number;
+    verificationEmailWindowStart: Date | null;
+  } | null): { count: number; windowStart: Date | null } {
+    if (!user) {
+      return { count: 0, windowStart: null };
+    }
+    return {
+      count: user.verificationEmailCount,
+      windowStart: user.verificationEmailWindowStart,
+    };
+  }
+
+  /**
+   * Enforce the 5-per-hour verification email budget and return the next
+   * counter state to persist. Throws a structured 429 (with retryAfterMs)
+   * when the budget is exhausted so the app can show an exact countdown.
+   */
+  private nextVerificationCounter(current: {
+    count: number;
+    windowStart: Date | null;
+  }): { count: number; windowStart: Date } {
+    const now = Date.now();
+    const windowStart = current.windowStart?.getTime() ?? 0;
+    const inWindow =
+      windowStart > 0 &&
+      now - windowStart < AuthService.VERIFICATION_EMAIL_WINDOW_MS;
+
+    if (inWindow && current.count >= AuthService.VERIFICATION_EMAIL_MAX) {
+      const retryAfterMs = Math.max(
+        1000,
+        windowStart + AuthService.VERIFICATION_EMAIL_WINDOW_MS - now,
+      );
+      const minutes = Math.max(1, Math.ceil(retryAfterMs / 60000));
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.TOO_MANY_REQUESTS,
+          code: "VERIFICATION_EMAIL_LIMIT",
+          message:
+            `You've reached the limit of ${AuthService.VERIFICATION_EMAIL_MAX} verification emails per hour. ` +
+            `You can request a new code in about ${minutes} minute${minutes === 1 ? "" : "s"}.`,
+          retryAfterMs,
+        },
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
+    }
+
+    return {
+      count: inWindow ? current.count + 1 : 1,
+      windowStart: inWindow ? current.windowStart! : new Date(now),
     };
   }
 

@@ -19,6 +19,7 @@ export type MainTabParamList = {
 };
 
 export type MainStackParamList = {
+  CompleteProfile: undefined;
   Home: NavigatorScreenParams<MainTabParamList>;
   PayFee: { feeId: string };
   Receipt: { paymentId: string };

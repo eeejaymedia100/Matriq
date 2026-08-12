@@ -93,6 +93,14 @@ model User {
   // 6-digit email verification code (stored in verificationToken). Expiry
   // guards against brute force — expired codes are rejected by verifyEmail.
   verificationCodeExpiresAt DateTime? @map("verification_code_expires_at")
+  // Rolling 1-hour window for verification emails (register + resend). Cap of
+  // 5 per hour per account — enforced in AuthService with a clear retry message.
+  verificationEmailCount     Int       @default(0) @map("verification_email_count")
+  verificationEmailWindowStart DateTime? @map("verification_email_window_start")
+  // Optional date of birth — collected after email verification, before the
+  // dashboard (scroll-picker UI in the app). Nullable: legacy accounts are
+  // prompted to complete their profile on next launch.
+  dateOfBirth     DateTime?         @map("date_of_birth")
   mfaEnabled       Boolean          @default(false) @map("mfa_enabled")
   mfaSecret        String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
   createdAt        DateTime         @default(now()) @map("created_at")

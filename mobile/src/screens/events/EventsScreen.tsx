@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -10,23 +10,36 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
-import { Card, Button, ListScreenSkeleton } from "../../components";
+import { Card, Button, ListScreenSkeleton, ErrorBanner } from "../../components";
 import { api } from "../../api/client";
 import { useFocusEffect } from "@react-navigation/native";
-import type { Event } from "../../types/api";
+import type { Event, Association } from "../../types/api";
+import { formatApiError, type FriendlyError } from "../../utils/errors";
 
 export function EventsScreen() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<FriendlyError | null>(null);
+  // Events with an in-flight RSVP request (prevents double-taps).
+  const pending = useRef<Set<string>>(new Set());
 
   const fetch = useCallback(async () => {
     try {
-      const data = await api.get<{ events: Event[] }>("/me/memberships");
-      // Simplified - in production, fetch per association
-      setEvents([]);
-    } catch {
-      // ignore
+      const memberships = await api.get<{
+        memberships: Array<{ association: Association }>;
+      }>("/me/memberships");
+      const assoc = memberships.memberships[0]?.association;
+      if (!assoc) {
+        setEvents([]);
+        return;
+      }
+      const data = await api.get<{ events: Event[] }>(
+        `/associations/${assoc.id}/events`,
+      );
+      setEvents(data.events);
+    } catch (err) {
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -39,22 +52,50 @@ export function EventsScreen() {
     }, [fetch]),
   );
 
+  /**
+   * Optimistic RSVP: flip the UI immediately, then reconcile with the server.
+   * If the request fails the change is rolled back and a friendly error shows.
+   */
   const toggleRsvp = async (eventId: string, currentlyRsvp: boolean) => {
+    if (pending.current.has(eventId)) return;
+    pending.current.add(eventId);
+    setError(null);
+
+    // 1. Optimistic update.
+    setEvents((prev) =>
+      prev.map((e) =>
+        e.id === eventId
+          ? {
+              ...e,
+              rsvpByMe: !currentlyRsvp,
+              rsvpCount: currentlyRsvp
+                ? Math.max(0, e.rsvpCount - 1)
+                : e.rsvpCount + 1,
+            }
+          : e,
+      ),
+    );
+
     try {
       await api.post(`/events/${eventId}/rsvp`, {});
+    } catch (err) {
+      // 2. Rollback on failure.
       setEvents((prev) =>
         prev.map((e) =>
           e.id === eventId
             ? {
                 ...e,
-                rsvpByMe: !currentlyRsvp,
-                rsvpCount: currentlyRsvp ? e.rsvpCount - 1 : e.rsvpCount + 1,
+                rsvpByMe: currentlyRsvp,
+                rsvpCount: currentlyRsvp
+                  ? e.rsvpCount + 1
+                  : Math.max(0, e.rsvpCount - 1),
               }
             : e,
         ),
       );
-    } catch {
-      // ignore
+      setError(formatApiError(err));
+    } finally {
+      pending.current.delete(eventId);
     }
   };
 
@@ -67,14 +108,25 @@ export function EventsScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.container}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetch(); }} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              fetch();
+            }}
+          />
         }
         ListHeaderComponent={
-          <Text style={styles.title}>Events</Text>
+          <View style={styles.header}>
+            <Text style={styles.title}>Events</Text>
+            {error ? <ErrorBanner error={error} /> : null}
+          </View>
         }
         ListEmptyComponent={
           <Card title="No events">
-            <Text style={styles.emptyText}>No upcoming events. Check back later!</Text>
+            <Text style={styles.emptyText}>
+              No upcoming events. Check back later!
+            </Text>
           </Card>
         }
         renderItem={({ item }) => (
@@ -109,7 +161,8 @@ export function EventsScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   container: { padding: spacing.lg },
-  title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.md },
+  header: { marginBottom: spacing.md },
+  title: { ...typography.h2, color: colors.textPrimary },
   desc: { ...typography.body, color: colors.textSecondary, marginTop: spacing.sm },
   footer: {
     flexDirection: "row",

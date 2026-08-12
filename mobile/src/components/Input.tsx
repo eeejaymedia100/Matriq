@@ -15,6 +15,11 @@ interface InputProps extends TextInputProps {
   label: string;
   error?: string;
   hint?: string;
+  /**
+   * When true (and the field has a value) the box turns green with a check
+   * icon — live feedback that the field is filled in correctly.
+   */
+  valid?: boolean;
   rightIcon?: React.ReactNode;
   containerStyle?: ViewStyle;
 }
@@ -23,15 +28,19 @@ export function Input({
   label,
   error,
   hint,
+  valid,
   rightIcon,
   containerStyle,
   secureTextEntry,
+  value,
   ...props
 }: InputProps) {
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const isPassword = secureTextEntry;
+  const hasValue = typeof value === "string" && value.length > 0;
+  const showValidCheck = valid && hasValue && !error;
 
   return (
     <View style={[styles.container, containerStyle]}>
@@ -41,6 +50,7 @@ export function Input({
           styles.inputWrapper,
           focused && styles.inputFocused,
           error && styles.inputError,
+          showValidCheck && styles.inputValid,
         ]}
       >
         <TextInput
@@ -49,6 +59,7 @@ export function Input({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           secureTextEntry={isPassword && !showPassword}
+          value={value}
           {...props}
         />
         {isPassword ? (
@@ -62,6 +73,14 @@ export function Input({
               color={colors.textMuted}
             />
           </TouchableOpacity>
+        ) : showValidCheck ? (
+          <View style={styles.iconBtn}>
+            <Ionicons
+              name="checkmark-circle"
+              size={20}
+              color={colors.success}
+            />
+          </View>
         ) : rightIcon ? (
           <View style={styles.iconBtn}>{rightIcon}</View>
         ) : null}
@@ -92,6 +111,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceAlt,
   },
   inputError: { borderColor: colors.error },
+  inputValid: { borderColor: colors.success },
   input: {
     flex: 1,
     ...typography.body,

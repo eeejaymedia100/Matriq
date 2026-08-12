@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,13 +8,18 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, spacing, typography } from "../../theme/colors";
-import { Input, Button } from "../../components";
+import { colors, spacing, typography, radii } from "../../theme/colors";
+import { Input, Button, ErrorBanner } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
 import type { AuthStackParamList } from "../../navigation/types";
+import { formatApiError, type FriendlyError } from "../../utils/errors";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
+
+/** Max wait before the "Resend code" link re-enables (30s). */
+const RESEND_COOLDOWN_S = 30;
 
 export function VerifyEmailScreen({ route, navigation }: Props) {
   const { verifyEmail, resendVerification } = useAuth();
@@ -23,16 +28,31 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<FriendlyError | null>(null);
   const [info, setInfo] = useState(
     `We sent a 6-digit code to ${email}. Enter it below to verify your account.`,
   );
-  const resendCooldown = useRef(0);
+  const [cooldown, setCooldown] = useState(RESEND_COOLDOWN_S);
+  const cooldownRef = useRef(RESEND_COOLDOWN_S);
+
+  // Start the resend countdown as soon as the screen opens (an email was just
+  // sent by registration). Ticks every second down to 0.
+  useEffect(() => {
+    const id = setInterval(() => {
+      cooldownRef.current = Math.max(0, cooldownRef.current - 1);
+      setCooldown(cooldownRef.current);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleVerify = async () => {
-    setError("");
+    setError(null);
     if (code.length !== 6) {
-      setError("Enter the 6-digit code from your email");
+      setError({
+        title: "Enter the 6-digit code",
+        message: "The code we emailed you has 6 digits.",
+        action: "Check your inbox (and spam) for the code and enter it above.",
+      });
       return;
     }
 
@@ -41,32 +61,33 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
       await verifyEmail(code);
       // Success: isAuthenticated flips, AppNavigator swaps to the main app.
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Verification failed");
+      setError(formatApiError(err));
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
-    setError("");
-    const wait = resendCooldown.current - Date.now();
-    if (wait > 0) {
-      setInfo(`Please wait ${Math.ceil(wait / 1000)}s before requesting a new code.`);
-      return;
-    }
+    setError(null);
+    if (cooldown > 0) return;
 
     setResending(true);
     try {
       const msg = await resendVerification(email);
       setInfo(msg);
       setCode("");
-      resendCooldown.current = Date.now() + 30_000; // 30s cooldown
+      // Reset the 30s countdown.
+      cooldownRef.current = RESEND_COOLDOWN_S;
+      setCooldown(RESEND_COOLDOWN_S);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not resend the code");
+      setError(formatApiError(err));
     } finally {
       setResending(false);
     }
   };
+
+  const formatCountdown = (s: number) =>
+    `0:${s.toString().padStart(2, "0")}`;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -78,14 +99,15 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
           contentContainerStyle={styles.container}
           keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.title}>Verify your email</Text>
-          <Text style={styles.subtitle}>{info}</Text>
-
-          {error ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{error}</Text>
+          <View style={styles.header}>
+            <View style={styles.iconWrap}>
+              <Ionicons name="mail-outline" size={28} color={colors.primary} />
             </View>
-          ) : null}
+            <Text style={styles.title}>Verify your email</Text>
+            <Text style={styles.subtitle}>{info}</Text>
+          </View>
+
+          {error ? <ErrorBanner error={error} /> : null}
 
           <View style={styles.form}>
             <Input
@@ -94,8 +116,12 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
               keyboardType="number-pad"
               maxLength={6}
               value={code}
-              onChangeText={(t) => setCode(t.replace(/[^0-9]/g, ""))}
+              onChangeText={(t) => {
+                setCode(t.replace(/[^0-9]/g, ""));
+                if (error) setError(null);
+              }}
               onSubmitEditing={handleVerify}
+              valid={code.length === 6}
             />
             <Button
               title="Verify & Continue"
@@ -103,15 +129,34 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
               loading={loading}
               size="lg"
             />
-            <Text style={styles.resendHint}>
-              Didn't get the code?{" "}
-              <Text style={styles.link} onPress={handleResend}>
-                {resending ? "Sending..." : "Resend code"}
-              </Text>
+
+            {/* Resend — countdown sits right beside "Didn't get the code?" */}
+            <View style={styles.resendRow}>
+              <Text style={styles.resendHint}>Didn't get the code? </Text>
+              {cooldown > 0 ? (
+                <Text style={styles.countdown}>
+                  Resend in {formatCountdown(cooldown)}
+                </Text>
+              ) : (
+                <Text style={styles.link} onPress={handleResend}>
+                  {resending ? "Sending..." : "Resend code"}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.spamHint}>
+            <Ionicons name="information-circle-outline" size={16} color={colors.textMuted} />
+            <Text style={styles.spamHintText}>
+              Can't find it? Check your spam or junk folder — it can take a
+              minute to arrive.
             </Text>
           </View>
 
-          <Text style={styles.backLink} onPress={() => navigation.navigate("Login")}>
+          <Text
+            style={styles.backLink}
+            onPress={() => navigation.navigate("Login")}
+          >
             ← Back to sign in
           </Text>
         </ScrollView>
@@ -127,29 +172,50 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingTop: spacing.xxl,
   },
-  title: { ...typography.h1, color: colors.textPrimary },
+  header: { alignItems: "center", marginBottom: spacing.lg },
+  iconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: radii.full,
+    backgroundColor: colors.primaryLight + "22",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
+  title: { ...typography.h1, color: colors.textPrimary, textAlign: "center" },
   subtitle: {
     ...typography.body,
     color: colors.textSecondary,
     marginTop: spacing.xs,
-    marginBottom: spacing.lg,
+    textAlign: "center",
     lineHeight: 22,
   },
-  errorBox: {
-    backgroundColor: colors.errorBg,
-    borderRadius: 8,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  errorText: { ...typography.caption, color: colors.error },
   form: { gap: spacing.sm },
-  resendHint: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: "center",
+  resendRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
     marginTop: spacing.md,
   },
+  resendHint: { ...typography.body, color: colors.textSecondary },
+  countdown: { ...typography.bodyBold, color: colors.textMuted },
   link: { ...typography.bodyBold, color: colors.primary },
+  spamHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.surfaceAlt,
+    borderRadius: radii.md,
+    padding: spacing.md,
+    marginTop: spacing.xl,
+  },
+  spamHintText: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    flex: 1,
+    lineHeight: 18,
+  },
   backLink: {
     ...typography.body,
     color: colors.textMuted,

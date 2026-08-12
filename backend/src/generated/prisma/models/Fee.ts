@@ -481,14 +481,6 @@ export type FeeUncheckedUpdateManyWithoutAssociationNestedInput = {
   deleteMany?: Prisma.FeeScalarWhereInput | Prisma.FeeScalarWhereInput[]
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FeeCreateNestedOneWithoutPaymentsInput = {
   create?: Prisma.XOR<Prisma.FeeCreateWithoutPaymentsInput, Prisma.FeeUncheckedCreateWithoutPaymentsInput>
   connectOrCreate?: Prisma.FeeCreateOrConnectWithoutPaymentsInput

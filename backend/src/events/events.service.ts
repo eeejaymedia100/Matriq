@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import * as crypto from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { JwtPayload } from "../auth/auth.service";
+import { Prisma } from "../generated/prisma/client";
 
 // Rotating check-in windows (5 minutes). Tokens from the previous window are
 // accepted for a short grace period to avoid check-in failures at boundaries.
@@ -23,7 +24,12 @@ export class EventsService {
     private readonly configService: ConfigService,
   ) {}
 
-  async list(associationId: string, cursor?: string, take = 20) {
+  async list(
+    associationId: string,
+    cursor?: string,
+    take = 20,
+    userId?: string,
+  ) {
     const association = await this.prisma.association.findUnique({
       where: { id: associationId },
     });
@@ -33,14 +39,25 @@ export class EventsService {
 
     const takePlusOne = Math.min(take, 50) + 1;
 
+    const include: Prisma.EventInclude = {
+      _count: { select: { rsvps: true, attendance: true } },
+      ...(userId
+        ? {
+            rsvps: {
+              where: { userId },
+              select: { eventId: true },
+              take: 1,
+            },
+          }
+        : {}),
+    };
+
     const events = await this.prisma.event.findMany({
       where: { associationId },
       take: takePlusOne,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
       orderBy: { eventDate: "asc" },
-      include: {
-        _count: { select: { rsvps: true, attendance: true } },
-      },
+      include,
     });
 
     const hasMore = events.length > take;
@@ -55,6 +72,7 @@ export class EventsService {
         eventDate: e.eventDate,
         rsvpCount: e._count.rsvps,
         attendanceCount: e._count.attendance,
+        rsvpByMe: userId ? (e.rsvps?.length ?? 0) > 0 : false,
         createdAt: e.createdAt,
       })),
       pagination: {

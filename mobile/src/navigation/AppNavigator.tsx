@@ -22,6 +22,7 @@ import { RegisterChoiceScreen } from "../screens/auth/RegisterChoiceScreen";
 import { RegisterStayliteScreen } from "../screens/auth/RegisterStayliteScreen";
 import { RegisterFresherScreen } from "../screens/auth/RegisterFresherScreen";
 import { VerifyEmailScreen } from "../screens/auth/VerifyEmailScreen";
+import { CompleteProfileScreen } from "../screens/auth/CompleteProfileScreen";
 
 // Main screens
 import { DashboardScreen } from "../screens/dashboard/DashboardScreen";
@@ -113,8 +114,14 @@ function MainTabs() {
 // ── Main (authenticated) navigator ─────────────────────────────
 
 function MainNavigator() {
+  const { user } = useAuth();
+  // First-time flow: after email verification the user lands on the
+  // date-of-birth step before the dashboard (required once).
+  const needsDob = !!user && !user.dateOfBirth;
+
   return (
     <MainStack.Navigator
+      initialRouteName={needsDob ? "CompleteProfile" : "Home"}
       screenOptions={{
         headerStyle: { backgroundColor: colors.surface },
         headerTintColor: colors.textPrimary,
@@ -122,6 +129,13 @@ function MainNavigator() {
         contentStyle: { backgroundColor: colors.bg },
       }}
     >
+      {needsDob && (
+        <MainStack.Screen
+          name="CompleteProfile"
+          component={CompleteProfileScreen}
+          options={{ headerShown: false }}
+        />
+      )}
       <MainStack.Screen
         name="Home"
         component={MainTabs}
