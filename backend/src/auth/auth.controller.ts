@@ -102,10 +102,11 @@ export class AuthController {
 
   @Post("auth/resend-verification")
   @HttpCode(HttpStatus.OK)
-  // 5 per hour per (ip, email) — matches the DB-backed budget in AuthService,
-  // which returns the exact "try again in X minutes" message on the 6th.
+  // Loose 10/hour per (ip, email) safety net — the real limit is the
+  // DB-backed budget in AuthService (5/hour per account), which returns the
+  // exact "try again in X minutes" message on the 6th request.
   @Throttle({
-    default: { ttl: 3600000, limit: 5, getTracker: ipAndEmailTracker },
+    default: { ttl: 3600000, limit: 10, getTracker: ipAndEmailTracker },
   })
   resendVerification(
     @Body() dto: ResendVerificationDto,
