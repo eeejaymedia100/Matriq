@@ -13,6 +13,39 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — App v2: onboarding + vector icons + legal links; APK rebuilt & delivered
+
+**Status:** done — new APK shipped (Telegram msg #233); site legal pages live
+
+**Did:**
+- **Connection error explained:** the "Failed to connect to api.matriq.com.ng:443" error
+  was transient — DNS had just flipped and Caddy was mid-restart. Verified healthy end-to-end
+  from a neutral resolver (DNS → 35.204.163.157, valid LE cert, login + `/v1/associations` 200).
+  **No redownload was needed for the connection fix**; the rebuild below is for the UI work.
+- **Onboarding for first-timers (simple, 3 slides):** new `OnboardingScreen` (people → wallet →
+  sparkles, all Ionicons), swipe + dots + Skip/Next/Get Started; shown only until the user
+  completes it (flag in `expo-secure-store`), so returning users go straight to Welcome.
+  Wired as the auth stack's initial route in `AppNavigator`.
+- **Terms & Privacy links now tappable:** Welcome + RegisterStaylite + RegisterFresher footers
+  open `https://matriq.com.ng/terms.html` / `privacy.html` (new branded pages in `waitlist/`,
+  served by Caddy's file_server — verified 200 over HTTPS, same dark-purple brand).
+- **NO emojis as icons — full sweep:** replaced every emoji glyph across the app with real
+  Ionicons (@expo/vector-icons): tab bar, dashboard, fees/dues, events (people-outline,
+  checkmark), referrals (trophy/flag), verification upload (camera/image-outline), AI
+  companion (sparkles header, arrow-up send), announcements (pin badge + eye-outline reads),
+  payments (card/business/phone-portrait + checkmark-circle), receipt (qr-code icon),
+  profile + dashboard "Verified". Final sweep: **0 emoji glyphs in `mobile/src` and in the
+  release bundle**; `npx tsc --noEmit` green.
+- **Rebuilt + verified + delivered:** incremental `assembleRelease` (7m 9s, tmux), 33.9 MB;
+  bundle embeds `https://api.matriq.com.ng/v1` + onboarding copy, zero emojis. Distributed to
+  `waitlist/matriq.apk` (both boxes), repo root `matriq-student.apk`, `/download/matriq.apk`
+  → 200 (33,922,184 bytes) on the new box, and **sent via Telegram (msg #233, @GareflyerBot)**.
+
+**Next:**
+- User: sideload the new APK (Telegram) and run through first-launch onboarding + a login.
+- Note: existing installs keep working; the new onboarding shows only on fresh installs (or
+  after app data clear) since it's flagged in secure storage.
+
 ## 2026-08-12 — Waitlist page redesigned + APK shipped via Telegram
 
 **Status:** done
