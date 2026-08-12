@@ -40,6 +40,9 @@ services:
       - JWT_SECRET=${JWT_SECRET:?err}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:?err}
       - RESEND_API_KEY=${RESEND_API_KEY:?err}
+      # Sender address for transactional email; defaults to Resend's shared
+      # onboarding@resend.dev until a domain is verified (see EMAIL_FROM).
+      - EMAIL_FROM=${EMAIL_FROM:-}
       # Base URL used in verification emails (must be a public, reachable host).
       - APP_URL=${APP_URL:-https://api.matriq.com.ng}
       - OLLAMA_HOST=http://ollama:11434

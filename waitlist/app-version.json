@@ -1,7 +1,7 @@
 {
-  "versionCode": 3,
-  "versionName": "0.2.1",
+  "versionCode": 4,
+  "versionName": "0.3.0",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "This update flows through the app itself — no manual download needed. Includes review fixes (OTP collision handling, login hardening).",
+  "notes": "New sign-in experience: live field validation, password strength guide, friendly error messages, 30s resend countdown, and date-of-birth step. Verification emails are now limited to 5 per hour.",
   "publishedAt": "2026-08-13T00:00:00Z"
 }
