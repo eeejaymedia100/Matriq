@@ -4,6 +4,73 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-12 — Auth overhaul: OTP delivery FIXED (Resend domain), 5/hr email limit, structured errors, new sign-in UI, DOB step, optimistic UI
+
+**Status:** done — all verified live; new APK v0.3.0 (build 4) shipping via the in-app updater
+
+**Did:**
+- **ROOT CAUSE of "I didn't get an OTP": Resend was in TEST MODE.** The key on the box was
+  send-restricted (`restricted_api_key`) and the domain wasn't verified — Resend only allows
+  sending to the account owner's email (logs showed `You can only send testing emails to your
+  own email address`). Every verification email to a student silently failed. **User fixed it:**
+  created a full-access Resend API key (`re_...`, now in `.env` on both boxes) and verified
+  `matriq.com.ng` on Resend (status: `verified`, sending enabled). Backend now sends from
+  `Matriq <no-reply@matriq.com.ng>` (`EMAIL_FROM`, added to compose env passthrough).
+  **Verified live:** direct Resend API send → message ID; full app flow — register with a real
+  gmail → `Email sent: "Your Matriq verification code" … (id: 4e3222cd…)` in backend logs,
+  no errors.
+- **Verification emails capped at 5/hour per account, with an exact retry message.** New
+  `verificationEmailCount` + `verificationEmailWindowStart` columns (migration
+  `20260814000000_add_dob_verification_limits`). Register + resend share ONE rolling budget;
+  the 6th request within the hour returns
+  `429 { code: "VERIFICATION_EMAIL_LIMIT", retryAfterMs, message: "…request a new code in
+  about 60 minutes" }`. Counters carry across re-registration (can't reset by delete), and the
+  budget check runs BEFORE any account cleanup. Resend endpoint throttle aligned (10/hr safety
+  net; the DB check is the real limit). **Verified live:** register + 4 resends OK, 6th request
+  → exact 429 with countdown.
+- **Structured errors everywhere (no more raw "HTTP 401" / "fetch failed").** New global
+  exception filter (`backend/src/common/all-exceptions.filter.ts`): every failure returns
+  `{ statusCode, code, message, error: { message }, retryAfterMs? }`; unknown errors become a
+  generic 500 (internals logged, never leaked); ThrottlerException → friendly RATE_LIMITED.
+  `login` now returns `INVALID_CREDENTIALS` (verified live). Mobile side: new `utils/errors.ts`
+  maps any error into **What happened / Why / What to do** (network, timeout, rate limit with
+  countdown, wrong credentials, server errors) + `ErrorBanner` component. The `uploadVerification`
+  path still throws a raw message (flagged, low priority).
+- **Fixed a latent 500 on re-registration:** deleting an unverified user tripped the
+  `legal_acceptances_user_id_fkey` FK (surfaced by the new filter — found via stack trace).
+  Register now deletes legal acceptances + refresh-token families before the user.
+- **New sign-in/sign-up UI (interactive):** live validation on every field — green border +
+  check icon when correct, red + message the moment it's wrong; password strength checklist
+  (8+ chars, upper, lower, number, symbol) via new `PasswordStrength`; header icons; the login
+  screen got the same treatment + MFA step preserved.
+- **VerifyEmail screen:** 30s resend countdown rendered INLINE right beside "Didn't get the
+  code?" (starts on screen open, resets on resend) + spam-folder hint + structured errors
+  (including the 5/hr message with countdown).
+- **Date of birth step after email verification, before the dashboard:** new
+  `CompleteProfileScreen` with scroll **wheel pickers** for day and month (custom
+  `WheelPicker`, snap-to-item, no native deps) + **manual year input**; live preview
+  ("12 May 2005"); validates day/month/year combos, future dates, year 1900–now.
+  `PATCH /me { dateOfBirth }` → `dateOfBirth` column. MainNavigator gates on
+  `user.dateOfBirth == null` (existing users get the step once on next login). **Verified
+  live:** persist, future-date rejection, invalid-year rejection.
+- **Optimistic rendering:** Events RSVP toggles instantly with rollback on failure (double-tap
+  guarded); Announcements mark-as-read updates the "New" badge + read count immediately with
+  rollback. Both now fetch REAL data (previously stubs) — backend list endpoints now return
+  `rsvpByMe` / `readByMe` per user.
+- **Validation:** backend tsc clean + **39/39 auth tests** (incl. budget-exhaustion, re-reg
+  no-delete regression); mobile tsc clean; live E2E green (structured INVALID_CREDENTIALS,
+  VERIFICATION_EMAIL_LIMIT 429, DOB persist/reject, real email delivery). Commits `b1c1ca8` →
+  `9721314` + `bfa2640`.
+- **v0.3.0 (build 4) APK** rebuilding (tmux); `app-version.json` bumped so installed apps
+  self-update.
+
+**Next:**
+- User: the new APK self-updates from v0.2.1 via the in-app updater (or Telegram msg #24x).
+- Optional cleanup (reviewer): `uploadVerification` raw-error path → route through the friendly
+  error system; WheelPicker highlight uses the itemHeight prop.
+- Student emails now deliver from no-reply@matriq.com.ng — test the full register → OTP → DOB
+  flow on a phone.
+
 Entry format:
 ```
 ## YYYY-MM-DD — Phase N — [short title]
