@@ -13,6 +13,30 @@ Entry format:
 **Blockers/flags:** anything a human needs to weigh in on before work continues
 ```
 
+## 2026-08-12 — Waitlist page redesigned + APK shipped via Telegram
+
+**Status:** done
+
+**Did:**
+- **APK delivered via Telegram** — sent the rebuilt `matriq.apk` (31.4 MB) to the user's
+  private chat using the Hermes bot token found in `~/.hermes/.env` on matriq-server
+  (`sendDocument` ok, message #229, bot @GareflyerBot). Token never left the server.
+- **Redesigned `waitlist/` landing page** — "The operating system for Nigerian student
+  associations": problem grid ("The old way is exhausting"), six feature cards, an
+  executives/members audience split, how-it-works, and a final CTA. Brand-consistent
+  (dark purple #6C3BAA, Inter), responsive, prefers-reduced-motion friendly.
+- **`matriq.com.ng` now serves the waitlist UI only** — removed the `/v1/*` reverse-proxy
+  from the root domain block in `caddy/Caddyfile`; the API surface lives exclusively at
+  `api.matriq.com.ng`. The page's form + live counter call the api subdomain cross-origin.
+- **CORS verified live**: OPTIONS preflight 204 with `access-control-allow-origin:
+  https://matriq.com.ng` (user had already added it to `CORS_ORIGIN` on both boxes).
+  Honeypot POST (no insert) and a real signup (user's email → position #4) both return
+  the correct payload; the confirmation email should arrive in their inbox.
+- Optional `fullName` field added to the form (the backend already supported it).
+
+**Next:** flip the root `matriq.com.ng` A record → `35.204.163.157` (see chat steps) so
+`https://matriq.com.ng` serves the new page from matriq-server with a Let's Encrypt cert.
+
 ## 2026-08-12 — Student APK rebuilt → https://api.matriq.com.ng/v1
 
 **Status:** done — new APK live on both servers
