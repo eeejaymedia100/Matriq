@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matriq — Student associations, all in one app</title>
-  <meta name="description" content="Matriq helps Nigerian student associations collect dues, verify members, share announcements and study smarter. Join the waitlist." />
+  <title>Matriq — The operating system for Nigerian student associations</title>
+  <meta name="description" content="Matriq helps Nigerian student associations collect dues, verify members, share announcements, stay transparent and study smarter — all in one app. Join the waitlist for early access." />
+  <meta property="og:title" content="Matriq — Student associations, all in one app" />
+  <meta property="og:description" content="Dues, verified membership, announcements, treasury transparency and an AI study companion — built for Nigerian campuses. Join the waitlist." />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236C3BAA'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3EM%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -16,6 +18,7 @@
   <div class="bg" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
     <div class="grid-overlay"></div>
   </div>
 
@@ -26,6 +29,11 @@
         <span class="logo-mark">M</span>
         <span class="logo-text">Matriq</span>
       </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#problem">Why Matriq</a>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+      </nav>
       <a href="#join" class="nav-cta">Join the waitlist</a>
     </div>
   </header>
@@ -35,13 +43,13 @@
     <section class="hero" id="join">
       <div class="badge fade-up">🚀 Early access — opening soon</div>
       <h1 class="fade-up delay-1">
-        Student associations,<br />
-        <span class="grad">all in one app.</span>
+        The operating system for<br />
+        <span class="grad">Nigerian student associations.</span>
       </h1>
       <p class="hero-sub fade-up delay-2">
-        Matriq helps your association collect dues, verify members, share
-        announcements, plan events and study smarter — no more WhatsApp
-        spreadsheets and cash chasing.
+        Matriq replaces the WhatsApp spreadsheets, the cash chasing and the
+        guesswork. Dues, verified membership, announcements, treasury
+        transparency and study tools — one app for your whole association.
       </p>
 
       <!-- Waitlist form -->
@@ -49,35 +57,84 @@
         <form id="waitlist-form" novalidate>
           <!-- Honeypot (bots fill this; it stays hidden) -->
           <input type="text" name="website" id="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <div class="join-row">
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="Enter your email"
-              autocomplete="email"
-              required
-              aria-label="Email address"
-            />
-            <button type="submit" id="join-btn">
-              <span class="btn-label">Join the list</span>
-              <span class="btn-spinner" aria-hidden="true"></span>
-            </button>
+          <div class="join-fields">
+            <div class="field">
+              <label for="fullName" class="visually-hidden">Your name (optional)</label>
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                placeholder="Your name (optional)"
+                autocomplete="name"
+                maxlength="120"
+                aria-label="Your name (optional)"
+              />
+            </div>
+            <div class="field">
+              <label for="email" class="visually-hidden">Email address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Your email address"
+                autocomplete="email"
+                required
+                aria-label="Email address"
+              />
+            </div>
           </div>
+          <button type="submit" id="join-btn">
+            <span class="btn-label">Get early access</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
           <p class="form-msg" id="form-msg" role="status"></p>
         </form>
         <p class="join-note">
-          <span id="count">0</span> students already on the list · no spam, just the launch email
+          <span id="count">0</span> students already on the list ·
+          no spam — just the launch email
         </p>
+      </div>
+
+      <div class="hero-points fade-up delay-4" aria-hidden="true">
+        <span>🇳🇬 Built for Nigerian campuses</span>
+        <span>🔒 Secure payments</span>
+        <span>🤖 AI study companion</span>
       </div>
     </section>
 
-    <!-- Social proof -->
-    <section class="proof fade-up delay-4" aria-hidden="true">
-      <div class="proof-item"><span>🏛️</span> Every association type</div>
-      <div class="proof-item"><span>🇳🇬</span> Built for Nigerian campuses</div>
-      <div class="proof-item"><span>🔒</span> Secure payments</div>
-      <div class="proof-item"><span>🤖</span> AI study companion</div>
+    <!-- The problem -->
+    <section class="problem" id="problem">
+      <h2 class="section-title">The old way is exhausting</h2>
+      <p class="section-sub">Every executive has lived this. Every member has felt it.</p>
+      <div class="problem-grid">
+        <article class="problem-card fade-up">
+          <span class="problem-icon">📋</span>
+          <p>Dues live in WhatsApp spreadsheets — lost in chats, forgotten by Friday.</p>
+        </article>
+        <article class="problem-card fade-up delay-1">
+          <span class="problem-icon">💸</span>
+          <p>Cash passed hand to hand — no records, no receipts, no trust.</p>
+        </article>
+        <article class="problem-card fade-up delay-2">
+          <span class="problem-icon">🎭</span>
+          <p>Anyone can claim membership — nobody is actually verified.</p>
+        </article>
+        <article class="problem-card fade-up delay-3">
+          <span class="problem-icon">📢</span>
+          <p>Important news drowns in 500-message group chats.</p>
+        </article>
+        <article class="problem-card fade-up delay-4">
+          <span class="problem-icon">🧾</span>
+          <p>“Where did the money go?” is answered from memory, not records.</p>
+        </article>
+        <article class="problem-card fade-up delay-5">
+          <span class="problem-icon">📚</span>
+          <p>Past questions and materials sit scattered across phones and drives.</p>
+        </article>
+      </div>
+      <p class="section-sub problem-outro">
+        Matriq was built to end all six.
+      </p>
     </section>
 
     <!-- Features -->
@@ -88,22 +145,59 @@
         <article class="feature-card fade-up">
           <div class="feature-icon">💳</div>
           <h3>Dues & payments</h3>
-          <p>Create session dues, collect payments securely, and get instant receipts your members can share and verify.</p>
+          <p>Create session dues in minutes and collect securely with Paystack. Every payment earns an instant receipt with a verifiable QR code.</p>
         </article>
         <article class="feature-card fade-up delay-1">
           <div class="feature-icon">🪪</div>
-          <h3>Identity verification</h3>
-          <p>Members upload their student ID once. Executives approve it — no more fake memberships or guesswork.</p>
+          <h3>Verified membership</h3>
+          <p>Members upload their student ID once; executives approve it. No fake names, no ghost members, no guesswork.</p>
         </article>
         <article class="feature-card fade-up delay-2">
           <div class="feature-icon">📢</div>
           <h3>Announcements & events</h3>
-          <p>Pin important updates, plan events with RSVPs, and check members in at the door with rotating QR codes.</p>
+          <p>Pin what matters, plan events with RSVPs, and check members in at the door with rotating QR codes.</p>
         </article>
         <article class="feature-card fade-up delay-3">
+          <div class="feature-icon">🏛️</div>
+          <h3>Treasury transparency</h3>
+          <p>A live breakdown of where every naira goes — visible to members. Executives lead with trust, not promises.</p>
+        </article>
+        <article class="feature-card fade-up delay-4">
           <div class="feature-icon">🤖</div>
           <h3>AI study companion</h3>
-          <p>A study assistant grounded in your association's own past questions and materials — answered in real time.</p>
+          <p>A study assistant grounded in your association's own past questions and materials, answering in real time.</p>
+        </article>
+        <article class="feature-card fade-up delay-5">
+          <div class="feature-icon">🚀</div>
+          <h3>Referrals & growth</h3>
+          <p>Members invite friends with a shareable code, and the association grows — with progress everyone can see.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Audience split -->
+    <section class="audience" id="audience">
+      <h2 class="section-title">Built for both sides of the table</h2>
+      <div class="audience-grid">
+        <article class="audience-card fade-up">
+          <span class="audience-tag">For executives</span>
+          <h3>Stop chasing money.<br />Start leading.</h3>
+          <ul>
+            <li>Dues and payment status at a glance</li>
+            <li>One review queue for every new member</li>
+            <li>Receipts every member can verify themselves</li>
+            <li>A treasury story that's always ready</li>
+          </ul>
+        </article>
+        <article class="audience-card audience-card-alt fade-up delay-1">
+          <span class="audience-tag">For members</span>
+          <h3>Join in seconds.<br />Stay connected.</h3>
+          <ul>
+            <li>Verify your student ID once</li>
+            <li>Pay dues from your phone, keep every receipt</li>
+            <li>Never miss an announcement or event again</li>
+            <li>Study smarter with an AI that knows your materials</li>
+          </ul>
         </article>
       </div>
     </section>
@@ -115,12 +209,12 @@
         <div class="step fade-up">
           <span class="step-num">1</span>
           <h3>Join the waitlist</h3>
-          <p>Enter your email above. You'll get early access the moment we open.</p>
+          <p>Enter your name and email above. You'll get early access the moment we open.</p>
         </div>
         <div class="step fade-up delay-1">
           <span class="step-num">2</span>
           <h3>We set up your association</h3>
-          <p>Executives get their dashboard — dues, verification queue, treasury overview.</p>
+          <p>Executives get their dashboard before launch — dues, verification queue, treasury overview.</p>
         </div>
         <div class="step fade-up delay-2">
           <span class="step-num">3</span>
@@ -132,8 +226,8 @@
 
     <!-- CTA -->
     <section class="cta fade-up">
-      <h2>Ready when you are.</h2>
-      <p>Be first in line for your association.</p>
+      <h2>Be first in line for your association.</h2>
+      <p>The waitlist is the only way in before launch.</p>
       <a href="#join" class="cta-btn">Get early access →</a>
     </section>
   </main>

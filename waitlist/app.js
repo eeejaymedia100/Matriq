@@ -2,7 +2,12 @@
 (function () {
   "use strict";
 
+  // The site domain (matriq.com.ng) serves the waitlist UI only; the API
+  // lives exclusively at the api subdomain (see Caddyfile).
+  var API = "https://api.matriq.com.ng/v1";
+
   var form = document.getElementById("waitlist-form");
+  var nameInput = document.getElementById("fullName");
   var emailInput = document.getElementById("email");
   var joinBtn = document.getElementById("join-btn");
   var msg = document.getElementById("form-msg");
@@ -18,7 +23,7 @@
 
   // Live signup counter
   function loadCount() {
-    fetch("/v1/waitlist/count", { headers: { Accept: "application/json" } })
+    fetch(API + "/waitlist/count", { headers: { Accept: "application/json" } })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         if (data && typeof data.total === "number") {
@@ -33,6 +38,7 @@
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var email = emailInput.value.trim();
+    var fullName = nameInput ? nameInput.value.trim() : "";
 
     if (!EMAIL_RE.test(email)) {
       show("err", "Please enter a valid email address.");
@@ -45,10 +51,11 @@
     show("", "Joining…");
 
     var payload = { email: email };
+    if (fullName) payload.fullName = fullName;
     var website = document.getElementById("website");
     if (website && website.value) payload.website = website.value; // honeypot
 
-    fetch("/v1/waitlist", {
+    fetch(API + "/waitlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -56,14 +63,16 @@
       .then(function (r) { return r.json().catch(function () { return {}; }); })
       .then(function (data) {
         if (data && data.position && typeof data.position === "number") {
-          show("ok", "You're on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
+          show("ok", (fullName ? fullName.split(" ")[0] + ", you're" : "You're") + " on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
           emailInput.value = "";
+          if (nameInput) nameInput.value = "";
           countEl.textContent = data.position.toLocaleString("en-NG");
         } else if (data && data.error && data.error.message) {
           show("err", data.error.message);
         } else {
           show("ok", "You're on the list! We'll email you at launch. 🎉");
           emailInput.value = "";
+          if (nameInput) nameInput.value = "";
         }
       })
       .catch(function () {

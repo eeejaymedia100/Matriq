@@ -5,22 +5,13 @@
 # api.matriq.com.ng   → backend API
 # Certificates: Caddy auto-issues Let's Encrypt certs once DNS resolves here.
 
-# ── Public waitlist landing page ───────────────────────────────────
+# ── Public waitlist landing page (UI only — API lives at api.*) ────
 matriq.com.ng {
     root * /srv/waitlist
     encode gzip
 
-    # API calls from the landing page (same-origin /v1/*) go to the backend.
-    handle /v1/* {
-        reverse_proxy backend:3000 {
-            header_up Host {host}
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto {scheme}
-        }
-    }
-
-    # Everything else is the static landing page.
+    # Waitlist UI only — the page's form calls api.matriq.com.ng directly
+    # (cross-origin, CORS-enabled). No API surface on the website domain.
     handle {
         file_server
     }
