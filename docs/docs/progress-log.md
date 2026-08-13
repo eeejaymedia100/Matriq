@@ -6,7 +6,7 @@ understand "what happened since I last looked" in under a minute.
 
 ## 2026-08-13 — Offline on-device AI (llama.rn) — models downloaded by the user, not bundled; AI works with no internet
 
-**Status:** coded + validated (mobile tsc clean, config plugin + autolinking verified); APK build NOT yet run — user opted to trigger it later
+**Status:** DONE — v0.4.0 APK built (llama.rn native engine baked in), deployed live, update manifest rolled out
 
 **Did:**
 - **Offline AI Study Companion.** The llama.cpp engine (`llama.rn` 0.13, JSI) ships in the
@@ -36,12 +36,21 @@ understand "what happened since I last looked" in under a minute.
   autolinks (standard RN lib: `react-native` field + codegen spec + prebuilt arm64 jniLibs);
   code-reviewed (wrong-model race, token-streaming field, stranded-offline UX — all fixed).
 
+**Done (later same day):**
+- **APK rebuilt** (`bash scripts/_build-apk.sh`): BUILD SUCCESSFUL in ~5h (heavy llama.cpp
+  native compile on this box — the `llama.rn:buildCMakeRelWithDebInfo[arm64-v8a]` task).
+- **Verified:** versionCode 5 / 0.4.0, 112.9 MB; `librnllama.so` (9.6 MB) + all CPU-variant
+  JNI libs (v8/v8_2/dotprod/i8mm/hexagon) in the APK; bundle contains the offline AI strings.
+- **Deployed live:** new APK at `waitlist/matriq.apk` + `waitlist/download/matriq.apk` on
+  the VM (Caddy serves `/download/matriq.apk` from the TOP-level file via `handle_path` —
+  the old 34 MB v0.2.1 was being served there; overwritten). Manifest bumped to
+  versionCode 5. **Verified end-to-end:** `https://matriq.com.ng/app-version.json` → v5,
+  `https://matriq.com.ng/download/matriq.apk` → 200 with content-length 112,861,174, and
+  downloaded hash matches the local build byte-for-byte (md5 `f1753185…`).
+
 **Next:**
-- When the user says go: `bash scripts/_build-apk.sh` (~50 min full native rebuild), verify
-  versionCode 5 + new strings in the bundle, copy to `waitlist/matriq.apk`, push the
-  app-version.json URL (already updated) so the in-app updater rolls it out.
 - First real-device test: download Qwen 0.5B over Wi-Fi → airplane mode → ask a question in
-  the AI tab.
+  the AI tab. (Installed apps self-update to v0.4.0 via the in-app updater.)
 - llama.rn 0.13.0-rc.0 is a release candidate — consider pinning a stable version once one
   ships (flagged by review).
 
