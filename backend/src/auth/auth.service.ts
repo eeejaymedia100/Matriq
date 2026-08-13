@@ -85,6 +85,10 @@ export class AuthService {
     // Carry the verification-email budget across re-registrations so a user
     // can't burn 5 emails by deleting/recreating the account.
     const carried = this.carriedCounter(existing);
+    // Enforce the 5/hour verification-email budget BEFORE touching any data —
+    // a rejected request must never delete the account, and deleting the
+    // account can't reset the budget (bypass).
+    const nextCounter = this.nextVerificationCounter(carried);
     if (existing) {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
@@ -107,8 +111,6 @@ export class AuthService {
       timeCost: 3,
       parallelism: 4,
     });
-
-    const nextCounter = this.nextVerificationCounter(carried);
 
     const { code, result: user } = await this.withUniqueVerificationCode(
       (c) =>
@@ -166,6 +168,10 @@ export class AuthService {
       where: { email: dto.email },
     });
     const carried = this.carriedCounter(existing);
+    // Enforce the 5/hour verification-email budget BEFORE touching any data —
+    // a rejected request must never delete the account, and deleting the
+    // account can't reset the budget (bypass).
+    const nextCounter = this.nextVerificationCounter(carried);
     if (existing) {
       if (existing.emailVerified) {
         throw new ConflictException("A user with this email already exists");
@@ -188,8 +194,6 @@ export class AuthService {
       timeCost: 3,
       parallelism: 4,
     });
-
-    const nextCounter = this.nextVerificationCounter(carried);
 
     const { code, result: user } = await this.withUniqueVerificationCode(
       (c) =>

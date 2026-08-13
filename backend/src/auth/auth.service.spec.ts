@@ -475,6 +475,36 @@ describe("AuthService", () => {
       expect(result).toHaveProperty("message");
       expect(result.message).toContain("verify");
     });
+
+    it("should NOT delete the existing account when the email budget is exhausted", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        ...unverifiedUser,
+        verificationEmailCount: 5,
+        verificationEmailWindowStart: new Date(Date.now() - 10 * 60000),
+      });
+
+      await expect(
+        service.registerStaylite(
+          {
+            email: "new@example.com",
+            fullName: "New User",
+            password: "password123",
+            matricNumber: "MAT456",
+            faculty: "Science",
+            department: "CS",
+            level: "300",
+            privacyPolicyVersion: "1.0",
+            termsVersion: "1.0",
+          },
+          "127.0.0.1",
+        ),
+      ).rejects.toThrow(HttpException);
+
+      // The budget check must run before any cleanup: a 429 never deletes the
+      // account, and deletion can't be used to reset the budget.
+      expect(prisma.user.delete).not.toHaveBeenCalled();
+      expect(prisma.legalAcceptance.deleteMany).not.toHaveBeenCalled();
+    });
   });
 
   describe("registerFresher", () => {
