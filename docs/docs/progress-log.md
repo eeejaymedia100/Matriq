@@ -4,6 +4,47 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-13 — Offline on-device AI (llama.rn) — models downloaded by the user, not bundled; AI works with no internet
+
+**Status:** coded + validated (mobile tsc clean, config plugin + autolinking verified); APK build NOT yet run — user opted to trigger it later
+
+**Did:**
+- **Offline AI Study Companion.** The llama.cpp engine (`llama.rn` 0.13, JSI) ships in the
+  APK (~a few MB of native libs), but the **model itself is a user-initiated runtime
+  download** — nothing heavy is bundled, exactly as requested.
+- **3-model catalog** (verified HF URLs + byte-exact sizes): SmolLM2-360M Q4 (~258 MB, Tiny),
+  Qwen2.5-0.5B Q4_K_M (~469 MB, Small — recommended), Llama-3.2-1B Q4_K_M (~770 MB, Medium).
+- **New `mobile/src/offline/` module:** `OfflineAiContext` (download with progress + cancel via
+  `expo-file-system/legacy` resumable, 2× free-space guard, auto-select first download, lazy
+  engine warm-up, safe model switching — releases the old engine, re-checks the active model
+  after an in-flight init so the wrong model can never answer, `ask()` streaming completion
+  with chat history) + `persistence.ts` (config JSON + orphan-file reconciliation) + `models.ts`.
+- **`OfflineModelsScreen`** (stack route "Offline AI"): per-model download/use/delete with
+  progress bars, free-storage readout, "Always use offline AI" toggle, honest tier/quality
+  notes.
+- **`AiCompanionScreen` offline mode:** 4s connectivity ping (20s interval + on focus),
+  auto-switch to on-device answers when offline (including mid-stream fallback with a notice),
+  "always offline" preference, status chip → Offline AI screen, and a no-model banner that
+  tells offline users to download when they're back online (can't strand them on an unusable
+  download screen).
+- **Infra:** app.json adds `llama.rn` config plugin (CPU-only, `enableOpenCL:false`) +
+  `expo-build-properties`; `_build-apk.sh` → versionCode 5, llama.rn jniLibs fallback
+  download, proguard rule; `app-version.json` bumped to 0.4.0 so installed apps self-update.
+- **Also committed** the outstanding reviewer fix from the auth session: the 5/hr
+  verification-budget check now runs BEFORE re-registration deletes the old account.
+- **Validation:** mobile tsc clean; `expo prebuild` applies the plugin cleanly; llama.rn
+  autolinks (standard RN lib: `react-native` field + codegen spec + prebuilt arm64 jniLibs);
+  code-reviewed (wrong-model race, token-streaming field, stranded-offline UX — all fixed).
+
+**Next:**
+- When the user says go: `bash scripts/_build-apk.sh` (~50 min full native rebuild), verify
+  versionCode 5 + new strings in the bundle, copy to `waitlist/matriq.apk`, push the
+  app-version.json URL (already updated) so the in-app updater rolls it out.
+- First real-device test: download Qwen 0.5B over Wi-Fi → airplane mode → ask a question in
+  the AI tab.
+- llama.rn 0.13.0-rc.0 is a release candidate — consider pinning a stable version once one
+  ships (flagged by review).
+
 ## 2026-08-12 — Auth overhaul: OTP delivery FIXED (Resend domain), 5/hr email limit, structured errors, new sign-in UI, DOB step, optimistic UI
 
 **Status:** done — all verified live; new APK v0.3.0 (build 4) shipping via the in-app updater
