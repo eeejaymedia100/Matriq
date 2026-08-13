@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./src/contexts/AuthContext";
+import { OfflineAiProvider } from "./src/offline/OfflineAiContext";
 import { AppNavigator } from "./src/navigation/AppNavigator";
 import { UpdateOverlay } from "./src/components/UpdateOverlay";
 
@@ -19,11 +20,13 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" />
-          <AppNavigator />
-          <UpdateOverlay />
-        </NavigationContainer>
+        <OfflineAiProvider>
+          <NavigationContainer>
+            <StatusBar style="dark" />
+            <AppNavigator />
+            <UpdateOverlay />
+          </NavigationContainer>
+        </OfflineAiProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Release APK build for Matriq mobile (v0.3.0, build 4)
+# Release APK build for Matriq mobile (v0.4.0, build 5)
 set -e
 cd /home/akpevwejulius1/matriq/mobile
 
@@ -18,8 +18,22 @@ npx expo prebuild --platform android --no-install > /tmp/prebuild.log 2>&1 || {
 }
 
 # Prebuild regenerates build.gradle with versionName from app.json but resets
-# versionCode to 1 — pin it back to 4.
-sed -i 's/versionCode [0-9]*/versionCode 4/' android/app/build.gradle
+# versionCode to 1 — pin it back to 5.
+sed -i 's/versionCode [0-9]*/versionCode 5/' android/app/build.gradle
+
+# llama.rn ships its native libs via a postinstall download into node_modules;
+# if they're missing, fetch them explicitly so gradle can autolink them.
+if [ ! -d "node_modules/llama.rn/android/src/main/jniLibs/arm64-v8a" ]; then
+  echo "=== llama.rn native artifacts missing — downloading ==="
+  node ./node_modules/llama.rn/install/download-native-artifacts.js || {
+    echo "llama.rn artifacts download failed"; exit 1;
+  }
+fi
+
+# llama.rn native classes must survive minification if R8 is ever enabled
+# (defensive — minify is off by default in the release build).
+grep -q 'com.rnllama' android/app/proguard-rules.pro 2>/dev/null || \
+  printf '\n# llama.rn\n-keep class com.rnllama.** { *; }\n' >> android/app/proguard-rules.pro
 
 # Restore the SDK location gradle needs.
 echo "sdk.dir=$ANDROID_HOME" > android/local.properties

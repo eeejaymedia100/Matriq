@@ -1,7 +1,7 @@
 {
-  "versionCode": 4,
-  "versionName": "0.3.0",
+  "versionCode": 5,
+  "versionName": "0.4.0",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "New sign-in experience: live field validation, password strength guide, friendly error messages, 30s resend countdown, and date-of-birth step. Verification emails are now limited to 5 per hour.",
+  "notes": "New: Offline AI! Download a small AI model once (over Wi-Fi) and the AI Study Companion keeps answering your questions even with no internet. Pick a model from the AI tab — SmolLM2, Qwen or Llama.",
   "publishedAt": "2026-08-13T00:00:00Z"
 }

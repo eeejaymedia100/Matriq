@@ -32,6 +32,7 @@ import { ReceiptScreen } from "../screens/payments/ReceiptScreen";
 import { AnnouncementsScreen } from "../screens/announcements/AnnouncementsScreen";
 import { EventsScreen } from "../screens/events/EventsScreen";
 import { AiCompanionScreen } from "../screens/ai/AiCompanionScreen";
+import { OfflineModelsScreen } from "../screens/ai/OfflineModelsScreen";
 import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
 import { ProfileScreen } from "../screens/profile/ProfileScreen";
 import { VerificationUploadScreen } from "../screens/verification/VerificationUploadScreen";
@@ -148,6 +149,7 @@ function MainNavigator() {
       <MainStack.Screen name="Explore" component={AnnouncementsScreen} options={{ title: "Explore" }} />
       <MainStack.Screen name="VerificationUpload" component={VerificationUploadScreen} options={{ title: "Verify Identity" }} />
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
+      <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
     </MainStack.Navigator>
   );
 }

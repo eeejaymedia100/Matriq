@@ -28,4 +28,5 @@ export type MainStackParamList = {
   Explore: undefined;
   VerificationUpload: undefined;
   VerificationStatus: undefined;
+  OfflineModels: undefined;
 };

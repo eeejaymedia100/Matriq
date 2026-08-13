@@ -2,11 +2,13 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "app.matriq.mobile"
@@ -33,6 +35,15 @@
         {
           "photosPermission": "Matriq uses your photos to upload a student ID for identity verification.",
           "cameraPermission": "Matriq uses your camera to photograph your student ID for identity verification."
+        }
+      ],
+      "expo-build-properties",
+      [
+        "llama.rn",
+        {
+          "enableOpenCL": false,
+          "forceCxx20": true,
+          "enableEntitlements": false
         }
       ]
     ],
