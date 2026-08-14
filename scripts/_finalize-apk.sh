@@ -13,7 +13,7 @@ log() { echo "[finalize $(date '+%F %T')] $*"; }
 
 log "waiting for APK build to finish (polling $LOG)..."
 waited=0
-while ! grep -qE 'BUILD SUCCESSFUL|BUILD FAILED' "$LOG" 2>/dev/null; do
+while ! grep -qE 'BUILD SUCCESSFUL|BUILD FAILED|GRADLE_DONE_EXIT=' "$LOG" 2>/dev/null; do
   sleep 120
   waited=$((waited + 2))
   log "waited ${waited} min"
@@ -23,7 +23,7 @@ while ! grep -qE 'BUILD SUCCESSFUL|BUILD FAILED' "$LOG" 2>/dev/null; do
   fi
 done
 
-if grep -q 'BUILD FAILED' "$LOG"; then
+if grep -q 'BUILD FAILED' "$LOG" || grep -qE 'GRADLE_DONE_EXIT=[1-9]' "$LOG"; then
   log "BUILD FAILED — last 40 lines:"
   tail -40 "$LOG"
   exit 1
