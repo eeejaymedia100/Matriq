@@ -41,6 +41,7 @@ export function SettingsScreen({ navigation }: Props) {
   const [confirm, setConfirm] = useState<null | "signout" | "delete">(null);
   const [deleteNotice, setDeleteNotice] = useState(false);
   const [deleteText, setDeleteText] = useState("");
+  const [info, setInfo] = useState<null | { title: string; body: string }>(null);
 
   const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
   const go = (s: string) => stackNav?.navigate(s);
@@ -94,7 +95,11 @@ export function SettingsScreen({ navigation }: Props) {
       label: "Notifications",
       hint: "Alerts for announcements & deadlines",
       icon: "bell",
-      onPress: () => {},
+      onPress: () =>
+        setInfo({
+          title: "Notifications",
+          body: "Matriq sends you push alerts for verification results, payment receipts, new dues and announcements — through your personal feed (ntfy, topic matriq-user-…). Install the free ntfy app and subscribe to your topic to receive them, or watch them inside the app on the Announcements screen.",
+        }),
     },
     {
       id: "data",
@@ -125,7 +130,11 @@ export function SettingsScreen({ navigation }: Props) {
       label: "Help & About",
       hint: `Matriq v${version} · contact support`,
       icon: "info",
-      onPress: () => {},
+      onPress: () =>
+        setInfo({
+          title: `Matriq v${version}`,
+          body: "The smart way. — Made for Nigerian university students: offline AI study companion, the shared Vault, low-data design and association tools. Need help? Reach out through your association's support channel, or write to support@matriq.app.",
+        }),
     },
   ];
 
@@ -288,6 +297,16 @@ export function SettingsScreen({ navigation }: Props) {
         confirmLabel="Sign Out"
         onConfirm={handleSignOut}
         onClose={() => setConfirm(null)}
+      />
+
+      {/* Notifications / Help & About info sheet */}
+      <ConfirmSheet
+        visible={!!info}
+        title={info?.title ?? ""}
+        body={info?.body ?? ""}
+        confirmLabel="Got it"
+        onConfirm={() => setInfo(null)}
+        onClose={() => setInfo(null)}
       />
 
       {/* Delete account sheet — 6-month scheduled hard delete, type-to-confirm */}

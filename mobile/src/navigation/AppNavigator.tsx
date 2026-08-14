@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../theme/ThemeContext";
@@ -43,6 +43,14 @@ import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
 import { ProfileScreen } from "../screens/profile/ProfileScreen";
 import { VerificationUploadScreen } from "../screens/verification/VerificationUploadScreen";
 import { VerificationStatusScreen } from "../screens/verification/VerificationStatusScreen";
+import { CgpaCalculatorScreen } from "../screens/tools/CgpaCalculatorScreen";
+import { TimetableScreen } from "../screens/study/TimetableScreen";
+import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
+import { FocusTimerScreen } from "../screens/study/FocusTimerScreen";
+import { DeadlineTrackerScreen } from "../screens/study/DeadlineTrackerScreen";
+import { PasscodeSetupScreen } from "../screens/auth/PasscodeSetupScreen";
+import { PasscodeUnlockScreen } from "../screens/auth/PasscodeUnlockScreen";
+import { hasPasscode, shouldRequirePasscode, markLastExit, markUnlocked, watchSessionExit } from "../utils/passcode";
 
 import { LiquidTabBar } from "./LiquidTabBar";
 
@@ -133,8 +141,65 @@ function MainNavigator() {
       <MainStack.Screen name="VerificationUpload" component={VerificationUploadScreen} options={{ title: "Verify Identity" }} />
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
+      <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
+      <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
+      <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
+      <MainStack.Screen name="FocusTimer" component={FocusTimerScreen} options={{ title: "Focus Timer" }} />
+      <MainStack.Screen name="DeadlineTracker" component={DeadlineTrackerScreen} options={{ title: "Deadlines" }} />
     </MainStack.Navigator>
   );
+}
+
+// ── Session gate (spec §5) ─────────────────────────────────────
+// Authenticated users never see the sign-in screen again. Instead:
+//  - no passcode yet → mandatory PasscodeSetup (spec §4)
+//  - passcode set but 3h+ since the app was last in the foreground →
+//    "Welcome back" PasscodeUnlock
+//  - otherwise → straight to the main app
+function SessionGate({ children }: { children: React.ReactNode }) {
+  const [phase, setPhase] = useState<"loading" | "setup" | "locked" | "open">(
+    "loading",
+  );
+
+  const evaluate = useCallback(async () => {
+    if (!(await hasPasscode())) {
+      setPhase("setup");
+      return;
+    }
+    if (await shouldRequirePasscode()) {
+      setPhase("locked");
+      return;
+    }
+    setPhase("open");
+  }, []);
+
+  useEffect(() => {
+    void evaluate();
+    return watchSessionExit(() => {
+      // App came back to the foreground: record the exit that just happened
+      // and re-check whether the passcode is now required.
+      void markLastExit();
+      void evaluate();
+    });
+  }, [evaluate]);
+
+  if (phase === "loading") {
+    return <LoadingScreen message="Loading Matriq…" />;
+  }
+  if (phase === "setup") {
+    return <PasscodeSetupScreen onDone={() => setPhase("open")} />;
+  }
+  if (phase === "locked") {
+    return (
+      <PasscodeUnlockScreen
+        onUnlocked={() => {
+          void markUnlocked();
+          setPhase("open");
+        }}
+      />
+    );
+  }
+  return <>{children}</>;
 }
 
 // ── Root navigator ─────────────────────────────────────────────
@@ -159,9 +224,14 @@ export function AppNavigator() {
     return <LoadingScreen message="Loading Matriq…" />;
   }
 
-  // Authenticated users never need onboarding or the theme picker.
+  // Authenticated users never need onboarding or the theme picker; they go
+  // through the passcode session gate instead (spec §4–§5).
   if (isAuthenticated) {
-    return <MainNavigator />;
+    return (
+      <SessionGate>
+        <MainNavigator />
+      </SessionGate>
+    );
   }
 
   if (!hydrated) {

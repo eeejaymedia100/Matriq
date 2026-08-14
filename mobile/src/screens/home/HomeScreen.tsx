@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,13 +7,20 @@ import {
   Pressable,
 } from "react-native";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { Surface, ThemedScreen } from "../../components/Surface";
 import { Icon, type IconName } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { factForTick } from "../../utils/facts";
+import { api } from "../../api/client";
+import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
+import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
+import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
+import { CelebrationOverlay } from "../../components/CelebrationOverlay";
 import type { MainTabParamList } from "../../navigation/types";
+import type { Announcement, Association } from "../../types/api";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Home">;
 
@@ -37,6 +44,15 @@ function liveClock(): string {
   });
 }
 
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 60) return `${Math.max(1, mins)}m`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h`;
+  return `${Math.floor(hours / 24)}d`;
+}
+
 export function HomeScreen({ navigation }: Props) {
   const { theme } = useTheme();
   const colors = theme.colors;
@@ -45,6 +61,15 @@ export function HomeScreen({ navigation }: Props) {
 
   const [now, setNow] = useState(liveClock());
   const [tick, setTick] = useState(0);
+  const [todos, setTodos] = useState<TodoState>({
+    timetable: false,
+    offlineAi: false,
+    materials: false,
+    photo: false,
+  });
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [nextClassEntry, setNextClassEntry] = useState<TimetableEntry | null>(null);
+  const [celebration, setCelebration] = useState<Badge | null>(null);
 
   useEffect(() => {
     const clock = setInterval(() => setNow(liveClock()), 30_000);
@@ -55,6 +80,64 @@ export function HomeScreen({ navigation }: Props) {
     };
   }, []);
 
+  // Reload on-disk to-do state + next class + announcements whenever Home
+  // comes into focus, so completing a task elsewhere updates this row.
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        setTodos(await getTodoState());
+        setNextClassEntry(nextClass(await getTimetable()));
+
+        try {
+          const memberships = await api.get<{
+            memberships: Array<{ association: Association }>;
+          }>("/me/memberships");
+          const assoc = memberships.memberships[0]?.association;
+          if (assoc) {
+            const data = await api.get<{ announcements: Announcement[] }>(
+              `/associations/${assoc.id}/announcements`,
+            );
+            setAnnouncements(
+              data.announcements
+                .slice()
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+                )
+                .slice(0, 6),
+            );
+          }
+        } catch {
+          // Announcements are a nice-to-have on Home; fail silently.
+        }
+      })();
+    }, []),
+  );
+
+  // When offline-AI models are installed, keep the persisted to-do in sync
+  // (the to-do row and the badge both depend on it).
+  useEffect(() => {
+    const hasModels = Object.keys(downloaded).length > 0;
+    if (hasModels) {
+      void markTodoDone("offlineAi").then((state) => setTodos(state));
+      void checkTodoBadge().then((id) => {
+        if (id) setCelebration(BADGES.find((b) => b.id === id) ?? null);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Object.keys(downloaded).length]);
+
+  // On every to-do refresh, check whether all four are done → first badge.
+  useEffect(() => {
+    const allDone =
+      todos.timetable && todos.offlineAi && todos.materials && todos.photo;
+    if (allDone) {
+      void checkTodoBadge().then((id) => {
+        if (id) setCelebration(BADGES.find((b) => b.id === id) ?? null);
+      });
+    }
+  }, [todos]);
+
   const stackNav = navigation.getParent();
   const go = (screen: string) => {
     const parent = stackNav as { navigate: (s: string) => void } | undefined;
@@ -62,23 +145,21 @@ export function HomeScreen({ navigation }: Props) {
   };
   const goTab = (tab: keyof MainTabParamList) => navigation.navigate(tab);
 
-  const offlineAiDone = useMemo(() => Object.keys(downloaded).length > 0, [downloaded]);
-
-  const todos: Todo[] = [
+  const todosList: Todo[] = [
     {
       id: "timetable",
       label: "Set up your timetable",
       hint: "Your week, planned",
       icon: "calendar",
-      done: false,
-      onPress: () => goTab("Study"),
+      done: todos.timetable,
+      onPress: () => go("Timetable"),
     },
     {
       id: "offline-ai",
       label: "Set up offline AI",
       hint: "Works with no internet",
       icon: "sparkle",
-      done: offlineAiDone,
+      done: todos.offlineAi,
       onPress: () => go("OfflineModels"),
     },
     {
@@ -86,20 +167,20 @@ export function HomeScreen({ navigation }: Props) {
       label: "Upload study materials",
       hint: "Your own library",
       icon: "book",
-      done: false,
-      onPress: () => goTab("Vault"),
+      done: todos.materials,
+      onPress: () => go("MyMaterials"),
     },
     {
       id: "photo",
       label: "Add a profile photo",
       hint: "Make it yours",
       icon: "user",
-      done: false,
+      done: todos.photo,
       onPress: () => go("Profile"),
     },
   ];
 
-  const allDone = todos.every((t) => t.done);
+  const allDone = todosList.every((t) => t.done);
   const fact = factForTick(tick);
   const initial = (user?.fullName?.trim().charAt(0) ?? "S").toUpperCase();
   const firstName = user?.fullName?.split(" ")[0] ?? "there";
@@ -140,18 +221,10 @@ export function HomeScreen({ navigation }: Props) {
                 </View>
               </Pressable>
               <View style={{ flex: 1, marginLeft: 12 }}>
-                <Text
-                  style={[
-                    theme.typography.h3,
-                    { color: colors.textPrimary },
-                  ]}
-                  numberOfLines={1}
-                >
+                <Text style={[theme.typography.h3, { color: colors.textPrimary }]} numberOfLines={1}>
                   Hello, {firstName}
                 </Text>
-                <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
-                  {now}
-                </Text>
+                <Text style={[theme.typography.caption, { color: colors.textMuted }]}>{now}</Text>
               </View>
               <Pressable
                 onPress={() => go(verified ? "VerificationStatus" : "VerificationUpload")}
@@ -167,20 +240,8 @@ export function HomeScreen({ navigation }: Props) {
                   paddingVertical: 6,
                 }}
               >
-                <Icon
-                  name="shield"
-                  size={13}
-                  color={verified ? colors.success : colors.warning}
-                />
-                <Text
-                  style={[
-                    theme.typography.small,
-                    {
-                      color: verified ? colors.success : colors.warning,
-                      fontWeight: "700",
-                    },
-                  ]}
-                >
+                <Icon name="shield" size={13} color={verified ? colors.success : colors.warning} />
+                <Text style={[theme.typography.small, { color: verified ? colors.success : colors.warning, fontWeight: "700" }]}>
                   {verified ? "Verified" : "Verify"}
                 </Text>
               </Pressable>
@@ -190,12 +251,7 @@ export function HomeScreen({ navigation }: Props) {
           {/* My To-Do's */}
           {!allDone ? (
             <View style={{ marginTop: 24 }}>
-              <Text
-                style={[
-                  theme.typography.h3,
-                  { color: colors.textPrimary, paddingHorizontal: 24, marginBottom: 12 },
-                ]}
-              >
+              <Text style={[theme.typography.h3, { color: colors.textPrimary, paddingHorizontal: 24, marginBottom: 12 }]}>
                 My To-Do's
               </Text>
               <ScrollView
@@ -203,7 +259,7 @@ export function HomeScreen({ navigation }: Props) {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 24, gap: 12 }}
               >
-                {todos.map((todo) => (
+                {todosList.map((todo) => (
                   <Pressable key={todo.id} onPress={todo.onPress} style={{ width: 150 }}>
                     <Surface style={{ padding: 14, width: 150, marginBottom: 0, opacity: todo.done ? 0.75 : 1 }}>
                       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
@@ -217,29 +273,16 @@ export function HomeScreen({ navigation }: Props) {
                             justifyContent: "center",
                           }}
                         >
-                          <Icon
-                            name={todo.done ? "check" : todo.icon}
-                            size={17}
-                            color={todo.done ? "#170B26" : colors.brand}
-                          />
+                          <Icon name={todo.done ? "check" : todo.icon} size={17} color={todo.done ? "#170B26" : colors.brand} />
                         </View>
                         {todo.done ? (
-                          <Text style={[theme.typography.small, { color: colors.success, fontWeight: "700" }]}>
-                            Done
-                          </Text>
+                          <Text style={[theme.typography.small, { color: colors.success, fontWeight: "700" }]}>Done</Text>
                         ) : null}
                       </View>
-                      <Text
-                        style={[
-                          theme.typography.captionBold,
-                          { color: colors.textPrimary, marginTop: 10, lineHeight: 18 },
-                        ]}
-                      >
+                      <Text style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 10, lineHeight: 18 }]}>
                         {todo.label}
                       </Text>
-                      <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]}>
-                        {todo.hint}
-                      </Text>
+                      <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]}>{todo.hint}</Text>
                     </Surface>
                   </Pressable>
                 ))}
@@ -250,32 +293,16 @@ export function HomeScreen({ navigation }: Props) {
           {/* Hero — rotating fact, or nudge when no materials/AI */}
           <View style={{ paddingHorizontal: 24, marginTop: 24 }}>
             <Surface variant="sticker" style={{ padding: 20 }}>
-              {offlineAiDone ? (
+              {todos.offlineAi ? (
                 <>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     <Icon name="sparkle" size={16} color={colors.accent} />
-                    <Text
-                      style={[
-                        theme.typography.small,
-                        {
-                          color: colors.textMuted,
-                          letterSpacing: 1,
-                          textTransform: "uppercase",
-                        },
-                      ]}
-                    >
+                    <Text style={[theme.typography.small, { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" }]}>
                       {fact.tag} · just for you
                     </Text>
                   </View>
-                  <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
-                    {fact.title}
-                  </Text>
-                  <Text
-                    style={[
-                      theme.typography.body,
-                      { color: colors.textSecondary, marginTop: 6, lineHeight: 24 },
-                    ]}
-                  >
+                  <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>{fact.title}</Text>
+                  <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
                     {fact.body}
                   </Text>
                 </>
@@ -283,56 +310,29 @@ export function HomeScreen({ navigation }: Props) {
                 <>
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     <Icon name="sparkle" size={16} color={colors.accent} />
-                    <Text
-                      style={[
-                        theme.typography.small,
-                        {
-                          color: colors.textMuted,
-                          letterSpacing: 1,
-                          textTransform: "uppercase",
-                        },
-                      ]}
-                    >
+                    <Text style={[theme.typography.small, { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" }]}>
                       Your daily edge
                     </Text>
                   </View>
                   <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
                     Facts tuned to your courses
                   </Text>
-                  <Text
-                    style={[
-                      theme.typography.body,
-                      { color: colors.textSecondary, marginTop: 6, lineHeight: 24 },
-                    ]}
-                  >
+                  <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
                     Upload your study materials or set up offline AI and this card fills with
                     facts and definitions from your own notes — no internet needed.
                   </Text>
                   <View style={{ flexDirection: "row", gap: 10, marginTop: 14 }}>
                     <Pressable
                       onPress={() => go("OfflineModels")}
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        paddingVertical: 10,
-                        borderRadius: 12,
-                        backgroundColor: colors.accent,
-                      }}
+                      style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, backgroundColor: colors.accent }}
                     >
                       <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: "#170B26" }}>
                         Set up offline AI
                       </Text>
                     </Pressable>
                     <Pressable
-                      onPress={() => goTab("Vault")}
-                      style={{
-                        flex: 1,
-                        alignItems: "center",
-                        paddingVertical: 10,
-                        borderRadius: 12,
-                        borderWidth: 1.5,
-                        borderColor: colors.borderStrong,
-                      }}
+                      onPress={() => go("MyMaterials")}
+                      style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: colors.borderStrong }}
                     >
                       <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: colors.textPrimary }}>
                         Upload materials
@@ -362,9 +362,7 @@ export function HomeScreen({ navigation }: Props) {
                     <Icon name="vault" size={21} color={colors.brand} />
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-                      The Vault
-                    </Text>
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>The Vault</Text>
                     <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
                       Past questions & materials from students like you
                     </Text>
@@ -374,7 +372,7 @@ export function HomeScreen({ navigation }: Props) {
               </Surface>
             </Pressable>
 
-            <Pressable onPress={() => goTab("Study")}>
+            <Pressable onPress={() => go("Timetable")}>
               <Surface style={{ padding: 18, marginBottom: 12 }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>
                   <View
@@ -391,38 +389,12 @@ export function HomeScreen({ navigation }: Props) {
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
                     <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-                      Today's next class
+                      {nextClassEntry ? nextClassEntry.title : "Today's next class"}
                     </Text>
                     <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
-                      Set up your timetable in Study to see it here
-                    </Text>
-                  </View>
-                  <Icon name="chevronRight" size={18} color={colors.textMuted} />
-                </View>
-              </Surface>
-            </Pressable>
-
-            <Pressable onPress={() => go("Explore")}>
-              <Surface style={{ padding: 18, marginBottom: 0 }}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <View
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius: 13,
-                      backgroundColor: colors.surfaceAlt,
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <Icon name="megaphone" size={21} color={colors.brand} />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-                      What's new
-                    </Text>
-                    <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
-                      Announcements & events from your association
+                      {nextClassEntry
+                        ? `${DAY_LABELS[nextClassEntry.day]} · ${minutesToLabel(nextClassEntry.startMin)}`
+                        : "Set up your timetable in Study to see it here"}
                     </Text>
                   </View>
                   <Icon name="chevronRight" size={18} color={colors.textMuted} />
@@ -430,8 +402,59 @@ export function HomeScreen({ navigation }: Props) {
               </Surface>
             </Pressable>
           </View>
+
+          {/* Announcements — confined-space cards (spec §6) */}
+          {announcements.length > 0 ? (
+            <View style={{ marginTop: 22 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingHorizontal: 24,
+                  marginBottom: 12,
+                }}
+              >
+                <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>Announcements</Text>
+                <Pressable onPress={() => go("Explore")}>
+                  <Text style={[theme.typography.captionBold, { color: colors.brand }]}>See all</Text>
+                </Pressable>
+              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 24, gap: 12 }}
+              >
+                {announcements.map((a) => (
+                  <Pressable key={a.id} onPress={() => go("Explore")} style={{ width: 220 }}>
+                    <Surface style={{ padding: 16, width: 220, height: 132, justifyContent: "space-between" }}>
+                      <View>
+                        <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]} numberOfLines={2}>
+                          {a.title}
+                        </Text>
+                        <Text style={[theme.typography.small, { color: colors.textSecondary, marginTop: 6, lineHeight: 17 }]} numberOfLines={3}>
+                          {a.body}
+                        </Text>
+                      </View>
+                      <Text style={[theme.typography.small, { color: colors.textMuted }]}>
+                        {a.author.name} · {timeAgo(a.createdAt)}
+                      </Text>
+                    </Surface>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          ) : null}
         </ScrollView>
       </SafeAreaView>
+
+      {celebration ? (
+        <CelebrationOverlay
+          visible={!!celebration}
+          badge={celebration}
+          onClose={() => setCelebration(null)}
+        />
+      ) : null}
     </ThemedScreen>
   );
 }

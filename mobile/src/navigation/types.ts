@@ -32,4 +32,9 @@ export type MainStackParamList = {
   VerificationUpload: undefined;
   VerificationStatus: undefined;
   OfflineModels: undefined;
+  CgpaCalculator: undefined;
+  Timetable: undefined;
+  MyMaterials: undefined;
+  FocusTimer: undefined;
+  DeadlineTracker: undefined;
 };

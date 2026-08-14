@@ -22,6 +22,7 @@ interface ToolCard {
   hint: string;
   icon: IconName;
   ready: boolean;
+  target?: "CgpaCalculator";
 }
 
 const DOC_TOOLS: ToolCard[] = [
@@ -35,16 +36,23 @@ const DOC_TOOLS: ToolCard[] = [
 ];
 
 const GRADE_TOOLS: ToolCard[] = [
-  { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", ready: false },
-  { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", ready: false },
+  { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", ready: true, target: "CgpaCalculator" },
+  { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", ready: true, target: "CgpaCalculator" },
 ];
 
 export function ToolsScreen({ navigation }: Props) {
   const { theme } = useTheme();
   const colors = theme.colors;
 
+  const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
+
   const renderTool = (tool: ToolCard) => (
-    <Pressable key={tool.id} style={{ opacity: tool.ready ? 1 : 0.55 }} disabled={!tool.ready}>
+    <Pressable
+      key={tool.id}
+      style={{ opacity: tool.ready ? 1 : 0.55 }}
+      disabled={!tool.ready}
+      onPress={() => tool.target && stackNav?.navigate(tool.target)}
+    >
       <View
         style={{
           flexDirection: "row",

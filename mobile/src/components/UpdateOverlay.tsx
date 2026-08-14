@@ -1,285 +1,210 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Alert,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-} from "react-native";
+import { View, Text, Pressable, Platform, StyleSheet } from "react-native";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system/legacy";
 import { getItem, setItem } from "../utils/storage";
-import { colors, spacing, typography } from "../theme/colors";
-import { Button } from "../components";
+import { useTheme } from "../theme/ThemeContext";
+import { Icon } from "./icons";
 import {
   checkForUpdate,
+  getCurrentVersionCode,
   type AppUpdateInfo,
 } from "../services/updateChecker";
 
-const SKIPPED_VERSION_KEY = "skipped_update_version";
+const READY_KEY = "update_ready_version";
+const SKIPPED_KEY = "skipped_update_version";
 
 /**
- * Global update overlay. On app start it quietly checks the published
- * version manifest; if a newer build exists it offers a one-tap
- * download + install, so users never need to sideload a new APK manually.
+ * Silent background updater (spec §15). New versions download in the
+ * background — no blocking modal, no "keep the app open" bar. When the
+ * download finishes a slim, non-blocking banner appears; the install is also
+ * triggered automatically at the next natural reopen (fresh app start) if the
+ * user hasn't applied it yet.
  */
 export function UpdateOverlay() {
-  const [update, setUpdate] = useState<AppUpdateInfo | null>(null);
-  const [downloading, setDownloading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const checked = useRef(false);
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
+  const [ready, setReady] = useState<AppUpdateInfo | null>(null);
+  const [showBanner, setShowBanner] = useState(false);
+  const [installing, setInstalling] = useState(false);
+  const ran = useRef(false);
+
+  // ── Silent install at a natural reopen ────────────────────────
+  const installReadyVersion = useCallback(async (): Promise<boolean> => {
+    const raw = await getItem(READY_KEY).catch(() => null);
+    if (!raw) return false;
+    const info = JSON.parse(raw) as AppUpdateInfo;
+    const current = await getCurrentVersionCode();
+    if (current !== null && info.versionCode <= current) {
+      await setItem(READY_KEY, "").catch(() => {});
+      return false;
+    }
+    // Not interrupting anything — this runs on a fresh app start.
+    return installApk(info);
+  }, []);
 
   useEffect(() => {
-    if (checked.current) return;
-    checked.current = true;
+    if (ran.current) return;
+    ran.current = true;
 
-    // Delay the check so it never interrupts onboarding or the first paint.
-    const timer = setTimeout(async () => {
+    const boot = async () => {
+      // 1. Apply an already-downloaded update at this natural reopen.
+      const applied = await installReadyVersion();
+      if (applied) return;
+
+      // 2. Otherwise check the manifest and download silently in the background.
       const info = await checkForUpdate();
       if (!info) return;
 
-      // Don't nag again for a version the user already dismissed.
-      const skipped = await getItem(SKIPPED_VERSION_KEY);
+      const skipped = await getItem(SKIPPED_KEY).catch(() => null);
       if (skipped === String(info.versionCode)) return;
 
-      setUpdate(info);
-    }, 4000);
+      const ok = await downloadSilently(info);
+      if (ok) {
+        setReady(info);
+        setShowBanner(true);
+      }
+    };
+    void boot();
+  }, [installReadyVersion]);
 
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleLater = useCallback(async () => {
-    if (!update) return;
-    await setItem(SKIPPED_VERSION_KEY, String(update.versionCode)).catch(() => {});
-    setUpdate(null);
-  }, [update]);
-
-  const handleInstall = useCallback(async () => {
-    if (!update || downloading) return;
-
-    setDownloading(true);
-    setProgress(0);
+  const downloadSilently = async (info: AppUpdateInfo): Promise<boolean> => {
     try {
       const cacheDir = FileSystem.cacheDirectory;
-      if (!cacheDir) {
-        throw new Error("Storage is unavailable on this device");
-      }
-      const fileName = `matriq-${update.versionCode}.apk`;
-      const fileUri = `${cacheDir}${fileName}`;
-
-      // Clear any partial download from a previous attempt.
-      const existing = await FileSystem.getInfoAsync(fileUri).catch(
-        () => null,
-      );
+      if (!cacheDir) return false;
+      const fileUri = `${cacheDir}matriq-${info.versionCode}.apk`;
+      const existing = await FileSystem.getInfoAsync(fileUri).catch(() => null);
       if (existing?.exists) {
-        await FileSystem.deleteAsync(fileUri).catch(() => {});
+        // Already downloaded — just mark it ready.
+        await setItem(READY_KEY, JSON.stringify(info)).catch(() => {});
+        return true;
       }
-
-      const resumable = FileSystem.createDownloadResumable(
-        update.url,
-        fileUri,
-        {},
-        (p) => {
-          if (p.totalBytesExpectedToWrite > 0) {
-            setProgress(p.totalBytesWritten / p.totalBytesExpectedToWrite);
-          }
-        },
-      );
-
+      const resumable = FileSystem.createDownloadResumable(info.url, fileUri);
       const result = await resumable.downloadAsync();
-      if (!result?.uri) {
-        throw new Error("Download failed");
-      }
+      if (!result?.uri) return false;
+      await setItem(READY_KEY, JSON.stringify(info)).catch(() => {});
+      return true;
+    } catch {
+      return false;
+    }
+  };
 
-      // The package installer needs a content:// URI with a read grant, not
-      // a raw file:// path. expo-file-system's FileProvider handles this.
-      const contentUri = await FileSystem.getContentUriAsync(result.uri);
+  const installApk = async (info: AppUpdateInfo): Promise<boolean> => {
+    try {
+      const cacheDir = FileSystem.cacheDirectory;
+      if (!cacheDir) return false;
+      const fileUri = `${cacheDir}matriq-${info.versionCode}.apk`;
+      const existing = await FileSystem.getInfoAsync(fileUri).catch(() => null);
+      if (!existing?.exists) return false;
 
+      const contentUri = await FileSystem.getContentUriAsync(fileUri);
       await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
         data: contentUri,
         type: "application/vnd.android.package-archive",
         flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
       });
-
-      // The system installer opens over the app; close the modal.
-      setUpdate(null);
-    } catch (err) {
-      Alert.alert(
-        "Update failed",
-        err instanceof Error
-          ? err.message
-          : "Could not download the update. Please try again later.",
-      );
-    } finally {
-      setDownloading(false);
+      return true;
+    } catch {
+      return false;
     }
-  }, [update, downloading]);
+  };
 
-  // APK self-updates are Android-only; the web build (for iOS users) gets
-  // nothing here. The silent background-update redesign lands in a later
-  // stage — this is the current modal-based updater, kept working.
-  if (Platform.OS === "web") {
-    return null;
-  }
+  const handleInstallNow = useCallback(async () => {
+    if (!ready || installing) return;
+    setInstalling(true);
+    const ok = await installApk(ready);
+    if (ok) {
+      setShowBanner(false);
+    } else {
+      // Let the user retry by keeping the banner.
+      setInstalling(false);
+    }
+  }, [ready, installing]);
 
-  if (!update) {
-    return null;
-  }
+  const handleDismiss = useCallback(async () => {
+    await setItem(SKIPPED_KEY, String(ready?.versionCode ?? "")).catch(() => {});
+    setShowBanner(false);
+  }, [ready]);
 
-  const percent = Math.round(progress * 100);
+  // Web build (for iOS users) has no APK path — nothing here.
+  if (Platform.OS === "web") return null;
+  if (!showBanner || !ready) return null;
 
   return (
-    <Modal
-      visible
-      transparent
-      animationType="fade"
-      onRequestClose={downloading ? () => {} : handleLater}
-    >
-      <View style={styles.backdrop}>
-        <View style={styles.card}>
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>New version</Text>
-          </View>
-          <Text style={styles.title}>
-            Matriq {update.versionName} is available
-          </Text>
-          <Text style={styles.subtitle}>
-            {update.notes?.trim() ||
-              "A new version of Matriq is ready. Update now to get the latest features and fixes."}
-          </Text>
-
-          {downloading ? (
-            <View style={styles.progressWrap}>
-              <View style={styles.progressTrack}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    { width: `${Math.max(percent, 4)}%` },
-                  ]}
-                />
-              </View>
-              <Text style={styles.progressText}>
-                Downloading… {percent}%
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.actions}>
-              <Button
-                title="Update now"
-                onPress={handleInstall}
-                loading={false}
-                size="lg"
-              />
-              <TouchableOpacity
-                style={styles.later}
-                onPress={handleLater}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.laterText}>Remind me later</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-
-          {downloading && (
-            <View style={styles.downloadingHint}>
-              <ActivityIndicator size="small" color={colors.primary} />
-              <Text style={styles.downloadingText}>
-                Keep the app open — installing will start automatically.
-              </Text>
-            </View>
-          )}
+    <View style={styles.wrap} pointerEvents="box-none">
+      <View
+        style={[
+          styles.banner,
+          {
+            backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.96)" : colors.surface,
+            borderColor: colors.border,
+            ...(theme.mode === "pop" ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "3px 3px 0 #170B26" } : { borderWidth: 1 }),
+          },
+        ]}
+      >
+        <View
+          style={{
+            width: 38,
+            height: 38,
+            borderRadius: 12,
+            backgroundColor: colors.accent,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="download" size={19} color="#170B26" />
         </View>
+        <View style={{ flex: 1, marginLeft: 12 }}>
+          <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+            Matriq {ready.versionName} ready
+          </Text>
+          <Text style={[theme.typography.caption, { color: colors.textSecondary, lineHeight: 18 }]} numberOfLines={2}>
+            Downloaded in the background. Restart to apply it.
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => void handleInstallNow()}
+          disabled={installing}
+          style={{
+            paddingVertical: 9,
+            paddingHorizontal: 16,
+            borderRadius: theme.radii.md,
+            backgroundColor: colors.accent,
+            borderWidth: theme.mode === "pop" ? 2 : 0,
+            borderColor: colors.borderStrong,
+            marginLeft: 8,
+          }}
+        >
+          <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+            {installing ? "Opening…" : "Install"}
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => void handleDismiss()} hitSlop={10} style={{ marginLeft: 8 }}>
+          <Icon name="x" size={16} color={colors.textMuted} />
+        </Pressable>
       </View>
-    </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: "rgba(13, 6, 32, 0.55)",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: spacing.lg,
+  wrap: {
+    position: "absolute",
+    left: 16,
+    right: 16,
+    bottom: 88,
+    zIndex: 900,
   },
-  card: {
-    width: "100%",
-    maxWidth: 400,
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: spacing.xl,
-    alignItems: "center",
-  },
-  badge: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: 999,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 6,
-    marginBottom: spacing.md,
-  },
-  badgeText: {
-    ...typography.captionBold,
-    color: colors.primary,
-  },
-  title: {
-    ...typography.h3,
-    color: colors.textPrimary,
-    textAlign: "center",
-    marginBottom: spacing.xs,
-  },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: "center",
-    lineHeight: 22,
-    marginBottom: spacing.lg,
-  },
-  actions: {
-    width: "100%",
-    gap: spacing.sm,
-    alignItems: "center",
-  },
-  later: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-  },
-  laterText: {
-    ...typography.body,
-    color: colors.textMuted,
-  },
-  progressWrap: {
-    width: "100%",
-    marginTop: spacing.xs,
-  },
-  progressTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  progressText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: spacing.sm,
-  },
-  downloadingHint: {
+  banner: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    marginTop: spacing.lg,
-  },
-  downloadingText: {
-    ...typography.small,
-    color: colors.textMuted,
-    flexShrink: 1,
+    borderRadius: 18,
+    padding: 14,
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
   },
 });

@@ -23,13 +23,15 @@ interface ExtraFeature {
   label: string;
   hint: string;
   icon: IconName;
+  ready: boolean;
+  target?: "FocusTimer" | "DeadlineTracker";
 }
 
 const EXTRAS: ExtraFeature[] = [
-  { id: "flashcards", label: "Flashcards", hint: "Spaced repetition", icon: "layers" },
-  { id: "focus", label: "Focus timer", hint: "Pomodoro, offline", icon: "timer" },
-  { id: "deadlines", label: "Deadline tracker", hint: "Never miss a submission", icon: "target" },
-  { id: "quiz", label: "Quiz maker", hint: "From your uploaded materials", icon: "zap" },
+  { id: "flashcards", label: "Flashcards", hint: "Spaced repetition", icon: "layers", ready: false },
+  { id: "focus", label: "Focus timer", hint: "Pomodoro, offline", icon: "timer", ready: true, target: "FocusTimer" },
+  { id: "deadlines", label: "Deadline tracker", hint: "Never miss a submission", icon: "target", ready: true, target: "DeadlineTracker" },
+  { id: "quiz", label: "Quiz maker", hint: "From your uploaded materials", icon: "zap", ready: false },
 ];
 
 export function StudyScreen({ navigation }: Props) {
@@ -238,7 +240,7 @@ export function StudyScreen({ navigation }: Props) {
           )}
 
           {/* 3 — Timetable */}
-          <Pressable style={{ opacity: 0.55 }} disabled>
+          <Pressable onPress={() => stackNav?.navigate("Timetable")}>
             <View
               style={{
                 flexDirection: "row",
@@ -272,14 +274,12 @@ export function StudyScreen({ navigation }: Props) {
                   Your week, planned — with next-class alerts
                 </Text>
               </View>
-              <Text style={[theme.typography.small, { color: colors.textMuted, fontWeight: "700" }]}>
-                Soon
-              </Text>
+              <Icon name="chevronRight" size={18} color={colors.textMuted} />
             </View>
           </Pressable>
 
           {/* 4 — My materials */}
-          <Pressable style={{ opacity: 0.55 }} disabled>
+          <Pressable onPress={() => stackNav?.navigate("MyMaterials")}>
             <View
               style={{
                 flexDirection: "row",
@@ -313,18 +313,21 @@ export function StudyScreen({ navigation }: Props) {
                   Your own uploaded books & notes
                 </Text>
               </View>
-              <Text style={[theme.typography.small, { color: colors.textMuted, fontWeight: "700" }]}>
-                Soon
-              </Text>
+              <Icon name="chevronRight" size={18} color={colors.textMuted} />
             </View>
           </Pressable>
 
-          {/* 5 — Extra study features (all confirmed) */}
+          {/* 5 — Extra study features */}
           <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 24, marginBottom: 12 }]}>
-            More tools coming
+            Study extras
           </Text>
           {EXTRAS.map((f) => (
-            <Pressable key={f.id} style={{ opacity: 0.55 }} disabled>
+            <Pressable
+              key={f.id}
+              style={{ opacity: f.ready ? 1 : 0.55 }}
+              disabled={!f.ready}
+              onPress={() => f.target && stackNav?.navigate(f.target)}
+            >
               <View
                 style={{
                   flexDirection: "row",
@@ -338,13 +341,15 @@ export function StudyScreen({ navigation }: Props) {
                   marginBottom: 8,
                 }}
               >
-                <Icon name={f.icon} size={18} color={colors.textMuted} />
+                <Icon name={f.icon} size={18} color={f.ready ? colors.brand : colors.textMuted} />
                 <Text style={[theme.typography.bodyMedium, { color: colors.textPrimary, flex: 1 }]}>
                   {f.label}
                 </Text>
-                <Text style={[theme.typography.small, { color: colors.textMuted }]}>
-                  {f.hint}
-                </Text>
+                {f.ready ? (
+                  <Icon name="chevronRight" size={16} color={colors.textMuted} />
+                ) : (
+                  <Text style={[theme.typography.small, { color: colors.textMuted }]}>{f.hint}</Text>
+                )}
               </View>
             </Pressable>
           ))}

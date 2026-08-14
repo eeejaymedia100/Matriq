@@ -13,6 +13,8 @@ import { Card, Button, Input } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../api/client";
 import type { User } from "../../types/api";
+import { markTodoDone } from "../../utils/todos";
+import { checkTodoBadge } from "../../utils/badges";
 
 export function ProfileScreen() {
   const { user, refreshUser, logout } = useAuth();
@@ -26,6 +28,10 @@ export function ProfileScreen() {
       await api.patch("/me", profile);
       await refreshUser();
       setEditing(false);
+      // Completing the profile counts as the "Add a profile photo" to-do
+      // (spec §6) — genuine completion, not just visiting the screen.
+      await markTodoDone("photo");
+      await checkTodoBadge();
       Alert.alert("Success", "Profile updated");
     } catch (err) {
       Alert.alert("Error", err instanceof Error ? err.message : "Failed to update");
