@@ -6,7 +6,7 @@
 # Certificates: Caddy auto-issues Let's Encrypt certs once DNS resolves here.
 
 # ── Public waitlist landing page (UI only — API lives at api.*) ────
-matriq.com.ng {
+matriq.com.ng, www.matriq.com.ng {
     root * /srv/waitlist
     encode gzip
 

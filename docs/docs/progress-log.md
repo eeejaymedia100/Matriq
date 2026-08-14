@@ -1364,3 +1364,35 @@ section) when real load testing demands it.
 
 **Blockers/flags:** VM resize is a manual GCP action (stop → change machine
 type → start); no code change required for cluster mode to benefit.
+
+---
+
+## 2026-08-14 — Production cutover verified; downloadable app live on the real domain
+
+**Status:** LIVE on `matriq.com.ng` (nameservers propagated); one-manual-step
+firewall issue bypassed via a second GCP VM (`matriq-server`, 35.204.163.157,
+e2-standard-4) with open ports.
+
+**Did:**
+- Confirmed production deployment: full docker stack healthy on matriq-server
+  (backend/postgres/redis healthy), real Let's Encrypt certs, waitlist page +
+  API + `download/matriq.apk` all served over HTTPS.
+- Full student smoke test against the live API passed: login, `/me`,
+  memberships, associations, fees, verification, payment history, AI query.
+- Fixed `www.matriq.com.ng` — added to the Caddy site block; cert issued after
+  caddy restart; now HTTPS 200 alongside root and api.
+- Rebuilt the release APK from the known-good v0.4.0 code (not the unreleased
+  Stage 0/1 UI overhaul on main), versionCode 6, arm64-only,
+  `https://api.matriq.com.ng/v1` baked in (verified in bundle; no stale
+  tunnel URL). Deployed to prod + `app-version.json` bumped → download link
+  serves the exact bytes (sha256 verified from the internet).
+- Synced repo: Caddyfile www block, app-version.json v6.
+
+**Flags/next:**
+- GCP firewall on the OLD VM (34.28.210.233) is still closed; irrelevant now
+  that prod lives on matriq-server (35.204.163.157).
+- Prod clone `main` has 4 local-only commits (auth fixes); they exist in the
+  shared history but were never pushed — recommend reconciling branches.
+- No DB backups or uptime monitoring on prod yet (next step).
+- Mobile `main` carries an unreleased Stage 0/1 UI overhaul — needs testing
+  before becoming the next release.

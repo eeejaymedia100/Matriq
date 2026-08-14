@@ -1,7 +1,7 @@
 {
-  "versionCode": 5,
+  "versionCode": 6,
   "versionName": "0.4.0",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "New: Offline AI! Download a small AI model once (over Wi-Fi) and the AI Study Companion keeps answering your questions even with no internet. Pick a model from the AI tab — SmolLM2, Qwen or Llama.",
-  "publishedAt": "2026-08-13T00:00:00Z"
+  "notes": "v0.4.0 build 6: arm64-only build wired to the live api.matriq.com.ng — offline AI study companion, dues, payments, events, verification and more.",
+  "publishedAt": "2026-08-14T00:00:00Z"
 }
