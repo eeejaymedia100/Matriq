@@ -8,13 +8,14 @@ export interface DashboardStats {
   totalCollectedKobo: number;
   paymentRate: number;
   topPayers: Array<{
-    userId: string;
+    // null after account hard-delete (payments are anonymised, spec §10)
+    userId: string | null;
     name: string;
     totalPaidKobo: number;
     rank: number;
   }>;
   recentActivity: Array<{
-    userId: string;
+    userId: string | null;
     name: string;
     feeName: string;
     amountKobo: number;
@@ -85,7 +86,9 @@ export class DashboardService {
         ? Math.round((totalCollected / (totalFeesAmount * totalMembers)) * 100)
         : 0;
 
-    const userIds = topPayersRaw.map((t) => t.userId);
+    const userIds = topPayersRaw
+      .map((t) => t.userId)
+      .filter((id): id is string => id !== null);
     const users = await this.prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, fullName: true },
@@ -94,14 +97,14 @@ export class DashboardService {
 
     const topPayers = topPayersRaw.map((t, i) => ({
       userId: t.userId,
-      name: userMap.get(t.userId) || "Unknown",
+      name: t.userId ? userMap.get(t.userId) || "Unknown" : "Deleted student",
       totalPaidKobo: t._sum.amountKobo || 0,
       rank: i + 1,
     }));
 
     const recentActivity = recentPayments.map((p) => ({
       userId: p.userId,
-      name: p.user.fullName,
+      name: p.user?.fullName ?? "Deleted student",
       feeName: p.fee.name,
       amountKobo: p.amountKobo,
       status: p.status,
@@ -143,7 +146,7 @@ export class DashboardService {
       activity: payments.map((p) => ({
         id: p.id,
         userId: p.userId,
-        userName: p.user.fullName,
+        userName: p.user?.fullName ?? "Deleted student",
         feeName: p.fee.name,
         session: p.fee.session,
         amountKobo: p.amountKobo,

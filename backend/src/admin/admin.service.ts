@@ -388,6 +388,108 @@ export class AdminService {
     };
   }
 
+  // ── Vault moderation queue (spec §15) ──────────────────────────
+
+  async listVaultItems(status?: string) {
+    const where = status ? { moderationStatus: status as never } : {};
+    const items = await this.prisma.vaultItem.findMany({
+      where: { ...where, deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      take: 100,
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            matricNumber: true,
+            level: true,
+          },
+        },
+        association: { select: { id: true, name: true, shortCode: true } },
+      },
+    });
+
+    return {
+      items: items.map((i) => ({
+        id: i.id,
+        courseCode: i.courseCode,
+        title: i.title,
+        type: i.type,
+        visibility: i.visibility,
+        originalName: i.originalName,
+        mimeType: i.mimeType,
+        sizeBytes: i.sizeBytes,
+        hasCompanion: i.companionSizeBytes !== null,
+        moderationStatus: i.moderationStatus,
+        rejectionReason: i.rejectionReason,
+        downloads: i.downloads,
+        createdAt: i.createdAt,
+        user: i.user,
+        association: i.association,
+      })),
+      total: items.length,
+    };
+  }
+
+  async moderateVaultItem(
+    itemId: string,
+    status: "approved" | "rejected",
+    adminId: string,
+    ipAddress: string,
+    reason?: string,
+  ) {
+    const item = await this.prisma.vaultItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!item || item.deletedAt)
+      throw new NotFoundException("Vault item not found");
+    if (item.moderationStatus === status) {
+      throw new BadRequestException(
+        `Item is already ${status === "approved" ? "approved" : "rejected"}`,
+      );
+    }
+
+    const updated = await this.prisma.vaultItem.update({
+      where: { id: itemId },
+      data: {
+        moderationStatus: status,
+        reviewedByAdmin: adminId,
+        reviewedAt: new Date(),
+        rejectionReason:
+          status === "rejected"
+            ? (reason ?? "Not approved").slice(0, 500)
+            : null,
+      },
+    });
+
+    await this.auditService.log({
+      actorType: "admin",
+      actorId: adminId,
+      action: `vault.${status}`,
+      targetType: "vault_item",
+      targetId: itemId,
+      ipAddress,
+      metadata: {
+        userId: item.userId,
+        associationId: item.associationId,
+        courseCode: item.courseCode,
+        reason: reason ?? null,
+      },
+    });
+
+    this.logger.log(`Admin ${adminId} ${status} vault item ${itemId}`);
+
+    return {
+      id: updated.id,
+      moderationStatus: updated.moderationStatus,
+      message:
+        status === "approved"
+          ? "Item approved — visible to students."
+          : "Item rejected.",
+    };
+  }
+
   // ── User search ────────────────────────────────────────────────
 
   async searchUsers(q?: string) {

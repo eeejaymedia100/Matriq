@@ -57,7 +57,9 @@ export class AnnouncementsService {
           role: a.author.role,
         },
         readCount: a._count.reads,
-        readByMe: userId ? ((a.reads as unknown[] | undefined)?.length ?? 0) > 0 : false,
+        readByMe: userId
+          ? ((a.reads as unknown[] | undefined)?.length ?? 0) > 0
+          : false,
         createdAt: a.createdAt,
       })),
       pagination: {

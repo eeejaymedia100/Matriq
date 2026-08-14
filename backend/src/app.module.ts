@@ -17,6 +17,8 @@ import { PaymentsModule } from "./payments/payments.module";
 import { AiModule } from "./ai/ai.module";
 import { VerificationModule } from "./verification/verification.module";
 import { FeesModule } from "./fees/fees.module";
+import { VaultModule } from "./vault/vault.module";
+import { ToolsModule } from "./tools/tools.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
@@ -54,6 +56,8 @@ import { EmailModule } from "./email/email.module";
     AiModule,
     VerificationModule,
     FeesModule,
+    VaultModule,
+    ToolsModule,
     WaitlistModule,
     HealthModule,
     EmailModule,

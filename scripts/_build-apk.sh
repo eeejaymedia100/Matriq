@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Release APK build for Matriq mobile (v0.4.0, build 5)
+# Release APK build for Matriq mobile (v0.6.0, build 7)
 set -e
 cd /home/akpevwejulius1/matriq/mobile
 
@@ -18,8 +18,8 @@ npx expo prebuild --platform android --no-install > /tmp/prebuild.log 2>&1 || {
 }
 
 # Prebuild regenerates build.gradle with versionName from app.json but resets
-# versionCode to 1 — pin it back to 5.
-sed -i 's/versionCode [0-9]*/versionCode 5/' android/app/build.gradle
+# versionCode to 1 — pin it back to 7 (must exceed the live manifest's 6).
+sed -i 's/versionCode [0-9]*/versionCode 7/' android/app/build.gradle
 
 # llama.rn ships its native libs via a postinstall download into node_modules;
 # if they're missing, fetch them explicitly so gradle can autolink them.

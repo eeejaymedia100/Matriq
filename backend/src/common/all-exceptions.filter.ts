@@ -90,11 +90,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         }
 
         if (typeof r.message === "string") {
-          return this.envelope(
-            status,
-            this.codeForStatus(status),
-            r.message,
-          );
+          return this.envelope(status, this.codeForStatus(status), r.message);
         }
       }
 

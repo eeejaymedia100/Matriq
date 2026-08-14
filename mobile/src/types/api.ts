@@ -15,6 +15,8 @@ export interface User {
   mfaEnabled: boolean;
   /** ISO date string; null until the user completes the post-verification step. */
   dateOfBirth: string | null;
+  /** Spec §10: set when the student scheduled account deletion (6 months out). */
+  deletionScheduledAt: string | null;
 }
 
 export interface AuthResponse {

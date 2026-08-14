@@ -350,9 +350,9 @@ export class PaymentsService {
     }
 
     return {
-      payerName: payment.user.fullName,
-      level: payment.user.level,
-      department: payment.user.department,
+      payerName: payment.user?.fullName ?? "Deleted student",
+      level: payment.user?.level ?? "—",
+      department: payment.user?.department ?? "—",
       feeName: payment.fee.name,
       amountKobo: payment.amountKobo,
       session: payment.fee.session,
@@ -437,7 +437,7 @@ export class PaymentsService {
 
   private async notifyPaymentSuccess(payment: {
     id: string;
-    userId: string;
+    userId: string | null;
     feeId: string;
     amountKobo: number;
     internalReference: string;
@@ -448,10 +448,12 @@ export class PaymentsService {
           where: { id: payment.feeId },
           select: { name: true, associationId: true },
         }),
-        this.prisma.user.findUnique({
-          where: { id: payment.userId },
-          select: { fullName: true },
-        }),
+        payment.userId
+          ? this.prisma.user.findUnique({
+              where: { id: payment.userId },
+              select: { fullName: true },
+            })
+          : Promise.resolve(null),
       ]);
 
       const feeName = fee?.name ?? "Dues";
@@ -460,12 +462,14 @@ export class PaymentsService {
         currency: "NGN",
       });
 
-      await this.notificationsService.notifyUser(
-        payment.userId,
-        "Payment received 🎉",
-        `Your payment of ${amount} for "${feeName}" was successful. A receipt has been issued.`,
-        { tags: ["money-bag"], priority: 4 },
-      );
+      if (payment.userId) {
+        await this.notificationsService.notifyUser(
+          payment.userId,
+          "Payment received 🎉",
+          `Your payment of ${amount} for "${feeName}" was successful. A receipt has been issued.`,
+          { tags: ["money-bag"], priority: 4 },
+        );
+      }
 
       if (fee) {
         await this.notificationsService.notifyAssociation(

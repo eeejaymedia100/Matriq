@@ -44,6 +44,10 @@ import { ProfileScreen } from "../screens/profile/ProfileScreen";
 import { VerificationUploadScreen } from "../screens/verification/VerificationUploadScreen";
 import { VerificationStatusScreen } from "../screens/verification/VerificationStatusScreen";
 import { CgpaCalculatorScreen } from "../screens/tools/CgpaCalculatorScreen";
+import { OcrScreen } from "../screens/tools/OcrScreen";
+import { ImageToPdfScreen } from "../screens/tools/ImageToPdfScreen";
+import { FileCompressorScreen } from "../screens/tools/FileCompressorScreen";
+import { VaultUploadScreen } from "../screens/vault/VaultUploadScreen";
 import { TimetableScreen } from "../screens/study/TimetableScreen";
 import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
 import { FocusTimerScreen } from "../screens/study/FocusTimerScreen";
@@ -142,6 +146,10 @@ function MainNavigator() {
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
       <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
+      <MainStack.Screen name="Ocr" component={OcrScreen} options={{ title: "Image to Text" }} />
+      <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
+      <MainStack.Screen name="FileCompressor" component={FileCompressorScreen} options={{ title: "File Compressor" }} />
+      <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Vault" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
       <MainStack.Screen name="FocusTimer" component={FocusTimerScreen} options={{ title: "Focus Timer" }} />

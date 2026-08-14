@@ -308,6 +308,33 @@ export class AdminController {
     return this.adminService.listAiDocuments(status);
   }
 
+  // ── Vault moderation queue (spec §15) ──────────────────────────
+
+  @Get("vault-items")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  listVaultItems(@Query("status") status?: string) {
+    return this.adminService.listVaultItems(status);
+  }
+
+  @Post("vault-items/:id/moderate")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  moderateVaultItem(
+    @Param("id") id: string,
+    @Body() dto: { status: "approved" | "rejected"; reason?: string },
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.moderateVaultItem(
+      id,
+      dto.status,
+      user.sub,
+      ip,
+      dto.reason,
+    );
+  }
+
   @Post("ai-documents/:id/moderate")
   @UseGuards(JwtAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)

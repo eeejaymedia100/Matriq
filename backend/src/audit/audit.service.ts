@@ -3,7 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Prisma } from "../generated/prisma/client";
 
 export interface AuditEntry {
-  actorType: "executive" | "admin";
+  actorType: "executive" | "admin" | "student";
   actorId: string;
   action: string;
   targetType?: string;
@@ -44,7 +44,7 @@ export class AuditService {
   }
 
   async query(params: {
-    actorType?: "executive" | "admin";
+    actorType?: "executive" | "admin" | "student";
     actorId?: string;
     action?: string;
     from?: Date;

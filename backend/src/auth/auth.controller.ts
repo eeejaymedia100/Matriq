@@ -16,6 +16,7 @@ import { Throttle } from "@nestjs/throttler";
 import { ipAndEmailTracker } from "../throttler/trackers";
 import { AuthService, AuthResponse, LoginResult } from "./auth.service";
 import { MfaService } from "./mfa.service";
+import { DeletionService } from "./deletion.service";
 import { RegisterStayliteDto } from "./dto/register-staylite.dto";
 import { RegisterFresherDto } from "./dto/register-fresher.dto";
 import { LoginDto } from "./dto/login.dto";
@@ -35,6 +36,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly mfaService: MfaService,
+    private readonly deletionService: DeletionService,
   ) {}
 
   // ── Auth: Registration ──────────────────────────────────────
@@ -180,6 +182,24 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   getBadges(@CurrentUser() user: JwtPayload) {
     return this.authService.getBadges(user.sub);
+  }
+
+  // ── Account deletion (spec §10 — hard delete only, scheduled 6 months) ──
+
+  @Post("me/deletion-request")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  requestDeletion(@CurrentUser() user: JwtPayload, @Req() req: Request) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.deletionService.request(user.sub, ip);
+  }
+
+  @Post("me/deletion-cancel")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  cancelDeletion(@CurrentUser() user: JwtPayload, @Req() req: Request) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.deletionService.cancel(user.sub, ip);
   }
 
   @Get("me/payment-history")

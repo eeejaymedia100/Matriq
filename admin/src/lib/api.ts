@@ -6,6 +6,7 @@ import type {
   AdminFee,
   AdminVerificationRequest,
   AiDocument,
+  AdminVaultItem,
   AdminUser,
   AdminExecutive,
   AdminAccount,
@@ -139,6 +140,28 @@ export async function moderateAiDocument(
   token: string,
 ) {
   return fetchApi<{ message: string }>(`/admin/ai-documents/${id}/moderate`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ status }),
+  });
+}
+
+// ── Vault moderation queue (spec §15) ──────────────────────────────
+
+export async function listVaultItems(token: string, status?: string) {
+  const qs = status ? `?status=${status}` : "";
+  return fetchApi<{ items: AdminVaultItem[]; total: number }>(
+    `/admin/vault-items${qs}`,
+    { token },
+  );
+}
+
+export async function moderateVaultItem(
+  id: string,
+  status: "approved" | "rejected",
+  token: string,
+) {
+  return fetchApi<{ message: string }>(`/admin/vault-items/${id}/moderate`, {
     method: "POST",
     token,
     body: JSON.stringify({ status }),

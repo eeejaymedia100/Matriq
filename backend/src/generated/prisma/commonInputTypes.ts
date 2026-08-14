@@ -460,6 +460,40 @@ export type EnumModerationStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumModerationStatusFilter<$PrismaModel>
 }
 
+export type EnumVaultItemTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultItemType | Prisma.EnumVaultItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel> | $Enums.VaultItemType
+}
+
+export type EnumVaultVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultVisibility | Prisma.EnumVaultVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel> | $Enums.VaultVisibility
+}
+
+export type EnumVaultItemTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultItemType | Prisma.EnumVaultItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultItemTypeWithAggregatesFilter<$PrismaModel> | $Enums.VaultItemType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel>
+}
+
+export type EnumVaultVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultVisibility | Prisma.EnumVaultVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.VaultVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel>
+}
+
 export type EnumDocumentTypeFilter<$PrismaModel = never> = {
   equals?: $Enums.DocumentType | Prisma.EnumDocumentTypeFieldRefInput<$PrismaModel>
   in?: $Enums.DocumentType[] | Prisma.ListEnumDocumentTypeFieldRefInput<$PrismaModel>
@@ -903,6 +937,40 @@ export type NestedEnumModerationStatusWithAggregatesFilter<$PrismaModel = never>
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumModerationStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumModerationStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumVaultItemTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultItemType | Prisma.EnumVaultItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel> | $Enums.VaultItemType
+}
+
+export type NestedEnumVaultVisibilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultVisibility | Prisma.EnumVaultVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel> | $Enums.VaultVisibility
+}
+
+export type NestedEnumVaultItemTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultItemType | Prisma.EnumVaultItemTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultItemType[] | Prisma.ListEnumVaultItemTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultItemTypeWithAggregatesFilter<$PrismaModel> | $Enums.VaultItemType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVaultItemTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumVaultVisibilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VaultVisibility | Prisma.EnumVaultVisibilityFieldRefInput<$PrismaModel>
+  in?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VaultVisibility[] | Prisma.ListEnumVaultVisibilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVaultVisibilityWithAggregatesFilter<$PrismaModel> | $Enums.VaultVisibility
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVaultVisibilityFilter<$PrismaModel>
 }
 
 export type NestedEnumDocumentTypeFilter<$PrismaModel = never> = {

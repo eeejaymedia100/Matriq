@@ -82,7 +82,8 @@ export type ModerationStatus = (typeof ModerationStatus)[keyof typeof Moderation
 
 export const AuditActorType = {
   executive: 'executive',
-  admin: 'admin'
+  admin: 'admin',
+  student: 'student'
 } as const
 
 export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType]
@@ -95,3 +96,19 @@ export const VerificationStatus = {
 } as const
 
 export type VerificationStatus = (typeof VerificationStatus)[keyof typeof VerificationStatus]
+
+
+export const VaultItemType = {
+  past_question: 'past_question',
+  material: 'material'
+} as const
+
+export type VaultItemType = (typeof VaultItemType)[keyof typeof VaultItemType]
+
+
+export const VaultVisibility = {
+  public: 'public',
+  private: 'private'
+} as const
+
+export type VaultVisibility = (typeof VaultVisibility)[keyof typeof VaultVisibility]

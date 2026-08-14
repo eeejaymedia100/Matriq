@@ -69,6 +69,7 @@ export const ModelName = {
   AuditLog: 'AuditLog',
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
+  VaultItem: 'VaultItem',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
   RefreshTokenFamily: 'RefreshTokenFamily',
@@ -113,7 +114,8 @@ export const UserScalarFieldEnum = {
   mfaSecret: 'mfaSecret',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  deletionScheduledAt: 'deletionScheduledAt'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -341,6 +343,34 @@ export const AiQueryLogScalarFieldEnum = {
 } as const
 
 export type AiQueryLogScalarFieldEnum = (typeof AiQueryLogScalarFieldEnum)[keyof typeof AiQueryLogScalarFieldEnum]
+
+
+export const VaultItemScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  associationId: 'associationId',
+  courseCode: 'courseCode',
+  title: 'title',
+  type: 'type',
+  visibility: 'visibility',
+  storageRef: 'storageRef',
+  companionRef: 'companionRef',
+  originalName: 'originalName',
+  mimeType: 'mimeType',
+  sizeBytes: 'sizeBytes',
+  companionSizeBytes: 'companionSizeBytes',
+  companionMimeType: 'companionMimeType',
+  moderationStatus: 'moderationStatus',
+  rejectionReason: 'rejectionReason',
+  reviewedByAdmin: 'reviewedByAdmin',
+  reviewedAt: 'reviewedAt',
+  downloads: 'downloads',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
+} as const
+
+export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]
 
 
 export const LegalAcceptanceScalarFieldEnum = {

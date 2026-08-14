@@ -18,6 +18,7 @@ import { ThemeTransitionOverlay } from "../../components/ThemeTransitionOverlay"
 import { ConfirmSheet } from "../../components/ConfirmSheet";
 import { useAuth } from "../../contexts/AuthContext";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
+import { api } from "../../api/client";
 import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 import type { MainTabParamList } from "../../navigation/types";
 
@@ -34,13 +35,15 @@ interface Row {
 export function SettingsScreen({ navigation }: Props) {
   const { theme, mode, setMode } = useTheme();
   const colors = theme.colors;
-  const { logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { downloaded } = useOfflineAi();
 
   const [themeFx, setThemeFx] = useState<ThemeMode | null>(null);
   const [confirm, setConfirm] = useState<null | "signout" | "delete">(null);
   const [deleteNotice, setDeleteNotice] = useState(false);
   const [deleteText, setDeleteText] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteResult, setDeleteResult] = useState<string | null>(null);
   const [info, setInfo] = useState<null | { title: string; body: string }>(null);
 
   const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
@@ -62,16 +65,51 @@ export function SettingsScreen({ navigation }: Props) {
     await logout();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     // Genuine type-to-confirm (spec §10) — no-op unless the phrase matches.
-    if (deleteText !== "DELETE") return;
+    if (deleteText !== "DELETE" || deleting) return;
+    setDeleting(true);
     setConfirm(null);
     setDeleteText("");
-    // The 6-month scheduled deletion is wired end-to-end in the next stage;
-    // until then surface a structured, honest message (spec §12 — what /
-    // why / what to do, never a raw error).
-    setDeleteNotice(true);
+    try {
+      const result = await api.post<{ scheduledFor: string; message: string }>(
+        "/me/deletion-request",
+      );
+      setDeleteResult(
+        `Scheduled for ${new Date(result.scheduledFor).toLocaleDateString(undefined, {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })}. ${result.message}`,
+      );
+      await refreshUser();
+    } catch (err) {
+      setDeleteNotice(true);
+    } finally {
+      setDeleting(false);
+    }
   };
+
+  const handleCancelDeletion = async () => {
+    setDeleting(true);
+    try {
+      await api.post<{ message: string }>("/me/deletion-cancel");
+      setDeleteResult("Deletion cancelled — your account is fully restored, exactly as it was.");
+      await refreshUser();
+    } catch (err) {
+      setDeleteNotice(true);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const deletionDate = user?.deletionScheduledAt
+    ? new Date(user.deletionScheduledAt).toLocaleDateString(undefined, {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   const version = Constants.expoConfig?.version ?? "0.4.0";
 
@@ -256,23 +294,63 @@ export function SettingsScreen({ navigation }: Props) {
               </View>
             </Pressable>
 
-            <Pressable onPress={() => setConfirm("delete")}>
+            {deletionDate ? (
+              /* Scheduled deletion is live — offer the cancel path (spec §10) */
               <View
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 10,
-                  paddingVertical: 15,
-                  borderRadius: theme.radii.md,
+                  padding: 16,
+                  borderRadius: theme.radii.lg,
+                  backgroundColor: colors.warningBg,
+                  borderWidth: 1,
+                  borderColor: colors.warning + "55",
+                  marginTop: 10,
                 }}
               >
-                <Icon name="trash" size={18} color={colors.error} />
-                <Text style={[theme.typography.bodyBold, { color: colors.error }]}>
-                  Delete Account
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <Icon name="clock" size={16} color={colors.warning} />
+                  <Text style={[theme.typography.bodyBold, { color: colors.warning }]}>
+                    Deletion scheduled for {deletionDate}
+                  </Text>
+                </View>
+                <Text style={[theme.typography.caption, { color: colors.textSecondary, lineHeight: 19 }]}>
+                  Signing in any time before then cancels it and restores your account
+                  exactly as it was. You can also cancel right now.
                 </Text>
+                <Pressable
+                  onPress={() => void handleCancelDeletion()}
+                  disabled={deleting}
+                  style={{
+                    marginTop: 12,
+                    alignItems: "center",
+                    paddingVertical: 11,
+                    borderRadius: theme.radii.md,
+                    backgroundColor: colors.warning,
+                  }}
+                >
+                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                    {deleting ? "Working…" : "Cancel deletion"}
+                  </Text>
+                </Pressable>
               </View>
-            </Pressable>
+            ) : (
+              <Pressable onPress={() => setConfirm("delete")}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 10,
+                    paddingVertical: 15,
+                    borderRadius: theme.radii.md,
+                  }}
+                >
+                  <Icon name="trash" size={18} color={colors.error} />
+                  <Text style={[theme.typography.bodyBold, { color: colors.error }]}>
+                    Delete Account
+                  </Text>
+                </View>
+              </Pressable>
+            )}
           </View>
 
           <Text
@@ -309,15 +387,24 @@ export function SettingsScreen({ navigation }: Props) {
         onClose={() => setInfo(null)}
       />
 
-      {/* Delete account sheet — 6-month scheduled hard delete, type-to-confirm */}
-      {/* Delete notice — structured what/why/what-to-do until the backend flow lands */}
+      {/* Delete failed — structured what/why/what-to-do (spec §12) */}
       <ConfirmSheet
         visible={deleteNotice}
-        title="Not ready yet"
-        body="Account deletion isn't available in this build yet. Your account is safe and untouched."
+        title="Couldn't do that"
+        body="We hit a problem scheduling the deletion. Check your internet connection and try again — your account is safe and untouched."
         confirmLabel="OK"
         onConfirm={() => setDeleteNotice(false)}
         onClose={() => setDeleteNotice(false)}
+      />
+
+      {/* Delete outcome — scheduled or cancelled (spec §10) */}
+      <ConfirmSheet
+        visible={!!deleteResult}
+        title="Account deletion"
+        body={deleteResult ?? ""}
+        confirmLabel="Got it"
+        onConfirm={() => setDeleteResult(null)}
+        onClose={() => setDeleteResult(null)}
       />
 
       <ConfirmSheet

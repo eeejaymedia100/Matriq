@@ -5,9 +5,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { AuthService } from "./auth.service";
 import { MfaService } from "./mfa.service";
 import { ExecutivesService } from "./executives.service";
+import { DeletionService } from "./deletion.service";
 import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { EmailModule } from "../email/email.module";
+import { AuditModule } from "../audit/audit.module";
 
 @Module({
   imports: [
@@ -21,9 +23,16 @@ import { EmailModule } from "../email/email.module";
       }),
     }),
     EmailModule,
+    AuditModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, MfaService, ExecutivesService, JwtStrategy],
+  providers: [
+    AuthService,
+    MfaService,
+    ExecutivesService,
+    DeletionService,
+    JwtStrategy,
+  ],
   exports: [AuthService, MfaService, ExecutivesService, PassportModule],
 })
 export class AuthModule {}

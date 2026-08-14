@@ -130,6 +130,11 @@ export type AiDocument = Prisma.AiDocumentModel
  */
 export type AiQueryLog = Prisma.AiQueryLogModel
 /**
+ * Model VaultItem
+ * 
+ */
+export type VaultItem = Prisma.VaultItemModel
+/**
  * Model LegalAcceptance
  * 
  */

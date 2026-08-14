@@ -66,12 +66,23 @@ enum ModerationStatus {
 enum AuditActorType {
   executive
   admin
+  student
 }
 
 enum VerificationStatus {
   pending
   approved
   rejected
+}
+
+enum VaultItemType {
+  past_question
+  material
+}
+
+enum VaultVisibility {
+  public
+  private
 }
 
 // ── Tables ─────────────────────────────────────────────────────────
@@ -106,6 +117,10 @@ model User {
   createdAt        DateTime         @default(now()) @map("created_at")
   updatedAt        DateTime         @updatedAt @map("updated_at")
   deletedAt        DateTime?        @map("deleted_at")
+  // Spec §10: scheduled hard deletion. Set on request (6 months out), cleared
+  // automatically by any login before the date; a background sweep hard-
+  // deletes the account afterwards. A scheduled account is quietly hidden.
+  deletionScheduledAt DateTime?       @map("deletion_scheduled_at")
 
   // Relations
   memberships           Membership[]
@@ -121,6 +136,7 @@ model User {
   legalAcceptances      LegalAcceptance[]
   refreshTokenFamilies  RefreshTokenFamily[]
   eventAttendance       EventAttendance[]
+  vaultItems            VaultItem[]
 
   @@map("users")
 }
@@ -144,6 +160,7 @@ model Association {
   events           Event[]
   aiDocuments      AiDocument[]
   verificationRequests VerificationRequest[]
+  vaultItems       VaultItem[]
 
   @@map("associations")
 }
@@ -222,17 +239,18 @@ model Fee {
   payments    Payment[]
 
   @@map("fees")
-}
-
-model Payment {
+}model Payment {
   id                String        @id @default(uuid()) @db.Uuid
-  userId            String        @map("user_id") @db.Uuid
+  // Nullable to support account hard-delete: payments are kept for financial
+  // reconciliation (treasurer dashboards) but anonymised by nulling the link
+  // to the deleted student. Receipts keep referencing the payment row.
+  userId            String?       @map("user_id") @db.Uuid
   feeId             String        @map("fee_id") @db.Uuid
   amountKobo        Int           @map("amount_kobo") // snapshot at payment time
   status            PaymentStatus @default(pending)
   gatewayReference  String?       @unique @map("gateway_reference")
   internalReference String        @unique @map("internal_reference")
-  method            String?       // card / bank transfer / USSD from gateway
+  method            String? // card / bank transfer / USSD from gateway
   paidAt            DateTime?     @map("paid_at")
   refundedAt        DateTime?     @map("refunded_at")
   refundReason      String?       @map("refund_reason")
@@ -242,10 +260,11 @@ model Payment {
   updatedAt         DateTime      @updatedAt @map("updated_at")
 
   // Relations
-  user    User     @relation(fields: [userId], references: [id])
+  user    User?    @relation(fields: [userId], references: [id])
   fee     Fee      @relation(fields: [feeId], references: [id])
   receipt Receipt?
 
+  @@index([userId])
   @@map("payments")
 }
 
@@ -415,6 +434,47 @@ model AiQueryLog {
   user User @relation(fields: [userId], references: [id])
 
   @@map("ai_query_logs")
+}
+
+model VaultItem {
+  id                String          @id @default(uuid()) @db.Uuid
+  userId            String          @map("user_id") @db.Uuid
+  associationId     String          @map("association_id") @db.Uuid
+  courseCode        String          @map("course_code") // normalized uppercase, e.g. "CHM 101"
+  title             String
+  type              VaultItemType   @default(material)
+  visibility        VaultVisibility @default(public)
+  // The original file (object key in the private bucket, or data-URI fallback)
+  storageRef        String          @map("storage_ref")
+  // Smart storage (spec §7): a lightweight companion generated automatically
+  // on upload — image → lower-quality JPEG, anything else → zip. Null when
+  // the companion wouldn't actually be smaller.
+  companionRef      String?         @map("companion_ref")
+  originalName      String          @map("original_name")
+  mimeType          String          @map("mime_type")
+  sizeBytes         Int             @map("size_bytes")
+  companionSizeBytes Int?           @map("companion_size_bytes")
+  companionMimeType String?         @map("companion_mime_type")
+  // Public uploads require admin approval before they're visible to others;
+  // private uploads are immediately usable by their owner.
+  moderationStatus  ModerationStatus @default(pending) @map("moderation_status")
+  rejectionReason   String?         @map("rejection_reason")
+  reviewedByAdmin   String?         @map("reviewed_by_admin") @db.Uuid
+  reviewedAt        DateTime?       @map("reviewed_at")
+  downloads         Int             @default(0)
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+  deletedAt         DateTime?       @map("deleted_at")
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id])
+  association Association @relation(fields: [associationId], references: [id])
+
+  @@index([associationId, courseCode])
+  @@index([courseCode])
+  @@index([moderationStatus, visibility])
+  @@index([userId])
+  @@map("vault_items")
 }
 
 model LegalAcceptance {

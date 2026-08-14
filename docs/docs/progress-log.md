@@ -4,6 +4,63 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — OVERHAUL PASS (matriq-complete-spec.md) — Stage 2/3: Vault live, smart tools, account deletion, admin moderation
+
+**Status:** code DONE + validated (backend tsc/lint + 135 tests green, mobile tsc + web/Android bundles export, admin lint/tsc green); APK v0.6.0 (build 7) building in tmux (`apk-build-overhaul`)
+
+**Did (spec §§7, 8, 10, 14, 15):**
+- **The Vault is REAL (spec §7).** Backend `backend/src/vault/` (module/service/controller):
+  search scoped to the student's school (association) + own items, course-code-first,
+  type filter, My Uploads, upload with server-side file validation (PDF/JPG/PNG/WebP,
+  20MB cap — spec §13 Tier 3), Public (admin-approved before school sees it) / Private
+  (usable immediately), and **smart storage**: images get a lower-quality JPEG companion,
+  other files a zip — only kept when genuinely smaller (sharp + fflate). Terms-of-Use
+  acceptance recorded at first upload (spec §14 trigger, separate from registration).
+  Files go to MinIO (`StorageService`) with base64 data-URI fallback; downloads resolve
+  original or light copy and enforce ownership + approval gates; download counter feeds
+  popularity later. Migration `20260815000000_vault_and_scheduled_deletion` adds
+  `vault_items` + indexes.
+- **Account deletion for real (spec §10).** `backend/src/auth/deletion.service.ts`:
+  request schedules hard deletion 6 months out + revokes all sessions instantly;
+  **any login or token refresh cancels it** (wired in AuthService.login/refresh);
+  background sweep (`OnModuleInit` interval, every 6h, per-user failure isolation)
+  hard-deletes personal data in one transaction — payments are anonymised
+  (`payments.user_id` now nullable, financial records kept for reconciliation),
+  public Vault items re-point at a synthetic "deleted contributor" so the shared
+  corpus survives, private ones go with the student. `AuditActorType` gained
+  `student` for the self-service audit trail. Endpoints: `POST /auth/delete`,
+  `DELETE /auth/delete` (cancel), `GET /me` exposes `deletionScheduledAt`.
+- **Tools live (spec §8):** backend `tools` module — server-side OCR
+  (`POST /tools/ocr`, tesseract.js, lazy shared worker, honest "no readable text"
+  gate, 10MB cap); mobile: **Image to Text** (`OcrScreen`), **Image to PDF**
+  (`ImageToPdfScreen`, expo-image-manipulator → canvas-free fflate PDF), **File
+  Compressor** (`FileCompressorScreen`, real zip via fflate + share via expo-sharing)
+  — all with share/save. Enabled in the Tools grid (was "Soon").
+- **Settings → Delete Account real flow.** Type-to-confirm → API call → shows the
+  6-month schedule + "sign in to cancel" copy with a live cancel button; `PATCH /me`
+  gains `deletionScheduledAt`. Dues & Payments screen reworked with the conditional
+  Coming Soon state (spec §10 gate).
+- **Admin moderation queue (spec §15).** `GET /v1/admin/vault-items` +
+  `POST /v1/admin/vault-items/:id/moderate` (approve/reject + reason), new
+  `admin/src/app/vault-moderation/page.tsx` with status tabs, submitter info, and
+  reject-reason input; nav added.
+- **Validation:** backend tsc clean + **135 tests green** (9 new: deletion 4 + vault 5);
+  backend lint clean (`eslint --fix` applied); mobile tsc clean; `expo export` web +
+  Android both bundle; admin tsc + lint clean; code-reviewed (reviewer verified: sweep
+  scheduling, login/refresh cancellation, MinIO reuse + ownership gates, admin guards,
+  FormData boundary handling, no Settings duplication).
+
+**Next:**
+- APK build (`apk-build-overhaul` tmux) → deploy to `waitlist/matriq.apk` on the VM,
+  confirm `matriq.com.ng/app-version.json` → v7, then Telegram the final APK + summary.
+- Apply the migration on the live DB (`prisma migrate deploy`) before the new app talks
+  to the new endpoints.
+
+**Blockers/flags:**
+- `payments.user_id` nullability needs the migration applied on the live DB.
+- OCR/companion generation are CPU-heavy on the 4-core box — fine at student scale;
+  the semaphore pattern from `ai/semaphore.ts` could serialize OCR later if needed.
+
 ## 2026-08-14 — OVERHAUL PASS (matriq-complete-spec.md) — Stage 0/1: foundation + design system + 5-tab nav + theme picker
 
 **Status:** foundation stage DONE (tsc green, web + Android bundles export, code-reviewed).

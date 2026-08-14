@@ -57,6 +57,7 @@ export type UserMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
+  deletionScheduledAt: Date | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -82,6 +83,7 @@ export type UserMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
+  deletionScheduledAt: Date | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -107,6 +109,7 @@ export type UserCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   deletedAt: number
+  deletionScheduledAt: number
   _all: number
 }
 
@@ -142,6 +145,7 @@ export type UserMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  deletionScheduledAt?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -167,6 +171,7 @@ export type UserMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  deletionScheduledAt?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -192,6 +197,7 @@ export type UserCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  deletionScheduledAt?: true
   _all?: true
 }
 
@@ -304,6 +310,7 @@ export type UserGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
+  deletionScheduledAt: Date | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -352,6 +359,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletionScheduledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   memberships?: Prisma.MembershipListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
   referralsGiven?: Prisma.ReferralListRelationFilter
@@ -365,6 +373,7 @@ export type UserWhereInput = {
   legalAcceptances?: Prisma.LegalAcceptanceListRelationFilter
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyListRelationFilter
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -390,6 +399,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletionScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
   payments?: Prisma.PaymentOrderByRelationAggregateInput
   referralsGiven?: Prisma.ReferralOrderByRelationAggregateInput
@@ -403,6 +413,7 @@ export type UserOrderByWithRelationInput = {
   legalAcceptances?: Prisma.LegalAcceptanceOrderByRelationAggregateInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyOrderByRelationAggregateInput
   eventAttendance?: Prisma.EventAttendanceOrderByRelationAggregateInput
+  vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -431,6 +442,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletionScheduledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   memberships?: Prisma.MembershipListRelationFilter
   payments?: Prisma.PaymentListRelationFilter
   referralsGiven?: Prisma.ReferralListRelationFilter
@@ -444,6 +456,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   legalAcceptances?: Prisma.LegalAcceptanceListRelationFilter
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyListRelationFilter
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }, "id" | "email" | "verificationToken">
 
 export type UserOrderByWithAggregationInput = {
@@ -469,6 +482,7 @@ export type UserOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  deletionScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -502,6 +516,7 @@ export type UserScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  deletionScheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
 }
 
 export type UserCreateInput = {
@@ -527,6 +542,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -540,6 +556,7 @@ export type UserCreateInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -565,6 +582,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -578,6 +596,7 @@ export type UserUncheckedCreateInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -603,6 +622,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -616,6 +636,7 @@ export type UserUpdateInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -641,6 +662,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -654,6 +676,7 @@ export type UserUncheckedUpdateInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -679,6 +702,7 @@ export type UserCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -704,6 +728,7 @@ export type UserUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserUncheckedUpdateManyInput = {
@@ -729,6 +754,7 @@ export type UserUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -754,6 +780,7 @@ export type UserCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  deletionScheduledAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -783,6 +810,7 @@ export type UserMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  deletionScheduledAt?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -808,6 +836,7 @@ export type UserMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  deletionScheduledAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -910,10 +939,12 @@ export type UserCreateNestedOneWithoutPaymentsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutPaymentsNestedInput = {
+export type UserUpdateOneWithoutPaymentsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutPaymentsInput, Prisma.UserUncheckedCreateWithoutPaymentsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutPaymentsInput
   upsert?: Prisma.UserUpsertWithoutPaymentsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPaymentsInput, Prisma.UserUpdateWithoutPaymentsInput>, Prisma.UserUncheckedUpdateWithoutPaymentsInput>
 }
@@ -1020,6 +1051,20 @@ export type UserUpdateOneRequiredWithoutAiQueryLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAiQueryLogsInput, Prisma.UserUpdateWithoutAiQueryLogsInput>, Prisma.UserUncheckedUpdateWithoutAiQueryLogsInput>
 }
 
+export type UserCreateNestedOneWithoutVaultItemsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVaultItemsInput, Prisma.UserUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVaultItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutVaultItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutVaultItemsInput, Prisma.UserUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutVaultItemsInput
+  upsert?: Prisma.UserUpsertWithoutVaultItemsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutVaultItemsInput, Prisma.UserUpdateWithoutVaultItemsInput>, Prisma.UserUncheckedUpdateWithoutVaultItemsInput>
+}
+
 export type UserCreateNestedOneWithoutLegalAcceptancesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutLegalAcceptancesInput, Prisma.UserUncheckedCreateWithoutLegalAcceptancesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutLegalAcceptancesInput
@@ -1071,6 +1116,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -1083,6 +1129,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -1108,6 +1155,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -1120,6 +1168,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExecutiveRolesInput = {
@@ -1161,6 +1210,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -1173,6 +1223,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -1198,6 +1249,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -1210,6 +1262,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1235,6 +1288,7 @@ export type UserCreateWithoutMembershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
   referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
@@ -1247,6 +1301,7 @@ export type UserCreateWithoutMembershipsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1272,6 +1327,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
   referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
@@ -1284,6 +1340,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1325,6 +1382,7 @@ export type UserUpdateWithoutMembershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
   referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
@@ -1337,6 +1395,7 @@ export type UserUpdateWithoutMembershipsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1362,6 +1421,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
   referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
@@ -1374,6 +1434,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVerificationRequestsInput = {
@@ -1399,6 +1460,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -1411,6 +1473,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -1436,6 +1499,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -1448,6 +1512,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationRequestsInput = {
@@ -1489,6 +1554,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -1501,6 +1567,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -1526,6 +1593,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -1538,6 +1606,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -1563,6 +1632,7 @@ export type UserCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
   referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
@@ -1575,6 +1645,7 @@ export type UserCreateWithoutPaymentsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -1600,6 +1671,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
   referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
@@ -1612,6 +1684,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -1653,6 +1726,7 @@ export type UserUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
   referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
@@ -1665,6 +1739,7 @@ export type UserUpdateWithoutPaymentsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -1690,6 +1765,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
   referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
@@ -1702,6 +1778,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAnnouncementReadsInput = {
@@ -1727,6 +1804,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -1739,6 +1817,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -1764,6 +1843,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -1776,6 +1856,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAnnouncementReadsInput = {
@@ -1817,6 +1898,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -1829,6 +1911,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -1854,6 +1937,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -1866,6 +1950,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventRsvpsInput = {
@@ -1891,6 +1976,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -1903,6 +1989,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -1928,6 +2015,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -1940,6 +2028,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventRsvpsInput = {
@@ -1981,6 +2070,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -1993,6 +2083,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -2018,6 +2109,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -2030,6 +2122,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventAttendanceInput = {
@@ -2055,6 +2148,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -2067,6 +2161,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventAttendanceInput = {
@@ -2092,6 +2187,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -2104,6 +2200,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventAttendanceInput = {
@@ -2145,6 +2242,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -2157,6 +2255,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventAttendanceInput = {
@@ -2182,6 +2281,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -2194,6 +2294,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsGivenInput = {
@@ -2219,6 +2320,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
@@ -2231,6 +2333,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -2256,6 +2359,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
@@ -2268,6 +2372,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsGivenInput = {
@@ -2298,6 +2403,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -2310,6 +2416,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -2335,6 +2442,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -2347,6 +2455,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -2388,6 +2497,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
@@ -2400,6 +2510,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -2425,6 +2536,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
@@ -2437,6 +2549,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -2473,6 +2586,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -2485,6 +2599,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -2510,6 +2625,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -2522,6 +2638,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiDocumentsSubmittedInput = {
@@ -2547,6 +2664,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -2559,6 +2677,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -2584,6 +2703,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -2596,6 +2716,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiDocumentsSubmittedInput = {
@@ -2637,6 +2758,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -2649,6 +2771,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -2674,6 +2797,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -2686,6 +2810,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiQueryLogsInput = {
@@ -2711,6 +2836,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -2723,6 +2849,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -2748,6 +2875,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -2760,6 +2888,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiQueryLogsInput = {
@@ -2801,6 +2930,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -2813,6 +2943,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -2838,6 +2969,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -2846,6 +2978,179 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
   executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutVaultItemsInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutVaultItemsInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutVaultItemsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutVaultItemsInput, Prisma.UserUncheckedCreateWithoutVaultItemsInput>
+}
+
+export type UserUpsertWithoutVaultItemsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutVaultItemsInput, Prisma.UserUncheckedUpdateWithoutVaultItemsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutVaultItemsInput, Prisma.UserUncheckedCreateWithoutVaultItemsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutVaultItemsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutVaultItemsInput, Prisma.UserUncheckedUpdateWithoutVaultItemsInput>
+}
+
+export type UserUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
@@ -2875,6 +3180,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -2887,6 +3193,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -2912,6 +3219,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -2924,6 +3232,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLegalAcceptancesInput = {
@@ -2965,6 +3274,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -2977,6 +3287,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -3002,6 +3313,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -3014,6 +3326,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRefreshTokenFamiliesInput = {
@@ -3039,6 +3352,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
@@ -3051,6 +3365,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -3076,6 +3391,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
   payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
   referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
@@ -3088,6 +3404,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokenFamiliesInput = {
@@ -3129,6 +3446,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
@@ -3141,6 +3459,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
@@ -3166,6 +3485,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
   referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
@@ -3178,6 +3498,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -3199,6 +3520,7 @@ export type UserCountOutputType = {
   legalAcceptances: number
   refreshTokenFamilies: number
   eventAttendance: number
+  vaultItems: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3215,6 +3537,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   legalAcceptances?: boolean | UserCountOutputTypeCountLegalAcceptancesArgs
   refreshTokenFamilies?: boolean | UserCountOutputTypeCountRefreshTokenFamiliesArgs
   eventAttendance?: boolean | UserCountOutputTypeCountEventAttendanceArgs
+  vaultItems?: boolean | UserCountOutputTypeCountVaultItemsArgs
 }
 
 /**
@@ -3318,6 +3641,13 @@ export type UserCountOutputTypeCountEventAttendanceArgs<ExtArgs extends runtime.
   where?: Prisma.EventAttendanceWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountVaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VaultItemWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3342,6 +3672,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  deletionScheduledAt?: boolean
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
   referralsGiven?: boolean | Prisma.User$referralsGivenArgs<ExtArgs>
@@ -3355,6 +3686,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   legalAcceptances?: boolean | Prisma.User$legalAcceptancesArgs<ExtArgs>
   refreshTokenFamilies?: boolean | Prisma.User$refreshTokenFamiliesArgs<ExtArgs>
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -3381,6 +3713,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  deletionScheduledAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3406,6 +3739,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  deletionScheduledAt?: boolean
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -3431,9 +3765,10 @@ export type UserSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  deletionScheduledAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
@@ -3448,6 +3783,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   legalAcceptances?: boolean | Prisma.User$legalAcceptancesArgs<ExtArgs>
   refreshTokenFamilies?: boolean | Prisma.User$refreshTokenFamiliesArgs<ExtArgs>
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3469,6 +3805,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     legalAcceptances: Prisma.$LegalAcceptancePayload<ExtArgs>[]
     refreshTokenFamilies: Prisma.$RefreshTokenFamilyPayload<ExtArgs>[]
     eventAttendance: Prisma.$EventAttendancePayload<ExtArgs>[]
+    vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3493,6 +3830,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
+    deletionScheduledAt: Date | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -3900,6 +4238,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   legalAcceptances<T extends Prisma.User$legalAcceptancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$legalAcceptancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LegalAcceptancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   refreshTokenFamilies<T extends Prisma.User$refreshTokenFamiliesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$refreshTokenFamiliesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenFamilyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   eventAttendance<T extends Prisma.User$eventAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vaultItems<T extends Prisma.User$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3951,6 +4290,7 @@ export interface UserFieldRefs {
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly deletionScheduledAt: Prisma.FieldRef<"User", 'DateTime'>
 }
     
 
@@ -4653,6 +4993,30 @@ export type User$eventAttendanceArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.EventAttendanceScalarFieldEnum | Prisma.EventAttendanceScalarFieldEnum[]
+}
+
+/**
+ * User.vaultItems
+ */
+export type User$vaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VaultItem
+   */
+  select?: Prisma.VaultItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VaultItem
+   */
+  omit?: Prisma.VaultItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VaultItemInclude<ExtArgs> | null
+  where?: Prisma.VaultItemWhereInput
+  orderBy?: Prisma.VaultItemOrderByWithRelationInput | Prisma.VaultItemOrderByWithRelationInput[]
+  cursor?: Prisma.VaultItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VaultItemScalarFieldEnum | Prisma.VaultItemScalarFieldEnum[]
 }
 
 /**

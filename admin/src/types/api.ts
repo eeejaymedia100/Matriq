@@ -89,6 +89,24 @@ export interface AdminVerificationRequest {
   association: { id: string; name: string; shortCode: string };
 }
 
+export interface AdminVaultItem {
+  id: string;
+  courseCode: string;
+  title: string;
+  type: "past_question" | "material";
+  visibility: "public" | "private";
+  originalName: string;
+  mimeType: string;
+  sizeBytes: number;
+  hasCompanion: boolean;
+  moderationStatus: "pending" | "approved" | "rejected";
+  rejectionReason: string | null;
+  downloads: number;
+  createdAt: string;
+  user: { id: string; fullName: string; email: string; matricNumber: string | null; level: string };
+  association: { id: string; name: string; shortCode: string };
+}
+
 export interface AiDocument {
   id: string;
   sourceType: string;

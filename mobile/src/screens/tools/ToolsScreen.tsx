@@ -22,13 +22,13 @@ interface ToolCard {
   hint: string;
   icon: IconName;
   ready: boolean;
-  target?: "CgpaCalculator";
+  target?: "CgpaCalculator" | "Ocr" | "ImageToPdf" | "FileCompressor";
 }
 
 const DOC_TOOLS: ToolCard[] = [
-  { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", ready: false },
-  { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", ready: false },
-  { id: "compress", label: "File Compressor", hint: "Shrink any file", icon: "layers", ready: false },
+  { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", ready: true, target: "Ocr" },
+  { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", ready: true, target: "ImageToPdf" },
+  { id: "compress", label: "File Compressor", hint: "Shrink any file", icon: "layers", ready: true, target: "FileCompressor" },
   { id: "pdf-merge", label: "PDF merge / split", hint: "Combine or divide PDFs", icon: "layers", ready: false },
   { id: "pdf-word", label: "PDF ↔ Word", hint: "Convert documents", icon: "pen", ready: false },
   { id: "bg-remover", label: "Passport background remover", hint: "Clean official photos", icon: "camera", ready: false },

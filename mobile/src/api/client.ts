@@ -138,8 +138,12 @@ export async function apiRequest<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const tokens = await getTokens();
+  // Multipart bodies need fetch to set the boundary itself — never force
+  // application/json on a FormData body.
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
 
@@ -198,6 +202,9 @@ export const api = {
     }),
   delete: <T>(path: string) =>
     apiRequest<T>(path, { method: "DELETE" }),
+  /** Multipart upload (FormData body — Content-Type boundary handled by fetch). */
+  upload: <T>(path: string, formData: FormData) =>
+    apiRequest<T>(path, { method: "POST", body: formData }),
 };
 
 export { saveTokens, getTokens };

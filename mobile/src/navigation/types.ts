@@ -37,4 +37,8 @@ export type MainStackParamList = {
   MyMaterials: undefined;
   FocusTimer: undefined;
   DeadlineTracker: undefined;
+  VaultUpload: undefined;
+  Ocr: undefined;
+  ImageToPdf: undefined;
+  FileCompressor: undefined;
 };

@@ -217,6 +217,7 @@ export type AssociationWhereInput = {
   events?: Prisma.EventListRelationFilter
   aiDocuments?: Prisma.AiDocumentListRelationFilter
   verificationRequests?: Prisma.VerificationRequestListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }
 
 export type AssociationOrderByWithRelationInput = {
@@ -236,6 +237,7 @@ export type AssociationOrderByWithRelationInput = {
   events?: Prisma.EventOrderByRelationAggregateInput
   aiDocuments?: Prisma.AiDocumentOrderByRelationAggregateInput
   verificationRequests?: Prisma.VerificationRequestOrderByRelationAggregateInput
+  vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
 }
 
 export type AssociationWhereUniqueInput = Prisma.AtLeast<{
@@ -258,6 +260,7 @@ export type AssociationWhereUniqueInput = Prisma.AtLeast<{
   events?: Prisma.EventListRelationFilter
   aiDocuments?: Prisma.AiDocumentListRelationFilter
   verificationRequests?: Prisma.VerificationRequestListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }, "id" | "shortCode">
 
 export type AssociationOrderByWithAggregationInput = {
@@ -307,6 +310,7 @@ export type AssociationCreateInput = {
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateInput = {
@@ -326,6 +330,7 @@ export type AssociationUncheckedCreateInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUpdateInput = {
@@ -345,6 +350,7 @@ export type AssociationUpdateInput = {
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateInput = {
@@ -364,6 +370,7 @@ export type AssociationUncheckedUpdateInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateManyInput = {
@@ -550,6 +557,20 @@ export type AssociationUpdateOneWithoutAiDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssociationUpdateToOneWithWhereWithoutAiDocumentsInput, Prisma.AssociationUpdateWithoutAiDocumentsInput>, Prisma.AssociationUncheckedUpdateWithoutAiDocumentsInput>
 }
 
+export type AssociationCreateNestedOneWithoutVaultItemsInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutVaultItemsInput, Prisma.AssociationUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutVaultItemsInput
+  connect?: Prisma.AssociationWhereUniqueInput
+}
+
+export type AssociationUpdateOneRequiredWithoutVaultItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutVaultItemsInput, Prisma.AssociationUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutVaultItemsInput
+  upsert?: Prisma.AssociationUpsertWithoutVaultItemsInput
+  connect?: Prisma.AssociationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssociationUpdateToOneWithWhereWithoutVaultItemsInput, Prisma.AssociationUpdateWithoutVaultItemsInput>, Prisma.AssociationUncheckedUpdateWithoutVaultItemsInput>
+}
+
 export type AssociationCreateWithoutExecutivesInput = {
   id?: string
   name: string
@@ -566,6 +587,7 @@ export type AssociationCreateWithoutExecutivesInput = {
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutExecutivesInput = {
@@ -584,6 +606,7 @@ export type AssociationUncheckedCreateWithoutExecutivesInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutExecutivesInput = {
@@ -618,6 +641,7 @@ export type AssociationUpdateWithoutExecutivesInput = {
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutExecutivesInput = {
@@ -636,6 +660,7 @@ export type AssociationUncheckedUpdateWithoutExecutivesInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutMembershipsInput = {
@@ -654,6 +679,7 @@ export type AssociationCreateWithoutMembershipsInput = {
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutMembershipsInput = {
@@ -672,6 +698,7 @@ export type AssociationUncheckedCreateWithoutMembershipsInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutMembershipsInput = {
@@ -706,6 +733,7 @@ export type AssociationUpdateWithoutMembershipsInput = {
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutMembershipsInput = {
@@ -724,6 +752,7 @@ export type AssociationUncheckedUpdateWithoutMembershipsInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutVerificationRequestsInput = {
@@ -742,6 +771,7 @@ export type AssociationCreateWithoutVerificationRequestsInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAssociationInput
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutVerificationRequestsInput = {
@@ -760,6 +790,7 @@ export type AssociationUncheckedCreateWithoutVerificationRequestsInput = {
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAssociationInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutVerificationRequestsInput = {
@@ -794,6 +825,7 @@ export type AssociationUpdateWithoutVerificationRequestsInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAssociationNestedInput
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -812,6 +844,7 @@ export type AssociationUncheckedUpdateWithoutVerificationRequestsInput = {
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAssociationNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutFeesInput = {
@@ -830,6 +863,7 @@ export type AssociationCreateWithoutFeesInput = {
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutFeesInput = {
@@ -848,6 +882,7 @@ export type AssociationUncheckedCreateWithoutFeesInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutFeesInput = {
@@ -882,6 +917,7 @@ export type AssociationUpdateWithoutFeesInput = {
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutFeesInput = {
@@ -900,6 +936,7 @@ export type AssociationUncheckedUpdateWithoutFeesInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutAnnouncementsInput = {
@@ -918,6 +955,7 @@ export type AssociationCreateWithoutAnnouncementsInput = {
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutAnnouncementsInput = {
@@ -936,6 +974,7 @@ export type AssociationUncheckedCreateWithoutAnnouncementsInput = {
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutAnnouncementsInput = {
@@ -970,6 +1009,7 @@ export type AssociationUpdateWithoutAnnouncementsInput = {
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutAnnouncementsInput = {
@@ -988,6 +1028,7 @@ export type AssociationUncheckedUpdateWithoutAnnouncementsInput = {
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutEventsInput = {
@@ -1006,6 +1047,7 @@ export type AssociationCreateWithoutEventsInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutEventsInput = {
@@ -1024,6 +1066,7 @@ export type AssociationUncheckedCreateWithoutEventsInput = {
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAssociationInput
   aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutEventsInput = {
@@ -1058,6 +1101,7 @@ export type AssociationUpdateWithoutEventsInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutEventsInput = {
@@ -1076,6 +1120,7 @@ export type AssociationUncheckedUpdateWithoutEventsInput = {
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAssociationNestedInput
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationCreateWithoutAiDocumentsInput = {
@@ -1094,6 +1139,7 @@ export type AssociationCreateWithoutAiDocumentsInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAssociationInput
   events?: Prisma.EventCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationUncheckedCreateWithoutAiDocumentsInput = {
@@ -1112,6 +1158,7 @@ export type AssociationUncheckedCreateWithoutAiDocumentsInput = {
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAssociationInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
 }
 
 export type AssociationCreateOrConnectWithoutAiDocumentsInput = {
@@ -1146,6 +1193,7 @@ export type AssociationUpdateWithoutAiDocumentsInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAssociationNestedInput
   events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutAiDocumentsInput = {
@@ -1164,6 +1212,99 @@ export type AssociationUncheckedUpdateWithoutAiDocumentsInput = {
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAssociationNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
+}
+
+export type AssociationCreateWithoutVaultItemsInput = {
+  id?: string
+  name: string
+  shortCode: string
+  faculty: string
+  whatsappNumber: string
+  status?: $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  executives?: Prisma.AssociationExecutiveCreateNestedManyWithoutAssociationInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutAssociationInput
+  fees?: Prisma.FeeCreateNestedManyWithoutAssociationInput
+  announcements?: Prisma.AnnouncementCreateNestedManyWithoutAssociationInput
+  events?: Prisma.EventCreateNestedManyWithoutAssociationInput
+  aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+}
+
+export type AssociationUncheckedCreateWithoutVaultItemsInput = {
+  id?: string
+  name: string
+  shortCode: string
+  faculty: string
+  whatsappNumber: string
+  status?: $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  executives?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutAssociationInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutAssociationInput
+  fees?: Prisma.FeeUncheckedCreateNestedManyWithoutAssociationInput
+  announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAssociationInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
+  aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+}
+
+export type AssociationCreateOrConnectWithoutVaultItemsInput = {
+  where: Prisma.AssociationWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssociationCreateWithoutVaultItemsInput, Prisma.AssociationUncheckedCreateWithoutVaultItemsInput>
+}
+
+export type AssociationUpsertWithoutVaultItemsInput = {
+  update: Prisma.XOR<Prisma.AssociationUpdateWithoutVaultItemsInput, Prisma.AssociationUncheckedUpdateWithoutVaultItemsInput>
+  create: Prisma.XOR<Prisma.AssociationCreateWithoutVaultItemsInput, Prisma.AssociationUncheckedCreateWithoutVaultItemsInput>
+  where?: Prisma.AssociationWhereInput
+}
+
+export type AssociationUpdateToOneWithWhereWithoutVaultItemsInput = {
+  where?: Prisma.AssociationWhereInput
+  data: Prisma.XOR<Prisma.AssociationUpdateWithoutVaultItemsInput, Prisma.AssociationUncheckedUpdateWithoutVaultItemsInput>
+}
+
+export type AssociationUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  executives?: Prisma.AssociationExecutiveUpdateManyWithoutAssociationNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutAssociationNestedInput
+  fees?: Prisma.FeeUpdateManyWithoutAssociationNestedInput
+  announcements?: Prisma.AnnouncementUpdateManyWithoutAssociationNestedInput
+  events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
+  aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+}
+
+export type AssociationUncheckedUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  executives?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutAssociationNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutAssociationNestedInput
+  fees?: Prisma.FeeUncheckedUpdateManyWithoutAssociationNestedInput
+  announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAssociationNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
+  aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
 }
 
 
@@ -1179,6 +1320,7 @@ export type AssociationCountOutputType = {
   events: number
   aiDocuments: number
   verificationRequests: number
+  vaultItems: number
 }
 
 export type AssociationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1189,6 +1331,7 @@ export type AssociationCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   events?: boolean | AssociationCountOutputTypeCountEventsArgs
   aiDocuments?: boolean | AssociationCountOutputTypeCountAiDocumentsArgs
   verificationRequests?: boolean | AssociationCountOutputTypeCountVerificationRequestsArgs
+  vaultItems?: boolean | AssociationCountOutputTypeCountVaultItemsArgs
 }
 
 /**
@@ -1250,6 +1393,13 @@ export type AssociationCountOutputTypeCountVerificationRequestsArgs<ExtArgs exte
   where?: Prisma.VerificationRequestWhereInput
 }
 
+/**
+ * AssociationCountOutputType without action
+ */
+export type AssociationCountOutputTypeCountVaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VaultItemWhereInput
+}
+
 
 export type AssociationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1268,6 +1418,7 @@ export type AssociationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   events?: boolean | Prisma.Association$eventsArgs<ExtArgs>
   aiDocuments?: boolean | Prisma.Association$aiDocumentsArgs<ExtArgs>
   verificationRequests?: boolean | Prisma.Association$verificationRequestsArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.Association$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["association"]>
 
@@ -1316,6 +1467,7 @@ export type AssociationInclude<ExtArgs extends runtime.Types.Extensions.Internal
   events?: boolean | Prisma.Association$eventsArgs<ExtArgs>
   aiDocuments?: boolean | Prisma.Association$aiDocumentsArgs<ExtArgs>
   verificationRequests?: boolean | Prisma.Association$verificationRequestsArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.Association$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssociationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1331,6 +1483,7 @@ export type $AssociationPayload<ExtArgs extends runtime.Types.Extensions.Interna
     events: Prisma.$EventPayload<ExtArgs>[]
     aiDocuments: Prisma.$AiDocumentPayload<ExtArgs>[]
     verificationRequests: Prisma.$VerificationRequestPayload<ExtArgs>[]
+    vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1743,6 +1896,7 @@ export interface Prisma__AssociationClient<T, Null = never, ExtArgs extends runt
   events<T extends Prisma.Association$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   aiDocuments<T extends Prisma.Association$aiDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$aiDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AiDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   verificationRequests<T extends Prisma.Association$verificationRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$verificationRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VerificationRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vaultItems<T extends Prisma.Association$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2339,6 +2493,30 @@ export type Association$verificationRequestsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.VerificationRequestScalarFieldEnum | Prisma.VerificationRequestScalarFieldEnum[]
+}
+
+/**
+ * Association.vaultItems
+ */
+export type Association$vaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VaultItem
+   */
+  select?: Prisma.VaultItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VaultItem
+   */
+  omit?: Prisma.VaultItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VaultItemInclude<ExtArgs> | null
+  where?: Prisma.VaultItemWhereInput
+  orderBy?: Prisma.VaultItemOrderByWithRelationInput | Prisma.VaultItemOrderByWithRelationInput[]
+  cursor?: Prisma.VaultItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VaultItemScalarFieldEnum | Prisma.VaultItemScalarFieldEnum[]
 }
 
 /**

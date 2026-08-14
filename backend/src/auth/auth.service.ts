@@ -112,26 +112,25 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const { code, result: user } = await this.withUniqueVerificationCode(
-      (c) =>
-        this.prisma.user.create({
-          data: {
-            email: dto.email,
-            fullName: dto.fullName,
-            passwordHash,
-            registrationType: "staylite",
-            matricNumber: dto.matricNumber,
-            matricStatus: "provisional",
-            faculty: dto.faculty,
-            department: dto.department,
-            level: dto.level,
-            emailVerified: false,
-            verificationToken: c.verificationToken,
-            verificationCodeExpiresAt: c.verificationCodeExpiresAt,
-            verificationEmailCount: nextCounter.count,
-            verificationEmailWindowStart: nextCounter.windowStart,
-          },
-        }),
+    const { code, result: user } = await this.withUniqueVerificationCode((c) =>
+      this.prisma.user.create({
+        data: {
+          email: dto.email,
+          fullName: dto.fullName,
+          passwordHash,
+          registrationType: "staylite",
+          matricNumber: dto.matricNumber,
+          matricStatus: "provisional",
+          faculty: dto.faculty,
+          department: dto.department,
+          level: dto.level,
+          emailVerified: false,
+          verificationToken: c.verificationToken,
+          verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+          verificationEmailCount: nextCounter.count,
+          verificationEmailWindowStart: nextCounter.windowStart,
+        },
+      }),
     );
 
     await this.recordLegalAcceptance(
@@ -195,26 +194,25 @@ export class AuthService {
       parallelism: 4,
     });
 
-    const { code, result: user } = await this.withUniqueVerificationCode(
-      (c) =>
-        this.prisma.user.create({
-          data: {
-            email: dto.email,
-            fullName: dto.fullName,
-            passwordHash,
-            registrationType: "fresher",
-            jambNumber: dto.jambNumber,
-            matricStatus: "provisional",
-            faculty: dto.faculty,
-            department: dto.department,
-            level: "100",
-            emailVerified: false,
-            verificationToken: c.verificationToken,
-            verificationCodeExpiresAt: c.verificationCodeExpiresAt,
-            verificationEmailCount: nextCounter.count,
-            verificationEmailWindowStart: nextCounter.windowStart,
-          },
-        }),
+    const { code, result: user } = await this.withUniqueVerificationCode((c) =>
+      this.prisma.user.create({
+        data: {
+          email: dto.email,
+          fullName: dto.fullName,
+          passwordHash,
+          registrationType: "fresher",
+          jambNumber: dto.jambNumber,
+          matricStatus: "provisional",
+          faculty: dto.faculty,
+          department: dto.department,
+          level: "100",
+          emailVerified: false,
+          verificationToken: c.verificationToken,
+          verificationCodeExpiresAt: c.verificationCodeExpiresAt,
+          verificationEmailCount: nextCounter.count,
+          verificationEmailWindowStart: nextCounter.windowStart,
+        },
+      }),
     );
 
     await this.recordLegalAcceptance(
@@ -357,6 +355,16 @@ export class AuthService {
       });
     }
 
+    // Spec §10: signing back in any time before a scheduled deletion cancels
+    // it and restores the account exactly as it was.
+    if (user.deletionScheduledAt) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { deletionScheduledAt: null },
+      });
+      this.logger.log(`Deletion cancelled by login: ${user.id}`);
+    }
+
     // MFA: if the account has MFA enabled, require a TOTP challenge before
     // issuing any tokens. The challenge token is short-lived (5m) and
     // single-purpose — it is never a session credential by itself.
@@ -467,6 +475,16 @@ export class AuthService {
     });
     if (!user) {
       throw new UnauthorizedException("User not found");
+    }
+
+    // Spec §10: a refresh is proof the student is back — cancel the pending
+    // deletion the same way a full login does.
+    if (user.deletionScheduledAt) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { deletionScheduledAt: null },
+      });
+      this.logger.log(`Deletion cancelled by refresh: ${user.id}`);
     }
 
     // 6. Token is valid and unused — perform rotation
@@ -612,7 +630,8 @@ export class AuthService {
         throw new BadRequestException({
           statusCode: HttpStatus.BAD_REQUEST,
           code: "VALIDATION_FAILED",
-          message: "That date of birth doesn't look right. Please pick it again.",
+          message:
+            "That date of birth doesn't look right. Please pick it again.",
         });
       }
       if (dob.getTime() >= Date.now()) {
@@ -703,10 +722,12 @@ export class AuthService {
    * Read the email budget from an existing (possibly about-to-be-deleted)
    * account so re-registration can't reset the limit.
    */
-  private carriedCounter(user: {
-    verificationEmailCount: number;
-    verificationEmailWindowStart: Date | null;
-  } | null): { count: number; windowStart: Date | null } {
+  private carriedCounter(
+    user: {
+      verificationEmailCount: number;
+      verificationEmailWindowStart: Date | null;
+    } | null,
+  ): { count: number; windowStart: Date | null } {
     if (!user) {
       return { count: 0, windowStart: null };
     }
