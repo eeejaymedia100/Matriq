@@ -4,6 +4,44 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — OVERHAUL PASS — Stage 2/3 → PRODUCTION: backend live (Vault/Tools/deletion), migration applied, APK v0.6.0 (build 7) rebuilt
+
+**Status:** backend DEPLOYED + verified live; APK v0.6.0 (build 7) rebuilding (tmux `matriq-build`); Telegram delivery pending the APK.
+
+**Did (deploy session, continuing from Stage 2/3):**
+- **Committed + pushed** the Stage 2/3 work (was uncommitted in the working tree) as
+  `0c57ef6`, alongside the previously-unpushed `0d81a2e` (v0.5.0). Origin/main is now
+  current with the full spec overhaul.
+- **Found the interrupted APK build.** The prior `apk-build-overhaul` tmux session was gone
+  and its gradle daemon was orphaned/frozen at `app:buildCMakeRelWithDebInfo[arm64-v8a]`
+  (no ninja/clang children, log frozen since 19:33). Killed it (`gradlew --stop` + kill -9)
+  and **resumed the build directly** (skipped `expo prebuild` to preserve the partial
+  `.cxx` state) in a persistent tmux session `matriq-build`. Build re-validated first:
+  backend tsc + **126 tests green**, mobile tsc clean.
+- **Backend deployed to matriq-server.** The production repo was still at `bfa2640`
+  (v0.3.0 era) with local Caddy (www subdomain) + manifest (v6) edits. Discarded the two
+  superseded edits (both are in committed history), `git pull --ff-only` → `0c57ef6`,
+  re-pinned the live manifest to v6 (until the v7 APK lands), then `scripts/deploy.sh`
+  (`DEPLOY_EXIT=0`). **Verified live:** `vault_items` table + indexes + FKs, `users.
+  deletion_scheduled_at`, `payments.user_id` nullable, and the new routes auth-gate
+  correctly — `GET /v1/vault`, `POST /v1/me/deletion-request`, `GET /v1/admin/vault-items`
+  all 401 (not 404), `POST /v1/tools/ocr` 401.
+- **Telegram path confirmed.** Bot token + chat are in `~/.hermes/.env` on matriq-server
+  (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_HOME_CHANNEL`; bot @GareflyerBot) — used via env vars
+  so the token never leaves the box.
+
+**Next:**
+- APK build finishes (tmux `matriq-build` → `/tmp/gradle-resume.log`) → copy to
+  `~/matriq/waitlist/matriq.apk` + `waitlist/download/matriq.apk` on matriq-server, bump
+  `waitlist/app-version.json` to v7, verify `matriq.com.ng/app-version.json` + the download
+  URL, then Telegram the APK + summary via `sendDocument`.
+
+**Blockers/flags:**
+- OCR's tesseract worker cold-starts (downloads `eng` traineddata) on first use — the
+  first OCR request after deploy will be slow; fine at student scale.
+- The live manifest stays pinned at v6/0.4.0 until the v7 APK is actually on disk, so
+  installed apps aren't offered a missing build.
+
 ## 2026-08-15 — OVERHAUL PASS (matriq-complete-spec.md) — Stage 2/3: Vault live, smart tools, account deletion, admin moderation
 
 **Status:** code DONE + validated (backend tsc/lint + 135 tests green, mobile tsc + web/Android bundles export, admin lint/tsc green); APK v0.6.0 (build 7) building in tmux (`apk-build-overhaul`)
