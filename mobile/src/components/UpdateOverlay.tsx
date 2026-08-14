@@ -7,10 +7,11 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system/legacy";
-import * as SecureStore from "expo-secure-store";
+import { getItem, setItem } from "../utils/storage";
 import { colors, spacing, typography } from "../theme/colors";
 import { Button } from "../components";
 import {
@@ -41,9 +42,7 @@ export function UpdateOverlay() {
       if (!info) return;
 
       // Don't nag again for a version the user already dismissed.
-      const skipped = await SecureStore.getItemAsync(
-        SKIPPED_VERSION_KEY,
-      ).catch(() => null);
+      const skipped = await getItem(SKIPPED_VERSION_KEY);
       if (skipped === String(info.versionCode)) return;
 
       setUpdate(info);
@@ -54,10 +53,7 @@ export function UpdateOverlay() {
 
   const handleLater = useCallback(async () => {
     if (!update) return;
-    await SecureStore.setItemAsync(
-      SKIPPED_VERSION_KEY,
-      String(update.versionCode),
-    ).catch(() => {});
+    await setItem(SKIPPED_VERSION_KEY, String(update.versionCode)).catch(() => {});
     setUpdate(null);
   }, [update]);
 
@@ -121,6 +117,13 @@ export function UpdateOverlay() {
       setDownloading(false);
     }
   }, [update, downloading]);
+
+  // APK self-updates are Android-only; the web build (for iOS users) gets
+  // nothing here. The silent background-update redesign lands in a later
+  // stage — this is the current modal-based updater, kept working.
+  if (Platform.OS === "web") {
+    return null;
+  }
 
   if (!update) {
     return null;

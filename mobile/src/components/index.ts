@@ -5,6 +5,14 @@ export { ErrorBanner } from "./ErrorBanner";
 export { PasswordStrength } from "./PasswordStrength";
 export { WheelPicker } from "./WheelPicker";
 export { LoadingScreen } from "./LoadingScreen";
+export { OtpInput } from "./OtpInput";
+export { TermsCheckbox } from "./TermsCheckbox";
+export { ConfirmSheet } from "./ConfirmSheet";
+export { ThemeTransitionOverlay } from "./ThemeTransitionOverlay";
+export { Icon } from "./icons";
+export type { IconName } from "./icons";
+export { Surface, ThemedScreen } from "./Surface";
+export { AmbientBlobs } from "./AmbientBlobs";
 export {
   Skeleton,
   SkeletonCircle,

@@ -1,105 +1,65 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import React, { useState, useMemo } from "react";
+import { View, Text, SafeAreaView, TextInput, Platform } from "react-native";
+import { useTheme } from "../../theme/ThemeContext";
 import { Button, ErrorBanner, WheelPicker } from "../../components";
+import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
 
+interface Props {
+  navigation: { replace: (screen: string) => void };
+}
+
 const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
 ];
 
-function daysInMonth(monthIndex: number, year: number): number {
-  return new Date(year, monthIndex + 1, 0).getDate();
+function daysInMonth(monthIndex: number): number {
+  return new Date(2024, monthIndex + 1, 0).getDate();
 }
 
-interface Props {
-  navigation: { replace: (screen: string, params?: unknown) => void };
+function currentYear(): number {
+  return new Date().getFullYear();
 }
 
+/** The "add a birthday" step: wheels for day + month, manual year input. */
 export function CompleteProfileScreen({ navigation }: Props) {
   const { updateProfile } = useAuth();
-  const today = new Date();
-  const [monthIndex, setMonthIndex] = useState(today.getMonth());
-  const [dayIndex, setDayIndex] = useState(today.getDate() - 1);
-  const [year, setYear] = useState(String(today.getFullYear()));
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
+  const [dayIdx, setDayIdx] = useState(0);
+  const [monthIdx, setMonthIdx] = useState(0);
+  const [year, setYear] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<FriendlyError | null>(null);
+  const [yearTouched, setYearTouched] = useState(false);
 
-  const yearNum = Number(year);
-  const currentYear = today.getFullYear();
-  const maxDay = Number.isFinite(yearNum)
-    ? daysInMonth(monthIndex, yearNum)
-    : 31;
+  const days = useMemo(() => {
+    const n = daysInMonth(monthIdx);
+    return Array.from({ length: n }, (_, i) => String(i + 1));
+  }, [monthIdx]);
 
-  const days = Array.from({ length: maxDay }, (_, i) => String(i + 1));
-
-  // Keep the picked day valid when the month/year changes the max days.
-  const safeDayIndex = Math.min(dayIndex, maxDay - 1);
-
+  const yearNum = parseInt(year, 10);
   const yearInvalid =
-    year.length > 0 &&
-    (!/^\d{4}$/.test(year) ||
-      yearNum < 1900 ||
-      yearNum > currentYear ||
-      (yearNum === currentYear &&
-        monthIndex > today.getMonth()));
-  const yearEmpty = year.trim().length === 0;
-
-  const validate = (): string | null => {
-    if (yearEmpty || yearInvalid) {
-      return `Please enter a valid year between 1900 and ${currentYear}.`;
-    }
-    const dob = new Date(yearNum, monthIndex, safeDayIndex + 1);
-    if (dob.getTime() > Date.now()) {
-      return "That date is in the future — please pick today or earlier.";
-    }
-    return null;
-  };
-
-  const formatPreview = () => {
-    if (yearEmpty || yearInvalid) return "";
-    return `${safeDayIndex + 1} ${MONTHS[monthIndex]} ${yearNum}`;
-  };
+    yearTouched && (Number.isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear());
+  const preview = `${days[dayIdx] ?? "1"} ${MONTHS[monthIdx]} ${year || "____"}`;
 
   const handleSave = async () => {
     setError(null);
-    const problem = validate();
-    if (problem) {
+    if (Number.isNaN(yearNum) || yearNum < 1900 || yearNum > currentYear()) {
+      setYearTouched(true);
       setError({
-        title: "Please check the date",
-        message: problem,
-        action: "Adjust the day, month or year and try again.",
+        title: "Check the year",
+        message: "Please enter a valid year between 1900 and this year.",
+        action: "Type your birth year and try again.",
       });
       return;
     }
     setLoading(true);
     try {
-      const iso = `${yearNum}-${String(monthIndex + 1).padStart(2, "0")}-${String(
-        safeDayIndex + 1,
-      ).padStart(2, "0")}`;
+      const iso = `${yearNum}-${String(monthIdx + 1).padStart(2, "0")}-${String(dayIdx + 1).padStart(2, "0")}`;
       await updateProfile({ dateOfBirth: iso });
       navigation.replace("Home");
     } catch (err) {
@@ -110,176 +70,126 @@ export function CompleteProfileScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={styles.container}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={styles.header}>
-            <View style={styles.iconWrap}>
-              <Ionicons name="calendar-outline" size={28} color={colors.primary} />
-            </View>
-            <Text style={styles.title}>Almost done!</Text>
-            <Text style={styles.subtitle}>
-              One last thing — when is your birthday? Scroll to pick the day and
-              month, then type the year.
-            </Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View style={{ flex: 1, padding: 24, paddingTop: 40 }}>
+        <View style={{ alignItems: "center", marginBottom: 20 }}>
+          <View
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 18,
+              backgroundColor: colors.surfaceAlt,
+              borderWidth: 1,
+              borderColor: colors.border,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 12,
+            }}
+          >
+            <Icon name="calendar" size={26} color={colors.brand} />
           </View>
-
-          {error ? <ErrorBanner error={error} /> : null}
-
-          <View style={styles.pickers}>
-            <View style={styles.pickerCol}>
-              <Text style={styles.pickerLabel}>Day</Text>
-              <WheelPicker
-                data={days}
-                selectedIndex={safeDayIndex}
-                onChange={(i) => {
-                  setDayIndex(i);
-                  if (error) setError(null);
-                }}
-              />
-            </View>
-            <View style={styles.pickerCol}>
-              <Text style={styles.pickerLabel}>Month</Text>
-              <WheelPicker
-                data={MONTHS}
-                selectedIndex={monthIndex}
-                onChange={(i) => {
-                  setMonthIndex(i);
-                  if (error) setError(null);
-                }}
-              />
-            </View>
-            <View style={styles.pickerCol}>
-              <Text style={styles.pickerLabel}>Year</Text>
-              <View
-                style={[
-                  styles.yearInputWrap,
-                  yearInvalid && styles.yearInputError,
-                ]}
-              >
-                <TextInput
-                  style={styles.yearInput}
-                  value={year}
-                  onChangeText={(t) => {
-                    setYear(t.replace(/[^0-9]/g, "").slice(0, 4));
-                    if (error) setError(null);
-                  }}
-                  keyboardType="number-pad"
-                  placeholder="2005"
-                  placeholderTextColor={colors.textMuted}
-                  maxLength={4}
-                />
-              </View>
-              {yearInvalid ? (
-                <Text style={styles.yearError}>
-                  Enter a year from 1900 to {currentYear}.
-                </Text>
-              ) : null}
-            </View>
-          </View>
-
-          <View style={styles.preview}>
-            <Ionicons name="gift-outline" size={18} color={colors.primary} />
-            <Text style={styles.previewText}>
-              {formatPreview() || "Select your date of birth"}
-            </Text>
-          </View>
-
-          <Button
-            title="Continue"
-            onPress={handleSave}
-            loading={loading}
-            size="lg"
-          />
-
-          <Text style={styles.privacyNote}>
-            Your date of birth is kept private and is never shown to other
-            students.
+          <Text style={[theme.typography.h2, { color: colors.textPrimary }]}>
+            When were you born?
           </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          <Text style={[theme.typography.body, { color: colors.textSecondary, textAlign: "center", marginTop: 4, lineHeight: 22 }]}>
+            One last step before your dashboard.
+          </Text>
+        </View>
+
+        {error ? <ErrorBanner error={error} /> : null}
+
+        <View style={{ flexDirection: "row", gap: 12, justifyContent: "center" }}>
+          <View style={{ flex: 1, maxWidth: 120 }}>
+            <Text style={[theme.typography.captionBold, { color: colors.textSecondary, textAlign: "center", marginBottom: 6 }]}>
+              Day
+            </Text>
+            <WheelPicker data={days} selectedIndex={dayIdx} onChange={setDayIdx} />
+          </View>
+          <View style={{ flex: 1, maxWidth: 160 }}>
+            <Text style={[theme.typography.captionBold, { color: colors.textSecondary, textAlign: "center", marginBottom: 6 }]}>
+              Month
+            </Text>
+            <WheelPicker data={MONTHS} selectedIndex={monthIdx} onChange={setMonthIdx} />
+          </View>
+        </View>
+
+        <View style={{ marginTop: 20 }}>
+          <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginBottom: 6 }]}>
+            Year
+          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              borderWidth: 1.5,
+              borderColor: yearInvalid ? colors.error : colors.border,
+              borderRadius: theme.radii.md,
+              backgroundColor: colors.surface,
+              paddingHorizontal: 16,
+            }}
+          >
+            <TextInput
+              value={year}
+              onChangeText={(t) => {
+                setYear(t.replace(/[^0-9]/g, "").slice(0, 4));
+                if (error) setError(null);
+              }}
+              onBlur={() => setYearTouched(true)}
+              keyboardType="number-pad"
+              placeholder="e.g. 2005"
+              placeholderTextColor={colors.textMuted}
+              maxLength={4}
+              style={{
+                flex: 1,
+                fontFamily: theme.typography.body.fontFamily,
+                fontSize: 16,
+                color: colors.textPrimary,
+                paddingVertical: 14,
+              }}
+            />
+            <Icon name="pen" size={16} color={colors.textMuted} />
+          </View>
+          {yearInvalid ? (
+            <Text style={[theme.typography.caption, { color: colors.error, marginTop: 4 }]}>
+              Enter a year between 1900 and {currentYear()}.
+            </Text>
+          ) : null}
+        </View>
+
+        <View
+          style={{
+            alignItems: "center",
+            marginTop: 20,
+            paddingVertical: 10,
+            borderRadius: theme.radii.md,
+            backgroundColor: colors.surfaceAlt,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>{preview}</Text>
+        </View>
+
+        <View style={{ marginTop: 24 }}>
+          <Button title="Continue" onPress={handleSave} loading={loading} size="lg" />
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 20,
+            justifyContent: "center",
+          }}
+        >
+          <Icon name="lock" size={14} color={colors.textMuted} />
+          <Text style={[theme.typography.small, { color: colors.textMuted }]}>
+            Only used for age checks — never shown publicly
+            {Platform.OS === "web" ? "" : ""}.
+          </Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: spacing.lg, paddingTop: spacing.xl, paddingBottom: spacing.xxl },
-  header: { alignItems: "center", marginBottom: spacing.lg },
-  iconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: radii.full,
-    backgroundColor: colors.primaryLight + "22",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.md,
-  },
-  title: { ...typography.h1, color: colors.textPrimary, textAlign: "center" },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  pickers: {
-    flexDirection: "row",
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  pickerCol: { flex: 1 },
-  pickerLabel: {
-    ...typography.captionBold,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-    textAlign: "center",
-  },
-  yearInputWrap: {
-    height: 220,
-    marginTop: 0,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  yearInputError: { borderColor: colors.error },
-  yearInput: {
-    ...typography.body,
-    fontSize: 17,
-    color: colors.textPrimary,
-    textAlign: "center",
-    paddingVertical: spacing.md,
-  },
-  yearError: {
-    ...typography.caption,
-    color: colors.error,
-    textAlign: "center",
-    marginTop: spacing.xs,
-  },
-  preview: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
-    paddingVertical: spacing.md,
-    marginBottom: spacing.lg,
-  },
-  previewText: { ...typography.bodyBold, color: colors.textPrimary },
-  privacyNote: {
-    ...typography.small,
-    color: colors.textMuted,
-    textAlign: "center",
-    marginTop: spacing.md,
-  },
-});

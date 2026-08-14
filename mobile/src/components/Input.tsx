@@ -8,8 +8,8 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from "react-native";
-import { colors, radii, spacing, typography } from "../theme/colors";
-import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "../theme/ThemeContext";
+import { Icon } from "./icons";
 
 interface InputProps extends TextInputProps {
   label: string;
@@ -35,26 +35,43 @@ export function Input({
   value,
   ...props
 }: InputProps) {
+  const { theme } = useTheme();
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const colors = theme.colors;
   const isPassword = secureTextEntry;
   const hasValue = typeof value === "string" && value.length > 0;
   const showValidCheck = valid && hasValue && !error;
 
+  const borderColor = error
+    ? colors.error
+    : showValidCheck
+      ? colors.success
+      : focused
+        ? colors.accent
+        : colors.border;
+
   return (
     <View style={[styles.container, containerStyle]}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
       <View
         style={[
           styles.inputWrapper,
-          focused && styles.inputFocused,
-          error && styles.inputError,
-          showValidCheck && styles.inputValid,
+          {
+            backgroundColor: colors.surface,
+            borderColor,
+            borderRadius: theme.radii.md,
+          },
+          focused && {
+            ...(theme.mode === "glass"
+              ? { boxShadow: `0 0 0 3px ${colors.accent}33` }
+              : { boxShadow: `0 0 0 3px ${colors.accent}55` }),
+          },
         ]}
       >
         <TextInput
-          style={styles.input}
+          style={[styles.input, { color: colors.textPrimary }]}
           placeholderTextColor={colors.textMuted}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
@@ -66,71 +83,63 @@ export function Input({
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
             style={styles.iconBtn}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons
-              name={showPassword ? "eye-off-outline" : "eye-outline"}
+            <Icon
+              name={showPassword ? "eyeOff" : "eye"}
               size={20}
               color={colors.textMuted}
             />
           </TouchableOpacity>
         ) : showValidCheck ? (
           <View style={styles.iconBtn}>
-            <Ionicons
-              name="checkmark-circle"
-              size={20}
-              color={colors.success}
-            />
+            <Icon name="check" size={20} color={colors.success} />
           </View>
         ) : rightIcon ? (
           <View style={styles.iconBtn}>{rightIcon}</View>
         ) : null}
       </View>
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {hint && !error ? <Text style={styles.hint}>{hint}</Text> : null}
+      {error ? (
+        <Text style={[styles.error, { color: colors.error }]}>{error}</Text>
+      ) : null}
+      {hint && !error ? (
+        <Text style={[styles.hint, { color: colors.textMuted }]}>{hint}</Text>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { marginBottom: spacing.md },
+  container: { marginBottom: 16 },
   label: {
-    ...typography.captionBold,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 6,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.surface,
     borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: radii.md,
   },
-  inputFocused: {
-    borderColor: colors.primary,
-    backgroundColor: colors.surfaceAlt,
-  },
-  inputError: { borderColor: colors.error },
-  inputValid: { borderColor: colors.success },
   input: {
     flex: 1,
-    ...typography.body,
-    color: colors.textPrimary,
-    paddingVertical: spacing.md - 2,
-    paddingHorizontal: spacing.md,
+    fontSize: 16,
+    lineHeight: 24,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
   },
   iconBtn: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   error: {
-    ...typography.caption,
-    color: colors.error,
-    marginTop: spacing.xs,
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 6,
   },
   hint: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: spacing.xs,
+    fontSize: 13,
+    lineHeight: 18,
+    marginTop: 6,
   },
 });

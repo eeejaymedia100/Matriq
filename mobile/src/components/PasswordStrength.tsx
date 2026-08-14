@@ -1,55 +1,54 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, typography } from "../theme/colors";
+import { View, Text } from "react-native";
+import { useTheme } from "../theme/ThemeContext";
+import { Icon } from "./icons";
 
 interface PasswordStrengthProps {
   password: string;
 }
 
-interface Rule {
-  label: string;
-  ok: boolean;
-}
-
-const RULES: Omit<Rule, "ok">[] = [
-  { label: "At least 8 characters" },
-  { label: "One uppercase letter (A–Z)" },
-  { label: "One lowercase letter (a–z)" },
-  { label: "One number (0–9)" },
-  { label: "One symbol (! @ # $ …)" },
+const RULES: { label: string; test: (p: string) => boolean }[] = [
+  { label: "At least 8 characters", test: (p) => p.length >= 8 },
+  { label: "One uppercase letter (A–Z)", test: (p) => /[A-Z]/.test(p) },
+  { label: "One lowercase letter (a–z)", test: (p) => /[a-z]/.test(p) },
+  { label: "One number (0–9)", test: (p) => /[0-9]/.test(p) },
+  { label: "One symbol (! @ # $ …)", test: (p) => /[^A-Za-z0-9]/.test(p) },
 ];
 
 export function PasswordStrength({ password }: PasswordStrengthProps) {
-  const rules: Rule[] = [
-    { ...RULES[0], ok: password.length >= 8 },
-    { ...RULES[1], ok: /[A-Z]/.test(password) },
-    { ...RULES[2], ok: /[a-z]/.test(password) },
-    { ...RULES[3], ok: /[0-9]/.test(password) },
-    { ...RULES[4], ok: /[^A-Za-z0-9]/.test(password) },
-  ];
+  const { theme } = useTheme();
+  const colors = theme.colors;
 
+  const rules = RULES.map((r) => ({ ...r, ok: r.test(password) }));
   const met = rules.filter((r) => r.ok).length;
   const allMet = met === rules.length;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>
-        {allMet
-          ? "Password looks good"
-          : `Password must include (${met}/${rules.length})`}
+    <View
+      style={{
+        backgroundColor: colors.surfaceAlt,
+        borderRadius: 10,
+        padding: 16,
+        marginBottom: 16,
+        gap: 6,
+        borderWidth: 1,
+        borderColor: allMet ? colors.success + "44" : colors.border,
+      }}
+    >
+      <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginBottom: 2 }]}>
+        {allMet ? "Password looks good" : `Password must include (${met}/${rules.length})`}
       </Text>
       {rules.map((rule) => (
-        <View key={rule.label} style={styles.rule}>
-          <Ionicons
-            name={rule.ok ? "checkmark-circle" : "ellipse-outline"}
-            size={16}
+        <View key={rule.label} style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Icon
+            name={rule.ok ? "check" : "dot"}
+            size={15}
             color={rule.ok ? colors.success : colors.textMuted}
           />
           <Text
             style={[
-              styles.ruleText,
-              rule.ok ? styles.ruleOk : styles.rulePending,
+              theme.typography.caption,
+              { color: rule.ok ? colors.success : colors.textMuted },
             ]}
           >
             {rule.label}
@@ -59,22 +58,3 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: 10,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    gap: spacing.xs + 2,
-  },
-  heading: {
-    ...typography.captionBold,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  rule: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  ruleText: { ...typography.caption },
-  ruleOk: { color: colors.success },
-  rulePending: { color: colors.textMuted },
-});

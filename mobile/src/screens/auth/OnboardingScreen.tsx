@@ -2,56 +2,60 @@ import React, { useRef, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Dimensions,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import * as SecureStore from "expo-secure-store";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { useTheme } from "../../theme/ThemeContext";
+import { TAGLINE } from "../../theme/tokens";
 import { Button } from "../../components";
+import { Icon, type IconName } from "../../components/icons";
+import { setItem, getItem } from "../../utils/storage";
 
 export const ONBOARDING_SEEN_KEY = "onboarding_seen";
 
 interface Slide {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   title: string;
   body: string;
 }
 
 const SLIDES: Slide[] = [
   {
-    icon: "people",
-    title: "Join your association",
-    body: "Verify your student identity and join your department or faculty association in minutes — no paper forms.",
+    icon: "sparkle",
+    title: "Your AI, even offline.",
+    body: "Download a small model once, then ask questions anywhere — lectures, road trips, dead spots. No internet needed.",
   },
   {
-    icon: "wallet",
-    title: "Dues, receipts & updates",
-    body: "Pay dues securely, get instant QR receipts, and never miss an announcement, event, or deadline.",
+    icon: "vault",
+    title: "The Vault.",
+    body: "Past questions and study materials shared by students like you. Search by course code, grab light versions when data is scarce.",
   },
   {
-    icon: "sparkles",
-    title: "Your AI study companion",
-    body: "Ask questions and get answers grounded in your association's approved study materials, anytime.",
+    icon: "zap",
+    title: "Built for Nigerian data.",
+    body: "Offline-first and light. Everything that matters keeps working when the network doesn't.",
   },
 ];
 
 interface Props {
-  navigation: { reset: (state: { index: number; routes: { name: string }[] }) => void };
+  navigation: {
+    reset: (state: { index: number; routes: { name: string }[] }) => void;
+  };
 }
 
 export function OnboardingScreen({ navigation }: Props) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
   const [index, setIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
   const finish = async () => {
     try {
-      await SecureStore.setItemAsync(ONBOARDING_SEEN_KEY, "1");
+      await setItem(ONBOARDING_SEEN_KEY, "1");
     } catch {
       // Non-fatal: user sees onboarding again next launch.
     }
@@ -74,11 +78,23 @@ export function OnboardingScreen({ navigation }: Props) {
   const isLast = index === SLIDES.length - 1;
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.topBar}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          paddingHorizontal: 24,
+          paddingTop: 16,
+        }}
+      >
         {!isLast ? (
-          <TouchableOpacity onPress={() => void finish()} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-            <Text style={styles.skip}>Skip</Text>
+          <TouchableOpacity
+            onPress={() => void finish()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Text style={[theme.typography.captionBold, { color: colors.textMuted }]}>
+              Skip
+            </Text>
           </TouchableOpacity>
         ) : (
           <View />
@@ -93,24 +109,91 @@ export function OnboardingScreen({ navigation }: Props) {
         onMomentumScrollEnd={onScroll}
       >
         {SLIDES.map((slide) => (
-          <View key={slide.title} style={styles.slide}>
-            <View style={styles.iconCircle}>
-              <Ionicons name={slide.icon} size={56} color={colors.primary} />
+          <View key={slide.title} style={[styles.slide, { width }]}>
+            <View
+              style={{
+                width: 132,
+                height: 132,
+                borderRadius: 999,
+                backgroundColor: colors.surfaceAlt,
+                borderWidth: 1,
+                borderColor: colors.border,
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 32,
+                boxShadow:
+                  theme.mode === "glass"
+                    ? "0 0 60px rgba(198,255,61,0.12)"
+                    : "3px 3px 0 rgba(23,11,38,0.15)",
+              }}
+            >
+              <Icon name={slide.icon} size={54} color={colors.accent} strokeWidth={1.7} />
             </View>
-            <Text style={styles.title}>{slide.title}</Text>
-            <Text style={styles.body}>{slide.body}</Text>
+            <Text
+              style={[
+                theme.typography.display,
+                { color: colors.textPrimary, textAlign: "center", marginBottom: 14 },
+              ]}
+            >
+              {slide.title}
+            </Text>
+            <Text
+              style={[
+                theme.typography.body,
+                { color: colors.textSecondary, textAlign: "center", lineHeight: 25, maxWidth: 320 },
+              ]}
+            >
+              {slide.body}
+            </Text>
           </View>
         ))}
       </ScrollView>
 
-      <View style={styles.dots}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          gap: 8,
+          marginBottom: 24,
+        }}
+      >
         {SLIDES.map((_, i) => (
-          <View key={i} style={[styles.dot, i === index && styles.dotActive]} />
+          <View
+            key={i}
+            style={{
+              width: i === index ? 22 : 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: i === index ? colors.accent : colors.border,
+            }}
+          />
         ))}
       </View>
 
-      <View style={styles.footer}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
         <Button title={isLast ? "Get Started" : "Next"} onPress={next} size="lg" />
+        <Text
+          style={[
+            theme.typography.caption,
+            { color: colors.textMuted, textAlign: "center", marginTop: 16 },
+          ]}
+        >
+          Pay association dues in one tap — instant QR receipts.
+        </Text>
+        <Text
+          style={[
+            theme.typography.small,
+            {
+              color: colors.textMuted,
+              textAlign: "center",
+              marginTop: 8,
+              letterSpacing: 1,
+              textTransform: "uppercase",
+            },
+          ]}
+        >
+          {TAGLINE}
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -118,63 +201,11 @@ export function OnboardingScreen({ navigation }: Props) {
 
 const { width } = Dimensions.get("window");
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-  },
-  skip: { ...typography.captionBold, color: colors.textMuted },
+const styles = {
   slide: {
-    width,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: spacing.xl,
-    paddingBottom: spacing.lg,
+    alignItems: "center" as const,
+    justifyContent: "center" as const,
+    paddingHorizontal: 32,
+    paddingBottom: 16,
   },
-  iconCircle: {
-    width: 132,
-    height: 132,
-    borderRadius: radii.full,
-    backgroundColor: colors.primaryLight + "33",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xl,
-  },
-  title: {
-    ...typography.h1,
-    color: colors.textPrimary,
-    fontSize: 26,
-    textAlign: "center",
-    marginBottom: spacing.md,
-  },
-  body: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: "center",
-    lineHeight: 24,
-    maxWidth: 320,
-  },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: radii.full,
-    backgroundColor: colors.border,
-  },
-  dotActive: {
-    backgroundColor: colors.primary,
-    width: 22,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  },
-});
+};

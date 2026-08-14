@@ -1,5 +1,5 @@
 import Constants from "expo-constants";
-import * as SecureStore from "expo-secure-store";
+import { getItem, setItem, deleteItem } from "../utils/storage";
 
 // API base URL: app.json extra.apiUrl is honoured when present (dev
 // manifests always carry it). Release builds embed config at prebuild
@@ -31,7 +31,7 @@ interface StoredTokens {
 
 async function getTokens(): Promise<StoredTokens | null> {
   try {
-    const raw = await SecureStore.getItemAsync(TOKEN_KEY);
+    const raw = await getItem(TOKEN_KEY);
     return raw ? (JSON.parse(raw) as StoredTokens) : null;
   } catch {
     return null;
@@ -39,11 +39,11 @@ async function getTokens(): Promise<StoredTokens | null> {
 }
 
 async function saveTokens(tokens: StoredTokens): Promise<void> {
-  await SecureStore.setItemAsync(TOKEN_KEY, JSON.stringify(tokens));
+  await setItem(TOKEN_KEY, JSON.stringify(tokens));
 }
 
 export async function clearTokens(): Promise<void> {
-  await SecureStore.deleteItemAsync(TOKEN_KEY);
+  await deleteItem(TOKEN_KEY);
 }
 
 // ── Errors ─────────────────────────────────────────────────────

@@ -10,12 +10,13 @@ export type AuthStackParamList = {
   VerifyEmail: { email: string };
 };
 
+/** Bottom nav — five tabs (spec §3): Home · Vault · Tools · Study · Settings. */
 export type MainTabParamList = {
-  Dashboard: undefined;
-  Fees: undefined;
-  Announcements: undefined;
-  Events: undefined;
-  AI: undefined;
+  Home: undefined;
+  Vault: undefined;
+  Tools: undefined;
+  Study: undefined;
+  Settings: undefined;
 };
 
 export type MainStackParamList = {
@@ -26,6 +27,8 @@ export type MainStackParamList = {
   Referrals: undefined;
   Profile: undefined;
   Explore: undefined;
+  Events: undefined;
+  Fees: undefined;
   VerificationUpload: undefined;
   VerificationStatus: undefined;
   OfflineModels: undefined;

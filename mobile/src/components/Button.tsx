@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   TouchableOpacity,
   Text,
@@ -7,7 +7,12 @@ import {
   type ViewStyle,
   type TextStyle,
 } from "react-native";
-import { colors, radii, typography, spacing } from "../theme/colors";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import { useTheme } from "../theme/ThemeContext";
 
 interface ButtonProps {
   title: string;
@@ -21,6 +26,13 @@ interface ButtonProps {
   fullWidth?: boolean;
 }
 
+/**
+ * Theme-aware button.
+ * - primary → lime accent (Pop: ink sticker border + offset shadow that
+ *   collapses on press; Glass: lime with soft glow) — the "look here" action.
+ * - secondary → purple brand.
+ * - outline / ghost → quiet alternatives.
+ */
 export function Button({
   title,
   onPress,
@@ -32,69 +44,122 @@ export function Button({
   textStyle,
   fullWidth = true,
 }: ButtonProps) {
-  const btnStyle = [
-    styles.base,
-    styles[variant],
-    styles[`size_${size}`],
-    fullWidth && styles.fullWidth,
-    disabled && styles.disabled,
-    style,
-  ];
+  const { theme, isGlass } = useTheme();
+  const [pressed, setPressed] = useState(false);
+  const scale = useSharedValue(1);
 
-  const labelStyle = [
-    styles.label,
-    styles[`label_${variant}`],
-    styles[`labelSize_${size}`],
-    disabled && styles.labelDisabled,
-    textStyle,
-  ];
+  const colors = theme.colors;
+
+  const base: ViewStyle = {
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: theme.radii.md,
+    flexDirection: "row",
+  };
+
+  const variantStyle: ViewStyle =
+    variant === "primary"
+      ? {
+          backgroundColor: colors.accent,
+          ...(theme.mode === "pop"
+            ? {
+                borderWidth: 2,
+                borderColor: colors.borderStrong,
+                boxShadow: pressed
+                  ? "1px 1px 0 #170B26"
+                  : "4px 4px 0 #170B26",
+              }
+            : {
+                boxShadow:
+                  "0 6px 24px rgba(198,255,61,0.22), 0 2px 6px rgba(0,0,0,0.35)",
+              }),
+        }
+      : variant === "secondary"
+        ? {
+            backgroundColor: isGlass ? colors.surfaceAlt : colors.brand,
+            ...(theme.mode === "pop"
+              ? { borderWidth: 2, borderColor: colors.borderStrong }
+              : { borderWidth: 1, borderColor: colors.border }),
+          }
+        : variant === "outline"
+          ? {
+              backgroundColor: "transparent",
+              borderWidth: 1.5,
+              borderColor: colors.borderStrong,
+            }
+          : { backgroundColor: "transparent" };
+
+  const sizeStyle: ViewStyle =
+    size === "sm"
+      ? { paddingVertical: theme.spacing.sm, paddingHorizontal: theme.spacing.md }
+      : size === "md"
+        ? {
+            paddingVertical: theme.spacing.md - 2,
+            paddingHorizontal: theme.spacing.lg,
+          }
+        : {
+            paddingVertical: theme.spacing.md + 2,
+            paddingHorizontal: theme.spacing.xl,
+          };
+
+  const labelColor =
+    variant === "primary"
+      ? "#170B26"
+      : variant === "secondary"
+        ? isGlass
+          ? colors.textPrimary
+          : "#FFFFFF"
+        : colors.textPrimary;
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const handlePressIn = () => {
+    setPressed(true);
+    scale.value = withSpring(0.96, { damping: 20, stiffness: 340, mass: 0.4 });
+  };
+  const handlePressOut = () => {
+    setPressed(false);
+    scale.value = withSpring(1, { damping: 12, stiffness: 220, mass: 0.5 });
+  };
 
   return (
-    <TouchableOpacity
-      style={btnStyle}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
+    <Animated.View
+      style={[
+        fullWidth && { width: "100%" },
+        disabled && { opacity: 0.5 },
+        animatedStyle,
+      ]}
     >
-      {loading ? (
-        <ActivityIndicator
-          color={variant === "outline" || variant === "ghost" ? colors.primary : colors.textOnPrimary}
-          size="small"
-        />
-      ) : (
-        <Text style={labelStyle}>{title}</Text>
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={[base, variantStyle, sizeStyle, style]}
+        onPress={onPress}
+        disabled={disabled || loading}
+        activeOpacity={0.85}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        {loading ? (
+          <ActivityIndicator color={labelColor} size="small" />
+        ) : (
+          <Text
+            style={[
+              {
+                fontFamily: theme.typography.bodyBold.fontFamily,
+                fontSize: size === "sm" ? 13 : size === "md" ? 15 : 17,
+                lineHeight: size === "lg" ? 24 : 20,
+                color: labelColor,
+              },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
-const styles = StyleSheet.create({
-  base: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: radii.md,
-    flexDirection: "row",
-  },
-  primary: { backgroundColor: colors.primary },
-  secondary: { backgroundColor: colors.accent },
-  outline: {
-    backgroundColor: "transparent",
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-  },
-  ghost: { backgroundColor: "transparent" },
-  size_sm: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
-  size_md: { paddingVertical: spacing.md - 2, paddingHorizontal: spacing.lg },
-  size_lg: { paddingVertical: spacing.md + 2, paddingHorizontal: spacing.xl },
-  fullWidth: { width: "100%" },
-  disabled: { opacity: 0.5 },
-  label: { ...typography.bodyBold },
-  label_primary: { color: colors.textOnPrimary },
-  label_secondary: { color: colors.textOnAccent },
-  label_outline: { color: colors.primary },
-  label_ghost: { color: colors.primary },
-  labelSize_sm: { ...typography.captionBold },
-  labelSize_md: { ...typography.bodyBold },
-  labelSize_lg: { ...typography.h3 },
-  labelDisabled: { opacity: 0.7 },
-});
+const styles = StyleSheet.create({});

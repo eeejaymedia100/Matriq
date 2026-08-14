@@ -5,7 +5,12 @@
     "version": "0.4.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "name": "Matriq"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -45,7 +50,8 @@
           "forceCxx20": true,
           "enableEntitlements": false
         }
-      ]
+      ],
+      "expo-font"
     ],
     "extra": {
       "apiUrl": "http://35.204.163.157/v1"

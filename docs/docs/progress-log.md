@@ -4,6 +4,80 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-14 — OVERHAUL PASS (matriq-complete-spec.md) — Stage 0/1: foundation + design system + 5-tab nav + theme picker
+
+**Status:** foundation stage DONE (tsc green, web + Android bundles export, code-reviewed).
+This is the first stage of a staged overhaul driven by `matriq-complete-spec.md` (committed to
+repo root). Execution order per spec §16: foundation first, then P0 → P1 → P2, each stage
+validated before the next.
+
+**Did (Stage 0/1 — Sections 2–4 core, 8/9 partial):**
+- **Design system “Glass & Pop” (spec §2).** `mobile/src/theme/`:
+  `tokens.ts` (exact hexes: purple-950 #14061F, purple-600 #55278F, purple-500 #7B4BC4,
+  lime-500 #C6FF3D, lime-400 #DBFF7A, ink #170B26, paper #F5F1FB), `themes.ts` (full Glass +
+  Pop theme objects: palettes, Plus Jakarta Sans typography 400–800, radii, spacing, motion
+  easings — Glass 400–600ms cubic-bezier(.16,1,.3,1) / Pop 150–250ms cubic-bezier(.34,1.56,.64,1),
+  shadows: Glass soft float, Pop clay dual + brutalist sticker w/ press collapse), `ThemeContext.tsx`
+  (persisted choice, `hasThemeChoice` gate, font loading via `@expo-google-fonts/plus-jakarta-sans`).
+- **Inline SVG icons (spec §2 — no icon fonts).** `mobile/src/components/icons.tsx`: 55+
+  hand-drawn lucide-style glyphs via react-native-svg; the filled four-point `sparkle` is
+  reserved for AI-touched surfaces only. New UI uses zero Ionicons (legacy screens still do
+  until their stage).
+- **Theme picker = very first screen (spec §4).** Neutral gradient bg, two living preview
+  cards (Glass: breathing lime blob behind frosted surface; Pop: clay dot + ink sticker
+  border). Choosing applies the theme instantly (no wrong-theme flash) then flows to onboarding.
+- **Onboarding reworked (spec §4).** 3 promise slides (offline AI / Vault / low-data),
+  ONE quiet dues line, tagline “The smart way.” everywhere (loading, onboarding, Welcome, Settings).
+- **5-tab bottom nav (spec §3): Home · Vault · Tools · Study · Settings.**
+  `navigation/LiquidTabBar.tsx` — signature moment: a soft lime blob that slides + stretches
+  to the active icon (reanimated spring, no jump) in Glass; ink icon + lime clay dot in Pop.
+  SVG icons, safe-area aware, first-paint blob placement (no left-edge flash).
+- **Web is first-class (spec §0).** Installed react-native-web + react-dom + @expo/metro-runtime;
+  app.json `userInterfaceStyle: automatic` + web block. New `utils/storage.ts` wrapper
+  (SecureStore native / localStorage web) — **api/client.ts token storage migrated to it**
+  (reviewer catch: web auth would have broken), UpdateOverlay made web-safe (Android-only,
+  hooks-order-correct). `ConfirmSheet` (Alert replacement — Alert doesn't exist on web) renders
+  position:fixed on web / Modal on native.
+- **Core components re-themed** (Button w/ Pop sticker press + Glass glow, Input w/ live
+  valid/error + focus glow, Card→Surface, ErrorBanner, PasswordStrength, LoadingScreen,
+  WheelPicker) + new `Surface` (card/sticker variants) + `AmbientBlobs` (slow-drifting lime/
+  violet/magenta blobs behind Glass, prefers-reduced-motion aware, SVG radial gradients).
+- **Auth flow re-themed.** Welcome, Login (MFA code now uses the new `OtpInput`), RegisterChoice,
+  RegisterStaylite/Fresher (+ required **Terms checkbox** — spec §4/§14 trigger), VerifyEmail
+  (6 individual OTP boxes — paste support, auto-advance, auto-submit, 30s resend countdown
+  inline beside “Didn't get the code?”), CompleteProfile (DOB wheels).
+- **New tabs:** Home (spec §6 skeleton: avatar/name/live clock/status badge, My To-Do's with
+  real offline-AI completion, rotating-fact hero or nudge, Vault/next-class/What's-new links —
+  NO dues card), Vault (spec §7 surface + search + Public/Private + smart-storage copy),
+  Tools (spec §8: tools grid “Soon” + **live School Portal link** (verified 200,
+  `portal.delsuces.online/Defaultt`) + **Portal Services → WhatsApp** with per-action
+  prefilled messages, number stored once in `constants/portal.ts`), Study (spec §9: shared
+  fact card, offline-AI setup block w/ model download sizes + **provisional RAM notes**,
+  web shows “not on web yet”; extras listed), Settings (spec §10: Appearance with the
+  “Changing the Perspective → Narrative → Objective” sequence then theme applies,
+  Profile/Dues/Notifications/Data & Offline/Verification/Terms/Help rows, Sign Out via
+  ConfirmSheet, Delete Account type-to-confirm + 6-month copy → structured “not ready yet”
+  notice until the backend flow lands).
+- **Validation:** mobile tsc clean; `expo export` web (2.6MB) + android (hermes hbc) both
+  bundle; code-reviewed — fixed: web SecureStore auth break, delete type-to-confirm not
+  enforced, tab-bar first-paint flash, dead code, web Modal.
+
+**Next (Stage 2/3):** passcode/session system (spec §5: 3-hour “Welcome back” gate, last-exit
+AppState tracking, 6-digit passcode set right after email verification; passcode-only per
+user's answer — no biometrics) → then Home completion wiring + Vault backend (Stage 4/5).
+
+**Blockers/flags (per spec §1/§14, user-confirmed):**
+- Offline AI: ship verified download sizes + neutral copy; RAM notes marked provisional —
+  user will test on a low-end device and we lock the final numbers.
+- Terms of Use: user pasted the Termly export in chat (truncated by the messenger) — hosted
+  pages `matriq.com.ng/terms.html` + `privacy.html` are the live targets; re-paste the full
+  export when convenient. A Privacy Policy may need creating alongside.
+- Legacy screens (Fees/Events/Profile/Verification/OfflineModels/Announcements/Payments) still
+  render the old palette + Ionicons — they migrate in their stages; theme switch looks partial
+  until then.
+- Home to-do “all done → hide section + badge” is unreachable this stage (timetable/materials/
+  photo completion wiring comes with their features).
+
 ## 2026-08-13 — Offline on-device AI (llama.rn) — models downloaded by the user, not bundled; AI works with no internet
 
 **Status:** DONE — v0.4.0 APK built (llama.rn native engine baked in), deployed live, update manifest rolled out

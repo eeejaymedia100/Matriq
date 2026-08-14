@@ -2,27 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { colors, spacing, typography, radii } from "../../theme/colors";
-import { Input, Button, ErrorBanner } from "../../components";
+import { useTheme } from "../../theme/ThemeContext";
+import { Button, ErrorBanner, OtpInput } from "../../components";
+import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import type { AuthStackParamList } from "../../navigation/types";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "VerifyEmail">;
 
-/** Max wait before the "Resend code" link re-enables (30s). */
+/** Max wait before the "Resend code" link re-enables (30s — spec §1). */
 const RESEND_COOLDOWN_S = 30;
 
 export function VerifyEmailScreen({ route, navigation }: Props) {
   const { verifyEmail, resendVerification } = useAuth();
+  const { theme } = useTheme();
+  const colors = theme.colors;
   const email = (route.params?.email ?? "").trim().toLowerCase();
 
   const [code, setCode] = useState("");
@@ -45,9 +46,10 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
     return () => clearInterval(id);
   }, []);
 
-  const handleVerify = async () => {
+  const handleVerify = async (fullCode?: string) => {
     setError(null);
-    if (code.length !== 6) {
+    const finalCode = fullCode ?? code;
+    if (finalCode.length !== 6) {
       setError({
         title: "Enter the 6-digit code",
         message: "The code we emailed you has 6 digits.",
@@ -58,7 +60,7 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
 
     setLoading(true);
     try {
-      await verifyEmail(code);
+      await verifyEmail(finalCode);
       // Success: isAuthenticated flips, AppNavigator swaps to the main app.
     } catch (err) {
       setError(formatApiError(err));
@@ -76,7 +78,6 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
       const msg = await resendVerification(email);
       setInfo(msg);
       setCode("");
-      // Reset the 30s countdown.
       cooldownRef.current = RESEND_COOLDOWN_S;
       setCooldown(RESEND_COOLDOWN_S);
     } catch (err) {
@@ -86,75 +87,119 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
     }
   };
 
-  const formatCountdown = (s: number) =>
-    `0:${s.toString().padStart(2, "0")}`;
+  const formatCountdown = (s: number) => `0:${s.toString().padStart(2, "0")}`;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1 }}
       >
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={{ flexGrow: 1, padding: 24, paddingTop: 48 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View style={styles.header}>
-            <View style={styles.iconWrap}>
-              <Ionicons name="mail-outline" size={28} color={colors.primary} />
+          <View style={{ alignItems: "center", marginBottom: 24 }}>
+            <View
+              style={{
+                width: 64,
+                height: 64,
+                borderRadius: 999,
+                backgroundColor: colors.surfaceAlt,
+                borderWidth: 1,
+                borderColor: colors.border,
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 16,
+              }}
+            >
+              <Icon name="mail" size={28} color={colors.brand} />
             </View>
-            <Text style={styles.title}>Verify your email</Text>
-            <Text style={styles.subtitle}>{info}</Text>
+            <Text style={[theme.typography.h1, { color: colors.textPrimary, textAlign: "center" }]}>
+              Verify your email
+            </Text>
+            <Text
+              style={[
+                theme.typography.body,
+                { color: colors.textSecondary, marginTop: 4, textAlign: "center", lineHeight: 22 },
+              ]}
+            >
+              {info}
+            </Text>
           </View>
 
           {error ? <ErrorBanner error={error} /> : null}
 
-          <View style={styles.form}>
-            <Input
-              label="Verification code"
-              placeholder="••••••"
-              keyboardType="number-pad"
-              maxLength={6}
+          <View style={{ gap: 12 }}>
+            <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginBottom: 4 }]}>
+              Verification code
+            </Text>
+            <OtpInput
               value={code}
-              onChangeText={(t) => {
-                setCode(t.replace(/[^0-9]/g, ""));
+              onChange={(v) => {
+                setCode(v);
                 if (error) setError(null);
               }}
-              onSubmitEditing={handleVerify}
-              valid={code.length === 6}
+              onComplete={handleVerify}
             />
-            <Button
-              title="Verify & Continue"
-              onPress={handleVerify}
-              loading={loading}
-              size="lg"
-            />
+            <View style={{ marginTop: 8 }}>
+              <Button
+                title="Verify & Continue"
+                onPress={() => handleVerify()}
+                loading={loading}
+                size="lg"
+              />
+            </View>
 
             {/* Resend — countdown sits right beside "Didn't get the code?" */}
-            <View style={styles.resendRow}>
-              <Text style={styles.resendHint}>Didn't get the code? </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                flexWrap: "wrap",
+                marginTop: 8,
+              }}
+            >
+              <Text style={[theme.typography.body, { color: colors.textSecondary }]}>
+                Didn't get the code?{" "}
+              </Text>
               {cooldown > 0 ? (
-                <Text style={styles.countdown}>
+                <Text style={[theme.typography.bodyBold, { color: colors.textMuted }]}>
                   Resend in {formatCountdown(cooldown)}
                 </Text>
               ) : (
-                <Text style={styles.link} onPress={handleResend}>
+                <Text
+                  style={[theme.typography.bodyBold, { color: colors.brand }]}
+                  onPress={handleResend}
+                >
                   {resending ? "Sending..." : "Resend code"}
                 </Text>
               )}
             </View>
           </View>
 
-          <View style={styles.spamHint}>
-            <Ionicons name="information-circle-outline" size={16} color={colors.textMuted} />
-            <Text style={styles.spamHintText}>
-              Can't find it? Check your spam or junk folder — it can take a
-              minute to arrive.
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+              backgroundColor: colors.surfaceAlt,
+              borderRadius: 14,
+              padding: 16,
+              marginTop: 32,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <Icon name="info" size={16} color={colors.textMuted} />
+            <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1, lineHeight: 18 }]}>
+              Can't find it? Check your spam or junk folder — it can take a minute to arrive.
             </Text>
           </View>
 
           <Text
-            style={styles.backLink}
+            style={[theme.typography.body, { color: colors.textMuted, textAlign: "center", marginTop: 32 }]}
             onPress={() => navigation.navigate("Login")}
           >
             ← Back to sign in
@@ -164,62 +209,3 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: {
-    flexGrow: 1,
-    padding: spacing.lg,
-    paddingTop: spacing.xxl,
-  },
-  header: { alignItems: "center", marginBottom: spacing.lg },
-  iconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: radii.full,
-    backgroundColor: colors.primaryLight + "22",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.md,
-  },
-  title: { ...typography.h1, color: colors.textPrimary, textAlign: "center" },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  form: { gap: spacing.sm },
-  resendRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginTop: spacing.md,
-  },
-  resendHint: { ...typography.body, color: colors.textSecondary },
-  countdown: { ...typography.bodyBold, color: colors.textMuted },
-  link: { ...typography.bodyBold, color: colors.primary },
-  spamHint: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginTop: spacing.xl,
-  },
-  spamHintText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    flex: 1,
-    lineHeight: 18,
-  },
-  backLink: {
-    ...typography.body,
-    color: colors.textMuted,
-    textAlign: "center",
-    marginTop: spacing.xl,
-  },
-});

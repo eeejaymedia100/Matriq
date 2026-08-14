@@ -1,7 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Linking } from "react-native";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { View, Text, SafeAreaView, Linking } from "react-native";
+import { useTheme } from "../../theme/ThemeContext";
+import { TAGLINE } from "../../theme/tokens";
 import { Button } from "../../components";
+import { Icon } from "../../components/icons";
 import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 interface WelcomeScreenProps {
@@ -9,20 +11,65 @@ interface WelcomeScreenProps {
 }
 
 export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <View style={styles.hero}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>M</Text>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "space-between",
+          padding: 24,
+          paddingTop: 96,
+          paddingBottom: 32,
+        }}
+      >
+        <View style={{ alignItems: "center", gap: 16 }}>
+          <View
+            style={{
+              width: 84,
+              height: 84,
+              borderRadius: 24,
+              backgroundColor: colors.brand,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 8,
+              boxShadow:
+                theme.mode === "pop"
+                  ? "4px 4px 0 #170B26"
+                  : "0 0 60px rgba(123,75,196,0.4)",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 38,
+                fontFamily: "PlusJakartaSans_800ExtraBold",
+                color: "#FFFFFF",
+              }}
+            >
+              M
+            </Text>
           </View>
-          <Text style={styles.title}>Matriq</Text>
-          <Text style={styles.subtitle}>
-            Your student association,{'\n'}simplified.
+          <Text
+            style={[
+              theme.typography.display,
+              { color: colors.textPrimary, fontSize: 36 },
+            ]}
+          >
+            Matriq
+          </Text>
+          <Text
+            style={[
+              theme.typography.body,
+              { color: colors.textSecondary, textAlign: "center", lineHeight: 27 },
+            ]}
+          >
+            Your student association,{"\n"}simplified.
           </Text>
         </View>
 
-        <View style={styles.actions}>
+        <View style={{ gap: 14 }}>
           <Button
             title="Sign In"
             onPress={() => navigation.navigate("Login")}
@@ -35,75 +82,45 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
             variant="outline"
             size="lg"
           />
+          <Text
+            style={[
+              theme.typography.small,
+              {
+                color: colors.textMuted,
+                textAlign: "center",
+                marginTop: 4,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+              },
+            ]}
+          >
+            {TAGLINE}
+          </Text>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            By continuing, you agree to our{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}>
-              Terms & Conditions
-            </Text>{" "}
-            and{" "}
-            <Text style={styles.link} onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}>
-              Privacy Policy
+        <View style={{ alignItems: "center", paddingHorizontal: 8 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+            <Icon name="shield" size={14} color={colors.textMuted} />
+            <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+              By continuing, you agree to our{" "}
+              <Text
+                style={{ color: colors.brand, fontWeight: "600", textDecorationLine: "underline" }}
+                onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}
+              >
+                Terms & Conditions
+              </Text>{" "}
+              and{" "}
+              <Text
+                style={{ color: colors.brand, fontWeight: "600", textDecorationLine: "underline" }}
+                onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}
+              >
+                Privacy Policy
+              </Text>
+              .
             </Text>
-            .
-          </Text>
+          </View>
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: {
-    flex: 1,
-    justifyContent: "space-between",
-    padding: spacing.lg,
-    paddingTop: spacing.xxl * 2,
-    paddingBottom: spacing.xl,
-  },
-  hero: { alignItems: "center", gap: spacing.md },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: radii.xl,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.sm,
-  },
-  logoText: {
-    fontSize: 36,
-    fontWeight: "700",
-    color: colors.textOnPrimary,
-  },
-  title: {
-    ...typography.h1,
-    color: colors.textPrimary,
-    fontSize: 36,
-  },
-  subtitle: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: "center",
-    lineHeight: 28,
-  },
-  actions: { gap: spacing.md },
-  footer: {
-    alignItems: "center",
-    paddingHorizontal: spacing.sm,
-  },
-  footerText: {
-    ...typography.caption,
-    color: colors.textMuted,
-    textAlign: "center",
-    lineHeight: 18,
-  },
-  link: {
-    color: colors.primary,
-    textDecorationLine: "underline",
-    fontWeight: "600",
-  },
-});

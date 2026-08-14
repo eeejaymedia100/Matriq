@@ -3,11 +3,10 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
-import { colors, spacing, typography } from "../theme/colors";
+import { useTheme } from "../theme/ThemeContext";
 
 interface WheelPickerProps {
   data: string[];
@@ -29,29 +28,23 @@ export function WheelPicker({
   itemHeight = 44,
   visibleItems = 5,
 }: WheelPickerProps) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
   const scrollRef = useRef<ScrollView>(null);
   const [active, setActive] = useState(selectedIndex);
   const height = itemHeight * visibleItems;
-  // Vertical padding so the first/last items can reach the center.
   const pad = Math.floor((height - itemHeight) / 2);
   const isMounted = useRef(false);
 
   const scrollToIndex = useCallback(
     (index: number, animated: boolean) => {
-      scrollRef.current?.scrollTo({
-        y: index * itemHeight,
-        animated,
-      });
+      scrollRef.current?.scrollTo({ y: index * itemHeight, animated });
     },
     [itemHeight],
   );
 
-  // Scroll the wheel to the selection when the parent changes it (e.g. a
-  // different month changes the day list).
   useEffect(() => {
-    if (isMounted.current) {
-      scrollToIndex(selectedIndex, true);
-    }
+    if (isMounted.current) scrollToIndex(selectedIndex, true);
   }, [selectedIndex, scrollToIndex]);
 
   const onLayout = () => {
@@ -61,9 +54,7 @@ export function WheelPicker({
     }
   };
 
-  const onScrollEnd = (
-    e: NativeSyntheticEvent<NativeScrollEvent>,
-  ): void => {
+  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>): void => {
     const y = e.nativeEvent.contentOffset.y;
     const index = Math.max(
       0,
@@ -74,11 +65,21 @@ export function WheelPicker({
   };
 
   return (
-    <View style={[styles.wheel, { height }]}>
-      {/* center highlight */}
+    <View style={{ height, overflow: "hidden" }}>
       <View
         pointerEvents="none"
-        style={[styles.highlight, { top: pad }]}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: pad,
+          height: itemHeight,
+          backgroundColor: colors.surfaceAlt,
+          borderTopWidth: 1,
+          borderBottomWidth: 1,
+          borderColor: colors.border,
+          borderRadius: 10,
+        }}
       />
       <ScrollView
         ref={scrollRef}
@@ -94,15 +95,18 @@ export function WheelPicker({
           const distance = Math.abs(i - active);
           const isActive = i === active;
           return (
-            <View
-              key={label}
-              style={{ height: itemHeight, justifyContent: "center" }}
-            >
+            <View key={label} style={{ height: itemHeight, justifyContent: "center" }}>
               <Text
                 style={[
-                  styles.item,
-                  isActive ? styles.itemActive : styles.itemInactive,
-                  { opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.3 },
+                  {
+                    fontFamily: isActive
+                      ? theme.typography.bodyBold.fontFamily
+                      : theme.typography.body.fontFamily,
+                    fontSize: 17,
+                    textAlign: "center",
+                    color: isActive ? colors.brand : colors.textPrimary,
+                    opacity: isActive ? 1 : distance === 1 ? 0.55 : 0.3,
+                  },
                 ]}
               >
                 {label}
@@ -114,32 +118,3 @@ export function WheelPicker({
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wheel: {
-    overflow: "hidden",
-  },
-  highlight: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    height: 44,
-    backgroundColor: colors.primaryLight + "1A",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.primaryLight + "55",
-    borderRadius: 10,
-  },
-  item: {
-    ...typography.body,
-    textAlign: "center",
-    fontSize: 17,
-  },
-  itemActive: {
-    color: colors.primary,
-    fontWeight: "700",
-  },
-  itemInactive: {
-    color: colors.textPrimary,
-  },
-});

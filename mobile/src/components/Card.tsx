@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet, type ViewStyle } from "react-native";
-import { colors, radii, spacing, typography } from "../theme/colors";
+import { View, Text, type ViewStyle } from "react-native";
+import { useTheme } from "../theme/ThemeContext";
+import { Surface } from "./Surface";
 
 interface CardProps {
   children?: React.ReactNode;
@@ -8,48 +9,59 @@ interface CardProps {
   subtitle?: string;
   style?: ViewStyle;
   headerRight?: React.ReactNode;
+  /** "sticker" gives the Pop brutalist hero treatment (ink border + offset shadow). */
+  variant?: "card" | "sticker";
+  onPress?: () => void;
 }
 
-export function Card({ children, title, subtitle, style, headerRight }: CardProps) {
+export function Card({
+  children,
+  title,
+  subtitle,
+  style,
+  headerRight,
+  variant = "card",
+  onPress,
+}: CardProps) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
   return (
-    <View style={[styles.card, style]}>
-      {(title ?? headerRight) ? (
+    <Surface
+      variant={variant}
+      pressable={!!onPress}
+      onPress={onPress}
+      style={[styles.card, style]}
+    >
+      {title ?? headerRight ? (
         <View style={styles.header}>
           <View style={styles.headerText}>
-            {title && <Text style={styles.title}>{title}</Text>}
-            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+            {title && (
+              <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
+                {title}
+              </Text>
+            )}
+            {subtitle && (
+              <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 2 }]}>
+                {subtitle}
+              </Text>
+            )}
           </View>
           {headerRight}
         </View>
       ) : null}
       {children}
-    </View>
+    </Surface>
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: colors.textPrimary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
+const styles = {
+  card: { padding: 16, marginBottom: 16 } as ViewStyle,
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    marginBottom: spacing.md,
-  },
-  headerText: { flex: 1 },
-  title: { ...typography.h3, color: colors.textPrimary },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-});
+    marginBottom: 16,
+  } as ViewStyle,
+  headerText: { flex: 1 } as ViewStyle,
+};

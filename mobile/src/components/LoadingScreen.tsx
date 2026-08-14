@@ -1,27 +1,35 @@
 import React from "react";
-import { View, Text, ActivityIndicator, StyleSheet } from "react-native";
-import { colors, typography, spacing } from "../theme/colors";
+import { View, Text, ActivityIndicator } from "react-native";
+import { useTheme } from "../theme/ThemeContext";
+import { TAGLINE } from "../theme/tokens";
+import { ThemedScreen } from "./Surface";
 
 interface LoadingScreenProps {
   message?: string;
 }
 
-export function LoadingScreen({ message = "Loading..." }: LoadingScreenProps) {
+export function LoadingScreen({ message = "Loading…" }: LoadingScreenProps) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
   return (
-    <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.text}>{message}</Text>
-    </View>
+    <ThemedScreen blobs={false}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 16,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.accent} />
+        <Text style={[theme.typography.body, { color: colors.textSecondary }]}>
+          {message}
+        </Text>
+        <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+          {TAGLINE}
+        </Text>
+      </View>
+    </ThemedScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: colors.bg,
-    gap: spacing.md,
-  },
-  text: { ...typography.body, color: colors.textSecondary },
-});
