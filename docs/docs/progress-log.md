@@ -4,6 +4,19 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — In-app update install fixed + shipped as v0.7.2 (build 10)
+
+**Status:** done + shipped. Root cause of "downloads to 117.54/117.54 but won't install" found and fixed.
+
+**Did:**
+- **Root cause:** the app's manifest never declared `android.permission.REQUEST_INSTALL_PACKAGES`. On Android 8.0+ that permission is required before an app can open the package installer for an APK, so the updater's `ACTION_VIEW` install was silently blocked (and Matriq never appeared in "Install unknown apps"). The APK itself was fine — debug-signed with the standard Android debug key (SHA-1 `5e8f16…`), stable across every build, so no signature mismatch.
+- **Fix:** added `REQUEST_INSTALL_PACKAGES` to `app.json` (`android.permissions`, the durable source) + the generated manifest; bumped to **0.7.2 / versionCode 10**. Also added an updater fallback: if the install launch fails, the prompt offers "Open install settings" (deep-links to `MANAGE_UNKNOWN_APP_SOURCES` for Matriq).
+- **Verified in the APK:** `aapt dump permissions` shows `REQUEST_INSTALL_PACKAGES`; versionCode 10 / 0.7.2; fallback copy embedded. Manifest bumped to v10 and served live; Telegram #444.
+
+**Important — one manual install is still needed:** the permission that gates the install is the one in the *running* app, not the downloaded APK. So the currently-installed build (which lacks it) can't self-heal. The user must install v0.7.2 once from `https://matriq.com.ng/download/matriq.apk` (browser/Downloads), then every future update installs in-app automatically.
+
+**Next:** none pending.
+
 ## 2026-08-15 — Timetable screen synced to server updates + shipped as v0.7.1 (build 9)
 
 **Status:** done + shipped. Follows the release flow from the entry below (bump → build → finalize).
