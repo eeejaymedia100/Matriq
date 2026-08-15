@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,15 @@ import {
   ScrollView,
   Pressable,
   TextInput,
+  ActivityIndicator,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
+import { api } from "../../api/client";
+import { formatApiError } from "../../utils/errors";
+import type { TimetableUpdate } from "../../types/api";
 import {
   getTimetable,
   addTimetableEntry,
@@ -40,6 +45,44 @@ export function TimetableScreen() {
   useEffect(() => {
     void getTimetable().then(setEntries);
   }, []);
+
+  // ── Server-pushed association updates (round-2 QA §2) ──────────
+  const [updates, setUpdates] = useState<TimetableUpdate[]>([]);
+  const [updatesLoading, setUpdatesLoading] = useState(true);
+  const [updatesError, setUpdatesError] = useState<{
+    title: string;
+    message: string;
+    action: string;
+  } | null>(null);
+
+  const loadUpdates = useCallback(async (showSpinner = false) => {
+    if (showSpinner) setUpdatesLoading(true);
+    try {
+      const memberships = await api.get<{
+        memberships: Array<{ association: { id: string } }>;
+      }>("/me/memberships");
+      const assoc = memberships.memberships[0]?.association;
+      if (!assoc) {
+        setUpdates([]);
+        return;
+      }
+      const data = await api.get<{ updates: TimetableUpdate[] }>(
+        `/associations/${assoc.id}/timetable-updates`,
+      );
+      setUpdates(data.updates);
+      setUpdatesError(null);
+    } catch (err) {
+      setUpdatesError(formatApiError(err));
+    } finally {
+      setUpdatesLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadUpdates();
+    }, [loadUpdates]),
+  );
 
   const submit = async () => {
     const s = labelToMinutes(start);
@@ -121,6 +164,116 @@ export function TimetableScreen() {
               </View>
             </View>
           ) : null}
+
+          {/* Association updates (server-pushed, scoped by dept/level) */}
+          <View style={{ marginTop: 22 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+                marginBottom: 10,
+              }}
+            >
+              <Icon name="megaphone" size={18} color={colors.accent} />
+              <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                Association updates
+              </Text>
+            </View>
+
+            {updatesLoading ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                  paddingVertical: 14,
+                }}
+              >
+                <ActivityIndicator size="small" color={colors.brand} />
+                <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+                  Checking for updates…
+                </Text>
+              </View>
+            ) : updatesError ? (
+              <View
+                style={{
+                  padding: 13,
+                  borderRadius: theme.radii.md,
+                  backgroundColor: colors.errorBg,
+                  borderWidth: 1,
+                  borderColor: colors.error + "44",
+                }}
+              >
+                <Text style={[theme.typography.captionBold, { color: colors.error }]}>
+                  {updatesError.title}
+                </Text>
+                <Text
+                  style={[
+                    theme.typography.caption,
+                    { color: colors.textSecondary, marginTop: 3, lineHeight: 17 },
+                  ]}
+                >
+                  {updatesError.message} {updatesError.action}
+                </Text>
+                <Pressable
+                  onPress={() => void loadUpdates(true)}
+                  hitSlop={8}
+                  style={{ marginTop: 8, alignSelf: "flex-start" }}
+                >
+                  <Text style={[theme.typography.captionBold, { color: colors.accent }]}>
+                    Try again
+                  </Text>
+                </Pressable>
+              </View>
+            ) : updates.length === 0 ? (
+              <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+                No updates yet — class changes from your association will appear
+                here.
+              </Text>
+            ) : (
+              <View style={{ gap: 10 }}>
+                {updates.map((u) => (
+                  <View
+                    key={u.id}
+                    style={{
+                      padding: 14,
+                      borderRadius: theme.radii.lg,
+                      backgroundColor: colors.surface,
+                      borderWidth: 1,
+                      borderColor: colors.border,
+                    }}
+                  >
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      <Icon name="calendar" size={15} color={colors.accent} />
+                      <Text
+                        style={[
+                          theme.typography.bodyBold,
+                          { color: colors.textPrimary, flex: 1 },
+                        ]}
+                      >
+                        {u.title}
+                      </Text>
+                      <Text style={[theme.typography.small, { color: colors.textMuted }]}>
+                        {timeAgo(u.createdAt)}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        theme.typography.caption,
+                        { color: colors.textSecondary, marginTop: 5, lineHeight: 18 },
+                      ]}
+                    >
+                      {u.body}
+                    </Text>
+                    <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 6 }]}>
+                      {scopeLabel(u)} · {u.author.name}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
 
           {/* Add form */}
           <View
@@ -270,6 +423,29 @@ export function TimetableScreen() {
       </SafeAreaView>
     </ThemedScreen>
   );
+}
+
+function scopeLabel(u: TimetableUpdate): string {
+  if (!u.department && !u.level) return "All students";
+  if (u.department && u.level) return `${u.department} · ${u.level}`;
+  return u.department
+    ? `${u.department} · all levels`
+    : `All departments · ${u.level}`;
+}
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+  });
 }
 
 function field(colors: import("../../theme/themes").MatriqThemeColors, radii: { md: number }) {

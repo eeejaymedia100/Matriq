@@ -40,6 +40,7 @@ const VALID_LINKS = new Set([
   "Vault",
   "Receipt",
   "Home",
+  "Timetable",
 ]);
 
 function timeAgo(iso: string): string {

@@ -117,6 +117,19 @@ export interface ApiError {
   error: { code: string; message: string };
 }
 
+/** Real-time class/timetable update pushed by an executive (round-2 QA §2). */
+export interface TimetableUpdate {
+  id: string;
+  title: string;
+  body: string;
+  /** null → all departments */
+  department: string | null;
+  /** null → all levels */
+  level: string | null;
+  createdAt: string;
+  author: { name: string; role: string };
+}
+
 /** In-app notification feed (round-2 QA §9). */
 export interface AppNotification {
   id: string;

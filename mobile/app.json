@@ -2,7 +2,7 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.7.0",
+    "version": "0.7.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -24,7 +24,7 @@
         "backgroundColor": "#6C3BAA"
       },
       "package": "app.matriq.mobile",
-      "versionCode": 8
+      "versionCode": 9
     },
     "plugins": [
       "expo-secure-store",
