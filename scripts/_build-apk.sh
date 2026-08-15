@@ -47,6 +47,40 @@ fi
 grep -q 'com.rnllama' android/app/proguard-rules.pro 2>/dev/null || \
   printf '\n# llama.rn\n-keep class com.rnllama.** { *; }\n' >> android/app/proguard-rules.pro
 
+# Strip the ~65 MB of redundant llama.rn CPU-variant .so files.
+# llama.rn ships 7 arm64 variants (v8, v8_2, dotprod, i8mm, hexagon…). Its
+# loader falls back to the generic librnllama.so + librnllama_jni.so on any
+# device, so the variants are pure bloat for the APK download. Excluding them
+# cuts the APK from ~117 MB to ~50 MB — a huge win for install reliability.
+python3 - <<'PY'
+import pathlib
+p = pathlib.Path('android/app/build.gradle')
+s = p.read_text()
+marker = "useLegacyPackaging enableLegacyPackaging.toBoolean()"
+if "librnllama_v8.so" not in s:
+    inject = '''        // llama.rn: drop per-CPU variants; the generic fallback runs everywhere.
+        excludes += [
+            "**/librnllama_v8.so",
+            "**/librnllama_v8_2.so",
+            "**/librnllama_v8_2_dotprod.so",
+            "**/librnllama_v8_2_dotprod_i8mm.so",
+            "**/librnllama_v8_2_dotprod_i8mm_hexagon_opencl.so",
+            "**/librnllama_v8_2_i8mm.so",
+            "**/librnllama_jni_v8.so",
+            "**/librnllama_jni_v8_2.so",
+            "**/librnllama_jni_v8_2_dotprod.so",
+            "**/librnllama_jni_v8_2_dotprod_i8mm.so",
+            "**/librnllama_jni_v8_2_dotprod_i8mm_hexagon_opencl.so",
+            "**/librnllama_jni_v8_2_i8mm.so",
+        ]
+'''
+    s = s.replace(marker, marker + "\n" + inject, 1)
+    p.write_text(s)
+    print("injected llama.rn excludes")
+else:
+    print("llama.rn excludes already present")
+PY
+
 # Restore the SDK location gradle needs.
 echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 cat android/local.properties
@@ -62,8 +96,8 @@ grep -E 'reactNativeArchitectures|jvmargs|parallel' android/gradle.properties
 echo "=== version in gradle ==="
 grep -E 'versionCode|versionName' android/app/build.gradle | head -2
 
-echo "=== gradle assembleRelease ==="
+echo "=== gradle clean assembleRelease ==="
 cd android
-./gradlew assembleRelease > /tmp/gradle.log 2>&1
+./gradlew clean assembleRelease > /tmp/gradle.log 2>&1
 echo "BUILD_EXIT=$?"
 tail -3 /tmp/gradle.log
