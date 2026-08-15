@@ -30,6 +30,11 @@ export type WaitlistEntryMinAggregateOutputType = {
   fullName: string | null
   source: string | null
   status: string | null
+  painPoint: string | null
+  isAssociationExec: boolean | null
+  execLevel: string | null
+  execDepartment: string | null
+  execFaculty: string | null
   ipAddress: string | null
   userAgent: string | null
   createdAt: Date | null
@@ -41,6 +46,11 @@ export type WaitlistEntryMaxAggregateOutputType = {
   fullName: string | null
   source: string | null
   status: string | null
+  painPoint: string | null
+  isAssociationExec: boolean | null
+  execLevel: string | null
+  execDepartment: string | null
+  execFaculty: string | null
   ipAddress: string | null
   userAgent: string | null
   createdAt: Date | null
@@ -52,6 +62,11 @@ export type WaitlistEntryCountAggregateOutputType = {
   fullName: number
   source: number
   status: number
+  painPoint: number
+  isAssociationExec: number
+  execLevel: number
+  execDepartment: number
+  execFaculty: number
   ipAddress: number
   userAgent: number
   createdAt: number
@@ -65,6 +80,11 @@ export type WaitlistEntryMinAggregateInputType = {
   fullName?: true
   source?: true
   status?: true
+  painPoint?: true
+  isAssociationExec?: true
+  execLevel?: true
+  execDepartment?: true
+  execFaculty?: true
   ipAddress?: true
   userAgent?: true
   createdAt?: true
@@ -76,6 +96,11 @@ export type WaitlistEntryMaxAggregateInputType = {
   fullName?: true
   source?: true
   status?: true
+  painPoint?: true
+  isAssociationExec?: true
+  execLevel?: true
+  execDepartment?: true
+  execFaculty?: true
   ipAddress?: true
   userAgent?: true
   createdAt?: true
@@ -87,6 +112,11 @@ export type WaitlistEntryCountAggregateInputType = {
   fullName?: true
   source?: true
   status?: true
+  painPoint?: true
+  isAssociationExec?: true
+  execLevel?: true
+  execDepartment?: true
+  execFaculty?: true
   ipAddress?: true
   userAgent?: true
   createdAt?: true
@@ -171,6 +201,11 @@ export type WaitlistEntryGroupByOutputType = {
   fullName: string | null
   source: string
   status: string
+  painPoint: string | null
+  isAssociationExec: boolean
+  execLevel: string | null
+  execDepartment: string | null
+  execFaculty: string | null
   ipAddress: string | null
   userAgent: string | null
   createdAt: Date
@@ -203,6 +238,11 @@ export type WaitlistEntryWhereInput = {
   fullName?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   source?: Prisma.StringFilter<"WaitlistEntry"> | string
   status?: Prisma.StringFilter<"WaitlistEntry"> | string
+  painPoint?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  isAssociationExec?: Prisma.BoolFilter<"WaitlistEntry"> | boolean
+  execLevel?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  execDepartment?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  execFaculty?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   userAgent?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WaitlistEntry"> | Date | string
@@ -214,6 +254,11 @@ export type WaitlistEntryOrderByWithRelationInput = {
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  painPoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAssociationExec?: Prisma.SortOrder
+  execLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  execDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  execFaculty?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -228,6 +273,11 @@ export type WaitlistEntryWhereUniqueInput = Prisma.AtLeast<{
   fullName?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   source?: Prisma.StringFilter<"WaitlistEntry"> | string
   status?: Prisma.StringFilter<"WaitlistEntry"> | string
+  painPoint?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  isAssociationExec?: Prisma.BoolFilter<"WaitlistEntry"> | boolean
+  execLevel?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  execDepartment?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
+  execFaculty?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   userAgent?: Prisma.StringNullableFilter<"WaitlistEntry"> | string | null
   createdAt?: Prisma.DateTimeFilter<"WaitlistEntry"> | Date | string
@@ -239,6 +289,11 @@ export type WaitlistEntryOrderByWithAggregationInput = {
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  painPoint?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAssociationExec?: Prisma.SortOrder
+  execLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  execDepartment?: Prisma.SortOrderInput | Prisma.SortOrder
+  execFaculty?: Prisma.SortOrderInput | Prisma.SortOrder
   ipAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   userAgent?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -256,6 +311,11 @@ export type WaitlistEntryScalarWhereWithAggregatesInput = {
   fullName?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   source?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
   status?: Prisma.StringWithAggregatesFilter<"WaitlistEntry"> | string
+  painPoint?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
+  isAssociationExec?: Prisma.BoolWithAggregatesFilter<"WaitlistEntry"> | boolean
+  execLevel?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
+  execDepartment?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
+  execFaculty?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   ipAddress?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   userAgent?: Prisma.StringNullableWithAggregatesFilter<"WaitlistEntry"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WaitlistEntry"> | Date | string
@@ -267,6 +327,11 @@ export type WaitlistEntryCreateInput = {
   fullName?: string | null
   source?: string
   status?: string
+  painPoint?: string | null
+  isAssociationExec?: boolean
+  execLevel?: string | null
+  execDepartment?: string | null
+  execFaculty?: string | null
   ipAddress?: string | null
   userAgent?: string | null
   createdAt?: Date | string
@@ -278,6 +343,11 @@ export type WaitlistEntryUncheckedCreateInput = {
   fullName?: string | null
   source?: string
   status?: string
+  painPoint?: string | null
+  isAssociationExec?: boolean
+  execLevel?: string | null
+  execDepartment?: string | null
+  execFaculty?: string | null
   ipAddress?: string | null
   userAgent?: string | null
   createdAt?: Date | string
@@ -289,6 +359,11 @@ export type WaitlistEntryUpdateInput = {
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  painPoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAssociationExec?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  execLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execFaculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -300,6 +375,11 @@ export type WaitlistEntryUncheckedUpdateInput = {
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  painPoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAssociationExec?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  execLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execFaculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -311,6 +391,11 @@ export type WaitlistEntryCreateManyInput = {
   fullName?: string | null
   source?: string
   status?: string
+  painPoint?: string | null
+  isAssociationExec?: boolean
+  execLevel?: string | null
+  execDepartment?: string | null
+  execFaculty?: string | null
   ipAddress?: string | null
   userAgent?: string | null
   createdAt?: Date | string
@@ -322,6 +407,11 @@ export type WaitlistEntryUpdateManyMutationInput = {
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  painPoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAssociationExec?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  execLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execFaculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -333,6 +423,11 @@ export type WaitlistEntryUncheckedUpdateManyInput = {
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  painPoint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAssociationExec?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  execLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execDepartment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  execFaculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userAgent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -344,6 +439,11 @@ export type WaitlistEntryCountOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  painPoint?: Prisma.SortOrder
+  isAssociationExec?: Prisma.SortOrder
+  execLevel?: Prisma.SortOrder
+  execDepartment?: Prisma.SortOrder
+  execFaculty?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -355,6 +455,11 @@ export type WaitlistEntryMaxOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  painPoint?: Prisma.SortOrder
+  isAssociationExec?: Prisma.SortOrder
+  execLevel?: Prisma.SortOrder
+  execDepartment?: Prisma.SortOrder
+  execFaculty?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -366,6 +471,11 @@ export type WaitlistEntryMinOrderByAggregateInput = {
   fullName?: Prisma.SortOrder
   source?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  painPoint?: Prisma.SortOrder
+  isAssociationExec?: Prisma.SortOrder
+  execLevel?: Prisma.SortOrder
+  execDepartment?: Prisma.SortOrder
+  execFaculty?: Prisma.SortOrder
   ipAddress?: Prisma.SortOrder
   userAgent?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -379,6 +489,11 @@ export type WaitlistEntrySelect<ExtArgs extends runtime.Types.Extensions.Interna
   fullName?: boolean
   source?: boolean
   status?: boolean
+  painPoint?: boolean
+  isAssociationExec?: boolean
+  execLevel?: boolean
+  execDepartment?: boolean
+  execFaculty?: boolean
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
@@ -390,6 +505,11 @@ export type WaitlistEntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types
   fullName?: boolean
   source?: boolean
   status?: boolean
+  painPoint?: boolean
+  isAssociationExec?: boolean
+  execLevel?: boolean
+  execDepartment?: boolean
+  execFaculty?: boolean
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
@@ -401,6 +521,11 @@ export type WaitlistEntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   fullName?: boolean
   source?: boolean
   status?: boolean
+  painPoint?: boolean
+  isAssociationExec?: boolean
+  execLevel?: boolean
+  execDepartment?: boolean
+  execFaculty?: boolean
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
@@ -412,12 +537,17 @@ export type WaitlistEntrySelectScalar = {
   fullName?: boolean
   source?: boolean
   status?: boolean
+  painPoint?: boolean
+  isAssociationExec?: boolean
+  execLevel?: boolean
+  execDepartment?: boolean
+  execFaculty?: boolean
   ipAddress?: boolean
   userAgent?: boolean
   createdAt?: boolean
 }
 
-export type WaitlistEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "fullName" | "source" | "status" | "ipAddress" | "userAgent" | "createdAt", ExtArgs["result"]["waitlistEntry"]>
+export type WaitlistEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "fullName" | "source" | "status" | "painPoint" | "isAssociationExec" | "execLevel" | "execDepartment" | "execFaculty" | "ipAddress" | "userAgent" | "createdAt", ExtArgs["result"]["waitlistEntry"]>
 
 export type $WaitlistEntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WaitlistEntry"
@@ -428,6 +558,11 @@ export type $WaitlistEntryPayload<ExtArgs extends runtime.Types.Extensions.Inter
     fullName: string | null
     source: string
     status: string
+    painPoint: string | null
+    isAssociationExec: boolean
+    execLevel: string | null
+    execDepartment: string | null
+    execFaculty: string | null
     ipAddress: string | null
     userAgent: string | null
     createdAt: Date
@@ -859,6 +994,11 @@ export interface WaitlistEntryFieldRefs {
   readonly fullName: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly source: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly status: Prisma.FieldRef<"WaitlistEntry", 'String'>
+  readonly painPoint: Prisma.FieldRef<"WaitlistEntry", 'String'>
+  readonly isAssociationExec: Prisma.FieldRef<"WaitlistEntry", 'Boolean'>
+  readonly execLevel: Prisma.FieldRef<"WaitlistEntry", 'String'>
+  readonly execDepartment: Prisma.FieldRef<"WaitlistEntry", 'String'>
+  readonly execFaculty: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly ipAddress: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly userAgent: Prisma.FieldRef<"WaitlistEntry", 'String'>
   readonly createdAt: Prisma.FieldRef<"WaitlistEntry", 'DateTime'>

@@ -7,6 +7,11 @@ export interface JoinWaitlistDto {
   email: string;
   fullName?: string;
   source?: string;
+  painPoint?: string;
+  isAssociationExec?: boolean;
+  execLevel?: string;
+  execDepartment?: string;
+  execFaculty?: string;
 }
 
 @Injectable()
@@ -47,11 +52,21 @@ export class WaitlistService {
       return { message: "You're on the list!", position };
     }
 
+    const isExec = dto.isAssociationExec === true;
     const entry = await this.prisma.waitlistEntry.create({
       data: {
         email,
         fullName: dto.fullName?.trim().slice(0, 120) || null,
         source: dto.source?.trim().slice(0, 40) || "landing",
+        painPoint: dto.painPoint?.trim().slice(0, 500) || null,
+        isAssociationExec: isExec,
+        execLevel: isExec ? dto.execLevel?.trim().slice(0, 40) || null : null,
+        execDepartment: isExec
+          ? dto.execDepartment?.trim().slice(0, 120) || null
+          : null,
+        execFaculty: isExec
+          ? dto.execFaculty?.trim().slice(0, 120) || null
+          : null,
         ipAddress: ip === "unknown" ? null : ip.slice(0, 64),
         userAgent: userAgent ? userAgent.slice(0, 300) : null,
       },
@@ -133,8 +148,8 @@ export class WaitlistService {
           <p>Hi ${firstName},</p>
           <p>
             You're on the list! You're <strong>#${position}</strong> in line.
-            Matriq helps student associations run their dues, payments,
-            verification and study tools — all in one app.
+            Matriq is the smart way to get through semester — past questions,
+            offline AI, and the tools you actually reach for daily, in one app.
           </p>
           <p style="font-size: 12px; color: #8B7AAE;">
             We'll email you as soon as early access opens.
@@ -143,7 +158,7 @@ export class WaitlistService {
           <p style="font-size: 12px; color: #8B7AAE;">Matriq &middot; Built for Nigerian student communities</p>
         </div>
       `,
-      text: `Welcome to Matriq!\n\nHi ${firstName},\n\nYou're on the list — you're #${position} in line. Matriq helps student associations run their dues, payments, verification and study tools in one app.\n\nWe'll email you when early access opens.\n\n— Matriq`,
+      text: `Welcome to Matriq!\n\nHi ${firstName},\n\nYou're on the list — you're #${position} in line. Matriq is the smart way to get through semester: past questions, offline AI, and the tools you actually reach for daily, in one app.\n\nWe'll email you when early access opens.\n\n— Matriq`,
     });
 
     if (!result.success) {

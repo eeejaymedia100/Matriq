@@ -4,6 +4,25 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — Round 2 QA — waitlist rewrite (student pitch + growth survey) + Gemini key wired
+
+**Status:** waitlist rewrite DONE + validated locally (backend tsc/prisma clean, frontend JS checked, code-reviewed). NOT yet deployed — one deploy step remains (migration + backend rebuild + push).
+
+**Did:**
+- **Read all 3 docs** (matriq-fixes-and-new-builds.md, matriq-logo-brief.md, matriq-waitlist-launch-package.md). User picked sequencing: waitlist rewrite FIRST, and pasted the Gemini key.
+- **Gemini key wired (unblocks OCR/quiz/facts later).** Key `AQ.…` verified live; old models (gemini-1.5/2.0/2.5-flash) are retired for NEW users, but `gemini-3.7-flash` / `gemini-flash-latest` return HTTP 200. Stored on matriq-server `~/matriq/.env`: `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.7-flash`, `GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta`. (NOT yet forwarded into docker-compose backend env — do that in the Tools/Gemini pass.)
+- **Waitlist backend** — growth survey (launch-package §3): `WaitlistEntry` +5 columns (`pain_point`, `is_association_exec`, `exec_level`, `exec_department`, `exec_faculty`), migration `20260815000001_waitlist_survey_fields`, `PublicJoinDto`/`JoinWaitlistDto` + `join()` store them (exec detail only when isExec), confirmation email copy → student pitch.
+- **Waitlist frontend** — full student-pitch rewrite: hero "The Smart Way to Get Through Semester.", name+email form → "Join the waitlist", Telegram invite line (t.me/+Bk-Wbby2_Cc3Njk0), optional survey (pain-point textarea + exec yes/no with level/dept/faculty reveal), trust row, 5 "old way" pain points, 4 features with inline-SVG icons (no emoji), association one-liner, how-it-works, closing "Be first in line" compact email form.
+- **Review fixes:** hero button top-margin, `show()` no longer clobbers the CTA msg class, `.is-selected` cleared on reset, `isAssociationExec` only sent when answered, exec yes/no in fieldset/legend (a11y).
+- **Validation:** backend `prisma validate` + `generate` + `tsc --noEmit` clean; frontend `node --check` clean; code-reviewed.
+
+**Next:** deploy (git push → server pull → `docker compose run --rm migrate` → rebuild backend; waitlist files served live via Caddy mount), then the Tools pass (reorder + OCR→Gemini + real PDF/compressor/merge-split/passport-remover + model grid + Settings dedupe).
+
+**Blockers/flags:**
+- Gemini key is a NEW-user key → only current-gen (3.x) models work; `gemini-2.5-flash` and older return 404. Keep `GEMINI_MODEL=gemini-3.7-flash` (or `gemini-flash-latest` to auto-track).
+- Deploy coupling: migration must run before/with the backend rebuild (service reads the new columns), and the waitlist files must land in `~/matriq/waitlist` on the server.
+- Admin waitlist view doesn't surface the new survey columns yet (admin feature build).
+
 ## 2026-08-15 — OVERHAUL PASS — Stage 2/3 → PRODUCTION: backend live (Vault/Tools/deletion), migration applied, APK v0.6.0 (build 7) rebuilt
 
 **Status:** backend DEPLOYED + verified live; APK v0.6.0 (build 7) rebuilding (tmux `matriq-build`); Telegram delivery pending the APK.
@@ -1491,3 +1510,71 @@ e2-standard-4) with open ports.
 - No DB backups or uptime monitoring on prod yet (next step).
 - Mobile `main` carries an unreleased Stage 0/1 UI overhaul — needs testing
   before becoming the next release.
+
+---
+
+## 2026-08-15 — Round 2 (QA fixes + admin/association dashboards)
+
+**Source doc:** `matriq-fixes-and-new-builds.md` (QA pass on the live build).
+`matriq-complete-spec.md` remains the design-system source of truth. Priority
+order is the "fix first" tier at the bottom of the fixes doc.
+
+**Root causes confirmed this session:**
+- Vault upload: backend endpoint is healthy (verified a live upload via
+  `president@matriq.app` → 201-ish success). The mobile bug was the
+  `canSubmit` gate requiring `termsAccepted` even when `firstUpload` is false
+  (returning uploaders never see the Terms checkbox → button permanently
+  disabled). Also flipped `firstUpload` default to `true` so a failed
+  `/me/vault` check can't hide the checkbox. FIXED.
+- Vault error-bleed: `formatApiError` mapped ANY 401 to "Incorrect email or
+  password". The backend only sets `INVALID_CREDENTIALS` for a bad
+  login; a generic 401 is a lapsed session. Split the two. FIXED.
+- Theme gaps: Profile, Verification (upload + status), Offline AI models, plus
+  the Skeleton/SkeletonScreens still import the static `theme/colors` instead
+  of `useTheme()`. Migrating them (and replacing Ionicons with the inline-SVG
+  `Icon` set) — the fix-first tier names these screens explicitly.
+- Offline AI download: the three HuggingFace GGUF URLs are valid (HTTP 206),
+  so the 0% failure is in the native download path; adding retry + clearer
+  errors rather than changing the catalog.
+- Admin/Association dashboards: both Vercel projects (`matriq`, `matriq-dashboard`)
+  deploy READY at the latest commit with `NEXT_PUBLIC_API_URL` set; login pages
+  render real content (HTTP 200). The "bare error page" was a stale/transient
+  deploy state — now resolved. Feature builds (Sections 1–2 of the fixes doc)
+  are the remaining work.
+
+**Flags (per the doc's "confirm before building" rule — using the proposed
+  defaults, flagged back rather than treated as decided):**
+- Android overlay bubble: defaulting to a small circular Matriq-mark bubble
+  with a soft branded glow ring, draggable + snapping to the nearest edge,
+  shown contextually (offline-AI download in progress / class starting soon),
+  not permanently on-screen.
+- Tools reorder: defaulting to "School Portal shortcut first, then AI-powered
+  utilities (OCR etc.), then plain document tools."
+
+**Done this session (Round 2, fix-first tier):**
+- `errors.ts` centralized 401 mapping: `INVALID_CREDENTIALS` (and the
+  code-less "Invalid email or password") → wrong credentials; "Invalid
+  authentication code"/"…challenge" → MFA copy; every other 401 → "session
+  expired". Kills the Vault error-bleed without mislabeling MFA.
+- `VaultUploadScreen` upload gating fixed (`firstUpload` defaults true;
+  `canSubmit` only requires the Terms checkbox on first upload) + wrapped in
+  `KeyboardAvoidingView`.
+- Theme gaps migrated to `useTheme()` + inline-SVG `Icon` (no more Ionicons):
+  Profile, VerificationStatus, VerificationUpload, OfflineModels, plus the
+  Skeleton/SkeletonScreens primitives. Removed the ntfy topic-ID leak from
+  Profile.
+- Offline-AI download: one retry with a fresh DownloadResumable + a clearer
+  failure message. Model URLs verified valid (HTTP 206).
+- `App.tsx` now wraps in `SafeAreaProvider` (was missing — the tab bar's
+  `useSafeAreaInsets` relied on it).
+- Admin/association dashboards: confirmed both Vercel projects deploy READY at
+  HEAD with `NEXT_PUBLIC_API_URL` set and login pages render (HTTP 200) — the
+  "bare error page" was a stale/transient deploy, now resolved. Feature builds
+  (verification queue, member roster, dues, announcements, broadcasts, 2FA,
+  one-account-per-association) remain for the "then" tier.
+
+**Still open (deferred to later tiers per the priority list):** per-screen
+safe-area migration (RN `SafeAreaView` → `react-native-safe-area-context`, ~40
+screens) + `KeyboardAvoidingView` on remaining forms; Tools "Soon" kill;
+notification system; onboarding copy; design-system refinements; quiz/facts;
+update popup; overlay bubble; branded class notifications.

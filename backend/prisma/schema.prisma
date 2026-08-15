@@ -500,6 +500,13 @@ model WaitlistEntry {
   fullName  String?  @map("full_name")
   source    String   @default("landing") // landing, referral, import, …
   status    String   @default("pending") // pending | invited | joined
+  // Growth survey (waitlist launch package §3): the honest market research
+  // collected at signup + executive identification for the Founding Circle.
+  painPoint       String? @map("pain_point") // "most annoying part of studying"
+  isAssociationExec Boolean @default(false) @map("is_association_exec")
+  execLevel       String? @map("exec_level")
+  execDepartment  String? @map("exec_department")
+  execFaculty     String? @map("exec_faculty")
   ipAddress String?  @map("ip_address")
   userAgent String?  @map("user_agent")
   createdAt DateTime @default(now()) @map("created_at")

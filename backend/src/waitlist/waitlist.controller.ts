@@ -15,7 +15,13 @@ import { Throttle } from "@nestjs/throttler";
 import { WaitlistService, JoinWaitlistDto } from "./waitlist.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AdminGuard } from "../admin/admin.guard";
-import { IsEmail, IsOptional, IsString, MaxLength } from "class-validator";
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsBoolean,
+  MaxLength,
+} from "class-validator";
 
 class PublicJoinDto implements JoinWaitlistDto {
   @IsEmail()
@@ -30,6 +36,32 @@ class PublicJoinDto implements JoinWaitlistDto {
   @IsString()
   @MaxLength(40)
   source?: string;
+
+  // Growth survey (waitlist launch package §3) — all optional, never block a
+  // signup on them.
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  painPoint?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isAssociationExec?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(40)
+  execLevel?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  execDepartment?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  execFaculty?: string;
 
   // Honeypot: bots fill hidden fields. If present, we answer politely but
   // silently drop the request.
@@ -60,7 +92,16 @@ export class WaitlistController {
 
     const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
     return this.waitlistService.join(
-      { email: dto.email, fullName: dto.fullName, source: dto.source },
+      {
+        email: dto.email,
+        fullName: dto.fullName,
+        source: dto.source,
+        painPoint: dto.painPoint,
+        isAssociationExec: dto.isAssociationExec,
+        execLevel: dto.execLevel,
+        execDepartment: dto.execDepartment,
+        execFaculty: dto.execFaculty,
+      },
       ip,
       userAgent ?? "",
     );

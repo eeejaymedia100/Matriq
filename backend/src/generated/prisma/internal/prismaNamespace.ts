@@ -2479,6 +2479,11 @@ export const WaitlistEntryScalarFieldEnum = {
   fullName: 'fullName',
   source: 'source',
   status: 'status',
+  painPoint: 'painPoint',
+  isAssociationExec: 'isAssociationExec',
+  execLevel: 'execLevel',
+  execDepartment: 'execDepartment',
+  execFaculty: 'execFaculty',
   ipAddress: 'ipAddress',
   userAgent: 'userAgent',
   createdAt: 'createdAt'

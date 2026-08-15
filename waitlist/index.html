@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matriq — The operating system for Nigerian student associations</title>
-  <meta name="description" content="Matriq helps Nigerian student associations collect dues, verify members, share announcements, stay transparent and study smarter — all in one app. Join the waitlist for early access." />
-  <meta property="og:title" content="Matriq — Student associations, all in one app" />
-  <meta property="og:description" content="Dues, verified membership, announcements, treasury transparency and an AI study companion — built for Nigerian campuses. Join the waitlist." />
+  <title>Matriq — The Smart Way to Get Through Semester</title>
+  <meta name="description" content="Past questions, offline AI, and the tools you actually reach for daily — one app, built for how Nigerian students actually study. Join the waitlist." />
+  <meta property="og:title" content="Matriq — The Smart Way to Get Through Semester" />
+  <meta property="og:description" content="Past questions, offline AI, and the study tools you actually reach for daily. Built for Nigerian campuses, works on bad data. Join the waitlist." />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236C3BAA'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3EM%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -43,13 +43,12 @@
     <section class="hero" id="join">
       <div class="badge fade-up">🚀 Early access — opening soon</div>
       <h1 class="fade-up delay-1">
-        The operating system for<br />
-        <span class="grad">Nigerian student associations.</span>
+        The Smart Way to<br />
+        <span class="grad">Get Through Semester.</span>
       </h1>
       <p class="hero-sub fade-up delay-2">
-        Matriq replaces the WhatsApp spreadsheets, the cash chasing and the
-        guesswork. Dues, verified membership, announcements, treasury
-        transparency and study tools — one app for your whole association.
+        Past questions, offline AI, and the tools you actually reach for
+        daily — one app, built for how Nigerian students actually study.
       </p>
 
       <!-- Waitlist form -->
@@ -83,123 +82,139 @@
               />
             </div>
           </div>
+
+          <!-- Growth survey (optional) -->
+          <div class="survey">
+            <span class="survey-label">Help us build the right thing <em>(optional)</em></span>
+
+            <label for="painPoint" class="visually-hidden">Most annoying part of studying</label>
+            <textarea
+              id="painPoint"
+              name="painPoint"
+              placeholder="What's the single most annoying part of studying right now?"
+              maxlength="500"
+              aria-label="What's the single most annoying part of studying right now?"
+            ></textarea>
+
+            <fieldset class="exec-fieldset">
+              <legend class="survey-label">Do you hold a position in a class, department, or faculty association?</legend>
+              <div class="radio-group" id="exec-toggle">
+                <label class="radio-option">
+                  <input type="radio" name="isExec" value="no" />
+                  <span>No</span>
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="isExec" value="yes" />
+                  <span>Yes, I hold a position</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="exec-followup" id="exec-followup">
+              <div class="exec-grid">
+                <div class="field">
+                  <label for="execLevel" class="visually-hidden">Level</label>
+                  <input type="text" id="execLevel" name="execLevel" placeholder="Level (e.g. 300)" maxlength="40" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="execDepartment" class="visually-hidden">Department</label>
+                  <input type="text" id="execDepartment" name="execDepartment" placeholder="Department" maxlength="120" autocomplete="off" />
+                </div>
+                <div class="field full">
+                  <label for="execFaculty" class="visually-hidden">Faculty</label>
+                  <input type="text" id="execFaculty" name="execFaculty" placeholder="Faculty" maxlength="120" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <button type="submit" id="join-btn">
-            <span class="btn-label">Get early access</span>
+            <span class="btn-label">Join the waitlist</span>
             <span class="btn-spinner" aria-hidden="true"></span>
           </button>
           <p class="form-msg" id="form-msg" role="status"></p>
         </form>
+
+        <p class="telegram-note">
+          You'll also get an invite to our
+          <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Telegram</a>,
+          where we're building this with the people actually using it.
+        </p>
         <p class="join-note">
           <span id="count">0</span> students already on the list ·
           no spam — just the launch email
         </p>
       </div>
 
-      <div class="hero-points fade-up delay-4" aria-hidden="true">
+      <div class="hero-points fade-up delay-4">
         <span>🇳🇬 Built for Nigerian campuses</span>
-        <span>🔒 Secure payments</span>
-        <span>🤖 AI study companion</span>
+        <span>📶 Works on bad data</span>
+        <span>🤖 Offline AI, zero data cost</span>
       </div>
     </section>
 
     <!-- The problem -->
     <section class="problem" id="problem">
       <h2 class="section-title">The old way is exhausting</h2>
-      <p class="section-sub">Every executive has lived this. Every member has felt it.</p>
-      <div class="problem-grid">
-        <article class="problem-card fade-up">
-          <span class="problem-icon">📋</span>
-          <p>Dues live in WhatsApp spreadsheets — lost in chats, forgotten by Friday.</p>
+      <p class="section-sub">If any of these sound familiar, you're in the right place.</p>
+      <div class="pain-list">
+        <article class="pain-item fade-up">
+          <strong>Past questions scattered</strong> across a dozen forgotten WhatsApp chats.
         </article>
-        <article class="problem-card fade-up delay-1">
-          <span class="problem-icon">💸</span>
-          <p>Cash passed hand to hand — no records, no receipts, no trust.</p>
+        <article class="pain-item fade-up delay-1">
+          <strong>Data too expensive</strong> to burn re-downloading a 200MB PDF for the third time.
         </article>
-        <article class="problem-card fade-up delay-2">
-          <span class="problem-icon">🎭</span>
-          <p>Anyone can claim membership — nobody is actually verified.</p>
+        <article class="pain-item fade-up delay-2">
+          <strong>ChatGPT doesn't know</strong> what your lecturer actually asked last year.
         </article>
-        <article class="problem-card fade-up delay-3">
-          <span class="problem-icon">📢</span>
-          <p>Important news drowns in 500-message group chats.</p>
+        <article class="pain-item fade-up delay-3">
+          <strong>"What do I even read first"</strong> panic, every single exam week.
         </article>
-        <article class="problem-card fade-up delay-4">
-          <span class="problem-icon">🧾</span>
-          <p>“Where did the money go?” is answered from memory, not records.</p>
-        </article>
-        <article class="problem-card fade-up delay-5">
-          <span class="problem-icon">📚</span>
-          <p>Past questions and materials sit scattered across phones and drives.</p>
+        <article class="pain-item fade-up delay-4">
+          <strong>No signal in the hall,</strong> no access to anything you need.
         </article>
       </div>
-      <p class="section-sub problem-outro">
-        Matriq was built to end all six.
-      </p>
     </section>
 
     <!-- Features -->
     <section class="features" id="features">
-      <h2 class="section-title">Everything your association needs</h2>
-      <p class="section-sub">One app for executives, members and the treasury.</p>
+      <h2 class="section-title">Everything you need</h2>
+      <p class="section-sub">The tools you actually reach for, every single day.</p>
       <div class="feature-grid">
         <article class="feature-card fade-up">
-          <div class="feature-icon">💳</div>
-          <h3>Dues & payments</h3>
-          <p>Create session dues in minutes and collect securely with Paystack. Every payment earns an instant receipt with a verifiable QR code.</p>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l1.8 2h7.6a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z"/><path d="M3.5 9.5h17"/></svg>
+          </div>
+          <h3>The Vault</h3>
+          <p>Past questions and materials from students who came before you — searchable by course code.</p>
         </article>
         <article class="feature-card fade-up delay-1">
-          <div class="feature-icon">🪪</div>
-          <h3>Verified membership</h3>
-          <p>Members upload their student ID once; executives approve it. No fake names, no ghost members, no guesswork.</p>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.8 5.9 4.5 9.6 10.4 10.4-5.9.8-9.6 4.5-10.4 10.4C11.2 16.9 7.5 13.2 1.6 12.4 7.5 11.6 11.2 7.9 12 2z"/></svg>
+          </div>
+          <h3>Offline AI</h3>
+          <p>Download once, ask anything after. Zero data, zero signal required.</p>
         </article>
         <article class="feature-card fade-up delay-2">
-          <div class="feature-icon">📢</div>
-          <h3>Announcements & events</h3>
-          <p>Pin what matters, plan events with RSVPs, and check members in at the door with rotating QR codes.</p>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11.5h.01M12 11.5h.01M15 11.5h.01M9 15h.01M12 15h.01M15 15h.01M9 18.5h.01M12 18.5h.01M15 18.5h.01"/></svg>
+          </div>
+          <h3>Tools</h3>
+          <p>A CGPA calculator built for the Nigerian grading scale, a predictor that tells you exactly what you need to hit your target, OCR, document conversion — straight to your school portal.</p>
         </article>
         <article class="feature-card fade-up delay-3">
-          <div class="feature-icon">🏛️</div>
-          <h3>Treasury transparency</h3>
-          <p>A live breakdown of where every naira goes — visible to members. Executives lead with trust, not promises.</p>
-        </article>
-        <article class="feature-card fade-up delay-4">
-          <div class="feature-icon">🤖</div>
-          <h3>AI study companion</h3>
-          <p>A study assistant grounded in your association's own past questions and materials, answering in real time.</p>
-        </article>
-        <article class="feature-card fade-up delay-5">
-          <div class="feature-icon">🚀</div>
-          <h3>Referrals & growth</h3>
-          <p>Members invite friends with a shareable code, and the association grows — with progress everyone can see.</p>
+          <div class="feature-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+          </div>
+          <h3>Built for bad data</h3>
+          <p>Light versions of every document — downloaded once, usable all semester.</p>
         </article>
       </div>
-    </section>
 
-    <!-- Audience split -->
-    <section class="audience" id="audience">
-      <h2 class="section-title">Built for both sides of the table</h2>
-      <div class="audience-grid">
-        <article class="audience-card fade-up">
-          <span class="audience-tag">For executives</span>
-          <h3>Stop chasing money.<br />Start leading.</h3>
-          <ul>
-            <li>Dues and payment status at a glance</li>
-            <li>One review queue for every new member</li>
-            <li>Receipts every member can verify themselves</li>
-            <li>A treasury story that's always ready</li>
-          </ul>
-        </article>
-        <article class="audience-card audience-card-alt fade-up delay-1">
-          <span class="audience-tag">For members</span>
-          <h3>Join in seconds.<br />Stay connected.</h3>
-          <ul>
-            <li>Verify your student ID once</li>
-            <li>Pay dues from your phone, keep every receipt</li>
-            <li>Never miss an announcement or event again</li>
-            <li>Study smarter with an AI that knows your materials</li>
-          </ul>
-        </article>
-      </div>
+      <p class="association-line fade-up">
+        If your department or faculty association is on Matriq too, dues and
+        verified membership live right there in <strong>Settings</strong>.
+      </p>
     </section>
 
     <!-- How it works -->
@@ -209,31 +224,38 @@
         <div class="step fade-up">
           <span class="step-num">1</span>
           <h3>Join the waitlist</h3>
-          <p>Enter your name and email above. You'll get early access the moment we open.</p>
+          <p>Enter your email above. You'll get early access the moment we open.</p>
         </div>
         <div class="step fade-up delay-1">
           <span class="step-num">2</span>
-          <h3>We set up your association</h3>
-          <p>Executives get their dashboard before launch — dues, verification queue, treasury overview.</p>
+          <h3>Get invited as we roll out</h3>
+          <p>We open in waves — you'll be first in line when it's your turn.</p>
         </div>
         <div class="step fade-up delay-2">
           <span class="step-num">3</span>
-          <h3>Members join in seconds</h3>
-          <p>Students download the app, verify their ID, and pay dues from their phone.</p>
+          <h3>Download, verify, and you're in</h3>
+          <p>Install the app, verify once, and everything's waiting for you.</p>
         </div>
       </div>
     </section>
 
     <!-- CTA -->
     <section class="cta fade-up">
-      <h2>Be first in line for your association.</h2>
+      <h2>Be first in line.</h2>
       <p>The waitlist is the only way in before launch.</p>
-      <a href="#join" class="cta-btn">Get early access →</a>
+      <form id="waitlist-form-cta" class="cta-form" novalidate>
+        <div class="field">
+          <label for="cta-email" class="visually-hidden">Email address</label>
+          <input type="email" id="cta-email" name="email" placeholder="Your email address" autocomplete="email" required aria-label="Email address" />
+        </div>
+        <button type="submit" class="cta-btn cta-btn-form">Join the waitlist</button>
+      </form>
+      <p class="form-msg cta-msg" id="cta-form-msg" role="status"></p>
     </section>
   </main>
 
   <footer class="footer">
-    <p>© <span id="year">2026</span> Matriq · Built for Nigerian student communities</p>
+    <p>© <span id="year">2026</span> Matriq · The Smart Way</p>
   </footer>
 
   <script src="app.js"></script>
