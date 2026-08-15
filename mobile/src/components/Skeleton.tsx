@@ -6,11 +6,12 @@ import {
   type ViewStyle,
   AccessibilityInfo,
 } from "react-native";
-import { colors, radii, spacing } from "../theme/colors";
+import { useTheme } from "../theme/ThemeContext";
 
 // ── Skeleton loading primitives ─────────────────────────────────────────────
 // YouTube-style: pulsing neutral blocks that mirror the shape of real content,
 // so the UI never feels empty while data loads (especially on slow networks).
+// Theme-aware: block colour follows the active theme's border token.
 
 interface SkeletonProps {
   width?: number | `${number}%` | "auto";
@@ -64,9 +65,10 @@ function stopPulse() {
 export function Skeleton({
   width = "100%",
   height = 16,
-  borderRadius = radii.sm,
+  borderRadius,
   style,
 }: SkeletonProps) {
+  const { theme } = useTheme();
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
@@ -100,8 +102,8 @@ export function Skeleton({
         {
           width,
           height,
-          borderRadius,
-          backgroundColor: colors.border,
+          borderRadius: borderRadius ?? theme.radii.sm,
+          backgroundColor: theme.colors.border,
           opacity: sharedOpacity,
         },
         style,
@@ -131,8 +133,14 @@ export function SkeletonText({
   height?: number;
   style?: ViewStyle;
 }) {
+  const { theme } = useTheme();
   return (
-    <Skeleton width={width} height={height} borderRadius={radii.full} style={style} />
+    <Skeleton
+      width={width}
+      height={height}
+      borderRadius={theme.radii.pill}
+      style={style}
+    />
   );
 }
 
@@ -144,19 +152,26 @@ export function SkeletonCard({
   children?: React.ReactNode;
   style?: ViewStyle;
 }) {
-  return <View style={[styles.card, style]}>{children}</View>;
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: colors.surface,
+          borderRadius: theme.radii.lg,
+          padding: theme.spacing.md,
+          marginBottom: theme.spacing.md,
+          shadowColor: colors.textPrimary,
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.06,
+          shadowRadius: 8,
+          elevation: 2,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-    shadowColor: colors.textPrimary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-});

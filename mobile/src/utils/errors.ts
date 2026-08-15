@@ -115,15 +115,45 @@ export function formatApiError(err: unknown): FriendlyError {
       };
     }
 
-    // Wrong credentials
+    // Wrong credentials — the sign-in form only. The backend sets
+    // INVALID_CREDENTIALS for a wrong password, and returns a generic
+    // "Invalid email or password" when the account doesn't exist (deliberately
+    // identical, so the app can't be used to enumerate registered emails).
     if (
       code === "INVALID_CREDENTIALS" ||
-      (status === 401 && code !== "EMAIL_NOT_VERIFIED")
+      backendMessage.toLowerCase().includes("invalid email or password")
     ) {
       return {
         title: "Incorrect email or password",
         message: "We couldn't sign you in with those details.",
         action: "Double-check your email and password, then try again.",
+      };
+    }
+
+    // MFA / TOTP failures — distinct from both credentials and session expiry.
+    if (backendMessage.toLowerCase().includes("authentication code")) {
+      return {
+        title: "That code didn't work",
+        message: "The 6-digit code didn't match.",
+        action: "Check your authenticator app and try the code again.",
+      };
+    }
+    if (backendMessage.toLowerCase().includes("challenge")) {
+      return {
+        title: "That step has expired",
+        message: "The two-factor step timed out.",
+        action: "Sign in again to get a fresh code.",
+      };
+    }
+
+    // Any other 401 (an expired/invalid session token) means the session
+    // lapsed. This was previously leaking "Incorrect email or password" into
+    // unrelated screens (Vault, Tools, …) — the exact bug this fixes.
+    if (status === 401) {
+      return {
+        title: "Your session has expired",
+        message: "For your security, you've been signed out.",
+        action: "Sign in again to continue.",
       };
     }
 

@@ -8,18 +8,24 @@ import {
   RefreshControl,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { useTheme } from "../../theme/ThemeContext";
+import { ThemedScreen } from "../../components/Surface";
 import { Card, Button, VerificationStatusSkeleton } from "../../components";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon, type IconName } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../api/client";
 import type { VerificationRequest } from "../../types/api";
+import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 
 interface Props {
   navigation: { navigate: (s: string, p?: object) => void };
 }
 
 export function VerificationStatusScreen({ navigation }: Props) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const styles = makeStyles(theme, colors);
+
   const { user } = useAuth();
   const [requests, setRequests] = useState<VerificationRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,9 +55,12 @@ export function VerificationStatusScreen({ navigation }: Props) {
 
   const latestRequest = requests[0];
 
-  const statusConfig = {
+  const statusConfig: Record<
+    string,
+    { icon: IconName; color: string; bg: string; title: string; description: string }
+  > = {
     pending: {
-      icon: "hourglass-outline",
+      icon: "clock",
       color: colors.warning,
       bg: colors.warningBg,
       title: "Verification Pending",
@@ -59,7 +68,7 @@ export function VerificationStatusScreen({ navigation }: Props) {
         "Your document has been submitted and is awaiting review by an association executive. This usually takes 1-3 business days.",
     },
     approved: {
-      icon: "checkmark-circle",
+      icon: "check",
       color: colors.success,
       bg: colors.successBg,
       title: "Identity Confirmed",
@@ -67,7 +76,7 @@ export function VerificationStatusScreen({ navigation }: Props) {
         "Your identity has been verified. You now have full access to all Matriq features.",
     },
     rejected: {
-      icon: "close-circle",
+      icon: "x",
       color: colors.error,
       bg: colors.errorBg,
       title: "Verification Rejected",
@@ -81,200 +90,238 @@ export function VerificationStatusScreen({ navigation }: Props) {
     : statusConfig.pending;
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              fetchStatus();
-            }}
-          />
-        }
-      >
-        {/* Current Status Card */}
-        <View style={[styles.statusCard, { backgroundColor: config.bg }]}>
-          <Ionicons
-            name={config.icon as keyof typeof Ionicons.glyphMap}
-            size={48}
-            color={config.color}
-          />
-          <Text style={[styles.statusTitle, { color: config.color }]}>
-            {config.title}
-          </Text>
-          <Text style={styles.statusDesc}>{config.description}</Text>
-
-          {latestRequest?.rejectionReason && (
-            <View style={styles.reasonBox}>
-              <Text style={styles.reasonLabel}>Rejection Reason:</Text>
-              <Text style={styles.reasonText}>
-                {latestRequest.rejectionReason}
-              </Text>
-            </View>
-          )}
-
-          {latestRequest?.reviewedAt && (
-            <Text style={styles.reviewedAt}>
-              Reviewed: {new Date(latestRequest.reviewedAt).toLocaleDateString()}
+    <ThemedScreen>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => {
+                setRefreshing(true);
+                fetchStatus();
+              }}
+            />
+          }
+        >
+          {/* Current Status Card */}
+          <View style={[styles.statusCard, { backgroundColor: config.bg }]}>
+            <Icon name={config.icon} size={48} color={config.color} />
+            <Text style={[styles.statusTitle, { color: config.color }]}>
+              {config.title}
             </Text>
+            <Text style={styles.statusDesc}>{config.description}</Text>
+
+            {latestRequest?.rejectionReason && (
+              <View style={styles.reasonBox}>
+                <Text style={styles.reasonLabel}>Rejection Reason:</Text>
+                <Text style={styles.reasonText}>
+                  {latestRequest.rejectionReason}
+                </Text>
+              </View>
+            )}
+
+            {latestRequest?.reviewedAt && (
+              <Text style={styles.reviewedAt}>
+                Reviewed: {new Date(latestRequest.reviewedAt).toLocaleDateString()}
+              </Text>
+            )}
+          </View>
+
+          {/* Quick Info */}
+          <Card title="About Verification">
+            <Text style={styles.infoText}>
+              To confirm your student identity, association executives review
+              your uploaded document (student ID card or portal screenshot).
+              This prevents impersonation and ensures only genuine students
+              access association features.
+            </Text>
+          </Card>
+
+          {/* Actions */}
+          {(!latestRequest || latestRequest.status === "rejected") && (
+            <Button
+              title={latestRequest ? "Re-submit Document" : "Upload Document"}
+              onPress={() => navigation.navigate("VerificationUpload")}
+              size="lg"
+            />
           )}
-        </View>
 
-        {/* Quick Info */}
-        <Card title="About Verification">
-          <Text style={styles.infoText}>
-            To confirm your student identity, association executives review your
-            uploaded document (student ID card or portal screenshot). This prevents
-            impersonation and ensures only genuine students access association
-            features.
-          </Text>
-        </Card>
-
-        {/* Actions */}
-        {(!latestRequest || latestRequest.status === "rejected") && (
-          <Button
-            title={latestRequest ? "Re-submit Document" : "Upload Document"}
-            onPress={() => navigation.navigate("VerificationUpload")}
-            size="lg"
-          />
-        )}
-
-        {/* History */}
-        {requests.length > 1 && (
-          <Card title="Submission History">
-            {requests.map((req, i) => (
-              <View
-                key={req.id}
-                style={[
-                  styles.historyRow,
-                  i < requests.length - 1 && styles.historyBorder,
-                ]}
-              >
-                <View style={styles.historyInfo}>
-                  <Text style={styles.historyName}>
-                    {req.documentOriginalName}
-                  </Text>
-                  <Text style={styles.historyDate}>
-                    {new Date(req.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
+          {/* History */}
+          {requests.length > 1 && (
+            <Card title="Submission History">
+              {requests.map((req, i) => (
                 <View
+                  key={req.id}
                   style={[
-                    styles.historyBadge,
-                    {
-                      backgroundColor:
-                        req.status === "approved"
-                          ? colors.successBg
-                          : req.status === "rejected"
-                            ? colors.errorBg
-                            : colors.warningBg,
-                    },
+                    styles.historyRow,
+                    i < requests.length - 1 && styles.historyBorder,
                   ]}
                 >
-                  <Text
+                  <View style={styles.historyInfo}>
+                    <Text style={styles.historyName}>
+                      {req.documentOriginalName}
+                    </Text>
+                    <Text style={styles.historyDate}>
+                      {new Date(req.createdAt).toLocaleDateString()}
+                    </Text>
+                  </View>
+                  <View
                     style={[
-                      styles.historyBadgeText,
+                      styles.historyBadge,
                       {
-                        color:
+                        backgroundColor:
                           req.status === "approved"
-                            ? colors.success
+                            ? colors.successBg
                             : req.status === "rejected"
-                              ? colors.error
-                              : colors.warning,
+                              ? colors.errorBg
+                              : colors.warningBg,
                       },
                     ]}
                   >
-                    {req.status}
-                  </Text>
+                    <Text
+                      style={[
+                        styles.historyBadgeText,
+                        {
+                          color:
+                            req.status === "approved"
+                              ? colors.success
+                              : req.status === "rejected"
+                                ? colors.error
+                                : colors.warning,
+                        },
+                      ]}
+                    >
+                      {req.status}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-            ))}
-          </Card>
-        )}
+              ))}
+            </Card>
+          )}
 
-        {/* Matric status line from user profile */}
-        <View style={styles.userStatusLine}>
-          <Text style={styles.userStatusLabel}>Account Status: </Text>
-          <Text
-            style={[
-              styles.userStatusValue,
-              {
-                color:
-                  user?.matricStatus === "confirmed" ? colors.success : colors.warning,
-              },
-            ]}
-          >
-            {user?.matricStatus === "confirmed" ? "Confirmed" : "Provisional"}
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Matric status line from user profile */}
+          <View style={styles.userStatusLine}>
+            <Text style={styles.userStatusLabel}>Account Status: </Text>
+            <Text
+              style={[
+                styles.userStatusValue,
+                {
+                  color:
+                    user?.matricStatus === "confirmed"
+                      ? colors.success
+                      : colors.warning,
+                },
+              ]}
+            >
+              {user?.matricStatus === "confirmed" ? "Confirmed" : "Provisional"}
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </ThemedScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: spacing.lg },
-  statusCard: {
-    borderRadius: radii.xl,
-    padding: spacing.xl,
-    marginBottom: spacing.lg,
-    alignItems: "center",
-  },
-  statusIcon: { fontSize: 48, marginBottom: spacing.sm },
-  statusTitle: { ...typography.h2, marginBottom: spacing.sm, textAlign: "center" },
-  statusDesc: {
-    ...typography.body,
-    color: colors.textSecondary,
-    textAlign: "center",
-    lineHeight: 22,
-  },
-  reasonBox: {
-    marginTop: spacing.md,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    borderRadius: radii.md,
-    padding: spacing.md,
-    width: "100%",
-  },
-  reasonLabel: { ...typography.captionBold, color: colors.error, marginBottom: 2 },
-  reasonText: { ...typography.body, color: colors.textPrimary },
-  reviewedAt: {
-    ...typography.small,
-    color: colors.textMuted,
-    marginTop: spacing.md,
-  },
-  infoText: { ...typography.body, color: colors.textSecondary, lineHeight: 22 },
-  historyRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: spacing.sm,
-  },
-  historyBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  historyInfo: { flex: 1 },
-  historyName: { ...typography.captionBold, color: colors.textPrimary },
-  historyDate: { ...typography.small, color: colors.textMuted },
-  historyBadge: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radii.full,
-  },
-  historyBadgeText: {
-    ...typography.small,
-    fontWeight: "600",
-    textTransform: "capitalize",
-  },
-  userStatusLine: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: spacing.lg,
-    padding: spacing.md,
-  },
-  userStatusLabel: { ...typography.caption, color: colors.textMuted },
-  userStatusValue: { ...typography.captionBold },
-});
+function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
+  return StyleSheet.create({
+    container: { padding: theme.spacing.lg },
+    statusCard: {
+      borderRadius: theme.radii.xl,
+      padding: theme.spacing.xl,
+      marginBottom: theme.spacing.lg,
+      alignItems: "center",
+    },
+    statusTitle: {
+      fontFamily: theme.typography.h2.fontFamily,
+      fontSize: theme.typography.h2.fontSize,
+      lineHeight: theme.typography.h2.lineHeight,
+      marginBottom: theme.spacing.sm,
+      textAlign: "center",
+    },
+    statusDesc: {
+      fontFamily: theme.typography.body.fontFamily,
+      fontSize: theme.typography.body.fontSize,
+      lineHeight: theme.typography.body.lineHeight,
+      color: colors.textSecondary,
+      textAlign: "center",
+    },
+    reasonBox: {
+      marginTop: theme.spacing.md,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: theme.radii.md,
+      padding: theme.spacing.md,
+      width: "100%",
+    },
+    reasonLabel: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+      color: colors.error,
+      marginBottom: 2,
+    },
+    reasonText: {
+      fontFamily: theme.typography.body.fontFamily,
+      fontSize: theme.typography.body.fontSize,
+      color: colors.textPrimary,
+    },
+    reviewedAt: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      color: colors.textMuted,
+      marginTop: theme.spacing.md,
+    },
+    infoText: {
+      fontFamily: theme.typography.body.fontFamily,
+      fontSize: theme.typography.body.fontSize,
+      lineHeight: theme.typography.body.lineHeight,
+      color: colors.textSecondary,
+    },
+    historyRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingVertical: theme.spacing.sm,
+    },
+    historyBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    historyInfo: { flex: 1 },
+    historyName: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+      color: colors.textPrimary,
+    },
+    historyDate: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      color: colors.textMuted,
+    },
+    historyBadge: {
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: 999,
+    },
+    historyBadgeText: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      fontWeight: "600",
+      textTransform: "capitalize",
+    },
+    userStatusLine: {
+      flexDirection: "row",
+      justifyContent: "center",
+      marginTop: theme.spacing.lg,
+      padding: theme.spacing.md,
+    },
+    userStatusLabel: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      color: colors.textMuted,
+    },
+    userStatusValue: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+    },
+  });
+}

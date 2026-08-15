@@ -9,18 +9,23 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
-import { colors, spacing, typography, radii } from "../../theme/colors";
-import { Button } from "../../components";
+import { useTheme } from "../../theme/ThemeContext";
+import { ThemedScreen } from "../../components/Surface";
+import { Button, Icon } from "../../components";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { formatBytes, type OfflineModel } from "../../offline/models";
+import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 
 type Nav = NativeStackNavigationProp<MainStackParamList, "OfflineModels">;
 
 function ModelCard({ model }: { model: OfflineModel }) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const styles = makeStyles(theme, colors);
+
   const {
     downloaded,
     activeModelId,
@@ -63,7 +68,7 @@ function ModelCard({ model }: { model: OfflineModel }) {
         )}
         {isActive && (
           <View style={[styles.tierBadge, styles.inUseBadge]}>
-            <Ionicons name="checkmark-circle" size={12} color={colors.success} />
+            <Icon name="check" size={12} color={colors.success} />
             <Text style={[styles.tierBadgeText, styles.inUseText]}>In use</Text>
           </View>
         )}
@@ -74,15 +79,15 @@ function ModelCard({ model }: { model: OfflineModel }) {
 
       <View style={styles.specRow}>
         <View style={styles.specItem}>
-          <Ionicons name="download-outline" size={14} color={colors.textMuted} />
+          <Icon name="download" size={14} color={colors.textMuted} />
           <Text style={styles.specText}>{formatBytes(model.sizeBytes)}</Text>
         </View>
         <View style={styles.specItem}>
-          <Ionicons name="phone-portrait-outline" size={14} color={colors.textMuted} />
+          <Icon name="phone" size={14} color={colors.textMuted} />
           <Text style={styles.specText}>{model.ramNote}</Text>
         </View>
         <View style={styles.specItem}>
-          <Ionicons name="speedometer-outline" size={14} color={colors.textMuted} />
+          <Icon name="zap" size={14} color={colors.textMuted} />
           <Text style={styles.specText}>{model.speedNote}</Text>
         </View>
       </View>
@@ -106,7 +111,10 @@ function ModelCard({ model }: { model: OfflineModel }) {
             </TouchableOpacity>
           </View>
           {download.error && (
-            <Text style={styles.errorText}>{download.error}</Text>
+            <View style={styles.errorRow}>
+              <Icon name="alert" size={14} color={colors.error} />
+              <Text style={styles.errorText}>{download.error}</Text>
+            </View>
           )}
         </View>
       ) : isDownloaded ? (
@@ -115,7 +123,7 @@ function ModelCard({ model }: { model: OfflineModel }) {
             <View style={styles.engineWrap}>
               {engineState === "loading" && (
                 <>
-                  <ActivityIndicator size="small" color={colors.primary} />
+                  <ActivityIndicator size="small" color={colors.brand} />
                   <Text style={styles.engineText}>
                     Loading model… {Math.round(engineProgress * 100)}%
                   </Text>
@@ -134,14 +142,14 @@ function ModelCard({ model }: { model: OfflineModel }) {
             </View>
           ) : (
             <Button
-              title={`Use this model`}
+              title="Use this model"
               size="md"
               variant={model.recommended ? "primary" : "outline"}
               onPress={() => void selectModel(model.id)}
             />
           )}
           <TouchableOpacity style={styles.deleteBtn} onPress={onDelete}>
-            <Ionicons name="trash-outline" size={16} color={colors.error} />
+            <Icon name="trash" size={16} color={colors.error} />
             <Text style={styles.deleteText}>Delete</Text>
           </TouchableOpacity>
         </View>
@@ -159,6 +167,10 @@ function ModelCard({ model }: { model: OfflineModel }) {
 }
 
 export function OfflineModelsScreen() {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const styles = makeStyles(theme, colors);
+
   const navigation = useNavigation<Nav>();
   const { models, freeSpace, preferOffline, setPreferOffline, refreshFreeSpace } =
     useOfflineAi();
@@ -168,206 +180,284 @@ export function OfflineModelsScreen() {
   }, [refreshFreeSpace]);
 
   return (
-    <ScrollView
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.hero}>
-        <View style={styles.heroIcon}>
-          <Ionicons name="cloud-offline-outline" size={26} color={colors.primary} />
-        </View>
-        <Text style={styles.heroTitle}>AI that works with no internet</Text>
-        <Text style={styles.heroText}>
-          The AI model isn't included in the app — it's a separate download you
-          control. Download once over Wi-Fi, and the AI Study Companion keeps
-          answering questions even when there's no network at all. No data
-          charges afterwards.
-        </Text>
-      </View>
-
-      <View style={styles.toggleCard}>
-        <View style={styles.toggleTextWrap}>
-          <Text style={styles.toggleTitle}>Always use offline AI</Text>
-          <Text style={styles.toggleSub}>
-            Uses the on-device model for every question instead of the online
-            AI. Great if data is expensive or the network is unreliable.
+    <ThemedScreen>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.hero}>
+          <View style={styles.heroIcon}>
+            <Icon name="cloudOff" size={26} color={colors.brand} />
+          </View>
+          <Text style={styles.heroTitle}>AI that works with no internet</Text>
+          <Text style={styles.heroText}>
+            The AI model isn't included in the app — it's a separate download
+            you control. Download once over Wi-Fi, and the AI Study Companion
+            keeps answering questions even when there's no network at all. No
+            data charges afterwards.
           </Text>
         </View>
-        <Switch
-          value={preferOffline}
-          onValueChange={(v) => void setPreferOffline(v)}
-          trackColor={{ true: colors.primaryLight, false: colors.border }}
-          thumbColor={preferOffline ? colors.primary : colors.surface}
-        />
-      </View>
 
-      <View style={styles.storageRow}>
-        <Ionicons name="server-outline" size={16} color={colors.textMuted} />
-        <Text style={styles.storageText}>
-          {freeSpace !== null
-            ? `Free storage: ${formatBytes(freeSpace)}`
-            : "Checking free storage…"}
-        </Text>
-      </View>
+        <View style={styles.toggleCard}>
+          <View style={styles.toggleTextWrap}>
+            <Text style={styles.toggleTitle}>Always use offline AI</Text>
+            <Text style={styles.toggleSub}>
+              Uses the on-device model for every question instead of the online
+              AI. Great if data is expensive or the network is unreliable.
+            </Text>
+          </View>
+          <Switch
+            value={preferOffline}
+            onValueChange={(v) => void setPreferOffline(v)}
+            trackColor={{ true: colors.brand, false: colors.border }}
+            thumbColor={preferOffline ? colors.brand : colors.surface}
+          />
+        </View>
 
-      {models.map((model) => (
-        <ModelCard key={model.id} model={model} />
-      ))}
+        <View style={styles.storageRow}>
+          <Icon name="vault" size={16} color={colors.textMuted} />
+          <Text style={styles.storageText}>
+            {freeSpace !== null
+              ? `Free storage: ${formatBytes(freeSpace)}`
+              : "Checking free storage…"}
+          </Text>
+        </View>
 
-      <View style={styles.noteCard}>
-        <Ionicons name="information-circle-outline" size={18} color={colors.info} />
-        <Text style={styles.noteText}>
-          Bigger models give better answers but use more storage and battery.
-          Start with the recommended model — you can switch or delete models
-          anytime.
-        </Text>
-      </View>
+        {models.map((model) => (
+          <ModelCard key={model.id} model={model} />
+        ))}
 
-      <TouchableOpacity
-        style={styles.backLink}
-        onPress={() => navigation.goBack()}
-      >
-        <Ionicons name="arrow-back" size={16} color={colors.primary} />
-        <Text style={styles.backText}>Back to AI Study Companion</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <View style={styles.noteCard}>
+          <Icon name="info" size={18} color={colors.info} />
+          <Text style={styles.noteText}>
+            Bigger models give better answers but use more storage and battery.
+            Start with the recommended model — you can switch or delete models
+            anytime.
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.backLink}
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="arrowLeft" size={16} color={colors.brand} />
+          <Text style={styles.backText}>Back to AI Study Companion</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </ThemedScreen>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.md },
-  hero: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.lg,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  heroIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: radii.full,
-    backgroundColor: colors.surfaceAlt,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.sm,
-  },
-  heroTitle: { ...typography.h3, color: colors.textPrimary, textAlign: "center" },
-  heroText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    textAlign: "center",
-    lineHeight: 20,
-    marginTop: spacing.xs,
-  },
-  toggleCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  toggleTextWrap: { flex: 1 },
-  toggleTitle: { ...typography.bodyBold, color: colors.textPrimary },
-  toggleSub: {
-    ...typography.small,
-    color: colors.textMuted,
-    marginTop: spacing.xs,
-    lineHeight: 16,
-  },
-  storageRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    paddingHorizontal: spacing.xs,
-  },
-  storageText: { ...typography.caption, color: colors.textMuted },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    gap: spacing.sm,
-  },
-  cardRecommended: { borderColor: colors.primaryLight },
-  cardHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  tierBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-  },
-  tierBadgeText: { ...typography.small, color: colors.textSecondary },
-  recoBadge: { backgroundColor: colors.successBg },
-  recoBadgeText: { color: colors.success },
-  inUseBadge: { backgroundColor: colors.successBg, marginLeft: "auto" },
-  inUseText: { color: colors.success },
-  cardTitle: { ...typography.h3, color: colors.textPrimary },
-  cardDesc: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    lineHeight: 19,
-  },
-  specRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
-  specItem: { flexDirection: "row", alignItems: "center", gap: 4 },
-  specText: { ...typography.small, color: colors.textMuted },
-  downloadWrap: { gap: spacing.xs },
-  progressTrack: {
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-    overflow: "hidden",
-  },
-  progressFill: { height: "100%", borderRadius: 4, backgroundColor: colors.primary },
-  downloadMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  downloadText: { ...typography.caption, color: colors.textSecondary },
-  cancelText: { ...typography.captionBold, color: colors.primary },
-  errorText: { ...typography.caption, color: colors.error, lineHeight: 18 },
-  downloadedActions: { gap: spacing.sm },
-  engineWrap: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  engineText: { ...typography.caption, color: colors.textSecondary, flexShrink: 1 },
-  deleteBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    paddingVertical: spacing.sm,
-  },
-  deleteText: { ...typography.captionBold, color: colors.error },
-  noteCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: spacing.sm,
-    backgroundColor: colors.infoBg,
-    borderRadius: radii.md,
-    padding: spacing.md,
-  },
-  noteText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    flex: 1,
-    lineHeight: 18,
-  },
-  backLink: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    paddingVertical: spacing.md,
-  },
-  backText: { ...typography.captionBold, color: colors.primary },
-});
+function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
+  return StyleSheet.create({
+    content: {
+      padding: theme.spacing.md,
+      paddingBottom: theme.spacing.xxl,
+      gap: theme.spacing.md,
+    },
+    hero: {
+      backgroundColor: colors.surface,
+      borderRadius: theme.radii.lg,
+      padding: theme.spacing.lg,
+      alignItems: "center",
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    heroIcon: {
+      width: 52,
+      height: 52,
+      borderRadius: 999,
+      backgroundColor: colors.surfaceAlt,
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: theme.spacing.sm,
+    },
+    heroTitle: {
+      fontFamily: theme.typography.h3.fontFamily,
+      fontSize: theme.typography.h3.fontSize,
+      lineHeight: theme.typography.h3.lineHeight,
+      color: colors.textPrimary,
+      textAlign: "center",
+    },
+    heroText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      lineHeight: theme.typography.caption.lineHeight,
+      color: colors.textSecondary,
+      textAlign: "center",
+      marginTop: theme.spacing.xs,
+    },
+    toggleCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.md,
+      backgroundColor: colors.surface,
+      borderRadius: theme.radii.lg,
+      padding: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    toggleTextWrap: { flex: 1 },
+    toggleTitle: {
+      fontFamily: theme.typography.bodyBold.fontFamily,
+      fontSize: theme.typography.bodyBold.fontSize,
+      color: colors.textPrimary,
+    },
+    toggleSub: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      lineHeight: theme.typography.small.lineHeight,
+      color: colors.textMuted,
+      marginTop: theme.spacing.xs,
+    },
+    storageRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+      paddingHorizontal: theme.spacing.xs,
+    },
+    storageText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      color: colors.textMuted,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: theme.radii.lg,
+      padding: theme.spacing.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      gap: theme.spacing.sm,
+    },
+    cardRecommended: { borderColor: colors.brand },
+    cardHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+    },
+    tierBadge: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: 999,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 3,
+    },
+    tierBadgeText: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      color: colors.textSecondary,
+    },
+    recoBadge: { backgroundColor: colors.successBg },
+    recoBadgeText: { color: colors.success },
+    inUseBadge: { backgroundColor: colors.successBg, marginLeft: "auto" },
+    inUseText: { color: colors.success },
+    cardTitle: {
+      fontFamily: theme.typography.h3.fontFamily,
+      fontSize: theme.typography.h3.fontSize,
+      lineHeight: theme.typography.h3.lineHeight,
+      color: colors.textPrimary,
+    },
+    cardDesc: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      lineHeight: theme.typography.caption.lineHeight,
+      color: colors.textSecondary,
+    },
+    specRow: { flexDirection: "row", flexWrap: "wrap", gap: theme.spacing.md },
+    specItem: { flexDirection: "row", alignItems: "center", gap: 4 },
+    specText: {
+      fontFamily: theme.typography.small.fontFamily,
+      fontSize: theme.typography.small.fontSize,
+      color: colors.textMuted,
+    },
+    downloadWrap: { gap: theme.spacing.xs },
+    progressTrack: {
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.border,
+      overflow: "hidden",
+    },
+    progressFill: { height: "100%", borderRadius: 4, backgroundColor: colors.brand },
+    downloadMeta: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    downloadText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      color: colors.textSecondary,
+    },
+    cancelText: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+      color: colors.brand,
+    },
+    errorRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: theme.spacing.xs,
+    },
+    errorText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      lineHeight: theme.typography.caption.lineHeight,
+      color: colors.error,
+      flex: 1,
+    },
+    downloadedActions: { gap: theme.spacing.sm },
+    engineWrap: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: theme.spacing.sm,
+    },
+    engineText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      color: colors.textSecondary,
+      flexShrink: 1,
+    },
+    deleteBtn: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.sm,
+    },
+    deleteText: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+      color: colors.error,
+    },
+    noteCard: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: theme.spacing.sm,
+      backgroundColor: colors.infoBg,
+      borderRadius: theme.radii.md,
+      padding: theme.spacing.md,
+    },
+    noteText: {
+      fontFamily: theme.typography.caption.fontFamily,
+      fontSize: theme.typography.caption.fontSize,
+      lineHeight: theme.typography.caption.lineHeight,
+      color: colors.textSecondary,
+      flex: 1,
+    },
+    backLink: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: theme.spacing.xs,
+      paddingVertical: theme.spacing.md,
+    },
+    backText: {
+      fontFamily: theme.typography.captionBold.fontFamily,
+      fontSize: theme.typography.captionBold.fontSize,
+      color: colors.brand,
+    },
+  });
+}

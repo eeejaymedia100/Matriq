@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../../theme/ThemeContext";
@@ -46,7 +47,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   const [type, setType] = useState<"past_question" | "material">("past_question");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [firstUpload, setFirstUpload] = useState(false);
+  const [firstUpload, setFirstUpload] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -55,9 +56,12 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
     (async () => {
       try {
         const data = await api.get<{ items: VaultItemDto[] }>("/me/vault");
+        // Only treat this as a returning upload when we can confirm prior
+        // uploads; on any error we keep the safe default (show the Terms
+        // checkbox) so the submit button is never silently disabled.
         setFirstUpload(data.items.length === 0);
       } catch {
-        setFirstUpload(false);
+        // Leave firstUpload as true.
       }
     })();
   }, []);
@@ -84,7 +88,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
     !!asset &&
     courseCode.trim().length >= 2 &&
     title.trim().length > 0 &&
-    termsAccepted &&
+    (firstUpload ? termsAccepted : true) &&
     !uploading;
 
   const submit = async () => {
@@ -128,11 +132,15 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   return (
     <ThemedScreen>
       <SafeAreaView style={{ flex: 1 }}>
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+          <ScrollView
+            contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Add to the Vault</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4, lineHeight: 22 }]}>
             Share a past question or material with students in your school —
@@ -438,7 +446,8 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               </Text>
             )}
           </Pressable>
-        </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
 
       <ConfirmSheet

@@ -254,25 +254,38 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         await FileSystem.deleteAsync(uri, { idempotent: true }).catch(() => {});
       }
 
-      const resumable = FileSystem.createDownloadResumable(
-        model.downloadUrl,
-        uri,
-        {},
-        (p) => {
-          if (p.totalBytesExpectedToWrite > 0) {
-            const progress =
-              p.totalBytesWritten / p.totalBytesExpectedToWrite;
-            setDownloads((prev) => ({
-              ...prev,
-              [id]: { progress, error: null },
-            }));
-          }
-        },
-      );
-      activeDownloadsRef.current[id] = resumable;
+      // A fresh DownloadResumable per attempt: Hugging Face serves the
+      // models through a redirect to a signed CDN URL, and a resumable that
+      // trips on that redirect can't be resumed cleanly. One retry covers
+      // the common case where the first attempt fails to follow the chain.
+      const attempt = async (): Promise<{ uri: string } | null> => {
+        const resumable = FileSystem.createDownloadResumable(
+          model.downloadUrl,
+          uri,
+          {},
+          (p) => {
+            if (p.totalBytesExpectedToWrite > 0) {
+              const progress =
+                p.totalBytesWritten / p.totalBytesExpectedToWrite;
+              setDownloads((prev) => ({
+                ...prev,
+                [id]: { progress, error: null },
+              }));
+            }
+          },
+        );
+        activeDownloadsRef.current[id] = resumable;
+        try {
+          const result = await resumable.downloadAsync();
+          return result?.uri ? result : null;
+        } catch {
+          return null;
+        }
+      };
 
       try {
-        const result = await resumable.downloadAsync();
+        let result = await attempt();
+        if (!result) result = await attempt();
         if (!result?.uri) throw new Error("Download failed");
         const info = await FileSystem.getInfoAsync(uri).catch(() => null);
         const sizeBytes =
@@ -304,7 +317,7 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
             [id]: {
               progress: 0,
               error:
-                "Download failed. Check your internet connection and try again.",
+                "Download didn't finish — your connection may have dropped. Check your internet and tap Download again to retry.",
             },
           }));
         }
