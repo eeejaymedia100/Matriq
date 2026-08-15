@@ -4,6 +4,17 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — Timetable screen synced to server updates + shipped as v0.7.1 (build 9)
+
+**Status:** done + shipped. Follows the release flow from the entry below (bump → build → finalize).
+
+**Did:**
+- **Full timetable sync (the last remaining round-2 QA flag).** `TimetableScreen` now fetches association-pushed class changes (`GET /v1/associations/:id/timetable-updates`) via the user's membership and renders them as an "Association updates" feed above the on-device week grid, with loading / error+retry / empty states and dept·level scope labels. Refreshes on focus so a change pushed while the app is open shows up.
+- **Fixed the dead deep link:** added `"Timetable"` to the notification feed's `VALID_LINKS` allowlist — timetable notifications now open the Timetable screen (previously they were rendered but non-tappable).
+- **Validation:** mobile tsc clean; APK verified versionCode 9 / 0.7.1 with the new feed embedded; manifest bumped to v9 and served at `matriq.com.ng/app-version.json`; `/download/matriq.apk` → 200. Telegram summary #441.
+
+**Next:** none pending.
+
 ## 2026-08-15 — Round 2 QA — full fixes pass implemented (notifications, admin analytics, facts/quiz, timetable updates, design)
 
 **Status:** backend + APK both DEPLOYED to production. Backend (`84ff44d`) live with both migrations applied; **v0.7.0 (build 8) APK shipped** — new screens reach students via the in-app updater (no manual redownload).
