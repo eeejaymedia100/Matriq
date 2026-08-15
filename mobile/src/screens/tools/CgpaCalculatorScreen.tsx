@@ -235,7 +235,8 @@ export function CgpaCalculatorScreen() {
                 <Text style={[theme.typography.display, { color: colors.textPrimary }]}>
                   {result.cgpa.toFixed(2)}
                 </Text>
-                <Text style={[theme.typography.captionBold, { color: colors.accent, textTransform: "uppercase" }]}>
+                {/* Lime is never text on a light surface (§3) — use brand. */}
+                <Text style={[theme.typography.captionBold, { color: colors.brand, textTransform: "uppercase" }]}>
                   {cgpaClassification(result.cgpa)}
                 </Text>
               </View>
@@ -368,7 +369,7 @@ export function CgpaCalculatorScreen() {
                 <>
                   <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
                     You need an average of{" "}
-                    <Text style={{ color: colors.accent }}>{prediction.gpRequired.toFixed(2)}</Text>{" "}
+                    <Text style={{ color: colors.brand }}>{prediction.gpRequired.toFixed(2)}</Text>{" "}
                     across {timeframe.semesters} semester{timeframe.semesters === 1 ? "" : "s"}
                   </Text>
                   <Text style={[theme.typography.caption, { color: colors.textSecondary, marginTop: 8, lineHeight: 20 }]}>

@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  Linking,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
@@ -13,7 +14,8 @@ import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE } from "../../theme/tokens";
 import { Button } from "../../components";
 import { Icon, type IconName } from "../../components/icons";
-import { setItem, getItem } from "../../utils/storage";
+import { setItem } from "../../utils/storage";
+import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
 export const ONBOARDING_SEEN_KEY = "onboarding_seen";
 
@@ -23,27 +25,38 @@ interface Slide {
   body: string;
 }
 
+/**
+ * Onboarding — final copy (round-2 QA §4), implemented exactly as written.
+ * Four slides, the "The Smart Way" tagline carried through, Get Started /
+ * Sign In CTAs on the last slide.
+ */
 const SLIDES: Slide[] = [
   {
     icon: "sparkle",
-    title: "Your AI, even offline.",
-    body: "Download a small model once, then ask questions anywhere — lectures, road trips, dead spots. No internet needed.",
+    title: "The Smart Way to Study.",
+    body: "Access localized, on-device AI designed to answer course-specific questions, explain tough concepts, and keep you learning anywhere.",
   },
   {
     icon: "vault",
-    title: "The Vault.",
-    body: "Past questions and study materials shared by students like you. Search by course code, grab light versions when data is scarce.",
+    title: "Your Campus Archive, In One Place.",
+    body: "Explore past questions, lecture materials, and shared summaries contributed by fellow students across departments.",
   },
   {
-    icon: "zap",
-    title: "Built for Nigerian data.",
-    body: "Offline-first and light. Everything that matters keeps working when the network doesn't.",
+    icon: "layers",
+    title: "Practical Tools for Daily Success.",
+    body: "Calculate target CGPAs, extract text from snapshots, convert documents, and link directly to your campus portal without the clutter.",
+  },
+  {
+    icon: "cloudOff",
+    title: "Built for Speed. Works Offline.",
+    body: "Download light companion files to save mobile data, and stay fully productive even without an active internet connection.",
   },
 ];
 
 interface Props {
   navigation: {
     reset: (state: { index: number; routes: { name: string }[] }) => void;
+    navigate: (screen: string) => void;
   };
 }
 
@@ -68,6 +81,11 @@ export function OnboardingScreen({ navigation }: Props) {
     } else {
       void finish();
     }
+  };
+
+  const signIn = () => {
+    void setItem(ONBOARDING_SEEN_KEY, "1").catch(() => {});
+    navigation.reset({ index: 0, routes: [{ name: "Login" }] });
   };
 
   const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -140,7 +158,7 @@ export function OnboardingScreen({ navigation }: Props) {
             <Text
               style={[
                 theme.typography.body,
-                { color: colors.textSecondary, textAlign: "center", lineHeight: 25, maxWidth: 320 },
+                { color: colors.textSecondary, textAlign: "center", lineHeight: 25, maxWidth: 330 },
               ]}
             >
               {slide.body}
@@ -171,14 +189,36 @@ export function OnboardingScreen({ navigation }: Props) {
       </View>
 
       <View style={{ paddingHorizontal: 24, paddingBottom: 24 }}>
-        <Button title={isLast ? "Get Started" : "Next"} onPress={next} size="lg" />
+        {isLast ? (
+          <View style={{ gap: 10 }}>
+            <Button title="Get Started" onPress={finish} size="lg" />
+            <Button title="Sign In" onPress={signIn} variant="outline" size="lg" />
+          </View>
+        ) : (
+          <Button title="Next" onPress={next} size="lg" />
+        )}
+
         <Text
           style={[
             theme.typography.caption,
-            { color: colors.textMuted, textAlign: "center", marginTop: 16 },
+            { color: colors.textMuted, textAlign: "center", marginTop: 16, lineHeight: 19 },
           ]}
         >
-          Pay association dues in one tap — instant QR receipts.
+          By continuing, you agree to our{" "}
+          <Text
+            style={{ color: colors.brand, fontWeight: "600", textDecorationLine: "underline" }}
+            onPress={() => Linking.openURL(TERMS_URL).catch(() => {})}
+          >
+            Terms of Use
+          </Text>{" "}
+          and{" "}
+          <Text
+            style={{ color: colors.brand, fontWeight: "600", textDecorationLine: "underline" }}
+            onPress={() => Linking.openURL(PRIVACY_URL).catch(() => {})}
+          >
+            Privacy Policy
+          </Text>
+          .
         </Text>
         <Text
           style={[
@@ -186,13 +226,13 @@ export function OnboardingScreen({ navigation }: Props) {
             {
               color: colors.textMuted,
               textAlign: "center",
-              marginTop: 8,
+              marginTop: 10,
               letterSpacing: 1,
               textTransform: "uppercase",
             },
           ]}
         >
-          {TAGLINE}
+          Matriq — {TAGLINE}
         </Text>
       </View>
     </SafeAreaView>

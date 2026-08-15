@@ -51,6 +51,9 @@ function BlobsInner() {
     };
   }, []);
 
+  // Round-2 QA §10: the reference image's glow presence is richer/more
+  // luminous than the original spec — these opacities are the calibration
+  // target (brighter lime + violet, a stronger magenta whisper).
   const blobs: BlobSpec[] = [
     {
       key: "lime",
@@ -58,7 +61,7 @@ function BlobsInner() {
       size: 300,
       x: -70,
       y: -90,
-      opacity: 0.14,
+      opacity: 0.22,
       duration: 24000,
       driftX: 90,
       driftY: 130,
@@ -70,7 +73,7 @@ function BlobsInner() {
       size: 360,
       x: 190,
       y: 120,
-      opacity: 0.22,
+      opacity: 0.32,
       duration: 30000,
       driftX: -70,
       driftY: 90,
@@ -82,7 +85,7 @@ function BlobsInner() {
       size: 240,
       x: 30,
       y: 460,
-      opacity: 0.07,
+      opacity: 0.12,
       duration: 26000,
       driftX: 80,
       driftY: -60,

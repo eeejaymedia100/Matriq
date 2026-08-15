@@ -131,23 +131,19 @@ export function SettingsScreen({ navigation }: Props) {
     {
       id: "notifications",
       label: "Notifications",
-      hint: "Alerts for announcements & deadlines",
+      hint: "Verification, payments, dues & announcements",
       icon: "bell",
-      onPress: () =>
-        setInfo({
-          title: "Notifications",
-          body: "Matriq sends you push alerts for verification results, payment receipts, new dues and announcements — through your personal feed (ntfy, topic matriq-user-…). Install the free ntfy app and subscribe to your topic to receive them, or watch them inside the app on the Announcements screen.",
-        }),
+      onPress: () => go("Notifications"),
     },
     {
+      // Round-2 QA §7: offline-AI setup lives in exactly one place (Study).
+      // Data & Storage here only covers general storage — downloaded
+      // materials and cache — never AI model management.
       id: "data",
-      label: "Data & Offline",
-      hint:
-        Object.keys(downloaded).length > 0
-          ? `${Object.keys(downloaded).length} offline model${Object.keys(downloaded).length === 1 ? "" : "s"} installed`
-          : "Download the offline AI model",
-      icon: "cloudOff",
-      onPress: () => go("OfflineModels"),
+      label: "Data & Storage",
+      hint: "Downloaded materials & offline cache",
+      icon: "fileText",
+      onPress: () => go("MyMaterials"),
     },
     {
       id: "verification",

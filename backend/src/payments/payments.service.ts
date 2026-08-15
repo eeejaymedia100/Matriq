@@ -10,6 +10,7 @@ import * as crypto from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 export interface InitiatePaymentDto {
   feeId: string;
@@ -33,6 +34,7 @@ export class PaymentsService {
     private readonly configService: ConfigService,
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
+    private readonly inAppNotificationsService: InAppNotificationsService,
   ) {}
 
   /**
@@ -469,6 +471,13 @@ export class PaymentsService {
           `Your payment of ${amount} for "${feeName}" was successful. A receipt has been issued.`,
           { tags: ["money-bag"], priority: 4 },
         );
+        // In-app feed (round-2 QA §9).
+        await this.inAppNotificationsService.createForUser(payment.userId, {
+          title: "Payment received",
+          body: `Your payment of ${amount} for "${feeName}" was successful. A receipt has been issued.`,
+          type: "payment",
+          link: "Receipt",
+        });
       }
 
       if (fee) {

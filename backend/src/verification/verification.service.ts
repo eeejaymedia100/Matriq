@@ -10,6 +10,7 @@ import { AuditService } from "../audit/audit.service";
 import { EmailService } from "../email/email.service";
 import { StorageService } from "../storage/storage.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 @Injectable()
 export class VerificationService {
@@ -22,6 +23,7 @@ export class VerificationService {
     private readonly emailService: EmailService,
     private readonly storageService: StorageService,
     private readonly notificationsService: NotificationsService,
+    private readonly inAppNotificationsService: InAppNotificationsService,
   ) {}
 
   // ── Student: upload verification document ────────────────────
@@ -253,6 +255,13 @@ export class VerificationService {
       "An executive approved your verification document. Your account is now confirmed.",
       { tags: ["white_check_mark"], priority: 4 },
     );
+    // In-app feed (round-2 QA §9) — the bell points here.
+    void this.inAppNotificationsService.createForUser(request.userId, {
+      title: "Identity verified",
+      body: "An executive approved your verification document. Your account is now confirmed.",
+      type: "verification",
+      link: "VerificationStatus",
+    });
 
     return { message: "Student identity verified. Account confirmed." };
   }
@@ -322,6 +331,13 @@ export class VerificationService {
       `Your document was rejected: ${reason ?? "No reason provided"}. You can re-submit from the app.`,
       { tags: ["warning"], priority: 4 },
     );
+    // In-app feed (round-2 QA §9).
+    void this.inAppNotificationsService.createForUser(request.userId, {
+      title: "Verification needs attention",
+      body: `Your document was rejected: ${reason ?? "No reason provided"}. You can re-submit from the app.`,
+      type: "verification",
+      link: "VerificationStatus",
+    });
 
     return { message: "Verification rejected. Student has been notified." };
   }

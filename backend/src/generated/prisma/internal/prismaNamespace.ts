@@ -416,6 +416,8 @@ export const ModelName = {
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
   VaultItem: 'VaultItem',
+  Notification: 'Notification',
+  TimetableUpdate: 'TimetableUpdate',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
   RefreshTokenFamily: 'RefreshTokenFamily',
@@ -435,7 +437,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "legalAcceptance" | "waitlistEntry" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "notification" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1845,6 +1847,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Notification: {
+      payload: Prisma.$NotificationPayload<ExtArgs>
+      fields: Prisma.NotificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        update: {
+          args: Prisma.NotificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotification>
+        }
+        groupBy: {
+          args: Prisma.NotificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationCountAggregateOutputType> | number
+        }
+      }
+    }
+    TimetableUpdate: {
+      payload: Prisma.$TimetableUpdatePayload<ExtArgs>
+      fields: Prisma.TimetableUpdateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TimetableUpdateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TimetableUpdateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        findFirst: {
+          args: Prisma.TimetableUpdateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TimetableUpdateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        findMany: {
+          args: Prisma.TimetableUpdateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>[]
+        }
+        create: {
+          args: Prisma.TimetableUpdateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        createMany: {
+          args: Prisma.TimetableUpdateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TimetableUpdateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>[]
+        }
+        delete: {
+          args: Prisma.TimetableUpdateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        update: {
+          args: Prisma.TimetableUpdateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        deleteMany: {
+          args: Prisma.TimetableUpdateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TimetableUpdateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TimetableUpdateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>[]
+        }
+        upsert: {
+          args: Prisma.TimetableUpdateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableUpdatePayload>
+        }
+        aggregate: {
+          args: Prisma.TimetableUpdateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTimetableUpdate>
+        }
+        groupBy: {
+          args: Prisma.TimetableUpdateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimetableUpdateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TimetableUpdateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimetableUpdateCountAggregateOutputType> | number
+        }
+      }
+    }
     LegalAcceptance: {
       payload: Prisma.$LegalAcceptancePayload<ExtArgs>
       fields: Prisma.LegalAcceptanceFieldRefs
@@ -2461,6 +2611,34 @@ export const VaultItemScalarFieldEnum = {
 export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]
 
 
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  body: 'body',
+  type: 'type',
+  link: 'link',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const TimetableUpdateScalarFieldEnum = {
+  id: 'id',
+  associationId: 'associationId',
+  authorExecutiveId: 'authorExecutiveId',
+  department: 'department',
+  level: 'level',
+  title: 'title',
+  body: 'body',
+  createdAt: 'createdAt'
+} as const
+
+export type TimetableUpdateScalarFieldEnum = (typeof TimetableUpdateScalarFieldEnum)[keyof typeof TimetableUpdateScalarFieldEnum]
+
+
 export const LegalAcceptanceScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -2975,6 +3153,8 @@ export type GlobalOmitConfig = {
   aiDocument?: Prisma.AiDocumentOmit
   aiQueryLog?: Prisma.AiQueryLogOmit
   vaultItem?: Prisma.VaultItemOmit
+  notification?: Prisma.NotificationOmit
+  timetableUpdate?: Prisma.TimetableUpdateOmit
   legalAcceptance?: Prisma.LegalAcceptanceOmit
   waitlistEntry?: Prisma.WaitlistEntryOmit
   refreshTokenFamily?: Prisma.RefreshTokenFamilyOmit

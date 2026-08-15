@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ThemeProvider, useTheme } from "./src/theme/ThemeContext";
 import { AuthProvider } from "./src/contexts/AuthContext";
+import { NotificationsProvider } from "./src/contexts/NotificationsContext";
 import { OfflineAiProvider } from "./src/offline/OfflineAiContext";
 import { AppNavigator } from "./src/navigation/AppNavigator";
 import { UpdateOverlay } from "./src/components/UpdateOverlay";
@@ -59,11 +60,13 @@ function AppInner() {
   return (
     <AuthProvider>
       <OfflineAiProvider>
-        <NavigationContainer theme={navTheme}>
-          <StatusBar style={isGlass ? "light" : "dark"} />
-          <AppNavigator />
-          <UpdateOverlay />
-        </NavigationContainer>
+        <NotificationsProvider>
+          <NavigationContainer theme={navTheme}>
+            <StatusBar style={isGlass ? "light" : "dark"} />
+            <AppNavigator />
+            <UpdateOverlay />
+          </NavigationContainer>
+        </NotificationsProvider>
       </OfflineAiProvider>
     </AuthProvider>
   );

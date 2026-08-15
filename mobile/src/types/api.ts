@@ -116,3 +116,23 @@ export interface VerificationRequest {
 export interface ApiError {
   error: { code: string; message: string };
 }
+
+/** In-app notification feed (round-2 QA §9). */
+export interface AppNotification {
+  id: string;
+  title: string;
+  body: string;
+  type:
+    | "verification"
+    | "payment"
+    | "dues"
+    | "announcement"
+    | "broadcast"
+    | "vault"
+    | "timetable"
+    | "update"
+    | "general";
+  link: string | null;
+  read: boolean;
+  createdAt: string;
+}

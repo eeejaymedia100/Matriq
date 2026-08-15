@@ -1,5 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, Platform, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  Pressable,
+  Platform,
+  StyleSheet,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system/legacy";
 import { getItem, setItem } from "../utils/storage";
@@ -12,21 +20,23 @@ import {
 } from "../services/updateChecker";
 
 const READY_KEY = "update_ready_version";
-const SKIPPED_KEY = "skipped_update_version";
 
 /**
- * Silent background updater (spec §15). New versions download in the
- * background — no blocking modal, no "keep the app open" bar. When the
- * download finishes a slim, non-blocking banner appears; the install is also
- * triggered automatically at the next natural reopen (fresh app start) if the
- * user hasn't applied it yet.
+ * Silent background updater (round-2 QA §12).
+ *
+ * The new version downloads silently in the background. Once it's finished,
+ * a popup appears: "Update detected — restart the application?" with Yes/No.
+ *  - Yes → opens the installer now.
+ *  - No  → defers, does NOT cancel: the update still applies the next time
+ *          the app restarts on its own (fresh app start), and the popup
+ *          returns on the next launch until applied.
  */
 export function UpdateOverlay() {
   const { theme } = useTheme();
   const colors = theme.colors;
 
   const [ready, setReady] = useState<AppUpdateInfo | null>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [installing, setInstalling] = useState(false);
   const ran = useRef(false);
 
@@ -57,13 +67,12 @@ export function UpdateOverlay() {
       const info = await checkForUpdate();
       if (!info) return;
 
-      const skipped = await getItem(SKIPPED_KEY).catch(() => null);
-      if (skipped === String(info.versionCode)) return;
-
       const ok = await downloadSilently(info);
       if (ok) {
+        // A previously-deferred update re-prompts until applied (No defers,
+        // it never cancels).
         setReady(info);
-        setShowBanner(true);
+        setShowPrompt(true);
       }
     };
     void boot();
@@ -110,101 +119,134 @@ export function UpdateOverlay() {
     }
   };
 
-  const handleInstallNow = useCallback(async () => {
+  const handleYes = useCallback(async () => {
     if (!ready || installing) return;
     setInstalling(true);
     const ok = await installApk(ready);
     if (ok) {
-      setShowBanner(false);
+      setShowPrompt(false);
     } else {
-      // Let the user retry by keeping the banner.
+      // Installer didn't open — keep the prompt so the user can retry.
       setInstalling(false);
     }
   }, [ready, installing]);
 
-  const handleDismiss = useCallback(async () => {
-    await setItem(SKIPPED_KEY, String(ready?.versionCode ?? "")).catch(() => {});
-    setShowBanner(false);
-  }, [ready]);
+  const handleNo = useCallback(() => {
+    // Defers only — the update still applies at the next natural reopen,
+    // and this prompt returns next launch until it's applied.
+    setShowPrompt(false);
+  }, []);
 
   // Web build (for iOS users) has no APK path — nothing here.
   if (Platform.OS === "web") return null;
-  if (!showBanner || !ready) return null;
 
   return (
-    <View style={styles.wrap} pointerEvents="box-none">
-      <View
-        style={[
-          styles.banner,
-          {
-            backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.96)" : colors.surface,
-            borderColor: colors.border,
-            ...(theme.mode === "pop" ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "3px 3px 0 #170B26" } : { borderWidth: 1 }),
-          },
-        ]}
-      >
+    <Modal
+      visible={showPrompt && !!ready}
+      transparent
+      animationType="fade"
+      onRequestClose={handleNo}
+    >
+      <View style={styles.backdrop}>
         <View
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 12,
-            backgroundColor: colors.accent,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          style={[
+            styles.card,
+            {
+              backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.98)" : colors.surface,
+              borderColor: colors.border,
+              ...(theme.mode === "pop"
+                ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "5px 5px 0 #170B26" }
+                : { borderWidth: 1 }),
+            },
+          ]}
         >
-          <Icon name="download" size={19} color="#170B26" />
+          <View
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 16,
+              backgroundColor: colors.accent,
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 14,
+            }}
+          >
+            <Icon name="download" size={26} color="#170B26" />
+          </View>
+          <Text style={[theme.typography.h2, { color: colors.textPrimary }]}>
+            Update detected
+          </Text>
+          <Text
+            style={[
+              theme.typography.body,
+              { color: colors.textSecondary, marginTop: 8, textAlign: "center", lineHeight: 24 },
+            ]}
+          >
+            Matriq {ready?.versionName} has finished downloading in the
+            background. Restart the application to apply it?
+          </Text>
+
+          <View style={{ flexDirection: "row", gap: 10, marginTop: 22, width: "100%" }}>
+            <Pressable
+              onPress={handleNo}
+              disabled={installing}
+              style={{
+                flex: 1,
+                alignItems: "center",
+                paddingVertical: 13,
+                borderRadius: theme.radii.md,
+                borderWidth: 1.5,
+                borderColor: colors.borderStrong,
+              }}
+            >
+              <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                Not now
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => void handleYes()}
+              disabled={installing}
+              style={{
+                flex: 1,
+                alignItems: "center",
+                paddingVertical: 13,
+                borderRadius: theme.radii.md,
+                backgroundColor: colors.accent,
+                borderWidth: theme.mode === "pop" ? 2 : 0,
+                borderColor: colors.borderStrong,
+              }}
+            >
+              {installing ? (
+                <ActivityIndicator size="small" color="#170B26" />
+              ) : (
+                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                  Restart now
+                </Text>
+              )}
+            </Pressable>
+          </View>
+          <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 14, textAlign: "center" }]}>
+            "Not now" defers — the update applies next time the app restarts.
+          </Text>
         </View>
-        <View style={{ flex: 1, marginLeft: 12 }}>
-          <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-            Matriq {ready.versionName} ready
-          </Text>
-          <Text style={[theme.typography.caption, { color: colors.textSecondary, lineHeight: 18 }]} numberOfLines={2}>
-            Downloaded in the background. Restart to apply it.
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => void handleInstallNow()}
-          disabled={installing}
-          style={{
-            paddingVertical: 9,
-            paddingHorizontal: 16,
-            borderRadius: theme.radii.md,
-            backgroundColor: colors.accent,
-            borderWidth: theme.mode === "pop" ? 2 : 0,
-            borderColor: colors.borderStrong,
-            marginLeft: 8,
-          }}
-        >
-          <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
-            {installing ? "Opening…" : "Install"}
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => void handleDismiss()} hitSlop={10} style={{ marginLeft: 8 }}>
-          <Icon name="x" size={16} color={colors.textMuted} />
-        </Pressable>
       </View>
-    </View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 88,
-    zIndex: 900,
-  },
-  banner: {
-    flexDirection: "row",
+  backdrop: {
+    flex: 1,
+    backgroundColor: "rgba(10,4,20,0.6)",
+    justifyContent: "center",
     alignItems: "center",
-    borderRadius: 18,
-    padding: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 12,
+    padding: 28,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 380,
+    borderRadius: 24,
+    padding: 24,
+    alignItems: "center",
   },
 });

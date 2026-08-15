@@ -137,6 +137,7 @@ model User {
   refreshTokenFamilies  RefreshTokenFamily[]
   eventAttendance       EventAttendance[]
   vaultItems            VaultItem[]
+  notifications         Notification[]
 
   @@map("users")
 }
@@ -161,6 +162,7 @@ model Association {
   aiDocuments      AiDocument[]
   verificationRequests VerificationRequest[]
   vaultItems       VaultItem[]
+  timetableUpdates TimetableUpdate[]
 
   @@map("associations")
 }
@@ -181,6 +183,7 @@ model AssociationExecutive {
   eventsCreated Event[]      @relation("EventAuthor")
   receiptVerified Receipt[]
   verificationReviews VerificationRequest[] @relation("Reviewer")
+  timetableUpdates TimetableUpdate[]
 
   @@unique([userId, associationId])
   @@map("association_executives")
@@ -475,6 +478,54 @@ model VaultItem {
   @@index([moderationStatus, visibility])
   @@index([userId])
   @@map("vault_items")
+}
+
+// ── In-app notification feed (round-2 QA §9) ─────────────────────
+// The bell + feed students see inside the app: verification updates, payment
+// receipts, new dues, announcements, admin broadcasts. Rows are created
+// server-side alongside the business event that triggers them; push (ntfy)
+// stays a separate, optional delivery channel on top.
+model Notification {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  title     String
+  body      String
+  // verification | payment | dues | announcement | broadcast | vault |
+  // timetable | update | general
+  type      String   @default("general")
+  // Deep link target within the app when the student taps the row
+  // (e.g. "VerificationStatus", "Fees", "Explore").
+  link      String?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+// ── Real-time class/timetable updates (round-2 QA §2) ─────────────
+// An executive or class rep pushes a change ("GST 202 moved to 2pm") scoped
+// by department + level; students matching that scope see it in their
+// Timetable and get an in-app notification. Null department/level = all.
+model TimetableUpdate {
+  id                String   @id @default(uuid()) @db.Uuid
+  associationId     String   @map("association_id") @db.Uuid
+  authorExecutiveId String   @map("author_executive_id") @db.Uuid
+  department        String?  // null → all departments
+  level             String?  // null → all levels
+  title             String
+  body              String
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  // Relations
+  association Association          @relation(fields: [associationId], references: [id])
+  author      AssociationExecutive @relation(fields: [authorExecutiveId], references: [id])
+
+  @@index([associationId, department, level])
+  @@map("timetable_updates")
 }
 
 model LegalAcceptance {

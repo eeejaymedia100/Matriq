@@ -14,9 +14,13 @@ export interface Association {
 }
 
 export interface AnalyticsData {
+  totalStudents: number;
   totalAssociations: number;
   activeAssociations: number;
-  totalStudents: number;
+  totalPayments: number;
+  successfulPayments: number;
+  totalCollectedKobo: number;
+  totalRevenueKobo: number;
   totalRevenue: number;
   associations: Array<{
     id: string;
@@ -26,6 +30,21 @@ export interface AnalyticsData {
     memberCount: number;
     totalCollected: number;
   }>;
+  associationRevenue: Array<{
+    associationId: string;
+    name: string;
+    totalKobo: number;
+  }>;
+  topCourses: Array<{
+    courseCode: string;
+    uploads: number;
+    downloads: number;
+  }>;
+  vaultActivity: {
+    totalUploads: number;
+    pendingModeration: number;
+    contributionsThisWeek: number;
+  };
 }
 
 export interface AuditLogEntry {

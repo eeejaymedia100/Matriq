@@ -9,12 +9,36 @@ import {
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
+import { IsInt, IsOptional, IsString, Max, Min } from "class-validator";
+import { Type } from "class-transformer";
 import { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { AiService } from "./ai.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { JwtPayload } from "../auth/auth.service";
+
+class FactsDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(3)
+  @Max(12)
+  count?: number;
+}
+
+class QuizDto {
+  @IsOptional()
+  @IsString()
+  courseCode?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(3)
+  @Max(10)
+  count?: number;
+}
 
 @Controller("v1")
 export class AiController {
@@ -59,6 +83,33 @@ export class AiController {
     } finally {
       res.end();
     }
+  }
+
+  /**
+   * Cloud-AI study facts (round-2 QA §8). Gemini-generated batch, cached
+   * server-side; the client rotates the cached copy. Never called on a timer
+   * — fetched once a day at most.
+   */
+  @Post("ai/facts")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
+  facts(@Body() dto: FactsDto) {
+    return this.aiService.generateFacts(dto?.count);
+  }
+
+  /**
+   * Cloud-AI quiz (round-2 QA §8), personalised to the student's own approved
+   * uploaded materials. Seed fallback when no materials or no Gemini key.
+   */
+  @Post("ai/quiz")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  quiz(@CurrentUser() user: JwtPayload, @Body() dto: QuizDto) {
+    return this.aiService.generateQuiz(
+      user.sub,
+      dto?.courseCode,
+      dto?.count,
+    );
   }
 
   @Get("ai/conversations")

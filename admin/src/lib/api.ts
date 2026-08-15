@@ -216,6 +216,19 @@ export async function createAdmin(
   );
 }
 
+// ── Platform-wide broadcasts (spec §1) ─────────────────────────────
+
+export async function createBroadcast(
+  data: { title: string; body: string },
+  token: string,
+) {
+  return fetchApi<{ message: string; title: string }>("/admin/broadcasts", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
 // ── Waitlist ───────────────────────────────────────────────────────
 
 export async function listWaitlist(token: string, cursor?: string) {

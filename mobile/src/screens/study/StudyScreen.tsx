@@ -14,6 +14,7 @@ import { Icon, type IconName } from "../../components/icons";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { OFFLINE_MODELS, formatBytes, getModel } from "../../offline/models";
 import { factForTick } from "../../utils/facts";
+import { useDailyFacts } from "../../utils/dailyFacts";
 import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Study">;
@@ -24,14 +25,15 @@ interface ExtraFeature {
   hint: string;
   icon: IconName;
   ready: boolean;
-  target?: "FocusTimer" | "DeadlineTracker";
+  target?: "FocusTimer" | "DeadlineTracker" | "Quiz";
 }
 
 const EXTRAS: ExtraFeature[] = [
   { id: "flashcards", label: "Flashcards", hint: "Spaced repetition", icon: "layers", ready: false },
   { id: "focus", label: "Focus timer", hint: "Pomodoro, offline", icon: "timer", ready: true, target: "FocusTimer" },
   { id: "deadlines", label: "Deadline tracker", hint: "Never miss a submission", icon: "target", ready: true, target: "DeadlineTracker" },
-  { id: "quiz", label: "Quiz maker", hint: "From your uploaded materials", icon: "zap", ready: false },
+  // Round-2 QA §8: quiz generation is real and AI-powered now.
+  { id: "quiz", label: "Quiz maker", hint: "From your uploaded materials", icon: "zap", ready: true, target: "Quiz" },
 ];
 
 export function StudyScreen({ navigation }: Props) {
@@ -39,6 +41,7 @@ export function StudyScreen({ navigation }: Props) {
   const colors = theme.colors;
   const { downloaded, activeModelId } = useOfflineAi();
   const [tick, setTick] = useState(0);
+  const facts = useDailyFacts();
 
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 60_000);
@@ -46,7 +49,7 @@ export function StudyScreen({ navigation }: Props) {
   }, []);
 
   const isWeb = Platform.OS === "web";
-  const fact = factForTick(tick);
+  const fact = factForTick(tick, facts);
   const activeModel = activeModelId ? getModel(activeModelId) : undefined;
   const hasModel = Object.keys(downloaded).length > 0;
 

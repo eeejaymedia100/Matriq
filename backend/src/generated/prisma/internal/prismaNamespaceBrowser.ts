@@ -70,6 +70,8 @@ export const ModelName = {
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
   VaultItem: 'VaultItem',
+  Notification: 'Notification',
+  TimetableUpdate: 'TimetableUpdate',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
   RefreshTokenFamily: 'RefreshTokenFamily',
@@ -371,6 +373,34 @@ export const VaultItemScalarFieldEnum = {
 } as const
 
 export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  body: 'body',
+  type: 'type',
+  link: 'link',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const TimetableUpdateScalarFieldEnum = {
+  id: 'id',
+  associationId: 'associationId',
+  authorExecutiveId: 'authorExecutiveId',
+  department: 'department',
+  level: 'level',
+  title: 'title',
+  body: 'body',
+  createdAt: 'createdAt'
+} as const
+
+export type TimetableUpdateScalarFieldEnum = (typeof TimetableUpdateScalarFieldEnum)[keyof typeof TimetableUpdateScalarFieldEnum]
 
 
 export const LegalAcceptanceScalarFieldEnum = {

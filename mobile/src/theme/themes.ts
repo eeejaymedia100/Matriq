@@ -173,9 +173,11 @@ export const popTheme: MatriqTheme = {
   colors: {
     bg: brand.paper,
     bgDeep: "#EFE8F9",
-    surface: "#FFFFFF",
-    surfaceAlt: "#F0EAF8",
-    border: "#E4DBF1",
+    // Round-2 QA §10: more colour, less white — surfaces are tinted clay,
+    // not plain white-with-a-shadow.
+    surface: "#FCF7FF",
+    surfaceAlt: "#EFE4F9",
+    border: "#E0D4EF",
     borderStrong: brand.ink,
     textPrimary: brand.ink,
     textSecondary: "#5A4D73",
@@ -193,7 +195,7 @@ export const popTheme: MatriqTheme = {
     info: "#2563EB",
     infoBg: "#E8F0FE",
     overlay: "rgba(23,11,38,0.45)",
-    tabBarBg: "rgba(250,248,253,0.96)",
+    tabBarBg: "rgba(250,245,253,0.97)",
   },
   typography: typographyBase,
   radii,

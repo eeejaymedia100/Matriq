@@ -135,6 +135,16 @@ export type AiQueryLog = Prisma.AiQueryLogModel
  */
 export type VaultItem = Prisma.VaultItemModel
 /**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model TimetableUpdate
+ * 
+ */
+export type TimetableUpdate = Prisma.TimetableUpdateModel
+/**
  * Model LegalAcceptance
  * 
  */

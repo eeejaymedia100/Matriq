@@ -39,6 +39,8 @@ import { ReceiptScreen } from "../screens/payments/ReceiptScreen";
 import { AnnouncementsScreen } from "../screens/announcements/AnnouncementsScreen";
 import { EventsScreen } from "../screens/events/EventsScreen";
 import { OfflineModelsScreen } from "../screens/ai/OfflineModelsScreen";
+import { NotificationFeedScreen } from "../screens/notifications/NotificationFeedScreen";
+import { QuizScreen } from "../screens/study/QuizScreen";
 import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
 import { ProfileScreen } from "../screens/profile/ProfileScreen";
 import { VerificationUploadScreen } from "../screens/verification/VerificationUploadScreen";
@@ -151,6 +153,8 @@ function MainNavigator() {
       <MainStack.Screen name="VerificationUpload" component={VerificationUploadScreen} options={{ title: "Verify Identity" }} />
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
+      <MainStack.Screen name="Notifications" component={NotificationFeedScreen} options={{ title: "Notifications" }} />
+      <MainStack.Screen name="Quiz" component={QuizScreen} options={{ title: "Quiz" }} />
       <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
       <MainStack.Screen name="Ocr" component={OcrScreen} options={{ title: "Image to Text" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />

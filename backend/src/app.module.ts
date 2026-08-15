@@ -19,7 +19,9 @@ import { VerificationModule } from "./verification/verification.module";
 import { FeesModule } from "./fees/fees.module";
 import { VaultModule } from "./vault/vault.module";
 import { ToolsModule } from "./tools/tools.module";
+import { NotificationsModule } from "./notifications/notifications.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
+import { TimetableModule } from "./timetable/timetable.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
 
@@ -58,7 +60,9 @@ import { EmailModule } from "./email/email.module";
     FeesModule,
     VaultModule,
     ToolsModule,
+    NotificationsModule,
     WaitlistModule,
+    TimetableModule,
     HealthModule,
     EmailModule,
   ],

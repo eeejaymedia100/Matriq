@@ -8,6 +8,7 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 import { JwtPayload } from "../auth/auth.service";
 
 export interface CreateFeeDto {
@@ -34,6 +35,7 @@ export class FeesService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly notificationsService: NotificationsService,
+    private readonly inAppNotificationsService: InAppNotificationsService,
   ) {}
 
   /** Create a fee for an association (president/treasurer). */
@@ -99,6 +101,16 @@ export class FeesService {
       `New dues: ${fee.name}`,
       `${fee.name} — ₦${(fee.amountKobo / 100).toLocaleString()} (${fee.session}). Due ${dueDate.toISOString().slice(0, 10)}.`,
       { tags: ["money-bag"], priority: 4 },
+    );
+    // In-app feed (round-2 QA §9).
+    void this.inAppNotificationsService.createForAssociationMembers(
+      associationId,
+      {
+        title: `New dues: ${fee.name}`,
+        body: `${fee.name} — ₦${(fee.amountKobo / 100).toLocaleString()} (${fee.session}). Due ${dueDate.toISOString().slice(0, 10)}.`,
+        type: "dues",
+        link: "Fees",
+      },
     );
 
     return {

@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { Prisma } from "../generated/prisma/client";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 @Injectable()
 export class AnnouncementsService {
   private readonly logger = new Logger(AnnouncementsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly inAppNotificationsService: InAppNotificationsService,
+  ) {}
 
   async list(
     associationId: string,
@@ -96,6 +100,18 @@ export class AnnouncementsService {
 
     this.logger.log(
       `Announcement created: ${announcement.id} in association ${associationId}`,
+    );
+
+    // In-app feed (round-2 QA §9): every member sees association
+    // announcements in their bell without installing anything.
+    void this.inAppNotificationsService.createForAssociationMembers(
+      associationId,
+      {
+        title: announcement.title,
+        body: announcement.body.slice(0, 240),
+        type: "announcement",
+        link: "Explore",
+      },
     );
 
     return {

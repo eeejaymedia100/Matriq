@@ -184,114 +184,153 @@ export function VaultScreen({ navigation }: Props) {
     return null;
   };
 
-  const renderItem = (item: VaultItemDto, showOwner = false) => (
-    <View
-      key={item.id}
-      style={{
-        padding: 16,
-        borderRadius: theme.radii.lg,
-        backgroundColor: colors.surface,
-        borderWidth: 1,
-        borderColor: colors.border,
-        marginBottom: 10,
-      }}
-    >
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-        <View
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 13,
-            backgroundColor: colors.surfaceAlt,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon
-            name={item.type === "past_question" ? "layers" : "book"}
-            size={20}
-            color={colors.brand}
-          />
-        </View>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Text style={[theme.typography.bodyBold, { color: colors.accent }]}>
-              {item.courseCode}
-            </Text>
-            {item.visibility === "private" ? (
-              <Text style={[theme.typography.small, { color: colors.textMuted, fontWeight: "700" }]}>
-                Private
-              </Text>
-            ) : null}
-            {statusChip(item)}
-          </View>
-          <Text
-            style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 2 }]}
-            numberOfLines={1}
-          >
-            {item.title}
-          </Text>
-          <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 3 }]}>
-            {item.type === "past_question" ? "Past question" : "Material"} ·{" "}
-            {bytesLabel(item.sizeBytes)}
-            {item.downloads > 0 ? ` · ${item.downloads} download${item.downloads === 1 ? "" : "s"}` : ""}
-            {showOwner && item.submitter
-              ? ` · ${item.submitter.fullName} (${item.submitter.level})`
-              : ""}
-          </Text>
-        </View>
-      </View>
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
-      <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
-        <Pressable
-          onPress={() => void download(item, "original")}
-          disabled={downloadingId === item.id}
-          style={{
-            flex: 1,
-            alignItems: "center",
-            paddingVertical: 9,
-            borderRadius: theme.radii.md,
-            backgroundColor: colors.accent,
-            borderWidth: theme.mode === "pop" ? 2 : 0,
-            borderColor: colors.borderStrong,
-          }}
-        >
-          {downloadingId === item.id ? (
-            <ActivityIndicator size="small" color="#170B26" />
-          ) : (
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
-              Download original
-            </Text>
-          )}
-        </Pressable>
-        {item.hasCompanion ? (
-          <Pressable
-            onPress={() => void download(item, "light")}
-            disabled={downloadingId === item.id}
+  // Round-2 QA §6: compact file-manager rows — filename + upload date
+  // up front; tapping a row expands the download actions.
+  const renderItem = (item: VaultItemDto, showOwner = false) => {
+    const expanded = expandedId === item.id;
+    const uploadDate = new Date(item.createdAt).toLocaleDateString(undefined, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return (
+      <View
+        key={item.id}
+        style={{
+          borderRadius: theme.radii.md,
+          backgroundColor: colors.surface,
+          borderWidth: 1,
+          borderColor: expanded ? colors.brand + "66" : colors.border,
+          marginBottom: 8,
+          overflow: "hidden",
+        }}
+      >
+        <Pressable onPress={() => setExpandedId(expanded ? null : item.id)}>
+          <View
             style={{
-              flex: 1,
+              flexDirection: "row",
               alignItems: "center",
-              paddingVertical: 9,
-              borderRadius: theme.radii.md,
-              borderWidth: 1.5,
-              borderColor: colors.borderStrong,
+              gap: 12,
+              paddingVertical: 12,
+              paddingHorizontal: 14,
             }}
           >
-            <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
-              Light copy
-              {item.companionSizeBytes ? ` (${bytesLabel(item.companionSizeBytes)})` : ""}
-            </Text>
-          </Pressable>
+            <View
+              style={{
+                width: 38,
+                height: 38,
+                borderRadius: 11,
+                backgroundColor: colors.surfaceAlt,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon
+                name={item.type === "past_question" ? "layers" : "book"}
+                size={18}
+                color={colors.brand}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                <View
+                  style={{
+                    borderRadius: 6,
+                    paddingHorizontal: 7,
+                    paddingVertical: 2,
+                    backgroundColor: colors.brand + "1A",
+                  }}
+                >
+                  <Text style={[theme.typography.small, { color: colors.brand, fontWeight: "700" }]}>
+                    {item.courseCode}
+                  </Text>
+                </View>
+                {item.visibility === "private" ? (
+                  <Icon name="lock" size={12} color={colors.textMuted} />
+                ) : null}
+                {statusChip(item)}
+              </View>
+              {/* Filename first — this is a file-manager list now */}
+              <Text
+                style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 4 }]}
+                numberOfLines={1}
+              >
+                {item.originalName || item.title}
+              </Text>
+              <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]}>
+                {uploadDate} · {bytesLabel(item.sizeBytes)}
+                {item.downloads > 0 ? ` · ${item.downloads} dl` : ""}
+                {showOwner && item.submitter
+                  ? ` · ${item.submitter.fullName} (${item.submitter.level})`
+                  : ""}
+              </Text>
+            </View>
+            <Icon name="chevronDown" size={16} color={colors.textMuted} />
+          </View>
+        </Pressable>
+
+        {expanded ? (
+          <View
+            style={{
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
+              padding: 12,
+              gap: 8,
+            }}
+          >
+            {item.moderationStatus === "rejected" && item.rejectionReason ? (
+              <Text style={[theme.typography.small, { color: colors.error, lineHeight: 17 }]}>
+                Reason: {item.rejectionReason}
+              </Text>
+            ) : null}
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <Pressable
+                onPress={() => void download(item, "original")}
+                disabled={downloadingId === item.id}
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  paddingVertical: 10,
+                  borderRadius: theme.radii.md,
+                  backgroundColor: colors.accent,
+                  borderWidth: theme.mode === "pop" ? 2 : 0,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                {downloadingId === item.id ? (
+                  <ActivityIndicator size="small" color="#170B26" />
+                ) : (
+                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                    Download
+                  </Text>
+                )}
+              </Pressable>
+              {item.hasCompanion ? (
+                <Pressable
+                  onPress={() => void download(item, "light")}
+                  disabled={downloadingId === item.id}
+                  style={{
+                    flex: 1,
+                    alignItems: "center",
+                    paddingVertical: 10,
+                    borderRadius: theme.radii.md,
+                    borderWidth: 1.5,
+                    borderColor: colors.borderStrong,
+                  }}
+                >
+                  <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
+                    Light{item.companionSizeBytes ? ` (${bytesLabel(item.companionSizeBytes)})` : ""}
+                  </Text>
+                </Pressable>
+              ) : null}
+            </View>
+          </View>
         ) : null}
       </View>
-
-      {item.moderationStatus === "rejected" && item.rejectionReason ? (
-        <Text style={[theme.typography.small, { color: colors.error, marginTop: 8, lineHeight: 17 }]}>
-          Reason: {item.rejectionReason}
-        </Text>
-      ) : null}
-    </View>
-  );
+    );
+  };
 
   const myPending = mine.filter((m) => m.moderationStatus !== "approved");
 

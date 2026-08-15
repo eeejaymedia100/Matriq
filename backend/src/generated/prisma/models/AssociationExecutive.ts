@@ -204,6 +204,7 @@ export type AssociationExecutiveWhereInput = {
   eventsCreated?: Prisma.EventListRelationFilter
   receiptVerified?: Prisma.ReceiptListRelationFilter
   verificationReviews?: Prisma.VerificationRequestListRelationFilter
+  timetableUpdates?: Prisma.TimetableUpdateListRelationFilter
 }
 
 export type AssociationExecutiveOrderByWithRelationInput = {
@@ -220,6 +221,7 @@ export type AssociationExecutiveOrderByWithRelationInput = {
   eventsCreated?: Prisma.EventOrderByRelationAggregateInput
   receiptVerified?: Prisma.ReceiptOrderByRelationAggregateInput
   verificationReviews?: Prisma.VerificationRequestOrderByRelationAggregateInput
+  timetableUpdates?: Prisma.TimetableUpdateOrderByRelationAggregateInput
 }
 
 export type AssociationExecutiveWhereUniqueInput = Prisma.AtLeast<{
@@ -240,6 +242,7 @@ export type AssociationExecutiveWhereUniqueInput = Prisma.AtLeast<{
   eventsCreated?: Prisma.EventListRelationFilter
   receiptVerified?: Prisma.ReceiptListRelationFilter
   verificationReviews?: Prisma.VerificationRequestListRelationFilter
+  timetableUpdates?: Prisma.TimetableUpdateListRelationFilter
 }, "id" | "userId_associationId">
 
 export type AssociationExecutiveOrderByWithAggregationInput = {
@@ -280,6 +283,7 @@ export type AssociationExecutiveCreateInput = {
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateInput = {
@@ -294,6 +298,7 @@ export type AssociationExecutiveUncheckedCreateInput = {
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUpdateInput = {
@@ -308,6 +313,7 @@ export type AssociationExecutiveUpdateInput = {
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateInput = {
@@ -322,6 +328,7 @@ export type AssociationExecutiveUncheckedUpdateInput = {
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveCreateManyInput = {
@@ -555,6 +562,20 @@ export type AssociationExecutiveUpdateOneRequiredWithoutEventsCreatedNestedInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssociationExecutiveUpdateToOneWithWhereWithoutEventsCreatedInput, Prisma.AssociationExecutiveUpdateWithoutEventsCreatedInput>, Prisma.AssociationExecutiveUncheckedUpdateWithoutEventsCreatedInput>
 }
 
+export type AssociationExecutiveCreateNestedOneWithoutTimetableUpdatesInput = {
+  create?: Prisma.XOR<Prisma.AssociationExecutiveCreateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedCreateWithoutTimetableUpdatesInput>
+  connectOrCreate?: Prisma.AssociationExecutiveCreateOrConnectWithoutTimetableUpdatesInput
+  connect?: Prisma.AssociationExecutiveWhereUniqueInput
+}
+
+export type AssociationExecutiveUpdateOneRequiredWithoutTimetableUpdatesNestedInput = {
+  create?: Prisma.XOR<Prisma.AssociationExecutiveCreateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedCreateWithoutTimetableUpdatesInput>
+  connectOrCreate?: Prisma.AssociationExecutiveCreateOrConnectWithoutTimetableUpdatesInput
+  upsert?: Prisma.AssociationExecutiveUpsertWithoutTimetableUpdatesInput
+  connect?: Prisma.AssociationExecutiveWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssociationExecutiveUpdateToOneWithWhereWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUpdateWithoutTimetableUpdatesInput>, Prisma.AssociationExecutiveUncheckedUpdateWithoutTimetableUpdatesInput>
+}
+
 export type AssociationExecutiveCreateWithoutUserInput = {
   id?: string
   role: $Enums.ExecutiveRole
@@ -566,6 +587,7 @@ export type AssociationExecutiveCreateWithoutUserInput = {
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutUserInput = {
@@ -579,6 +601,7 @@ export type AssociationExecutiveUncheckedCreateWithoutUserInput = {
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutUserInput = {
@@ -631,6 +654,7 @@ export type AssociationExecutiveCreateWithoutAssociationInput = {
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutAssociationInput = {
@@ -644,6 +668,7 @@ export type AssociationExecutiveUncheckedCreateWithoutAssociationInput = {
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutAssociationInput = {
@@ -683,6 +708,7 @@ export type AssociationExecutiveCreateWithoutVerificationReviewsInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAuthorInput
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutVerificationReviewsInput = {
@@ -696,6 +722,7 @@ export type AssociationExecutiveUncheckedCreateWithoutVerificationReviewsInput =
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutVerificationReviewsInput = {
@@ -725,6 +752,7 @@ export type AssociationExecutiveUpdateWithoutVerificationReviewsInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAuthorNestedInput
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutVerificationReviewsInput = {
@@ -738,6 +766,7 @@ export type AssociationExecutiveUncheckedUpdateWithoutVerificationReviewsInput =
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveCreateWithoutReceiptVerifiedInput = {
@@ -751,6 +780,7 @@ export type AssociationExecutiveCreateWithoutReceiptVerifiedInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAuthorInput
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutReceiptVerifiedInput = {
@@ -764,6 +794,7 @@ export type AssociationExecutiveUncheckedCreateWithoutReceiptVerifiedInput = {
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutReceiptVerifiedInput = {
@@ -793,6 +824,7 @@ export type AssociationExecutiveUpdateWithoutReceiptVerifiedInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAuthorNestedInput
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutReceiptVerifiedInput = {
@@ -806,6 +838,7 @@ export type AssociationExecutiveUncheckedUpdateWithoutReceiptVerifiedInput = {
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveCreateWithoutAnnouncementsInput = {
@@ -819,6 +852,7 @@ export type AssociationExecutiveCreateWithoutAnnouncementsInput = {
   eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutAnnouncementsInput = {
@@ -832,6 +866,7 @@ export type AssociationExecutiveUncheckedCreateWithoutAnnouncementsInput = {
   eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutAnnouncementsInput = {
@@ -861,6 +896,7 @@ export type AssociationExecutiveUpdateWithoutAnnouncementsInput = {
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutAnnouncementsInput = {
@@ -874,6 +910,7 @@ export type AssociationExecutiveUncheckedUpdateWithoutAnnouncementsInput = {
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveCreateWithoutEventsCreatedInput = {
@@ -887,6 +924,7 @@ export type AssociationExecutiveCreateWithoutEventsCreatedInput = {
   announcements?: Prisma.AnnouncementCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveUncheckedCreateWithoutEventsCreatedInput = {
@@ -900,6 +938,7 @@ export type AssociationExecutiveUncheckedCreateWithoutEventsCreatedInput = {
   announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
   receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
   verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAuthorInput
 }
 
 export type AssociationExecutiveCreateOrConnectWithoutEventsCreatedInput = {
@@ -929,6 +968,7 @@ export type AssociationExecutiveUpdateWithoutEventsCreatedInput = {
   announcements?: Prisma.AnnouncementUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutEventsCreatedInput = {
@@ -940,6 +980,79 @@ export type AssociationExecutiveUncheckedUpdateWithoutEventsCreatedInput = {
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
+  receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
+  verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
+}
+
+export type AssociationExecutiveCreateWithoutTimetableUpdatesInput = {
+  id?: string
+  role: $Enums.ExecutiveRole
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutExecutiveRolesInput
+  association: Prisma.AssociationCreateNestedOneWithoutExecutivesInput
+  announcements?: Prisma.AnnouncementCreateNestedManyWithoutAuthorInput
+  eventsCreated?: Prisma.EventCreateNestedManyWithoutAuthorInput
+  receiptVerified?: Prisma.ReceiptCreateNestedManyWithoutVerifiedByExecutiveInput
+  verificationReviews?: Prisma.VerificationRequestCreateNestedManyWithoutReviewerInput
+}
+
+export type AssociationExecutiveUncheckedCreateWithoutTimetableUpdatesInput = {
+  id?: string
+  userId?: string | null
+  associationId: string
+  role: $Enums.ExecutiveRole
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAuthorInput
+  eventsCreated?: Prisma.EventUncheckedCreateNestedManyWithoutAuthorInput
+  receiptVerified?: Prisma.ReceiptUncheckedCreateNestedManyWithoutVerifiedByExecutiveInput
+  verificationReviews?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutReviewerInput
+}
+
+export type AssociationExecutiveCreateOrConnectWithoutTimetableUpdatesInput = {
+  where: Prisma.AssociationExecutiveWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssociationExecutiveCreateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedCreateWithoutTimetableUpdatesInput>
+}
+
+export type AssociationExecutiveUpsertWithoutTimetableUpdatesInput = {
+  update: Prisma.XOR<Prisma.AssociationExecutiveUpdateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedUpdateWithoutTimetableUpdatesInput>
+  create: Prisma.XOR<Prisma.AssociationExecutiveCreateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedCreateWithoutTimetableUpdatesInput>
+  where?: Prisma.AssociationExecutiveWhereInput
+}
+
+export type AssociationExecutiveUpdateToOneWithWhereWithoutTimetableUpdatesInput = {
+  where?: Prisma.AssociationExecutiveWhereInput
+  data: Prisma.XOR<Prisma.AssociationExecutiveUpdateWithoutTimetableUpdatesInput, Prisma.AssociationExecutiveUncheckedUpdateWithoutTimetableUpdatesInput>
+}
+
+export type AssociationExecutiveUpdateWithoutTimetableUpdatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumExecutiveRoleFieldUpdateOperationsInput | $Enums.ExecutiveRole
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutExecutiveRolesNestedInput
+  association?: Prisma.AssociationUpdateOneRequiredWithoutExecutivesNestedInput
+  announcements?: Prisma.AnnouncementUpdateManyWithoutAuthorNestedInput
+  eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
+  receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
+  verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+}
+
+export type AssociationExecutiveUncheckedUpdateWithoutTimetableUpdatesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumExecutiveRoleFieldUpdateOperationsInput | $Enums.ExecutiveRole
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAuthorNestedInput
+  eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
 }
@@ -964,6 +1077,7 @@ export type AssociationExecutiveUpdateWithoutUserInput = {
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutUserInput = {
@@ -977,6 +1091,7 @@ export type AssociationExecutiveUncheckedUpdateWithoutUserInput = {
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateManyWithoutUserInput = {
@@ -1008,6 +1123,7 @@ export type AssociationExecutiveUpdateWithoutAssociationInput = {
   eventsCreated?: Prisma.EventUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateWithoutAssociationInput = {
@@ -1021,6 +1137,7 @@ export type AssociationExecutiveUncheckedUpdateWithoutAssociationInput = {
   eventsCreated?: Prisma.EventUncheckedUpdateManyWithoutAuthorNestedInput
   receiptVerified?: Prisma.ReceiptUncheckedUpdateManyWithoutVerifiedByExecutiveNestedInput
   verificationReviews?: Prisma.VerificationRequestUncheckedUpdateManyWithoutReviewerNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAuthorNestedInput
 }
 
 export type AssociationExecutiveUncheckedUpdateManyWithoutAssociationInput = {
@@ -1042,6 +1159,7 @@ export type AssociationExecutiveCountOutputType = {
   eventsCreated: number
   receiptVerified: number
   verificationReviews: number
+  timetableUpdates: number
 }
 
 export type AssociationExecutiveCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1049,6 +1167,7 @@ export type AssociationExecutiveCountOutputTypeSelect<ExtArgs extends runtime.Ty
   eventsCreated?: boolean | AssociationExecutiveCountOutputTypeCountEventsCreatedArgs
   receiptVerified?: boolean | AssociationExecutiveCountOutputTypeCountReceiptVerifiedArgs
   verificationReviews?: boolean | AssociationExecutiveCountOutputTypeCountVerificationReviewsArgs
+  timetableUpdates?: boolean | AssociationExecutiveCountOutputTypeCountTimetableUpdatesArgs
 }
 
 /**
@@ -1089,6 +1208,13 @@ export type AssociationExecutiveCountOutputTypeCountVerificationReviewsArgs<ExtA
   where?: Prisma.VerificationRequestWhereInput
 }
 
+/**
+ * AssociationExecutiveCountOutputType without action
+ */
+export type AssociationExecutiveCountOutputTypeCountTimetableUpdatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TimetableUpdateWhereInput
+}
+
 
 export type AssociationExecutiveSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1104,6 +1230,7 @@ export type AssociationExecutiveSelect<ExtArgs extends runtime.Types.Extensions.
   eventsCreated?: boolean | Prisma.AssociationExecutive$eventsCreatedArgs<ExtArgs>
   receiptVerified?: boolean | Prisma.AssociationExecutive$receiptVerifiedArgs<ExtArgs>
   verificationReviews?: boolean | Prisma.AssociationExecutive$verificationReviewsArgs<ExtArgs>
+  timetableUpdates?: boolean | Prisma.AssociationExecutive$timetableUpdatesArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationExecutiveCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["associationExecutive"]>
 
@@ -1149,6 +1276,7 @@ export type AssociationExecutiveInclude<ExtArgs extends runtime.Types.Extensions
   eventsCreated?: boolean | Prisma.AssociationExecutive$eventsCreatedArgs<ExtArgs>
   receiptVerified?: boolean | Prisma.AssociationExecutive$receiptVerifiedArgs<ExtArgs>
   verificationReviews?: boolean | Prisma.AssociationExecutive$verificationReviewsArgs<ExtArgs>
+  timetableUpdates?: boolean | Prisma.AssociationExecutive$timetableUpdatesArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationExecutiveCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssociationExecutiveIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1169,6 +1297,7 @@ export type $AssociationExecutivePayload<ExtArgs extends runtime.Types.Extension
     eventsCreated: Prisma.$EventPayload<ExtArgs>[]
     receiptVerified: Prisma.$ReceiptPayload<ExtArgs>[]
     verificationReviews: Prisma.$VerificationRequestPayload<ExtArgs>[]
+    timetableUpdates: Prisma.$TimetableUpdatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1578,6 +1707,7 @@ export interface Prisma__AssociationExecutiveClient<T, Null = never, ExtArgs ext
   eventsCreated<T extends Prisma.AssociationExecutive$eventsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationExecutive$eventsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   receiptVerified<T extends Prisma.AssociationExecutive$receiptVerifiedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationExecutive$receiptVerifiedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReceiptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   verificationReviews<T extends Prisma.AssociationExecutive$verificationReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationExecutive$verificationReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VerificationRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  timetableUpdates<T extends Prisma.AssociationExecutive$timetableUpdatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationExecutive$timetableUpdatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimetableUpdatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2127,6 +2257,30 @@ export type AssociationExecutive$verificationReviewsArgs<ExtArgs extends runtime
   take?: number
   skip?: number
   distinct?: Prisma.VerificationRequestScalarFieldEnum | Prisma.VerificationRequestScalarFieldEnum[]
+}
+
+/**
+ * AssociationExecutive.timetableUpdates
+ */
+export type AssociationExecutive$timetableUpdatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TimetableUpdate
+   */
+  select?: Prisma.TimetableUpdateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TimetableUpdate
+   */
+  omit?: Prisma.TimetableUpdateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TimetableUpdateInclude<ExtArgs> | null
+  where?: Prisma.TimetableUpdateWhereInput
+  orderBy?: Prisma.TimetableUpdateOrderByWithRelationInput | Prisma.TimetableUpdateOrderByWithRelationInput[]
+  cursor?: Prisma.TimetableUpdateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TimetableUpdateScalarFieldEnum | Prisma.TimetableUpdateScalarFieldEnum[]
 }
 
 /**

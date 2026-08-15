@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 import { NotFoundException } from "@nestjs/common";
 import { AnnouncementsService } from "./announcements.service";
 import { PrismaService } from "../prisma/prisma.service";
@@ -50,6 +51,7 @@ describe("AnnouncementsService", () => {
       providers: [
         AnnouncementsService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

@@ -10,6 +10,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Prisma, VerificationStatus } from "../generated/prisma/client";
 import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 @Injectable()
 export class AdminService {
@@ -19,6 +20,7 @@ export class AdminService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly aiService: AiService,
+    private readonly inAppNotificationsService: InAppNotificationsService,
   ) {}
 
   /**
@@ -121,68 +123,127 @@ export class AdminService {
   }
 
   /**
-   * Cross-association analytics overview.
+   * Cross-association analytics overview (spec §1). Returns a single shape
+   * the admin console renders directly: headline counts, per-association
+   * breakdown, most-active courses and Vault contribution activity.
    */
   async getAnalytics() {
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
     const [
-      totalUsers,
+      totalStudents,
       totalAssociations,
+      activeAssociations,
       totalPayments,
       successfulPayments,
       totalCollected,
+      courses,
+      vaultTotal,
+      vaultPending,
+      vaultThisWeek,
+      associations,
     ] = await Promise.all([
       this.prisma.user.count({ where: { deletedAt: null } }),
       this.prisma.association.count(),
+      this.prisma.association.count({ where: { status: "active" } }),
       this.prisma.payment.count(),
       this.prisma.payment.count({ where: { status: "successful" } }),
       this.prisma.payment.aggregate({
         where: { status: "successful" },
         _sum: { amountKobo: true },
       }),
+      // Most-active courses: uploads + downloads per course code.
+      this.prisma.vaultItem.groupBy({
+        by: ["courseCode"],
+        where: { deletedAt: null },
+        _count: { _all: true },
+        _sum: { downloads: true },
+      }),
+      this.prisma.vaultItem.count({ where: { deletedAt: null } }),
+      this.prisma.vaultItem.count({
+        where: { deletedAt: null, moderationStatus: "pending" },
+      }),
+      this.prisma.vaultItem.count({
+        where: { deletedAt: null, createdAt: { gte: weekAgo } },
+      }),
+      this.prisma.association.findMany({
+        where: { status: "active" },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          shortCode: true,
+          status: true,
+          _count: { select: { memberships: true } },
+        },
+      }),
     ]);
 
-    const byAssociation = await this.prisma.payment.groupBy({
+    // Successful payments grouped by fee, then mapped to associations.
+    const byFee = await this.prisma.payment.groupBy({
       by: ["feeId"],
       where: { status: "successful" },
       _sum: { amountKobo: true },
     });
-
     const fees = await this.prisma.fee.findMany({
-      where: { id: { in: byAssociation.map((b) => b.feeId) } },
-      include: { association: { select: { id: true, name: true } } },
+      where: { id: { in: byFee.map((b) => b.feeId) } },
+      select: { id: true, associationId: true },
     });
-    const feeMap = new Map(fees.map((f) => [f.id, f]));
-
-    const associationRevenue: Record<
-      string,
-      { name: string; totalKobo: number }
-    > = {};
-    for (const b of byAssociation) {
-      const fee = feeMap.get(b.feeId);
-      if (!fee) continue;
-      const key = fee.association.id;
-      if (!associationRevenue[key]) {
-        associationRevenue[key] = {
-          name: fee.association.name,
-          totalKobo: 0,
-        };
-      }
-      associationRevenue[key].totalKobo += b._sum.amountKobo || 0;
+    const feeAssoc = new Map(fees.map((f) => [f.id, f.associationId]));
+    const collectedByAssoc = new Map<string, number>();
+    for (const b of byFee) {
+      const assocId = feeAssoc.get(b.feeId);
+      if (!assocId) continue;
+      collectedByAssoc.set(
+        assocId,
+        (collectedByAssoc.get(assocId) ?? 0) + (b._sum.amountKobo || 0),
+      );
     }
 
+    const totalCollectedKobo = totalCollected._sum.amountKobo || 0;
+    const associationBreakdown = associations.map((a) => ({
+      id: a.id,
+      name: a.name,
+      shortCode: a.shortCode,
+      status: a.status,
+      memberCount: a._count.memberships,
+      totalCollected: collectedByAssoc.get(a.id) ?? 0,
+    }));
+
+    // Most-active courses, sorted in JS (groupBy count ordering isn't
+    // portable across Prisma versions).
+    const topCourses = courses
+      .sort((a, b) => (b._count._all ?? 0) - (a._count._all ?? 0))
+      .slice(0, 8)
+      .map((c) => ({
+        courseCode: c.courseCode,
+        uploads: c._count._all ?? 0,
+        downloads: c._sum.downloads ?? 0,
+      }));
+
     return {
-      totalUsers,
+      // Headline counts (spec §1 — the admin console renders these).
+      totalStudents,
       totalAssociations,
+      activeAssociations,
       totalPayments,
       successfulPayments,
-      totalCollectedKobo: totalCollected._sum.amountKobo || 0,
-      associationRevenue: Object.entries(associationRevenue).map(
-        ([id, val]) => ({
-          associationId: id,
-          name: val.name,
-          totalKobo: val.totalKobo,
-        }),
-      ),
+      totalCollectedKobo,
+      totalRevenueKobo: totalCollectedKobo,
+      totalRevenue: totalCollectedKobo,
+      associations: associationBreakdown,
+      associationRevenue: associationBreakdown.map((a) => ({
+        associationId: a.id,
+        name: a.name,
+        totalKobo: a.totalCollected,
+      })),
+      // Usage analytics (spec §1): what the platform is actually for.
+      topCourses,
+      vaultActivity: {
+        totalUploads: vaultTotal,
+        pendingModeration: vaultPending,
+        contributionsThisWeek: vaultThisWeek,
+      },
     };
   }
 
@@ -480,6 +541,19 @@ export class AdminService {
 
     this.logger.log(`Admin ${adminId} ${status} vault item ${itemId}`);
 
+    // In-app feed: tell the uploader what happened to their contribution
+    // (round-2 QA §9). Fire-and-forget — moderation is already committed.
+    void this.inAppNotificationsService.createForUser(item.userId, {
+      title:
+        status === "approved" ? "Vault upload approved" : "Vault upload rejected",
+      body:
+        status === "approved"
+          ? `"${item.title}" (${item.courseCode}) is now live for your school.`
+          : `"${item.title}" (${item.courseCode}) wasn't approved${reason ? ` — ${reason}` : ""}.`,
+      type: "vault",
+      link: "Vault",
+    });
+
     return {
       id: updated.id,
       moderationStatus: updated.moderationStatus,
@@ -488,6 +562,46 @@ export class AdminService {
           ? "Item approved — visible to students."
           : "Item rejected.",
     };
+  }
+
+  // ── Platform-wide broadcasts (round-2 QA §1) ──────────────────
+
+  /**
+   * Send a platform announcement to every student's in-app notification
+   * feed (app-wide outages, new features). Fire-and-forget fan-out; the
+   * audit entry is written first so the action is always accountable.
+   */
+  async createBroadcast(
+    dto: { title: string; body: string },
+    adminId: string,
+    ipAddress: string,
+  ) {
+    const title = dto.title.trim().slice(0, 140);
+    const body = dto.body.trim().slice(0, 500);
+    if (!title || !body) {
+      throw new BadRequestException("Broadcast needs both a title and a message");
+    }
+
+    await this.auditService.log({
+      actorType: "admin",
+      actorId: adminId,
+      action: "broadcast.created",
+      targetType: "broadcast",
+      targetId: adminId, // broadcasts aren't rows yet — target the actor
+      ipAddress,
+      metadata: { title },
+    });
+
+    this.logger.log(`Admin ${adminId} broadcast: ${title}`);
+
+    void this.inAppNotificationsService.createForAllUsers({
+      title,
+      body,
+      type: "broadcast",
+      link: "Home",
+    });
+
+    return { message: "Broadcast sent to all students", title };
   }
 
   // ── User search ────────────────────────────────────────────────

@@ -59,7 +59,17 @@ export function Surface({
             backgroundColor: theme.colors.surfaceAlt,
           };
   } else if (variant === "card") {
-    variantStyle = pressed ? theme.shadows.cardPressed : theme.shadows.card;
+    // Round-2 QA §10: in Pop, the thick ink border + offset shadow IS the
+    // default container style now — not an occasional accent. Glass keeps
+    // its soft float.
+    variantStyle =
+      theme.mode === "pop"
+        ? pressed
+          ? theme.shadows.stickerPressed
+          : theme.shadows.sticker
+        : pressed
+          ? theme.shadows.cardPressed
+          : theme.shadows.card;
   } else {
     variantStyle = {
       backgroundColor: theme.colors.surfaceAlt,

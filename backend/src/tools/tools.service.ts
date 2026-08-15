@@ -166,10 +166,17 @@ export class ToolsService {
     const data = (await res.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
-    const text = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? "")
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    // Defensive: strip any markdown fences the model wraps the answer in.
+    const text = raw
+      .replace(/```(?:text)?\s*/gi, "")
+      .replace(/```/g, "")
       .replace(/\s+/g, " ")
       .trim();
-    if (!text || text === "NO_TEXT") return null;
+    // The model signals "no readable text" — handle quoting/punctuation.
+    if (!text || /^["'`\s]*(NO_TEXT|NO TEXT)[.!]?["'`\s]*$/i.test(text)) {
+      return null;
+    }
     return {
       text: text.slice(0, 5000),
       confidence: 100,

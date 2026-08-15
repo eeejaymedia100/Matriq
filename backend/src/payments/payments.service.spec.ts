@@ -4,6 +4,7 @@ import { PaymentsService } from "./payments.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 describe("PaymentsService", () => {
   let service: PaymentsService;
@@ -60,6 +61,7 @@ describe("PaymentsService", () => {
         { provide: ConfigService, useValue: mockConfig },
         { provide: AuditService, useValue: mockAudit },
         { provide: NotificationsService, useValue: mockNotifications },
+        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

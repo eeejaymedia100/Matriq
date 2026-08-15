@@ -7,6 +7,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 
 // Mock otplib to avoid ESM/CJS compatibility issues
 jest.mock("otplib", () => ({
@@ -323,6 +324,7 @@ describe("AdminService", () => {
     user: { count: jest.Mock };
     payment: { count: jest.Mock; aggregate: jest.Mock; groupBy: jest.Mock };
     fee: { findMany: jest.Mock };
+    vaultItem: { groupBy: jest.Mock; count: jest.Mock };
   };
 
   beforeEach(async () => {
@@ -341,6 +343,10 @@ describe("AdminService", () => {
         groupBy: jest.fn().mockResolvedValue([]),
       },
       fee: { findMany: jest.fn().mockResolvedValue([]) },
+      vaultItem: {
+        groupBy: jest.fn().mockResolvedValue([]),
+        count: jest.fn().mockResolvedValue(0),
+      },
     };
 
     const mockAudit = { log: jest.fn().mockResolvedValue(undefined) };
@@ -358,6 +364,7 @@ describe("AdminService", () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: mockAudit },
         { provide: AiService, useValue: mockAiService },
+        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 
@@ -389,9 +396,18 @@ describe("AdminService", () => {
     it("returns overview analytics", async () => {
       const result = await service.getAnalytics();
 
-      expect(result.totalUsers).toBe(0);
+      expect(result.totalStudents).toBe(0);
       expect(result.totalAssociations).toBe(0);
+      expect(result.activeAssociations).toBe(0);
+      expect(result.totalCollectedKobo).toBe(0);
+      expect(result.associations).toEqual([]);
       expect(result.associationRevenue).toEqual([]);
+      expect(result.topCourses).toEqual([]);
+      expect(result.vaultActivity).toEqual({
+        totalUploads: 0,
+        pendingModeration: 0,
+        contributionsThisWeek: 0,
+      });
     });
   });
 

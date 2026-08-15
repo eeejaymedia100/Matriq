@@ -12,8 +12,10 @@ import { useTheme } from "../../theme/ThemeContext";
 import { Surface, ThemedScreen } from "../../components/Surface";
 import { Icon, type IconName } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
+import { useNotifications } from "../../contexts/NotificationsContext";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { factForTick } from "../../utils/facts";
+import { useDailyFacts } from "../../utils/dailyFacts";
 import { api } from "../../api/client";
 import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
@@ -58,6 +60,8 @@ export function HomeScreen({ navigation }: Props) {
   const colors = theme.colors;
   const { user } = useAuth();
   const { downloaded } = useOfflineAi();
+  const { unreadCount, refreshUnread } = useNotifications();
+  const facts = useDailyFacts();
 
   const [now, setNow] = useState(liveClock());
   const [tick, setTick] = useState(0);
@@ -87,6 +91,7 @@ export function HomeScreen({ navigation }: Props) {
       (async () => {
         setTodos(await getTodoState());
         setNextClassEntry(nextClass(await getTimetable()));
+        void refreshUnread();
 
         try {
           const memberships = await api.get<{
@@ -180,8 +185,10 @@ export function HomeScreen({ navigation }: Props) {
     },
   ];
 
-  const allDone = todosList.every((t) => t.done);
-  const fact = factForTick(tick);
+  // Round-2 QA §5: completed to-do's disappear entirely — no checked state.
+  const remainingTodos = todosList.filter((t) => !t.done);
+  const allDone = remainingTodos.length === 0;
+  const fact = factForTick(tick, facts);
   const initial = (user?.fullName?.trim().charAt(0) ?? "S").toUpperCase();
   const firstName = user?.fullName?.split(" ")[0] ?? "there";
   const verified = !!user?.emailVerified;
@@ -226,29 +233,58 @@ export function HomeScreen({ navigation }: Props) {
                 </Text>
                 <Text style={[theme.typography.caption, { color: colors.textMuted }]}>{now}</Text>
               </View>
+              {/* Notification bell — replaces the old "Verified" pill
+                  (round-2 QA §5). Verification status lives in Settings. */}
               <Pressable
-                onPress={() => go(verified ? "VerificationStatus" : "VerificationUpload")}
+                onPress={() => go("Notifications")}
+                accessibilityRole="button"
+                accessibilityLabel={`Notifications, ${unreadCount} unread`}
+                hitSlop={8}
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 6,
-                  backgroundColor: verified ? colors.successBg : colors.warningBg,
-                  borderWidth: 1,
-                  borderColor: verified ? colors.success + "55" : colors.warning + "55",
+                  width: 44,
+                  height: 44,
                   borderRadius: 999,
-                  paddingHorizontal: 12,
-                  paddingVertical: 6,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1.5,
+                  borderColor: colors.borderStrong,
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Icon name="shield" size={13} color={verified ? colors.success : colors.warning} />
-                <Text style={[theme.typography.small, { color: verified ? colors.success : colors.warning, fontWeight: "700" }]}>
-                  {verified ? "Verified" : "Verify"}
-                </Text>
+                <Icon name="bell" size={20} color={colors.textPrimary} />
+                {unreadCount > 0 ? (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -3,
+                      right: -3,
+                      minWidth: 19,
+                      height: 19,
+                      borderRadius: 10,
+                      backgroundColor: colors.accent,
+                      borderWidth: 2,
+                      borderColor: colors.bg,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      paddingHorizontal: 4,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily: "PlusJakartaSans_700Bold",
+                        fontSize: 10,
+                        color: "#170B26",
+                      }}
+                    >
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </Text>
+                  </View>
+                ) : null}
               </Pressable>
             </View>
           </View>
 
-          {/* My To-Do's */}
+          {/* My To-Do's — completed items disappear entirely (§5) */}
           {!allDone ? (
             <View style={{ marginTop: 24 }}>
               <Text style={[theme.typography.h3, { color: colors.textPrimary, paddingHorizontal: 24, marginBottom: 12 }]}>
@@ -259,25 +295,20 @@ export function HomeScreen({ navigation }: Props) {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 24, gap: 12 }}
               >
-                {todosList.map((todo) => (
+                {remainingTodos.map((todo) => (
                   <Pressable key={todo.id} onPress={todo.onPress} style={{ width: 150 }}>
-                    <Surface style={{ padding: 14, width: 150, marginBottom: 0, opacity: todo.done ? 0.75 : 1 }}>
-                      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                        <View
-                          style={{
-                            width: 34,
-                            height: 34,
-                            borderRadius: 11,
-                            backgroundColor: todo.done ? colors.accent : colors.surfaceAlt,
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Icon name={todo.done ? "check" : todo.icon} size={17} color={todo.done ? "#170B26" : colors.brand} />
-                        </View>
-                        {todo.done ? (
-                          <Text style={[theme.typography.small, { color: colors.success, fontWeight: "700" }]}>Done</Text>
-                        ) : null}
+                    <Surface style={{ padding: 14, width: 150, marginBottom: 0 }}>
+                      <View
+                        style={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: 11,
+                          backgroundColor: colors.surfaceAlt,
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Icon name={todo.icon} size={17} color={colors.brand} />
                       </View>
                       <Text style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 10, lineHeight: 18 }]}>
                         {todo.label}

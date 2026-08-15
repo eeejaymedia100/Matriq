@@ -47,6 +47,56 @@ const MAX_RESPONSE_LENGTH = 4000;
 // are padded identically, so cosine similarity is unchanged.
 const EMBED_DIM = 1536;
 
+// ── Round-2 QA §8: cloud-AI study helpers (facts + quiz) ─────────
+// These run on Gemini (server-side, env-gated) and fall back to seeded
+// content when the key is missing or the call fails — the feature never
+// hard-fails. This is a separate system from offline AI (see docs §13).
+
+export interface StudyFact {
+  title: string;
+  body: string;
+  tag: string;
+}
+
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
+}
+
+const SEED_FACTS: StudyFact[] = [
+  { title: "The Pomodoro effect", body: "25 minutes of focus + 5 minutes of rest trains your brain to start quickly and stay on task.", tag: "Study" },
+  { title: "Active recall", body: "Testing yourself beats re-reading: retrieving a fact strengthens the memory more than seeing it again.", tag: "Method" },
+  { title: "Spaced repetition", body: "Reviewing just before you'd forget something moves it into long-term memory — 1 day, 3 days, 7 days, 21 days.", tag: "Method" },
+  { title: "The Feynman technique", body: "Explain a concept as if teaching a 12-year-old. Wherever you stumble, that's what you don't know yet.", tag: "Study" },
+  { title: "Hydrate to think", body: "Even mild dehydration (2%) measurably slows reaction time and working memory. Keep water at your desk.", tag: "Health" },
+  { title: "Sleep consolidates", body: "Memory moves to long-term storage while you sleep — an all-nighter before an exam can undo the week's work.", tag: "Health" },
+  { title: "Mnemonic pegs", body: "Anchor new facts to a vivid image or a route you know well; the weirder the image, the stronger the recall.", tag: "Method" },
+  { title: "Interleaving", body: "Mix topics in one session instead of blocking one subject. It feels harder — and that's why it works.", tag: "Study" },
+];
+
+const SEED_QUIZ: QuizQuestion[] = [
+  {
+    question: "What is active recall?",
+    options: ["Re-reading your notes repeatedly", "Testing yourself to strengthen memory", "Highlighting key sentences", "Studying only the night before"],
+    answerIndex: 1,
+    explanation: "Retrieving a fact strengthens the memory more than seeing it again.",
+  },
+  {
+    question: "Which spacing pattern moves facts into long-term memory?",
+    options: ["Cramming once", "Reviewing just before you'd forget", "Reading once slowly", "Re-reading daily forever"],
+    answerIndex: 1,
+    explanation: "Review at growing gaps: 1 day, 3 days, 7 days, 21 days.",
+  },
+  {
+    question: "What does the Feynman technique ask you to do?",
+    options: ["Memorise definitions", "Explain a concept as if teaching a 12-year-old", "Solve past questions only", "Study in groups"],
+    answerIndex: 1,
+    explanation: "Wherever you stumble while explaining is what you don't know yet.",
+  },
+];
+
 @Injectable()
 export class AiService {
   private readonly logger = new Logger(AiService.name);
@@ -324,6 +374,188 @@ export class AiService {
       message:
         "Material submitted for review. It will be visible after moderation.",
     };
+  }
+
+  // ── Cloud-AI study helpers (round-2 QA §8) ───────────────────
+
+  /**
+   * Generate a fresh batch of study facts via Gemini, cached server-side for
+   * 12 hours (the client rotates them, so "don't call AI live on a timer"
+   * still holds). Falls back to seed facts on any failure.
+   */
+  async generateFacts(
+    count = 8,
+  ): Promise<{ facts: StudyFact[]; source: "gemini" | "seed" }> {
+    const safeCount = Math.min(Math.max(count, 3), 12);
+
+    if (!this.geminiKey) return { facts: SEED_FACTS, source: "seed" };
+    if (this.factsCache.expiresAt > Date.now() && this.factsCache.facts.length > 0) {
+      return { facts: this.factsCache.facts.slice(0, safeCount), source: "gemini" };
+    }
+
+    try {
+      const raw = await this.geminiJson(`
+Generate ${safeCount} short study facts for a Nigerian university student.
+Mix study methods, exam techniques, and brain/health science. No emojis.
+Return ONLY a JSON array, no markdown, no commentary. Each item:
+{"title":"short headline","body":"one or two sentences","tag":"Study|Method|Health"}
+`);
+      const facts = this.parseJsonArray<StudyFact>(raw).slice(0, safeCount);
+      if (facts.length >= 3 && facts.every((f) => f.title && f.body && f.tag)) {
+        this.factsCache = { facts, expiresAt: Date.now() + 12 * 60 * 60 * 1000 };
+        return { facts, source: "gemini" };
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Gemini facts failed (${err instanceof Error ? err.message : String(err)}) — using seeds`,
+      );
+    }
+    return { facts: SEED_FACTS, source: "seed" };
+  }
+
+  /**
+   * Generate a personalised quiz from the student's own approved uploaded
+   * materials (course-code scoped when given). Falls back to a seed quiz.
+   */
+  async generateQuiz(
+    userId: string,
+    courseCode?: string,
+    count = 5,
+  ): Promise<{
+    questions: QuizQuestion[];
+    source: "gemini" | "seed";
+    courseCode: string | null;
+  }> {
+    const safeCount = Math.min(Math.max(count, 3), 10);
+
+    // Pull the student's own approved materials (optionally course-scoped).
+    const where: Record<string, unknown> = {
+      submittedByUserId: userId,
+      moderationStatus: "approved",
+    };
+    if (courseCode?.trim()) {
+      where.courseCode = courseCode.trim().toUpperCase();
+    }
+    const docs = await this.prisma.aiDocument.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      select: { courseCode: true, contentChunk: true },
+    });
+
+    const context = docs
+      .map((d) => `[${d.courseCode ?? "General"}] ${d.contentChunk.slice(0, 600)}`)
+      .join("\n---\n");
+    const course = courseCode?.trim().toUpperCase() ?? docs[0]?.courseCode ?? null;
+
+    if (!this.geminiKey || !context) {
+      return {
+        questions: this.shuffleQuiz(SEED_QUIZ).slice(0, safeCount),
+        source: "seed",
+        courseCode: course,
+      };
+    }
+
+    try {
+      const raw = await this.geminiJson(`
+Create ${safeCount} multiple-choice quiz questions from this study material.
+${context.slice(0, 4000)}
+Return ONLY a JSON array, no markdown, no commentary. Each item:
+{"question":"...","options":["a","b","c","d"],"answerIndex":<0-3>,"explanation":"one sentence"}
+Make sure answerIndex points at the correct option and options are plausible.
+`);
+      const questions = this.parseJsonArray<QuizQuestion>(raw)
+        .slice(0, safeCount)
+        .filter(
+          (q) =>
+            q.question &&
+            Array.isArray(q.options) &&
+            q.options.length >= 2 &&
+            Number.isInteger(q.answerIndex) &&
+            q.answerIndex >= 0 &&
+            q.answerIndex < q.options.length,
+        )
+        .map((q) => ({ ...q, options: q.options.slice(0, 6) }));
+      if (questions.length >= 2) {
+        return { questions, source: "gemini", courseCode: course };
+      }
+    } catch (err) {
+      this.logger.warn(
+        `Gemini quiz failed (${err instanceof Error ? err.message : String(err)}) — using seeds`,
+      );
+    }
+    return {
+      questions: this.shuffleQuiz(SEED_QUIZ).slice(0, safeCount),
+      source: "seed",
+      courseCode: course,
+    };
+  }
+
+  // ── Private: Gemini helpers (cloud AI, server-side only) ─────
+
+  private get geminiKey(): string | undefined {
+    return process.env.GEMINI_API_KEY?.trim() || undefined;
+  }
+  private get geminiModel(): string {
+    return process.env.GEMINI_MODEL?.trim() || "gemini-3.7-flash";
+  }
+  private get geminiBaseUrl(): string {
+    return (
+      process.env.GEMINI_BASE_URL?.trim() ||
+      "https://generativelanguage.googleapis.com/v1beta"
+    );
+  }
+
+  private factsCache: { facts: StudyFact[]; expiresAt: number } = {
+    facts: [],
+    expiresAt: 0,
+  };
+
+  /** One Gemini JSON round-trip with a 30s timeout. Throws on failure. */
+  private async geminiJson(prompt: string): Promise<string> {
+    const res = await fetch(
+      `${this.geminiBaseUrl}/models/${this.geminiModel}:generateContent?key=${this.geminiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.8, maxOutputTokens: 4096 },
+        }),
+        signal: AbortSignal.timeout(30_000),
+      },
+    );
+    if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+    const data = (await res.json()) as {
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
+    };
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    return text
+      .replace(/```(?:json)?\s*/gi, "")
+      .replace(/```/g, "")
+      .trim();
+  }
+
+  /** Parse a JSON array from model output, tolerating leading text/fences. */
+  private parseJsonArray<T>(raw: string): T[] {
+    const start = raw.indexOf("[");
+    const end = raw.lastIndexOf("]");
+    if (start === -1 || end === -1 || end <= start) return [];
+    try {
+      const parsed = JSON.parse(raw.slice(start, end + 1));
+      return Array.isArray(parsed) ? (parsed as T[]) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private shuffleQuiz(questions: QuizQuestion[]): QuizQuestion[] {
+    const copy = [...questions];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
   }
 
   // ── Public: moderation support (used by admin) ──────────────────

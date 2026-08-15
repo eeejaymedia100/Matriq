@@ -6,6 +6,7 @@ import { AuditService } from "../audit/audit.service";
 import { EmailService } from "../email/email.service";
 import { StorageService } from "../storage/storage.service";
 import { NotificationsService } from "../notifications/notifications.service";
+import { InAppNotificationsService } from "../notifications/in-app.service";
 import { NotFoundException, ForbiddenException } from "@nestjs/common";
 
 describe("VerificationService", () => {
@@ -103,6 +104,7 @@ describe("VerificationService", () => {
         { provide: EmailService, useValue: email },
         { provide: StorageService, useValue: mockStorage },
         { provide: NotificationsService, useValue: mockNotifications },
+        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
       ],
     }).compile();
 

@@ -4,6 +4,51 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-15 — Round 2 QA — full fixes pass implemented (notifications, admin analytics, facts/quiz, timetable updates, design)
+
+**Status:** all fixes code-complete + validated locally (backend tsc + 130 tests green, mobile tsc clean, admin + dashboard tsc clean). NOT yet deployed — needs backend rebuild (2 new migrations) + APK rebuild.
+
+**Did (all items from matriq-fixes-and-new-builds.md):**
+- **In-app notification feed (§5/§9):** Prisma `Notification` model (migration `20260815000002_in_app_notifications`), `notifications/in-app.service.ts` + controller (`GET/POST /v1/me/notifications`, unread-count, mark-read, read-all) — wired fire-and-forget into verification approve/reject, vault moderation, announcements, new dues, payment success, admin broadcasts. Mobile: `NotificationsContext` (unread badge), `NotificationFeedScreen` (infinite scroll, mark-all-read, deep links), Home bell with live unread badge replaces the Verified pill.
+- **Admin (§1):** `GET /admin/analytics` rewritten to the real shape (headline counts, association breakdown, most-active courses via vaultItem.groupBy, vault activity) — **fixes the "dashboard doesn't load" bug** (pages read `totalStudents`/`activeAssociations`/`totalCollectedKobo`/`associations`/`topCourses`/`vaultActivity`); admin dashboard page now renders the real data + **platform broadcast composer** (`POST /admin/broadcasts` → notification to every user).
+- **Study facts + quiz maker (§8):** `POST /ai/facts` (Gemini batch, 12h server cache, seed fallback) + `POST /ai/quiz` (personalised from the student's approved uploaded materials, course-code scoped, seed fallback). Mobile: `dailyFacts.ts` (daily-cached rotation, never called live on a timer), real `QuizScreen` (multi-choice, explanations, results), Home hero + Study use dynamic facts.
+- **Real-time timetable updates (§2):** `TimetableUpdate` model (migration `20260815000003_timetable_updates`), `GET/POST /v1/associations/:id/timetable-updates` — executives push dept/level-scoped changes, students see scoped updates + get an in-app notification.
+- **Onboarding (§4):** final 4 slides with the exact copy (promises, "The smart way.", Get Started + Sign In CTAs).
+- **Settings (§9/§7):** removed the ntfy instructions row; duplicate offline-AI entry removed (Data & Storage keeps one link).
+- **Offline AI grid (§7):** compact 3-column model grid + per-model detail card (download/delete/use).
+- **Home To-Do's (§5):** completed items now disappear entirely (no checked state); hero uses dynamic facts.
+- **Vault (§6):** compact file-manager rows — filename + upload date + course chip + size.
+- **Lime-on-light audit (§3):** CGPA screens' lime accent-text swapped to brand on light surfaces.
+- **Background updates (§12):** UpdateOverlay now asks "Update detected — restart now?" Yes/No before applying.
+- **Design (§10):** Pop default cards get sticker borders, Glass ambient glow richer, LiquidTabBar raised bubble with stronger active treatment.
+- **Review fixes this session:** `NotificationsModule` added to root `AppModule` (routes were otherwise never mounted — sub-module imports alone don't register the controller); mobile unread-count call fixed to read the backend's plain-number response.
+- **Validation:** backend tsc clean + **130 tests green** (17 suites — new OCR spec + updated specs for new constructor deps), mobile tsc clean, admin + dashboard tsc clean.
+
+**Next:** deploy (git push → server pull → `prisma migrate deploy` via `scripts/deploy.sh` — 2 new migrations → rebuild backend) + rebuild the APK for the new screens.
+
+**Blockers/flags:**
+- Two new migrations (`...0002_in_app_notifications`, `...0003_timetable_updates`) must run before the backend serves `/me/notifications` + `/timetable-updates`.
+- Broadcasts fan out to ALL registered users in one `createMany` — fine at student scale, watch on big cohorts.
+- Timetable-updates student view is implemented server-side; the Timetable screen itself still reads local storage (server feed shows in the notification deep link target — full sync is a follow-up).
+
+## 2026-08-15 — Round 2 QA — waitlist DEPLOYED + Tools pass built
+
+**Status:** waitlist live (student pitch + survey); Tools pass code-complete + pushed (backend + mobile tsc clean, reviewed). Tools backend + APK NOT yet redeployed.
+
+**Did:**
+- **Deployed the waitlist rewrite** (commits `30f6de7` + `8ded5e5`): server pulled to `8ded5e5`, `scripts/deploy.sh` ran migrate + rebuilt backend; verified live — 5 survey columns in prod (`pain_point`, `is_association_exec`, `exec_level`, `exec_department`, `exec_faculty`), new student-pitch page serving at matriq.com.ng, API health 200.
+- **Gemini key wired** (stored on server + now forwarded in docker-compose: `GEMINI_API_KEY`, `GEMINI_MODEL=gemini-3.7-flash`, `GEMINI_BASE_URL`).
+- **Tools pass (commit `1a03680`):** backend OCR now Gemini-first (vision `generateContent`) with tesseract fallback; new server-side tools — PDF merge (pdf-lib, ≤10 files), PDF split→zip (fflate), PDF→Word (.docx via pdf-parse@1.1.1 + docx), Word→PDF (mammoth + pdf-lib), passport background remover (sharp uniform-bg replacement). New deps: pdf-lib, pdf-parse@1.1.1 (pinned — v2.x has a different API), mammoth, docx. Mobile: reusable `FileToolScreen` + 5 tool wrappers + client-side Citation generator (APA/MLA/Harvard); Tools tab reordered portal → AI → documents → photos → grades → writing, no more "Soon".
+- **Reviewed + fixed:** paragraph-preserving Word→PDF, merge memory cap, Android .docx picker fallback, Harvard vol format.
+- **Validation:** backend + mobile tsc clean; code-reviewed.
+
+**Next:** deploy the Tools backend (`docker compose up -d --build backend` — no migration needed) + rebuild the APK for the new mobile screens; then notifications (bell + feed), admin/association dashboards, onboarding, design refinements, logo.
+
+**Blockers/flags:**
+- pdf-parse pinned 1.1.1 (v2 API differs) — noted in code.
+- New tools need a backend rebuild (new deps) + APK rebuild to reach students.
+- Passport remover is uniform-background only (honest limitation in UI copy).
+
 ## 2026-08-15 — Round 2 QA — waitlist rewrite (student pitch + growth survey) + Gemini key wired
 
 **Status:** waitlist rewrite DONE + validated locally (backend tsc/prisma clean, frontend JS checked, code-reviewed). NOT yet deployed — one deploy step remains (migration + backend rebuild + push).

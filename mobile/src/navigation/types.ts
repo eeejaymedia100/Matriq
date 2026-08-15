@@ -32,6 +32,8 @@ export type MainStackParamList = {
   VerificationUpload: undefined;
   VerificationStatus: undefined;
   OfflineModels: undefined;
+  Notifications: undefined;
+  Quiz: undefined;
   CgpaCalculator: undefined;
   Timetable: undefined;
   MyMaterials: undefined;

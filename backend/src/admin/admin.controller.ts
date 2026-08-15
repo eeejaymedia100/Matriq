@@ -244,6 +244,20 @@ export class AdminController {
     return this.adminService.getAnalytics();
   }
 
+  // ── Platform-wide broadcasts (spec §1) ────────────────────────
+
+  @Post("broadcasts")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  async createBroadcast(
+    @Body() dto: { title: string; body: string },
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.createBroadcast(dto, user.sub, ip);
+  }
+
   // ── Audit logs ────────────────────────────────────────────────
 
   @Get("audit-logs")
