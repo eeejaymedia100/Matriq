@@ -47,6 +47,12 @@ import { CgpaCalculatorScreen } from "../screens/tools/CgpaCalculatorScreen";
 import { OcrScreen } from "../screens/tools/OcrScreen";
 import { ImageToPdfScreen } from "../screens/tools/ImageToPdfScreen";
 import { FileCompressorScreen } from "../screens/tools/FileCompressorScreen";
+import { PdfMergeScreen } from "../screens/tools/PdfMergeScreen";
+import { PdfSplitScreen } from "../screens/tools/PdfSplitScreen";
+import { PdfToWordScreen } from "../screens/tools/PdfToWordScreen";
+import { WordToPdfScreen } from "../screens/tools/WordToPdfScreen";
+import { PassportRemoverScreen } from "../screens/tools/PassportRemoverScreen";
+import { CitationScreen } from "../screens/tools/CitationScreen";
 import { VaultUploadScreen } from "../screens/vault/VaultUploadScreen";
 import { TimetableScreen } from "../screens/study/TimetableScreen";
 import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
@@ -149,6 +155,12 @@ function MainNavigator() {
       <MainStack.Screen name="Ocr" component={OcrScreen} options={{ title: "Image to Text" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
       <MainStack.Screen name="FileCompressor" component={FileCompressorScreen} options={{ title: "File Compressor" }} />
+      <MainStack.Screen name="PdfMerge" component={PdfMergeScreen} options={{ title: "PDF Merge" }} />
+      <MainStack.Screen name="PdfSplit" component={PdfSplitScreen} options={{ title: "PDF Split" }} />
+      <MainStack.Screen name="PdfToWord" component={PdfToWordScreen} options={{ title: "PDF → Word" }} />
+      <MainStack.Screen name="WordToPdf" component={WordToPdfScreen} options={{ title: "Word → PDF" }} />
+      <MainStack.Screen name="PassportRemover" component={PassportRemoverScreen} options={{ title: "Background Remover" }} />
+      <MainStack.Screen name="Citation" component={CitationScreen} options={{ title: "Citation Generator" }} />
       <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Vault" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />

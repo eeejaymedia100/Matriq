@@ -41,4 +41,10 @@ export type MainStackParamList = {
   Ocr: undefined;
   ImageToPdf: undefined;
   FileCompressor: undefined;
+  PdfMerge: undefined;
+  PdfSplit: undefined;
+  PdfToWord: undefined;
+  WordToPdf: undefined;
+  PassportRemover: undefined;
+  Citation: undefined;
 };

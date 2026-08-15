@@ -16,28 +16,50 @@ import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Tools">;
 
+type ToolTarget =
+  | "CgpaCalculator"
+  | "Ocr"
+  | "ImageToPdf"
+  | "FileCompressor"
+  | "PdfMerge"
+  | "PdfSplit"
+  | "PdfToWord"
+  | "WordToPdf"
+  | "PassportRemover"
+  | "Citation";
+
 interface ToolCard {
   id: string;
   label: string;
   hint: string;
   icon: IconName;
-  ready: boolean;
-  target?: "CgpaCalculator" | "Ocr" | "ImageToPdf" | "FileCompressor";
+  target: ToolTarget;
 }
 
+const AI_TOOLS: ToolCard[] = [
+  { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", target: "Ocr" },
+];
+
 const DOC_TOOLS: ToolCard[] = [
-  { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", ready: true, target: "Ocr" },
-  { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", ready: true, target: "ImageToPdf" },
-  { id: "compress", label: "File Compressor", hint: "Shrink any file", icon: "layers", ready: true, target: "FileCompressor" },
-  { id: "pdf-merge", label: "PDF merge / split", hint: "Combine or divide PDFs", icon: "layers", ready: false },
-  { id: "pdf-word", label: "PDF ↔ Word", hint: "Convert documents", icon: "pen", ready: false },
-  { id: "bg-remover", label: "Passport background remover", hint: "Clean official photos", icon: "camera", ready: false },
-  { id: "citation", label: "Citation generator", hint: "APA · MLA · Harvard", icon: "book", ready: false },
+  { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", target: "ImageToPdf" },
+  { id: "compress", label: "File Compressor", hint: "Shrink any file", icon: "layers", target: "FileCompressor" },
+  { id: "pdf-merge", label: "PDF merge", hint: "Combine PDFs into one", icon: "layers", target: "PdfMerge" },
+  { id: "pdf-split", label: "PDF split", hint: "Divide into pages", icon: "fileText", target: "PdfSplit" },
+  { id: "pdf-word", label: "PDF → Word", hint: "Extract text to .docx", icon: "fileText", target: "PdfToWord" },
+  { id: "word-pdf", label: "Word → PDF", hint: "Convert a .docx", icon: "pen", target: "WordToPdf" },
+];
+
+const PHOTO_TOOLS: ToolCard[] = [
+  { id: "bg-remover", label: "Passport background remover", hint: "Clean official photos", icon: "camera", target: "PassportRemover" },
 ];
 
 const GRADE_TOOLS: ToolCard[] = [
-  { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", ready: true, target: "CgpaCalculator" },
-  { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", ready: true, target: "CgpaCalculator" },
+  { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", target: "CgpaCalculator" },
+  { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", target: "CgpaCalculator" },
+];
+
+const WRITING_TOOLS: ToolCard[] = [
+  { id: "citation", label: "Citation generator", hint: "APA · MLA · Harvard", icon: "book", target: "Citation" },
 ];
 
 export function ToolsScreen({ navigation }: Props) {
@@ -49,9 +71,8 @@ export function ToolsScreen({ navigation }: Props) {
   const renderTool = (tool: ToolCard) => (
     <Pressable
       key={tool.id}
-      style={{ opacity: tool.ready ? 1 : 0.55 }}
-      disabled={!tool.ready}
-      onPress={() => tool.target && stackNav?.navigate(tool.target)}
+      onPress={() => stackNav?.navigate(tool.target)}
+      style={{ marginBottom: 10 }}
     >
       <View
         style={{
@@ -63,7 +84,6 @@ export function ToolsScreen({ navigation }: Props) {
           backgroundColor: colors.surface,
           borderWidth: 1,
           borderColor: colors.border,
-          marginBottom: 10,
         }}
       >
         <View
@@ -86,15 +106,15 @@ export function ToolsScreen({ navigation }: Props) {
             {tool.hint}
           </Text>
         </View>
-        {tool.ready ? (
-          <Icon name="chevronRight" size={18} color={colors.textMuted} />
-        ) : (
-          <Text style={[theme.typography.small, { color: colors.textMuted, fontWeight: "700" }]}>
-            Soon
-          </Text>
-        )}
+        <Icon name="chevronRight" size={18} color={colors.textMuted} />
       </View>
     </Pressable>
+  );
+
+  const sectionTitle = (label: string) => (
+    <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 24, marginBottom: 12 }]}>
+      {label}
+    </Text>
   );
 
   return (
@@ -109,21 +129,8 @@ export function ToolsScreen({ navigation }: Props) {
             Fast utilities, no hype.
           </Text>
 
-          <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 24, marginBottom: 12 }]}>
-            Documents
-          </Text>
-          {DOC_TOOLS.map(renderTool)}
-
-          <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 20, marginBottom: 12 }]}>
-            Grades
-          </Text>
-          {GRADE_TOOLS.map(renderTool)}
-
-          <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 20, marginBottom: 12 }]}>
-            Portal
-          </Text>
-
-          {/* School Portal — plain link only */}
+          {/* Portal — first, per round-2 QA §7 */}
+          {sectionTitle("Portal")}
           <Pressable onPress={() => Linking.openURL(PORTAL_URL).catch(() => {})}>
             <View
               style={{
@@ -162,7 +169,6 @@ export function ToolsScreen({ navigation }: Props) {
             </View>
           </Pressable>
 
-          {/* Portal Services → WhatsApp */}
           <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 6, marginBottom: 10 }]}>
             Portal Services → WhatsApp
           </Text>
@@ -192,6 +198,21 @@ export function ToolsScreen({ navigation }: Props) {
           <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
             Each action opens WhatsApp with a ready message — no form-filling.
           </Text>
+
+          {sectionTitle("AI utilities")}
+          {AI_TOOLS.map(renderTool)}
+
+          {sectionTitle("Documents")}
+          {DOC_TOOLS.map(renderTool)}
+
+          {sectionTitle("Photos")}
+          {PHOTO_TOOLS.map(renderTool)}
+
+          {sectionTitle("Grades")}
+          {GRADE_TOOLS.map(renderTool)}
+
+          {sectionTitle("Writing")}
+          {WRITING_TOOLS.map(renderTool)}
         </ScrollView>
       </SafeAreaView>
     </ThemedScreen>

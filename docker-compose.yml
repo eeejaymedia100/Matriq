@@ -73,6 +73,10 @@ services:
       - S3_USE_SSL=${S3_USE_SSL:-false}
       # Comma-separated allowed browser origins (Vercel dashboards; see docs/cloudflare-vercel.md)
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8081}
+      # Gemini API (cloud AI: OCR, quiz gen, facts) — key lives server-side only
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.7-flash}
+      - GEMINI_BASE_URL=${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
     expose:
       - "3000" # internal only — caddy routes via Docker network
     networks:
