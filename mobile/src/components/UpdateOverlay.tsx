@@ -38,6 +38,7 @@ export function UpdateOverlay() {
   const [ready, setReady] = useState<AppUpdateInfo | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [installing, setInstalling] = useState(false);
+  const [installBlocked, setInstallBlocked] = useState(false);
   const ran = useRef(false);
 
   // ── Silent install at a natural reopen ────────────────────────
@@ -122,14 +123,28 @@ export function UpdateOverlay() {
   const handleYes = useCallback(async () => {
     if (!ready || installing) return;
     setInstalling(true);
+    setInstallBlocked(false);
     const ok = await installApk(ready);
     if (ok) {
       setShowPrompt(false);
     } else {
-      // Installer didn't open — keep the prompt so the user can retry.
+      // Installer didn't open — likely blocked by the "install unknown apps"
+      // permission. Keep the prompt and offer the settings shortcut.
       setInstalling(false);
+      setInstallBlocked(true);
     }
   }, [ready, installing]);
+
+  const openInstallSettings = useCallback(async () => {
+    try {
+      await IntentLauncher.startActivityAsync(
+        "android.settings.MANAGE_UNKNOWN_APP_SOURCES",
+        { data: "package:app.matriq.mobile" },
+      );
+    } catch {
+      // Ignore — the system install prompt may already be guiding the user.
+    }
+  }, []);
 
   const handleNo = useCallback(() => {
     // Defers only — the update still applies at the next natural reopen,
@@ -225,6 +240,35 @@ export function UpdateOverlay() {
               )}
             </Pressable>
           </View>
+          {installBlocked ? (
+            <View style={{ width: "100%", marginTop: 14 }}>
+              <Text
+                style={[
+                  theme.typography.small,
+                  { color: colors.textSecondary, textAlign: "center", lineHeight: 18 },
+                ]}
+              >
+                Android blocked the install. Allow "Install unknown apps" for
+                Matriq, then come back and try again.
+              </Text>
+              <Pressable
+                onPress={() => void openInstallSettings()}
+                style={{
+                  marginTop: 10,
+                  alignItems: "center",
+                  paddingVertical: 11,
+                  borderRadius: theme.radii.md,
+                  borderWidth: 1.5,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                <Text style={[theme.typography.bodyBold, { color: colors.accent }]}>
+                  Open install settings
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+
           <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 14, textAlign: "center" }]}>
             "Not now" defers — the update applies next time the app restarts.
           </Text>
