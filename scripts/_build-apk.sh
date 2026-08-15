@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
-# Release APK build for Matriq mobile (v0.6.0, build 7)
+# Matriq — release APK build (arm64-only, single ABI).
+# The release version is single-sourced from mobile/app.json:
+#   expo.version            -> versionName
+#   expo.android.versionCode -> versionCode
+# To cut a release: bump both values in app.json, run this, then
+# scripts/_finalize-apk.sh (which ships the APK + bumps the live manifest so
+# installed apps self-update — no manual redownload).
 set -e
 cd /home/akpevwejulius1/matriq/mobile
 
 export ANDROID_HOME=/home/akpevwejulius1/Android/Sdk
 export ANDROID_SDK_ROOT=$ANDROID_HOME
+
+VERSION_NAME=$(node -p "require('./app.json').expo.version")
+VERSION_CODE=$(node -p "require('./app.json').expo.android.versionCode || 1")
+echo "=== building ${VERSION_NAME} (versionCode ${VERSION_CODE}) ==="
 
 # Prebuild wipes local.properties (the Android SDK pointer) — write it back.
 SDK_DIR=$(ls -d ${ANDROID_HOME} 2>/dev/null || true)
@@ -17,9 +27,11 @@ npx expo prebuild --platform android --no-install > /tmp/prebuild.log 2>&1 || {
   echo "PREBUILD FAILED"; tail -8 /tmp/prebuild.log; exit 1;
 }
 
-# Prebuild regenerates build.gradle with versionName from app.json but resets
-# versionCode to 1 — pin it back to 7 (must exceed the live manifest's 6).
-sed -i 's/versionCode [0-9]*/versionCode 7/' android/app/build.gradle
+# Prebuild regenerates build.gradle from app.json (so versionCode/versionName
+# should already be right). Pin them defensively in case an older prebuild
+# reset versionCode to 1.
+sed -i "s/versionCode [0-9]*/versionCode ${VERSION_CODE}/" android/app/build.gradle
+sed -i "s/versionName \".*\"/versionName \"${VERSION_NAME}\"/" android/app/build.gradle
 
 # llama.rn ships its native libs via a postinstall download into node_modules;
 # if they're missing, fetch them explicitly so gradle can autolink them.

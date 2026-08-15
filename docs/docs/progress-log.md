@@ -6,7 +6,7 @@ understand "what happened since I last looked" in under a minute.
 
 ## 2026-08-15 — Round 2 QA — full fixes pass implemented (notifications, admin analytics, facts/quiz, timetable updates, design)
 
-**Status:** backend DEPLOYED to production (`84ff44d`) — both new migrations applied, backend rebuilt, verified live. APK rebuild still pending (mobile screens not yet in students' hands).
+**Status:** backend + APK both DEPLOYED to production. Backend (`84ff44d`) live with both migrations applied; **v0.7.0 (build 8) APK shipped** — new screens reach students via the in-app updater (no manual redownload).
 
 **Did (all items from matriq-fixes-and-new-builds.md):**
 - **In-app notification feed (§5/§9):** Prisma `Notification` model (migration `20260815000002_in_app_notifications`), `notifications/in-app.service.ts` + controller (`GET/POST /v1/me/notifications`, unread-count, mark-read, read-all) — wired fire-and-forget into verification approve/reject, vault moderation, announcements, new dues, payment success, admin broadcasts. Mobile: `NotificationsContext` (unread badge), `NotificationFeedScreen` (infinite scroll, mark-all-read, deep links), Home bell with live unread badge replaces the Verified pill.
@@ -26,7 +26,11 @@ understand "what happened since I last looked" in under a minute.
 
 **Deployed (2026-08-15):** committed + pushed as `84ff44d` (also pulled in the Tools commit `1a03680`), production `matriq-server` pulled to `84ff44d`, `scripts/deploy.sh` ran — migrations `...0002_in_app_notifications` + `...0003_timetable_updates` applied (`prisma migrate deploy`), backend rebuilt (new Tools deps installed) and healthy. **Verified live:** `/health` 200; `/v1/me/notifications`, `/v1/me/notifications/unread-count` → 401 (mounted), `POST /v1/admin/broadcasts`, `/v1/ai/facts`, `/v1/ai/quiz` → 401 (mounted).
 
-**Next:** rebuild the APK for the new screens.
+**APK shipped (2026-08-15):** rebuilt as **v0.7.0 / versionCode 8** (incremental `assembleRelease`, 9m43s, native cache warm). Verified: `aapt` reports versionCode 8 / versionName 0.7.0; bundle embeds `NotificationFeedScreen`, `QuizScreen`, and the new silent-updater copy. Deployed to `matriq-server` (`waitlist/matriq.apk` + `download/matriq.apk`), manifest `app-version.json` bumped to 8/0.7.0 → `https://matriq.com.ng/app-version.json` serves v8 and `/download/matriq.apk` returns 200 (117 MB). Existing v0.6.0 installs will silently download this in the background and prompt "Update detected — restart now?". Telegram summary sent (msg #438); the 113 MB APK itself can't be attached via the bot (50 MB limit) — the download link + updater are the channel.
+
+**Release flow made repeatable ("no constant redownload"):** the version is now single-sourced in `mobile/app.json` (`expo.version` + `expo.android.versionCode`). `scripts/_build-apk.sh` reads it (no hardcoded version); `scripts/_finalize-apk.sh` reads the version straight from the built APK via `aapt`, writes the manifest locally (node JSON-escapes the notes), ships the APK + manifest, and verifies the live URLs. To ship future fixes: bump `version` + `versionCode` in `app.json` → `bash scripts/_build-apk.sh` → `RELEASE_NOTES="…" bash scripts/_finalize-apk.sh`. Installed apps then self-update.
+
+**Next:** none pending — future fixes follow the bump-version → build → finalize flow above.
 
 **Blockers/flags:**
 - Broadcasts fan out to ALL registered users in one `createMany` — fine at student scale, watch on big cohorts.
