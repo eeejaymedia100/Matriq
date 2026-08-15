@@ -6,7 +6,7 @@ understand "what happened since I last looked" in under a minute.
 
 ## 2026-08-15 — Round 2 QA — full fixes pass implemented (notifications, admin analytics, facts/quiz, timetable updates, design)
 
-**Status:** all fixes code-complete + validated locally (backend tsc + 130 tests green, mobile tsc clean, admin + dashboard tsc clean). NOT yet deployed — needs backend rebuild (2 new migrations) + APK rebuild.
+**Status:** backend DEPLOYED to production (`84ff44d`) — both new migrations applied, backend rebuilt, verified live. APK rebuild still pending (mobile screens not yet in students' hands).
 
 **Did (all items from matriq-fixes-and-new-builds.md):**
 - **In-app notification feed (§5/§9):** Prisma `Notification` model (migration `20260815000002_in_app_notifications`), `notifications/in-app.service.ts` + controller (`GET/POST /v1/me/notifications`, unread-count, mark-read, read-all) — wired fire-and-forget into verification approve/reject, vault moderation, announcements, new dues, payment success, admin broadcasts. Mobile: `NotificationsContext` (unread badge), `NotificationFeedScreen` (infinite scroll, mark-all-read, deep links), Home bell with live unread badge replaces the Verified pill.
@@ -24,10 +24,11 @@ understand "what happened since I last looked" in under a minute.
 - **Review fixes this session:** `NotificationsModule` added to root `AppModule` (routes were otherwise never mounted — sub-module imports alone don't register the controller); mobile unread-count call fixed to read the backend's plain-number response.
 - **Validation:** backend tsc clean + **130 tests green** (17 suites — new OCR spec + updated specs for new constructor deps), mobile tsc clean, admin + dashboard tsc clean.
 
-**Next:** deploy (git push → server pull → `prisma migrate deploy` via `scripts/deploy.sh` — 2 new migrations → rebuild backend) + rebuild the APK for the new screens.
+**Deployed (2026-08-15):** committed + pushed as `84ff44d` (also pulled in the Tools commit `1a03680`), production `matriq-server` pulled to `84ff44d`, `scripts/deploy.sh` ran — migrations `...0002_in_app_notifications` + `...0003_timetable_updates` applied (`prisma migrate deploy`), backend rebuilt (new Tools deps installed) and healthy. **Verified live:** `/health` 200; `/v1/me/notifications`, `/v1/me/notifications/unread-count` → 401 (mounted), `POST /v1/admin/broadcasts`, `/v1/ai/facts`, `/v1/ai/quiz` → 401 (mounted).
+
+**Next:** rebuild the APK for the new screens.
 
 **Blockers/flags:**
-- Two new migrations (`...0002_in_app_notifications`, `...0003_timetable_updates`) must run before the backend serves `/me/notifications` + `/timetable-updates`.
 - Broadcasts fan out to ALL registered users in one `createMany` — fine at student scale, watch on big cohorts.
 - Timetable-updates student view is implemented server-side; the Timetable screen itself still reads local storage (server feed shows in the notification deep link target — full sync is a follow-up).
 
