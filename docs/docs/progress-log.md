@@ -4,6 +4,20 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-16 — APK cut 56% + clean rebuild, shipped as v0.7.3 (build 11)
+
+**Status:** done + shipped. The ~117 MB APK (whose size was the likely cause of downloads stalling at the end) is now **49.7 MB**.
+
+**Did:**
+- **Root cause of the remaining download stall:** the server + file were already verified byte-identical and correctly served (full 117 MB download, matching SHA-256, correct `content-length`), so the problem was the APK itself — it was a bloated, unoptimized 117 MB. `llama.rn` (offline AI) ships **7 arm64 engine variants** (v8, v8_2, dotprod, i8mm, hexagon_opencl…) totalling ~65 MB, plus 7 matching JNI wrappers, of which only the generic `librnllama.so` + `librnllama_jni.so` are required (its loader tries each variant and falls back to the generic one on any device).
+- **Fix:** `scripts/_build-apk.sh` now injects `packagingOptions.jniLibs.excludes` after `expo prebuild` (which regenerates `build.gradle`, so this is the only durable place for it) to strip the 12 redundant `.so` files, and builds with `./gradlew clean assembleRelease` (true clean rebuild).
+- **Result:** **117,537,565 → 52,115,189 bytes (56% smaller)**, version 0.7.3 / versionCode 11. Verified: only `librnllama.so` + `librnllama_jni.so` remain; all other native libs + JS bundle intact; still the standard Android debug signature (SHA-1 `5e8f16…`, unchanged).
+- **Shipped:** APK deployed, manifest bumped to v11, live URLs verified (`/download/matriq.apk` content-length 52115189, `app-version.json` → v11). Telegram summary + APK doc #465/#466 (the APK now fits under Telegram's 50 MB bot limit, so it attached successfully this time).
+
+**Note for the user:** the phone must have ~120 MB free to install this (50 MB APK + extraction headroom). If a download still stalls at 100%, clear Chrome's Downloads or use the Files app to free space — but the 56% size cut should resolve it.
+
+**Next:** consider enabling R8 minify + resource shrink (dex is still ~23 MB unminified) for a further ~15 MB cut; confirm offline AI still generates after the variant strip on a real device.
+
 ## 2026-08-15 — In-app update install fixed + shipped as v0.7.2 (build 10)
 
 **Status:** done + shipped. Root cause of "downloads to 117.54/117.54 but won't install" found and fixed.
