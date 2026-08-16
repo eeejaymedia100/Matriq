@@ -203,27 +203,30 @@ export class ToolsService {
     });
   }
 
-  /** Parse tesseract's TSV output into joined line text + mean word confidence. */
+  /**
+   * Parse tesseract's TSV output into line text + mean word confidence.
+   * Tesseract leaves the line-level (level 4) text column empty, so we
+   * reconstruct each line by grouping the word-level (level 5) rows by their
+   * (block, paragraph, line) keys — preserving reading order and line breaks.
+   */
   private parseTesseractTsv(tsv: string): { text: string; confidence: number } {
-    const lines = tsv.split("\n");
-    if (lines.length === 0) return { text: "", confidence: 0 };
-    const lineTexts: string[] = [];
+    const rows = tsv.split("\n");
+    if (rows.length <= 1) return { text: "", confidence: 0 };
+    const lines = new Map<string, string[]>();
     const confs: number[] = [];
-    for (let i = 1; i < lines.length; i += 1) {
-      const cols = lines[i].split("\t");
-      if (cols.length < 12) continue;
-      const level = cols[0];
-      if (level === "4") {
-        // line-level row — full text for that line (preserves layout)
-        const text = cols[11] ?? "";
-        if (text.trim()) lineTexts.push(text);
-      } else if (level === "5") {
-        // word-level row — carries the confidence score
-        const conf = parseFloat(cols[10]);
-        if (Number.isFinite(conf) && conf >= 0) confs.push(conf);
-      }
+    for (let i = 1; i < rows.length; i += 1) {
+      const cols = rows[i].split("\t");
+      if (cols.length < 12 || cols[0] !== "5") continue; // word-level rows only
+      const conf = parseFloat(cols[10]);
+      const word = (cols[11] ?? "").trim();
+      if (!word) continue;
+      const key = `${cols[2]}\u0000${cols[3]}\u0000${cols[4]}`; // block·par·line
+      const line = lines.get(key);
+      if (line) line.push(word);
+      else lines.set(key, [word]);
+      if (Number.isFinite(conf) && conf >= 0) confs.push(conf);
     }
-    const text = lineTexts.join("\n").replace(/[ \t]+/g, " ").trim();
+    const text = [...lines.values()].map((w) => w.join(" ")).join("\n").trim();
     const confidence = confs.length
       ? Math.round((confs.reduce((a, b) => a + b, 0) / confs.length) * 10) / 10
       : 0;
