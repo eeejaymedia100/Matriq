@@ -14,7 +14,7 @@ REMOTE=matriq
 MAX_WAIT_MIN=480
 
 # ── Per-release copy (edit this line each release) ──────────────
-RELEASE_NOTES="${RELEASE_NOTES:-Update available: faster OCR that reads photos reliably, offline-AI download fix, and the Tools tab cleaned up (citation + passport tools removed).}"
+RELEASE_NOTES="${RELEASE_NOTES:-Update: offline-AI downloads are fixed (much faster, shows speed + ETA, and a new ~100MB quick model), Vault downloads large files reliably, and OCR now runs on an open-source engine that always works.}"
 
 log() { echo "[finalize $(date '+%F %T')] $*"; }
 
