@@ -4,6 +4,21 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-16 — Criteria-gap + fixes pass DEPLOYED (backend live + OCR verified), APK v0.7.4 building
+
+**Status:** backend DEPLOYED + OCR verified live (engine: gemini); mobile/admin/dashboard verified; APK v0.7.4 (build 12) building in tmux `matriq-build`.
+
+**Did (finishing the two previous "not yet deployed" passes):**
+- **Committed + pushed** the full criteria-gap + fixes pass as `c758892` (36 files) + version bump `37cc477` (v0.7.4 / build 12).
+- **Verified** the whole working tree before shipping: backend tsc + **132 tests green** (17 suites), mobile/admin/dashboard tsc clean, admin + dashboard `next build` green (new `/security`, `/users`, `/members`, `/events`, `/timetable` routes present).
+- **Backend deployed** (`scripts/deploy.sh` on matriq-server → `c758892`, backend rebuilt + healthy; no migration needed — response-shape + new queries on existing tables only).
+- **OCR verified end-to-end against production**: logged in as `member1@matriq.app`, POSTed a generated text image to `/v1/tools/ocr` → `{"text":"MATRIQ OCR TEST Course: CHM 101 Student: Julius 2026","confidence":100,"readable":true,"engine":"gemini"}` — Gemini path working, no tesseract fallback. New route mounts confirmed (analytics/members/fees-payments/timetable-updates → 401; POST-only routes → 404-on-GET as expected).
+- **APK build** for the mobile fixes (offline-AI `ensureModelsDir()` fix + citation/passport tool removals) running in tmux. Note: `expo prebuild` wipes `android/app/.cxx`, so this is a full native llama.rn recompile (slow), not the ~10 min incremental build.
+
+**Next:** wait for `BUILD SUCCESSFUL` in `/tmp/gradle.log`, then `bash scripts/_finalize-apk.sh` to ship the APK + bump the live `app-version.json` (existing installs self-update).
+
+**Blockers/flags:** the APK build's native recompile is the long pole (llama.rn CMake ~hours on this box). The §2 shared `[association-name]@matriq.app` exec-account model and §11 Android overlay bubble remain unimplemented (both need decisions).
+
 ## 2026-08-16 — Fixes pass: offline-AI download root cause, onboarding route, association-dashboard stats
 
 **Status:** code done + verified (backend tsc + **130 tests green**, mobile/admin/dashboard tsc clean). Telegram #488 sent with dashboard links + credentials. NOT yet deployed.
