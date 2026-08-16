@@ -62,6 +62,79 @@ export async function getActivityFeed(
   );
 }
 
+// ── Member roster (spec §2) ──────────────────────────────────────
+
+export async function getMembers(
+  associationId: string,
+  token: string,
+  q?: string,
+) {
+  const qs = q ? `?q=${encodeURIComponent(q)}` : "";
+  return fetchApi<{
+    members: Array<{
+      userId: string;
+      membershipStatus: "live" | "pending";
+      joinedAt: string;
+      verification: "pending" | "approved" | "rejected" | null;
+      verifiedAt: string | null;
+      user: {
+        id: string;
+        fullName: string;
+        email: string;
+        registrationType: string;
+        matricNumber: string | null;
+        jambNumber: string | null;
+        department: string;
+        level: string;
+      };
+    }>;
+    total: number;
+  }>(`/associations/${associationId}/members${qs}`, { token });
+}
+
+// ── Per-fee payment roster (spec §2) ─────────────────────────────
+
+export async function getFeeRoster(
+  associationId: string,
+  feeId: string,
+  token: string,
+) {
+  return fetchApi<{
+    fee: {
+      id: string;
+      name: string;
+      amountKobo: number;
+      dueDate: string;
+      session: string;
+    };
+    memberCount: number;
+    paidCount: number;
+    unpaidCount: number;
+    paid: Array<{
+      paymentId: string;
+      amountKobo: number;
+      method: string | null;
+      paidAt: string | null;
+      user: {
+        id: string;
+        fullName: string;
+        email: string;
+        matricNumber: string | null;
+        level: string;
+        department: string;
+      };
+    }>;
+    unpaid: Array<{
+      id: string;
+      fullName: string;
+      email: string;
+      matricNumber: string | null;
+      level: string;
+      department: string;
+    }>;
+  }>(`/associations/${associationId}/fees/${feeId}/payments`, { token });
+}
+
 // ── Verification ──────────────────────────────────────────────────
 
 export async function getVerificationRequests(
@@ -190,6 +263,26 @@ export async function updateFee(
 
 // ── Events / QR check-in ──────────────────────────────────────────
 
+export async function createEvent(
+  associationId: string,
+  data: {
+    title: string;
+    description: string;
+    location: string;
+    eventDate: string;
+  },
+  token: string,
+) {
+  return fetchApi<{ id: string; title: string }>(
+    `/associations/${associationId}/events`,
+    {
+      method: "POST",
+      token,
+      body: JSON.stringify(data),
+    },
+  );
+}
+
 export async function getEvents(associationId: string, token: string) {
   return fetchApi<{
     events: Array<{
@@ -242,6 +335,41 @@ export async function updateTransparency(
     `/associations/${associationId}/transparency`,
     {
       method: "PATCH",
+      token,
+      body: JSON.stringify(data),
+    },
+  );
+}
+
+// ── Timetable updates (spec §2) ──────────────────────────────────
+
+export async function getTimetableUpdates(
+  associationId: string,
+  token: string,
+) {
+  return fetchApi<{
+    updates: Array<{
+      id: string;
+      title: string;
+      body: string;
+      department: string | null;
+      level: string | null;
+      createdAt: string;
+      author: { name: string; role: string };
+    }>;
+    total: number;
+  }>(`/associations/${associationId}/timetable-updates/all`, { token });
+}
+
+export async function createTimetableUpdate(
+  associationId: string,
+  data: { title: string; body: string; department?: string; level?: string },
+  token: string,
+) {
+  return fetchApi<{ id: string; title: string }>(
+    `/associations/${associationId}/timetable-updates`,
+    {
+      method: "POST",
       token,
       body: JSON.stringify(data),
     },

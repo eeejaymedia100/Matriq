@@ -4,6 +4,7 @@ import {
   Post,
   Patch,
   Param,
+  Query,
   Body,
   UseGuards,
 } from "@nestjs/common";
@@ -70,6 +71,30 @@ export class DashboardController {
   ): Promise<ActivityResponse> {
     this.executivesService.requireExecutiveFor(user, associationId);
     return this.dashboardService.getActivity(associationId);
+  }
+
+  // ── Member roster (round-2 QA §2) ─────────────────────────────
+
+  @Get("associations/:id/members")
+  async getMembers(
+    @Param("id") associationId: string,
+    @CurrentUser() user: JwtPayload,
+    @Query("q") q?: string,
+  ) {
+    this.executivesService.requireExecutiveFor(user, associationId);
+    return this.dashboardService.members(associationId, q);
+  }
+
+  // ── Per-fee payment roster (round-2 QA §2) ────────────────────
+
+  @Get("associations/:id/fees/:feeId/payments")
+  async getFeeRoster(
+    @Param("id") associationId: string,
+    @Param("feeId") feeId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    this.executivesService.requireExecutiveFor(user, associationId);
+    return this.dashboardService.feeRoster(associationId, feeId);
   }
 
   @Post("associations/:id/verify-receipt")

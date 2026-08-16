@@ -178,6 +178,45 @@ export async function searchUsers(token: string, q?: string) {
   );
 }
 
+/** Cancel a student's scheduled deletion (spec §10 — reversible 6-month policy). */
+export async function cancelUserDeletion(userId: string, token: string) {
+  return fetchApi<{ message: string }>(`/admin/users/${userId}/cancel-deletion`, {
+    method: "POST",
+    token,
+  });
+}
+
+// ── Admin MFA (TOTP, spec §1) ────────────────────────────────────
+
+export async function getMfaStatus(token: string) {
+  return fetchApi<{ mfaEnabled: boolean; mfaSecretSet: boolean }>(
+    "/admin/auth/mfa-status",
+    { token },
+  );
+}
+
+export async function enrollMfa(token: string) {
+  return fetchApi<{ secret: string; qrCodeDataUrl: string; uri: string }>(
+    "/admin/auth/mfa/enroll",
+    { method: "POST", token },
+  );
+}
+
+export async function verifyMfaEnrollment(code: string, token: string) {
+  return fetchApi<{ message: string }>("/admin/auth/mfa/verify", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function disableMfa(token: string) {
+  return fetchApi<{ message: string }>("/admin/auth/mfa/disable", {
+    method: "POST",
+    token,
+  });
+}
+
 // ── Executives ────────────────────────────────────────────────────
 
 export async function listExecutives(token: string) {

@@ -36,13 +36,6 @@ function bytesToBase64(bytes: Uint8Array | Buffer): string {
   return Buffer.from(bytes).toString("base64");
 }
 
-function hexToRgb(hex: string): [number, number, number] {
-  const clean = hex.replace("#", "");
-  const num = parseInt(clean, 16);
-  if (Number.isNaN(num)) return [255, 255, 255];
-  return [(num >> 16) & 0xff, (num >> 8) & 0xff, num & 0xff];
-}
-
 /** Paragraph-preserving word-wrap + pagination for text → PDF. */
 function paginateText(
   text: string,
@@ -118,47 +111,76 @@ export class ToolsService {
     }
 
     if (this.geminiKey) {
-      try {
-        const result = await this.ocrWithGemini(file);
-        if (result) return result;
-      } catch (err) {
-        this.logger.warn(
-          `Gemini OCR failed (${err instanceof Error ? err.message : String(err)}) — falling back to tesseract`,
-        );
+      // Gemini is the primary engine — a single retry absorbs the transient
+      // 5xx / "high demand" 503s the API returns under load.
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          const result = await this.ocrWithGemini(file);
+          if (result) return result;
+          // null = the model said there is no text — don't retry, fall through.
+          break;
+        } catch (err) {
+          const retryable = this.isRetryableGeminiError(err);
+          this.logger.warn(
+            `Gemini OCR attempt ${attempt} failed (${err instanceof Error ? err.message : String(err)})${retryable && attempt === 1 ? " — retrying once" : " — falling back to tesseract"}`,
+          );
+          if (!retryable || attempt === 2) break;
+        }
       }
     }
 
     return this.ocrWithTesseract(file);
   }
 
+  /** A 4xx (bad request / model gated) won't heal on retry — 5xx/timeouts will. */
+  private isRetryableGeminiError(err: unknown): boolean {
+    const msg =
+      err instanceof Error ? err.message : String(err);
+    if (msg.startsWith("Gemini HTTP 5")) return true;
+    return /timeout|aborted|fetch failed|ECONN|ETIMEDOUT|ENOTFOUND/i.test(msg);
+  }
+
   private async ocrWithGemini(
     file: Express.Multer.File,
   ): Promise<{ text: string; confidence: number; readable: boolean; engine: "gemini" } | null> {
+    // Phones upload 3000×4000 photos — downscale before sending so the API
+    // round-trip is fast and stays well under Gemini's 20 MB inline limit.
+    const prepared = await this.prepareImageForGemini(file);
     const url = `${this.geminiBaseUrl}/models/${this.geminiModel}:generateContent?key=${this.geminiKey}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              {
-                inlineData: {
-                  mimeType: file.mimetype,
-                  data: file.buffer.toString("base64"),
+    const controller = new AbortController();
+    // Gemini can be slow under load (observed 14s+ on this key) — allow up
+    // to 60s before giving up, then the tesseract fallback takes over.
+    const timer = setTimeout(() => controller.abort(), 60_000);
+    const start = Date.now();
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  inlineData: {
+                    mimeType: prepared.mimeType,
+                    data: prepared.data,
+                  },
                 },
-              },
-              {
-                text:
-                  "Extract all the readable text from this image. Return only the extracted text, " +
-                  "preserving line breaks where possible. If there is no readable text, reply with exactly: NO_TEXT",
-              },
-            ],
-          },
-        ],
-      }),
-      signal: AbortSignal.timeout(30_000),
-    });
+                {
+                  text:
+                    "Extract all the readable text from this image. Return only the extracted text, " +
+                    "preserving line breaks where possible. If there is no readable text, reply with exactly: NO_TEXT",
+                },
+              ],
+            },
+          ],
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timer);
+    }
 
     if (!res.ok) {
       throw new Error(`Gemini HTTP ${res.status}`);
@@ -173,6 +195,9 @@ export class ToolsService {
       .replace(/```/g, "")
       .replace(/\s+/g, " ")
       .trim();
+    this.logger.log(
+      `OCR (gemini) done in ${Date.now() - start}ms: ${text.length} chars`,
+    );
     // The model signals "no readable text" — handle quoting/punctuation.
     if (!text || /^["'`\s]*(NO_TEXT|NO TEXT)[.!]?["'`\s]*$/i.test(text)) {
       return null;
@@ -185,15 +210,50 @@ export class ToolsService {
     };
   }
 
+  /**
+   * Normalise the upload for the Gemini API: honour EXIF rotation and cap the
+   * longest edge at 2048px (re-encoding JPEG keeps photos small and fast).
+   */
+  private async prepareImageForGemini(
+    file: Express.Multer.File,
+  ): Promise<{ mimeType: string; data: string }> {
+    try {
+      const image = sharp(file.buffer).rotate();
+      const meta = await image.metadata();
+      const longest = Math.max(meta.width ?? 0, meta.height ?? 0);
+      if (longest > 2048) {
+        const out = await image
+          .resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 85 })
+          .toBuffer();
+        return { mimeType: "image/jpeg", data: out.toString("base64") };
+      }
+      return { mimeType: file.mimetype, data: file.buffer.toString("base64") };
+    } catch {
+      // sharp is best-effort here — send the original if preprocessing fails.
+      return { mimeType: file.mimetype, data: file.buffer.toString("base64") };
+    }
+  }
+
   private async ocrWithTesseract(file: Express.Multer.File): Promise<{
     text: string;
     confidence: number;
     readable: boolean;
     engine: "tesseract";
   }> {
-    const worker = await this.getWorker();
+    // The first run downloads eng traineddata — never let either step hang
+    // forever (tesseract.js has no abort handle in this version, so race it).
+    const worker = await this.withTimeout(
+      this.getWorker(),
+      90_000,
+      "OCR worker warm-up",
+    );
     const start = Date.now();
-    const { data } = await worker.recognize(file.buffer);
+    const { data } = await this.withTimeout(
+      worker.recognize(file.buffer),
+      60_000,
+      "OCR recognition",
+    );
     const text = (data.text ?? "").replace(/\s+/g, " ").trim();
     const confidence = Math.round((data.confidence ?? 0) * 10) / 10;
     const readable = text.length >= 4 && confidence >= 40;
@@ -207,6 +267,26 @@ export class ToolsService {
       readable,
       engine: "tesseract",
     };
+  }
+
+  /** Reject a promise if it doesn't settle in time (best-effort timeout). */
+  private async withTimeout<T>(
+    p: Promise<T>,
+    ms: number,
+    label: string,
+  ): Promise<T> {
+    let timer: NodeJS.Timeout | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`${label} timed out after ${ms / 1000}s`)),
+        ms,
+      );
+    });
+    try {
+      return await Promise.race([p, timeout]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   /** Lazy, shared tesseract worker (cold start downloads eng data once). */
@@ -340,64 +420,6 @@ export class ToolsService {
       fileName: `matriq-converted-${Date.now()}.pdf`,
       mimeType: PDF_MIME,
       base64: bytesToBase64(bytes),
-    };
-  }
-
-  // ── Passport background remover ────────────────────────────────
-
-  async removePassportBackground(
-    file: Express.Multer.File,
-    colorHex?: string,
-  ): Promise<GeneratedFile> {
-    if (!IMAGE_MIME_TYPES.has(file.mimetype)) {
-      throw new BadRequestException(
-        "Upload a photo (JPG, PNG or WebP) to remove its background.",
-      );
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      throw new BadRequestException("Keep the photo under 10 MB.");
-    }
-
-    const [targetR, targetG, targetB] = hexToRgb(colorHex || "#FFFFFF");
-    const image = sharp(file.buffer).rotate(); // honour EXIF orientation
-    const { data, info } = await image
-      .removeAlpha()
-      .resize({ width: 1024, height: 1024, fit: "inside" })
-      .raw()
-      .toBuffer({ resolveWithObject: true });
-
-    const { width, height, channels } = info;
-    // Sample the outer border to estimate the uniform background colour.
-    let r = 0, g = 0, b = 0, n = 0;
-    for (let y = 0; y < height; y += 4) {
-      for (const x of [0, width - 1]) {
-        const i = (y * width + x) * channels;
-        r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
-      }
-    }
-    for (let x = 0; x < width; x += 4) {
-      for (const y of [0, height - 1]) {
-        const i = (y * width + x) * channels;
-        r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
-      }
-    }
-    const bgR = r / n, bgG = g / n, bgB = b / n;
-    const threshold = 44;
-
-    for (let i = 0; i < data.length; i += channels) {
-      const dr = data[i] - bgR, dg = data[i + 1] - bgG, db = data[i + 2] - bgB;
-      if (Math.sqrt(dr * dr + dg * dg + db * db) < threshold) {
-        data[i] = targetR; data[i + 1] = targetG; data[i + 2] = targetB;
-      }
-    }
-
-    const out = await sharp(data, { raw: { width, height, channels } })
-      .jpeg({ quality: 90 })
-      .toBuffer();
-    return {
-      fileName: `matriq-passport-${Date.now()}.jpg`,
-      mimeType: "image/jpeg",
-      base64: bytesToBase64(out),
     };
   }
 

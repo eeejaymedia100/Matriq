@@ -321,7 +321,7 @@ describe("AdminService", () => {
       findUnique: jest.Mock;
       update: jest.Mock;
     };
-    user: { count: jest.Mock };
+    user: { count: jest.Mock; findMany: jest.Mock; findUnique: jest.Mock; update: jest.Mock };
     payment: { count: jest.Mock; aggregate: jest.Mock; groupBy: jest.Mock };
     fee: { findMany: jest.Mock };
     vaultItem: { groupBy: jest.Mock; count: jest.Mock };
@@ -336,7 +336,12 @@ describe("AdminService", () => {
         findUnique: jest.fn(),
         update: jest.fn(),
       },
-      user: { count: jest.fn().mockResolvedValue(0) },
+      user: {
+        count: jest.fn().mockResolvedValue(0),
+        findMany: jest.fn().mockResolvedValue([]),
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
       payment: {
         count: jest.fn().mockResolvedValue(0),
         aggregate: jest.fn().mockResolvedValue({ _sum: { amountKobo: 0 } }),
@@ -408,6 +413,44 @@ describe("AdminService", () => {
         pendingModeration: 0,
         contributionsThisWeek: 0,
       });
+      expect(result.signupsLast7Days).toBe(0);
+      expect(result.signupsLast30Days).toBe(0);
+      expect(result.signupsSeries).toHaveLength(6);
+    });
+  });
+
+  describe("cancelUserDeletion", () => {
+    it("cancels a scheduled deletion and restores the account", async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: "user-1",
+        email: "student@matriq.app",
+        deletionScheduledAt: new Date(),
+      });
+      prisma.user.update.mockResolvedValue({ id: "user-1" });
+
+      const result = await service.cancelUserDeletion(
+        "user-1",
+        "admin-1",
+        "127.0.0.1",
+      );
+
+      expect(result.message).toContain("restored");
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: { deletionScheduledAt: null },
+        }),
+      );
+    });
+
+    it("throws when there is no scheduled deletion", async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: "user-1",
+        deletionScheduledAt: null,
+      });
+
+      await expect(
+        service.cancelUserDeletion("user-1", "admin-1", "127.0.0.1"),
+      ).rejects.toThrow("no scheduled deletion");
     });
   });
 

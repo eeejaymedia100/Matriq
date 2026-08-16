@@ -53,8 +53,6 @@ import { PdfMergeScreen } from "../screens/tools/PdfMergeScreen";
 import { PdfSplitScreen } from "../screens/tools/PdfSplitScreen";
 import { PdfToWordScreen } from "../screens/tools/PdfToWordScreen";
 import { WordToPdfScreen } from "../screens/tools/WordToPdfScreen";
-import { PassportRemoverScreen } from "../screens/tools/PassportRemoverScreen";
-import { CitationScreen } from "../screens/tools/CitationScreen";
 import { VaultUploadScreen } from "../screens/vault/VaultUploadScreen";
 import { TimetableScreen } from "../screens/study/TimetableScreen";
 import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
@@ -72,11 +70,17 @@ const MainStack = createNativeStackNavigator<MainStackParamList>();
 
 // ── Auth navigator ─────────────────────────────────────────────
 
-function AuthNavigator() {
+function AuthNavigator({
+  initialRoute,
+}: {
+  // First-ever visitors start on onboarding (spec §4); anyone who has seen
+  // it before goes straight to Welcome.
+  initialRoute: "Onboarding" | "Welcome";
+}) {
   const { theme } = useTheme();
   return (
     <AuthStack.Navigator
-      initialRouteName="Welcome"
+      initialRouteName={initialRoute}
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: theme.colors.bg },
@@ -163,8 +167,6 @@ function MainNavigator() {
       <MainStack.Screen name="PdfSplit" component={PdfSplitScreen} options={{ title: "PDF Split" }} />
       <MainStack.Screen name="PdfToWord" component={PdfToWordScreen} options={{ title: "PDF → Word" }} />
       <MainStack.Screen name="WordToPdf" component={WordToPdfScreen} options={{ title: "Word → PDF" }} />
-      <MainStack.Screen name="PassportRemover" component={PassportRemoverScreen} options={{ title: "Background Remover" }} />
-      <MainStack.Screen name="Citation" component={CitationScreen} options={{ title: "Citation Generator" }} />
       <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Vault" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
@@ -272,5 +274,5 @@ export function AppNavigator() {
     return <LoadingScreen message="Loading Matriq…" />;
   }
 
-  return <AuthNavigator />;
+  return <AuthNavigator initialRoute={showOnboarding ? "Onboarding" : "Welcome"} />;
 }

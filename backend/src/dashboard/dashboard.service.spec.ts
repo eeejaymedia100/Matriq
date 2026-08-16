@@ -11,7 +11,9 @@ describe("DashboardService", () => {
     payment: {
       findMany: jest.Mock;
       groupBy: jest.Mock;
+      count: jest.Mock;
     };
+    verificationRequest: { groupBy: jest.Mock };
     receipt: { findUnique: jest.Mock; update: jest.Mock };
     user: { findMany: jest.Mock };
   };
@@ -24,7 +26,9 @@ describe("DashboardService", () => {
       payment: {
         findMany: jest.fn(),
         groupBy: jest.fn(),
+        count: jest.fn(),
       },
+      verificationRequest: { groupBy: jest.fn() },
       receipt: { findUnique: jest.fn(), update: jest.fn() },
       user: { findMany: jest.fn() },
     };
@@ -77,6 +81,11 @@ describe("DashboardService", () => {
       prisma.payment.groupBy.mockResolvedValue([
         { userId: "user-1", _sum: { amountKobo: 400000 } },
       ]);
+      prisma.verificationRequest.groupBy.mockResolvedValue([
+        { userId: "user-1" },
+        { userId: "user-2" },
+      ]);
+      prisma.payment.count.mockResolvedValueOnce(7).mockResolvedValueOnce(80);
       prisma.user.findMany.mockResolvedValue([
         { id: "user-1", fullName: "Top Payer" },
       ]);
@@ -84,9 +93,12 @@ describe("DashboardService", () => {
       const result = await service.getStats("assoc-1");
 
       expect(result.totalMembers).toBe(100);
+      expect(result.confirmedMembers).toBe(2);
       expect(result.totalFees).toBe(2);
       expect(result.totalCollectedKobo).toBe(16000000);
       expect(result.paymentRate).toBe(46);
+      expect(result.pendingPayments).toBe(7);
+      expect(result.successfulPayments).toBe(80);
       expect(result.topPayers).toHaveLength(1);
       expect(result.topPayers[0].name).toBe("Top Payer");
     });

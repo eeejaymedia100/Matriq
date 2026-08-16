@@ -129,6 +129,7 @@ export class AdminService {
    */
   async getAnalytics() {
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const [
       totalStudents,
@@ -141,6 +142,9 @@ export class AdminService {
       vaultTotal,
       vaultPending,
       vaultThisWeek,
+      signupsLast7Days,
+      signupsLast30Days,
+      signupRows,
       associations,
     ] = await Promise.all([
       this.prisma.user.count({ where: { deletedAt: null } }),
@@ -165,6 +169,14 @@ export class AdminService {
       }),
       this.prisma.vaultItem.count({
         where: { deletedAt: null, createdAt: { gte: weekAgo } },
+      }),
+      // Active-user trend / growth over time (spec §1): signups in the
+      // last 7 and 30 days plus a 6-week series for the trend card.
+      this.prisma.user.count({ where: { deletedAt: null, createdAt: { gte: weekAgo } } }),
+      this.prisma.user.count({ where: { deletedAt: null, createdAt: { gte: monthAgo } } }),
+      this.prisma.user.findMany({
+        where: { deletedAt: null, createdAt: { gte: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000) } },
+        select: { createdAt: true },
       }),
       this.prisma.association.findMany({
         where: { status: "active" },
@@ -201,6 +213,32 @@ export class AdminService {
     }
 
     const totalCollectedKobo = totalCollected._sum.amountKobo || 0;
+
+    // 6-week signup series (week buckets starting Monday).
+    const series: Array<{ weekStart: string; count: number }> = [];
+    const buckets = new Map<string, number>();
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const start = new Date(now);
+      start.setHours(0, 0, 0, 0);
+      start.setDate(start.getDate() - ((start.getDay() + 6) % 7) - i * 7);
+      buckets.set(start.toISOString().slice(0, 10), 0);
+    }
+    for (const u of signupRows) {
+      const d = new Date(u.createdAt);
+      d.setHours(0, 0, 0, 0);
+      const key = d.toISOString().slice(0, 10);
+      if (buckets.has(key)) {
+        buckets.set(key, (buckets.get(key) ?? 0) + 1);
+      } else {
+        // Find the containing week bucket.
+        const monday = new Date(d);
+        monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+        const wk = monday.toISOString().slice(0, 10);
+        if (buckets.has(wk)) buckets.set(wk, (buckets.get(wk) ?? 0) + 1);
+      }
+    }
+    for (const [weekStart, count] of buckets) series.push({ weekStart, count });
     const associationBreakdown = associations.map((a) => ({
       id: a.id,
       name: a.name,
@@ -231,6 +269,10 @@ export class AdminService {
       totalCollectedKobo,
       totalRevenueKobo: totalCollectedKobo,
       totalRevenue: totalCollectedKobo,
+      // Growth over time (spec §1).
+      signupsLast7Days,
+      signupsLast30Days,
+      signupsSeries: series,
       associations: associationBreakdown,
       associationRevenue: associationBreakdown.map((a) => ({
         associationId: a.id,
@@ -641,12 +683,49 @@ export class AdminService {
           emailVerified: true,
           mfaEnabled: true,
           createdAt: true,
+          // Spec §10: admins act on deletion requests per the 6-month policy.
+          deletionScheduledAt: true,
+          deletedAt: true,
         },
       }),
       this.prisma.user.count({ where }),
     ]);
 
     return { users, total };
+  }
+
+  /**
+   * Admin cancels a student's scheduled deletion (spec §10: the 6-month
+   * window is reversible — logging in cancels it; an admin can do the same
+   * on the student's behalf). Same effect as a login: the account is
+   * restored exactly as it was.
+   */
+  async cancelUserDeletion(userId: string, adminId: string, ipAddress: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException("User not found");
+    if (!user.deletionScheduledAt) {
+      throw new BadRequestException(
+        "This account has no scheduled deletion to cancel.",
+      );
+    }
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { deletionScheduledAt: null },
+    });
+
+    await this.auditService.log({
+      actorType: "admin",
+      actorId: adminId,
+      action: "user.deletion_cancelled",
+      targetType: "user",
+      targetId: userId,
+      ipAddress,
+      metadata: { email: user.email },
+    });
+
+    this.logger.log(`Admin ${adminId} cancelled deletion for user ${userId}`);
+    return { message: "Deletion cancelled — the account is restored." };
   }
 
   // ── Executive role management ──────────────────────────────────

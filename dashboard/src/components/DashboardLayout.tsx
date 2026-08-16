@@ -92,9 +92,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const navItems = [
     { href: "/dashboard", label: "Overview", icon: "📊" },
+    { href: "/members", label: "Members", icon: "👥" },
     { href: "/fees", label: "Dues", icon: "💳" },
     { href: "/verification", label: "Verification", icon: "🪪" },
     { href: "/announcements", label: "Announcements", icon: "📢" },
+    { href: "/events", label: "Events", icon: "🎟️" },
+    { href: "/checkin", label: "Check-in", icon: "📱" },
+    { href: "/timetable", label: "Timetable", icon: "🕐" },
     { href: "/transparency", label: "Transparency", icon: "💰" },
   ];
 

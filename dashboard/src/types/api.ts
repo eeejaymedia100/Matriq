@@ -57,17 +57,31 @@ export interface VerificationRequest {
 
 export interface DashboardStats {
   totalMembers: number;
+  /** Members with an approved verification request (distinct users). */
   confirmedMembers: number;
-  totalCollected: number;
-  totalFeesAmount: number;
+  totalFees: number;
+  /** Money in kobo (minor units). */
+  totalCollectedKobo: number;
+  paymentRate: number;
+  /** Payments still outstanding (pending or processing). */
   pendingPayments: number;
   successfulPayments: number;
-  paymentRate: number;
   topPayers: Array<{
-    userId: string;
-    userName: string;
-    totalPaid: number;
+    // null after account hard-delete (payments are anonymised)
+    userId: string | null;
+    name: string;
+    totalPaidKobo: number;
+    rank: number;
   }>;
+  recentActivity: Array<{
+    userId: string | null;
+    name: string;
+    feeName: string;
+    amountKobo: number;
+    status: string;
+    paidAt: string | null;
+  }>;
+  transparency: unknown;
 }
 
 export interface Fee {
@@ -89,7 +103,9 @@ export interface Announcement {
   body: string;
   pinned: boolean;
   createdAt: string;
-  author: { id: string; user: { fullName: string } };
+  author: { name: string; role: string };
+  readCount: number;
+  readByMe: boolean;
 }
 
 export interface AuditLogEntry {

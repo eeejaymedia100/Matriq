@@ -77,9 +77,12 @@ export class VaultService {
         {
           visibility: "public",
           moderationStatus: "approved",
+          // A student with no association gets zero public results — an
+          // empty `in` list (a "__none__" sentinel used to crash the query
+          // with an invalid UUID cast → 500 on the Vault search screen).
           ...(myAssociations.length > 0
             ? { associationId: { in: myAssociations } }
-            : { associationId: "__none__" }),
+            : { associationId: { in: [] } }),
         },
       ],
     };

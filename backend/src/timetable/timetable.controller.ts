@@ -35,6 +35,18 @@ export class TimetableController {
     return this.timetableService.listForStudent(user.sub, associationId);
   }
 
+  /** Executive view — every update for the association. */
+  @Get("associations/:id/timetable-updates/all")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("president", "treasurer", "pro")
+  listAll(
+    @Param("id") associationId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    this.executivesService.requireExecutiveFor(user, associationId);
+    return this.timetableService.listForExecutive(associationId);
+  }
+
   /** Executive/class-rep: push a timetable change for the association. */
   @Post("associations/:id/timetable-updates")
   @UseGuards(JwtAuthGuard, RolesGuard)

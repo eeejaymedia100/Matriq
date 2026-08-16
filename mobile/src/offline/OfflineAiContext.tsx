@@ -13,6 +13,7 @@ import { initLlama, type LlamaContext, type TokenData } from "llama.rn";
 import { getModel, OFFLINE_MODELS, type OfflineModel } from "./models";
 import {
   deleteModelFile,
+  ensureModelsDir,
   getFreeSpaceBytes,
   loadConfig,
   modelFileUri,
@@ -123,6 +124,9 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
   // Load persisted state once at startup.
   useEffect(() => {
     (async () => {
+      // Make sure the models directory exists up front — the Android native
+      // downloader fails immediately when the target directory is missing.
+      await ensureModelsDir();
       const loaded = await loadConfig();
       const reconciled = await reconcileDownloads(loaded);
       configRef.current = reconciled;
@@ -253,6 +257,11 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
       if (existing?.exists) {
         await FileSystem.deleteAsync(uri, { idempotent: true }).catch(() => {});
       }
+
+      // The Android native downloader rejects targets whose parent directory
+      // doesn't exist yet — create it before any attempt. This was the root
+      // cause of downloads failing instantly at 0% on fresh installs.
+      await ensureModelsDir();
 
       // A fresh DownloadResumable per attempt: Hugging Face serves the
       // models through a redirect to a signed CDN URL, and a resumable that

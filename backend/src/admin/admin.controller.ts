@@ -376,6 +376,20 @@ export class AdminController {
     return this.adminService.searchUsers(q);
   }
 
+  // ── User management: deletion requests (spec §10) ─────────────
+
+  @Post("users/:id/cancel-deletion")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  cancelUserDeletion(
+    @Param("id") userId: string,
+    @CurrentUser() user: AdminPayload,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.cancelUserDeletion(userId, user.sub, ip);
+  }
+
   // ── Executive role management ─────────────────────────────────
 
   @Get("executives")

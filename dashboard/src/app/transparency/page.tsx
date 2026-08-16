@@ -101,7 +101,7 @@ export default function TransparencyPage() {
               <div className="flex justify-between">
                 <span className="text-gray-500">Total Collected</span>
                 <span className="font-medium text-gray-900">
-                  ₦{((stats.totalCollected as number || 0) / 100).toLocaleString()}
+                  ₦{((stats.totalCollectedKobo as number || 0) / 100).toLocaleString()}
                 </span>
               </div>
               <div className="flex justify-between">

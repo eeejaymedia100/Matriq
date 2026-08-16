@@ -45,6 +45,10 @@ export interface AnalyticsData {
     pendingModeration: number;
     contributionsThisWeek: number;
   };
+  /** Growth over time (spec §1). */
+  signupsLast7Days: number;
+  signupsLast30Days: number;
+  signupsSeries: Array<{ weekStart: string; count: number }>;
 }
 
 export interface AuditLogEntry {
@@ -151,6 +155,8 @@ export interface AdminUser {
   emailVerified: boolean;
   mfaEnabled: boolean;
   createdAt: string;
+  /** Spec §10: set while the 6-month deletion window is open. */
+  deletionScheduledAt: string | null;
 }
 
 export interface AdminExecutive {

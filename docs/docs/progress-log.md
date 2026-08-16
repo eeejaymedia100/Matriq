@@ -4,6 +4,38 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-16 — Fixes pass: offline-AI download root cause, onboarding route, association-dashboard stats
+
+**Status:** code done + verified (backend tsc + **130 tests green**, mobile/admin/dashboard tsc clean). Telegram #488 sent with dashboard links + credentials. NOT yet deployed.
+
+**Did:**
+- **Offline AI download root cause (the "download didn't finish" error at 0%).** `ensureModelsDir()` was defined in `mobile/src/offline/persistence.ts` but **never called anywhere**. The Android expo-file-system legacy downloader throws `IOException ("Directory for '...' doesn't exist")` when the target's parent dir is missing, so every first download failed instantly at 0% regardless of internet — the generic "connection may have dropped" message then masked it. Fix: exported + call `ensureModelsDir()` in the startup effect and before each download attempt in `OfflineAiContext.startDownload`.
+- **First-timer onboarding never showed.** `showOnboarding` was computed in `AppNavigator` but never used — `AuthNavigator` always booted at `Welcome`. Fix: `AuthNavigator` now takes an `initialRoute` prop; first-timers land on `Onboarding` (after the theme picker), returning users on `Welcome`. The 4-slide §4 copy was already implemented; it was just unreachable.
+- **Association dashboard rendered ₦NaN / "undefined" stats.** Frontend expected fields the API doesn't return (`totalCollected`, `confirmedMembers`, `pendingPayments`, `successfulPayments`, topPayers `userName`/`totalPaid`) — backend returns `totalCollectedKobo`, topPayers `name`/`totalPaidKobo`. Fix: aligned `DashboardStats` type + dashboard page + transparency page to the backend contract, AND extended `GET /associations/:id/dashboard` with the three missing counts (`confirmedMembers` = distinct users with approved verification, `pendingPayments` = pending+processing, `successfulPayments`) — covered in `dashboard.service.spec`.
+- **Transparency page** "Total Collected" read a non-existent field → now `totalCollectedKobo`.
+- **Admin console reviewed end-to-end** (analytics, associations, users, verification, vault moderation, payments, fees, waitlist, audit logs, broadcasts, MFA login): all frontend shapes match the backend; no bugs found.
+- **Telegram #488** sent from matriq-server (token stayed on the box) with both console links + demo credentials.
+
+**Next:** deploy — backend rebuild (`scripts/deploy.sh` on matriq-server; no migration needed — response-shape only), admin + dashboard auto-deploy via Vercel from main push, APK rebuild (`_build-apk.sh` + `_finalize-apk.sh`) so the offline-AI + onboarding fixes reach phones (JS-only change → fast incremental build).
+
+**Blockers/flags:** none. (The §2 per-association `[association-name]@matriq.app` shared-account model is still not implemented — separate work item, not a bug in this pass.)
+
+## 2026-08-16 — Criteria-gap pass: OCR fixed, citation+passport removed, missing §1/§2 features added
+
+**Status:** code done + verified (backend tsc + **132 tests green**, mobile/admin/dashboard tsc clean, admin + dashboard `next build` green). NOT yet deployed.
+
+**Did (audit of current build vs matriq-fixes-and-new-builds.md, then filled the gaps):**
+- **OCR root cause found by reproducing live on the server** (login as member1 + a generated test image): the OCR path WORKED but always fell back to tesseract because **Gemini was aborting at the 30s timeout** (live test: gemini-3.7-flash took 14s+ and returns 503 "high demand" under load; users waited ~31s for garbled tesseract output = "OCR not working"). Fixes in `tools.service.ts`: 60s timeout with **one retry** on transient failures (5xx/timeout only), **downscale photos to ≤2048px** before sending (phone photos are 3000×4000 — the big latency driver), latency logging, and tesseract warm-up/recognize wrapped in timeouts so it can never hang forever.
+- **Removed Citation generator + Passport background remover** (user decision): deleted mobile screens + nav entries + Tools tab sections, backend `POST /tools/passport` endpoint + service method removed.
+- **Fixed a live prod crash found in backend logs**: Vault search 500'd with `invalid input syntax for type uuid: "__none__"` whenever a student with no association searched — the sentinel `associationId: "__none__"` is now `{ in: [] }` (zero public results, own items still returned).
+- **Admin (§1) gaps filled:** new **Security page** (TOTP MFA QR-code setup flow — enroll → scan → verify → enable, plus disable; backend already existed); **Users page** now shows scheduled deletions + one-click cancel (new `POST /admin/users/:id/cancel-deletion`, spec §10 policy); **Active-user trend card** on the dashboard (signups 7d/30d + 6-week bar series added to `/admin/analytics`); middleware now protects ALL admin pages (users/admins/payments/verification/waitlist/moderation were client-side-only before).
+- **Association dashboard (§2) gaps filled:** new **Members roster** page (verified/pending/not-submitted + search, `GET /associations/:id/members`); **Dues roster per fee** on the Fees page (who's paid / who hasn't + CSV export, `GET /associations/:id/fees/:feeId/payments`); new **Events page** (create + list — feeds student RSVPs + QR check-in); new **Timetable page** (push dept/level-scoped changes + exec view of all updates, new `GET /associations/:id/timetable-updates/all`); dashboard middleware now protects fees/checkin/members/events/timetable too.
+- **Validation:** backend 132 tests (2 new: cancelUserDeletion + analytics series), all four apps tsc clean, both dashboards production-build.
+
+**Next:** deploy — backend rebuild on matriq-server (`scripts/deploy.sh`, no migration needed), admin + dashboard auto-deploy via Vercel from main, APK rebuild for the mobile changes (tool removals + previous fixes).
+
+**Blockers/flags:** not deployed yet; association-approval flow + shared `[association-name]@matriq.app` exec accounts and the Android overlay bubble (§11) remain unimplemented (bubble is native-only and needs a visual decision).
+
 ## 2026-08-16 — APK cut 56% + clean rebuild, shipped as v0.7.3 (build 11)
 
 **Status:** done + shipped. The ~117 MB APK (whose size was the likely cause of downloads stalling at the end) is now **49.7 MB**.

@@ -47,6 +47,4 @@ export type MainStackParamList = {
   PdfSplit: undefined;
   PdfToWord: undefined;
   WordToPdf: undefined;
-  PassportRemover: undefined;
-  Citation: undefined;
 };

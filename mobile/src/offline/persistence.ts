@@ -46,7 +46,13 @@ export function modelFileUri(modelId: string): string {
   return `${modelsDir()}${modelId}.gguf`;
 }
 
-async function ensureModelsDir(): Promise<void> {
+/**
+ * Ensure the models directory exists. MUST be called before any download:
+ * the Android native downloader rejects targets whose parent directory
+ * doesn't exist yet ("Directory for '...' doesn't exist") — the download
+ * would otherwise fail instantly at 0%.
+ */
+export async function ensureModelsDir(): Promise<void> {
   await FileSystem.makeDirectoryAsync(modelsDir(), {
     intermediates: true,
   }).catch(() => {

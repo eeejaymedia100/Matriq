@@ -24,9 +24,7 @@ type ToolTarget =
   | "PdfMerge"
   | "PdfSplit"
   | "PdfToWord"
-  | "WordToPdf"
-  | "PassportRemover"
-  | "Citation";
+  | "WordToPdf";
 
 interface ToolCard {
   id: string;
@@ -49,17 +47,9 @@ const DOC_TOOLS: ToolCard[] = [
   { id: "word-pdf", label: "Word → PDF", hint: "Convert a .docx", icon: "pen", target: "WordToPdf" },
 ];
 
-const PHOTO_TOOLS: ToolCard[] = [
-  { id: "bg-remover", label: "Passport background remover", hint: "Clean official photos", icon: "camera", target: "PassportRemover" },
-];
-
 const GRADE_TOOLS: ToolCard[] = [
   { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", target: "CgpaCalculator" },
   { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", target: "CgpaCalculator" },
-];
-
-const WRITING_TOOLS: ToolCard[] = [
-  { id: "citation", label: "Citation generator", hint: "APA · MLA · Harvard", icon: "book", target: "Citation" },
 ];
 
 export function ToolsScreen({ navigation }: Props) {
@@ -205,14 +195,8 @@ export function ToolsScreen({ navigation }: Props) {
           {sectionTitle("Documents")}
           {DOC_TOOLS.map(renderTool)}
 
-          {sectionTitle("Photos")}
-          {PHOTO_TOOLS.map(renderTool)}
-
           {sectionTitle("Grades")}
           {GRADE_TOOLS.map(renderTool)}
-
-          {sectionTitle("Writing")}
-          {WRITING_TOOLS.map(renderTool)}
         </ScrollView>
       </SafeAreaView>
     </ThemedScreen>

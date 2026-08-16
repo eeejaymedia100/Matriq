@@ -58,11 +58,11 @@ export default function DashboardPage() {
             <StatCard
               label="Total Members"
               value={stats.totalMembers.toString()}
-              sub={`${stats.confirmedMembers} confirmed`}
+              sub={`${stats.confirmedMembers} verified`}
             />
             <StatCard
               label="Total Collected"
-              value={`₦${(stats.totalCollected / 100).toLocaleString()}`}
+              value={`₦${(stats.totalCollectedKobo / 100).toLocaleString()}`}
             />
             <StatCard
               label="Payment Rate"
@@ -84,7 +84,7 @@ export default function DashboardPage() {
                 <div className="space-y-3">
                   {stats.topPayers.slice(0, 10).map((payer, i) => (
                     <div
-                      key={payer.userId}
+                      key={payer.userId ?? `deleted-${i}`}
                       className="flex items-center justify-between"
                     >
                       <div className="flex items-center gap-3">
@@ -92,11 +92,11 @@ export default function DashboardPage() {
                           {i + 1}
                         </span>
                         <span className="text-sm text-gray-800">
-                          {payer.userName}
+                          {payer.name}
                         </span>
                       </div>
                       <span className="text-sm font-medium text-purple-700">
-                        ₦{(payer.totalPaid / 100).toLocaleString()}
+                        ₦{(payer.totalPaidKobo / 100).toLocaleString()}
                       </span>
                     </div>
                   ))}

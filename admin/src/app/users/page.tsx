@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import { useSession } from "@/components/SessionProvider";
-import { searchUsers } from "@/lib/api";
+import { searchUsers, cancelUserDeletion } from "@/lib/api";
 import type { AdminUser } from "@/types/api";
 
 export default function UsersPage() {
@@ -14,6 +14,8 @@ export default function UsersPage() {
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [actioning, setActioning] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     if (!token) {
@@ -62,6 +64,13 @@ export default function UsersPage() {
         </form>
       </div>
 
+      {message && (
+        <div className="bg-green-900/50 border border-green-700 text-green-300 rounded-xl px-4 py-3 mb-6 text-sm">
+          {message}
+          <button onClick={() => setMessage("")} className="ml-2">×</button>
+        </div>
+      )}
+
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -86,6 +95,7 @@ export default function UsersPage() {
                   <th className="py-3 px-4 font-medium">Level</th>
                   <th className="py-3 px-4 font-medium">Status</th>
                   <th className="py-3 px-4 font-medium">Joined</th>
+                  <th className="py-3 px-4 font-medium">Deletion</th>
                 </tr>
               </thead>
               <tbody>
@@ -125,6 +135,51 @@ export default function UsersPage() {
                     </td>
                     <td className="py-3 px-4 text-gray-400">
                       {new Date(u.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      {u.deletionScheduledAt ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-red-900/50 text-red-300">
+                            {new Date(u.deletionScheduledAt).toLocaleDateString()}
+                          </span>
+                          <button
+                            onClick={async () => {
+                              if (
+                                !window.confirm(
+                                  `Cancel the scheduled deletion for ${u.fullName}? The account is restored immediately.`,
+                                )
+                              )
+                                return;
+                              setActioning(u.id);
+                              try {
+                                const res = await cancelUserDeletion(u.id, token!);
+                                setMessage(res.message);
+                                setUsers((prev) =>
+                                  prev.map((x) =>
+                                    x.id === u.id
+                                      ? { ...x, deletionScheduledAt: null }
+                                      : x,
+                                  ),
+                                );
+                              } catch (err) {
+                                setMessage(
+                                  err instanceof Error
+                                    ? err.message
+                                    : "Failed to cancel deletion",
+                                );
+                              } finally {
+                                setActioning(null);
+                              }
+                            }}
+                            disabled={actioning === u.id}
+                            className="px-2 py-1 text-xs rounded-lg bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 transition-colors"
+                          >
+                            {actioning === u.id ? "…" : "Cancel"}
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-gray-600">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}

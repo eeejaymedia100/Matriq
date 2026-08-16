@@ -105,6 +105,60 @@ export default function AdminDashboardPage() {
             />
           </div>
 
+          {/* Growth over time (spec §1) */}
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-semibold text-white">
+                  Active-user trend
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  New student signups — last 6 weeks
+                </p>
+              </div>
+              <div className="flex gap-4 text-sm">
+                <span className="text-gray-400">
+                  7 days:{" "}
+                  <span className="font-semibold text-white">
+                    {data.signupsLast7Days}
+                  </span>
+                </span>
+                <span className="text-gray-400">
+                  30 days:{" "}
+                  <span className="font-semibold text-white">
+                    {data.signupsLast30Days}
+                  </span>
+                </span>
+              </div>
+            </div>
+            <div className="flex items-end gap-3 h-32">
+              {data.signupsSeries.map((w) => {
+                const max = Math.max(
+                  1,
+                  ...data.signupsSeries.map((x) => x.count),
+                );
+                const h = Math.round((w.count / max) * 100);
+                return (
+                  <div key={w.weekStart} className="flex-1 flex flex-col items-center gap-1">
+                    <span className="text-xs text-gray-400 font-medium">
+                      {w.count}
+                    </span>
+                    <div
+                      className="w-full rounded-t-md bg-purple-500/80"
+                      style={{ height: `${Math.max(h, 4)}%` }}
+                    />
+                    <span className="text-[10px] text-gray-500">
+                      {new Date(w.weekStart + "T00:00:00").toLocaleDateString(
+                        undefined,
+                        { month: "short", day: "numeric" },
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Association breakdown */}
             <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">

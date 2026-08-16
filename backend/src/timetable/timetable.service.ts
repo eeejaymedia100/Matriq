@@ -87,6 +87,45 @@ export class TimetableService {
     };
   }
 
+  /** Executive view — every update for the association (no student scoping). */
+  async listForExecutive(associationId: string) {
+    const association = await this.prisma.association.findUnique({
+      where: { id: associationId },
+    });
+    if (!association) throw new NotFoundException("Association not found");
+
+    const updates = await this.prisma.timetableUpdate.findMany({
+      where: { associationId },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        title: true,
+        body: true,
+        department: true,
+        level: true,
+        createdAt: true,
+        author: { select: { user: { select: { fullName: true } }, role: true } },
+      },
+    });
+
+    return {
+      updates: updates.map((u) => ({
+        id: u.id,
+        title: u.title,
+        body: u.body,
+        department: u.department,
+        level: u.level,
+        createdAt: u.createdAt,
+        author: {
+          name: u.author.user?.fullName ?? "Executive",
+          role: u.author.role,
+        },
+      })),
+      total: updates.length,
+    };
+  }
+
   /** Executive: push a timetable change + notify affected members. */
   async create(
     associationId: string,
