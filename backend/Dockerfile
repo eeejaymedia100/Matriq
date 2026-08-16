@@ -35,8 +35,13 @@ COPY --from=builder --chown=matriq:matriq /app/dist ./dist
 COPY --from=builder --chown=matriq:matriq /app/node_modules ./node_modules
 COPY --from=builder --chown=matriq:matriq /app/package.json ./
 
-# Health check tool
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+# Health check tool + system Tesseract for OCR (open source, no API key, no
+# runtime model download — eng traineddata ships with the tesseract-ocr-eng
+# package so the OCR feature always works offline).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    tesseract-ocr \
+    tesseract-ocr-eng && \
     rm -rf /var/lib/apt/lists/*
 
 USER matriq

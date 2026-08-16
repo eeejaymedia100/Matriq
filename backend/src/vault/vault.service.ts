@@ -271,12 +271,34 @@ export class VaultService {
 
   // ── Student: download ─────────────────────────────────────────
 
-  /** Resolve an item's file (original or the smart-storage light copy). */
-  async download(
+  /** Resolve which file (original or light companion) a user may fetch. */
+  private async resolveDownload(
     userId: string,
     itemId: string,
-    variant: "original" | "light" = "original",
-  ) {
+    variant: "original" | "light",
+  ): Promise<{
+    item: {
+      id: string;
+      courseCode: string;
+      title: string;
+      originalName: string;
+      mimeType: string;
+      sizeBytes: number;
+      companionSizeBytes: number | null;
+      companionMimeType: string | null;
+      storageRef: string;
+      companionRef: string | null;
+      visibility: string;
+      moderationStatus: string;
+      userId: string;
+      associationId: string;
+    };
+    useCompanion: boolean;
+    ref: string;
+    mimeType: string;
+    fileName: string;
+    sizeBytes: number;
+  }> {
     const item = await this.prisma.vaultItem.findUnique({
       where: { id: itemId },
     });
@@ -301,6 +323,31 @@ export class VaultService {
     const mimeType = useCompanion
       ? (item.companionMimeType ?? "application/octet-stream")
       : item.mimeType;
+    const fileName = useCompanion
+      ? `${item.courseCode.replace(/\s+/g, "-")}-light${this.extensionFor(mimeType)}`
+      : item.originalName;
+    const sizeBytes = useCompanion
+      ? (item.companionSizeBytes ?? 0)
+      : item.sizeBytes;
+
+    return {
+      item,
+      useCompanion,
+      ref,
+      mimeType,
+      fileName,
+      sizeBytes,
+    };
+  }
+
+  /** Resolve an item's file (original or the smart-storage light copy). */
+  async download(
+    userId: string,
+    itemId: string,
+    variant: "original" | "light" = "original",
+  ) {
+    const { item, useCompanion, ref, mimeType, fileName, sizeBytes } =
+      await this.resolveDownload(userId, itemId, variant);
 
     let dataUri = ref;
     if (!dataUri.startsWith("data:")) {
@@ -315,22 +362,58 @@ export class VaultService {
     }
 
     // Count every (successful) download — feeds popularity later.
-    await this.prisma.vaultItem
-      .update({ where: { id: itemId }, data: { downloads: { increment: 1 } } })
-      .catch(() => undefined);
+    await this.bumpDownloads(itemId);
 
     return {
       itemId: item.id,
       courseCode: item.courseCode,
       title: item.title,
       variant: useCompanion ? "light" : "original",
-      fileName: useCompanion
-        ? `${item.courseCode.replace(/\s+/g, "-")}-light${this.extensionFor(mimeType)}`
-        : item.originalName,
+      fileName,
       mimeType,
       dataUri,
-      sizeBytes: useCompanion ? (item.companionSizeBytes ?? 0) : item.sizeBytes,
+      sizeBytes,
     };
+  }
+
+  /**
+   * Streaming download: return the raw bytes (no base64 JSON roundtrip) so the
+   * app can save large files directly. Same auth checks as `download`.
+   */
+  async downloadRaw(
+    userId: string,
+    itemId: string,
+    variant: "original" | "light" = "original",
+  ): Promise<{ buffer: Buffer; mimeType: string; fileName: string; sizeBytes: number }> {
+    const { ref, mimeType, fileName, sizeBytes } = await this.resolveDownload(
+      userId,
+      itemId,
+      variant,
+    );
+
+    let buffer: Buffer;
+    if (ref.startsWith("data:")) {
+      buffer = Buffer.from(ref.split(",")[1] ?? "", "base64");
+    } else {
+      const fetched = await this.storageService.getBuffer(ref);
+      if (fetched) {
+        buffer = fetched;
+      } else {
+        throw new NotFoundException(
+          "The file couldn't be retrieved from storage right now.",
+        );
+      }
+    }
+
+    await this.bumpDownloads(itemId);
+
+    return { buffer, mimeType, fileName, sizeBytes };
+  }
+
+  private async bumpDownloads(itemId: string): Promise<void> {
+    await this.prisma.vaultItem
+      .update({ where: { id: itemId }, data: { downloads: { increment: 1 } } })
+      .catch(() => undefined);
   }
 
   // ── Admin: moderation queue (spec §15) ────────────────────────
@@ -496,6 +579,7 @@ export class VaultService {
       mimeType: string;
       sizeBytes: number;
       companionSizeBytes: number | null;
+      companionMimeType: string | null;
       moderationStatus: string;
       rejectionReason: string | null;
       downloads: number;
@@ -515,6 +599,7 @@ export class VaultService {
       sizeBytes: item.sizeBytes,
       hasCompanion: item.companionSizeBytes !== null,
       companionSizeBytes: item.companionSizeBytes,
+      companionMimeType: item.companionMimeType,
       moderationStatus: item.moderationStatus,
       rejectionReason: item.rejectionReason,
       downloads: item.downloads,

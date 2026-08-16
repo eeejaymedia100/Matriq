@@ -78,6 +78,29 @@ export class StorageService {
   }
 
   /**
+   * Fetch an object and return its raw bytes. Returns null on any failure so
+   * callers can fall back. Prefer this over getDataUri for large files — a
+   * base64 data-URI inflates the payload ~33% and forces the whole file into
+   * a single JSON string.
+   */
+  async getBuffer(key: string): Promise<Buffer | null> {
+    if (!this.enabled || !this.client) return null;
+    try {
+      const stream = await this.client.getObject(this.bucket, key);
+      const chunks: Buffer[] = [];
+      for await (const chunk of stream) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      return Buffer.concat(chunks);
+    } catch (err) {
+      this.logger.error(
+        `Object storage get failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * Fetch an object and return it as a base64 data-URI. Returns null on
    * any failure so callers can fall back.
    */

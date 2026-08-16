@@ -9,8 +9,9 @@ import React, {
   type ReactNode,
 } from "react";
 import * as FileSystem from "expo-file-system/legacy";
+import { File, Paths } from "expo-file-system";
 import { initLlama, type LlamaContext, type TokenData } from "llama.rn";
-import { getModel, OFFLINE_MODELS, type OfflineModel } from "./models";
+import { getModel, MODELS_DIR, OFFLINE_MODELS, type OfflineModel } from "./models";
 import {
   deleteModelFile,
   ensureModelsDir,
@@ -52,6 +53,10 @@ export interface ChatTurn {
 interface DownloadInfo {
   progress: number; // 0..1
   error: string | null;
+  /** Rolling download speed in bytes/sec (PocketPal-style progress). */
+  speedBps?: number;
+  /** Estimated seconds remaining, or null while it's being computed. */
+  etaSeconds?: number | null;
 }
 
 interface OfflineAiContextValue {
@@ -106,9 +111,7 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
   const engineRef = useRef<LlamaContext | null>(null);
   const engineModelIdRef = useRef<string | null>(null);
   const enginePromiseRef = useRef<Promise<void> | null>(null);
-  const activeDownloadsRef = useRef<Record<string, FileSystem.DownloadResumable>>(
-    {},
-  );
+  const activeDownloadsRef = useRef<Record<string, AbortController>>({});
 
   const applyConfig = useCallback((next: OfflineConfig) => {
     configRef.current = next;
@@ -252,41 +255,50 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const uri = modelFileUri(id);
-      const existing = await FileSystem.getInfoAsync(uri).catch(() => null);
-      if (existing?.exists) {
-        await FileSystem.deleteAsync(uri, { idempotent: true }).catch(() => {});
-      }
-
       // The Android native downloader rejects targets whose parent directory
-      // doesn't exist yet — create it before any attempt. This was the root
-      // cause of downloads failing instantly at 0% on fresh installs.
+      // doesn't exist yet — create it before any attempt.
       await ensureModelsDir();
 
-      // A fresh DownloadResumable per attempt: Hugging Face serves the
-      // models through a redirect to a signed CDN URL, and a resumable that
-      // trips on that redirect can't be resumed cleanly. One retry covers
-      // the common case where the first attempt fails to follow the chain.
-      const attempt = async (): Promise<{ uri: string } | null> => {
-        const resumable = FileSystem.createDownloadResumable(
-          model.downloadUrl,
-          uri,
-          {},
-          (p) => {
-            if (p.totalBytesExpectedToWrite > 0) {
-              const progress =
-                p.totalBytesWritten / p.totalBytesExpectedToWrite;
-              setDownloads((prev) => ({
-                ...prev,
-                [id]: { progress, error: null },
-              }));
-            }
-          },
-        );
-        activeDownloadsRef.current[id] = resumable;
+      const destination = new File(Paths.document, `${MODELS_DIR}${id}.gguf`);
+      const controller = new AbortController();
+      activeDownloadsRef.current[id] = controller;
+
+      // Speed/ETA tracking (PocketPal-style): a phone download of a ~100–800 MB
+      // model should show how fast it's going, not just an indeterminate bar.
+      let lastBytes = 0;
+      let lastTime = Date.now();
+      let speedBps = 0;
+      let etaSeconds: number | null = null;
+      const onProgress = (p: { bytesWritten: number; totalBytes: number }) => {
+        const now = Date.now();
+        const dt = (now - lastTime) / 1000;
+        if (dt > 0) {
+          speedBps = (p.bytesWritten - lastBytes) / dt;
+          lastBytes = p.bytesWritten;
+          lastTime = now;
+          const total = p.totalBytes > 0 ? p.totalBytes : model.sizeBytes;
+          etaSeconds = speedBps > 0 ? (total - p.bytesWritten) / speedBps : null;
+        }
+        const total = p.totalBytes > 0 ? p.totalBytes : model.sizeBytes;
+        const progress = total > 0 ? p.bytesWritten / total : 0;
+        setDownloads((prev) => ({
+          ...prev,
+          [id]: { progress, error: null, speedBps, etaSeconds },
+        }));
+      };
+
+      // One native attempt; if it fails (dropped connection, CDN hiccup) we
+      // restart with a fresh controller so the redirect chain is re-followed
+      // from scratch. File.downloadFileAsync streams straight to disk and
+      // follows Hugging Face's signed-CDNs redirects natively.
+      const attempt = async (): Promise<File | null> => {
         try {
-          const result = await resumable.downloadAsync();
-          return result?.uri ? result : null;
+          return await File.downloadFileAsync(model.downloadUrl, destination, {
+            idempotent: true,
+            headers: { "User-Agent": "Matriq/0.7 (offline-ai)" },
+            signal: controller.signal,
+            onProgress,
+          });
         } catch {
           return null;
         }
@@ -295,12 +307,10 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
       try {
         let result = await attempt();
         if (!result) result = await attempt();
-        if (!result?.uri) throw new Error("Download failed");
-        const info = await FileSystem.getInfoAsync(uri).catch(() => null);
-        const sizeBytes =
-          info && info.exists && "size" in info && typeof info.size === "number"
-            ? info.size
-            : model.sizeBytes;
+        if (!result) throw new Error("Download failed");
+
+        // The File API exposes the on-disk size directly.
+        const sizeBytes = result.size > 0 ? result.size : model.sizeBytes;
 
         applyConfig({
           ...configRef.current,
@@ -320,7 +330,7 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         if (configRef.current.activeModelId === id) void warmUp();
       } catch {
         // Only surface the error if the user didn't cancel this download.
-        if (activeDownloadsRef.current[id]) {
+        if (!controller.signal.aborted) {
           setDownloads((prev) => ({
             ...prev,
             [id]: {
@@ -339,13 +349,9 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
 
   const cancelDownload = useCallback(
     async (id: string) => {
-      const resumable = activeDownloadsRef.current[id];
-      if (resumable) {
-        try {
-          await resumable.pauseAsync();
-        } catch {
-          // ignore
-        }
+      const controller = activeDownloadsRef.current[id];
+      if (controller) {
+        controller.abort();
         delete activeDownloadsRef.current[id];
       }
       await FileSystem.deleteAsync(modelFileUri(id), {

@@ -119,6 +119,24 @@ export function OfflineModelsScreen() {
   );
 }
 
+/** "Downloading… 62% · 2.3 MB/s · ~1 min left" style progress line. */
+function downloadMetaText(
+  progress: number,
+  speedBps?: number,
+  etaSeconds?: number | null,
+): string {
+  const pct = Math.round(progress * 100);
+  const parts = [`Downloading… ${pct}%`];
+  if (speedBps !== undefined && speedBps > 0) {
+    parts.push(`${(speedBps / (1024 * 1024)).toFixed(1)} MB/s`);
+  }
+  if (etaSeconds !== undefined && etaSeconds !== null && Number.isFinite(etaSeconds)) {
+    const mins = Math.ceil(etaSeconds / 60);
+    parts.push(mins >= 1 ? `~${mins} min left` : `~${Math.ceil(etaSeconds)}s left`);
+  }
+  return parts.join(" · ");
+}
+
 /** One grid tile — just name, tier and size (round-2 QA §7). */
 function ModelTile({
   model,
@@ -301,7 +319,7 @@ function ModelDetailModal({
               </View>
               <View style={styles.downloadMeta}>
                 <Text style={styles.downloadText}>
-                  Downloading… {Math.round(download.progress * 100)}%
+                  {downloadMetaText(download.progress, download.speedBps, download.etaSeconds)}
                 </Text>
                 <TouchableOpacity onPress={() => void cancelDownload(model.id)}>
                   <Text style={styles.cancelText}>Cancel</Text>

@@ -7,15 +7,18 @@ import {
   Pressable,
   TextInput,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
-import { api } from "../../api/client";
+import { File, Paths } from "expo-file-system";
+import * as Sharing from "expo-sharing";
+import { api, API_BASE, authHeaders } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
-import { bytesLabel, saveGeneratedFile } from "../../utils/files";
+import { bytesLabel, extensionForMime, saveGeneratedFile } from "../../utils/files";
 import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Vault">;
@@ -31,6 +34,7 @@ export interface VaultItemDto {
   sizeBytes: number;
   hasCompanion: boolean;
   companionSizeBytes: number | null;
+  companionMimeType: string | null;
   moderationStatus: "pending" | "approved" | "rejected";
   rejectionReason: string | null;
   downloads: number;
@@ -124,23 +128,68 @@ export function VaultScreen({ navigation }: Props) {
     setDownloadingId(item.id);
     setNote(null);
     try {
-      const data = await api.get<{
-        fileName: string;
-        mimeType: string;
-        dataUri: string;
-        variant: "original" | "light";
-      }>(`/vault/${item.id}/download?variant=${variant}`);
-      const base64 = data.dataUri.includes(",")
-        ? data.dataUri.split(",")[1]
-        : data.dataUri;
-      const result = await saveGeneratedFile(data.fileName, base64, data.mimeType);
-      setNote(
-        result.shared
-          ? variant === "light"
+      const fileName =
+        variant === "light"
+          ? `${item.courseCode.replace(/\s+/g, "-")}-light${extensionForMime(item.companionMimeType ?? "")}`
+          : item.originalName;
+      const mimeType =
+        variant === "light"
+          ? (item.companionMimeType ?? item.mimeType)
+          : item.mimeType;
+
+      const headers = await authHeaders();
+      if (!headers) {
+        setError({
+          title: "Signed out",
+          message: "Please sign in again to download files.",
+          action: "",
+        });
+        return;
+      }
+
+      if (Platform.OS === "web") {
+        // Web: the new File.downloadFileAsync isn't implemented there — keep
+        // the JSON endpoint (small files, browser handles the save natively).
+        const data = await api.get<{
+          fileName: string;
+          mimeType: string;
+          dataUri: string;
+        }>(`/vault/${item.id}/download?variant=${variant}`);
+        const base64 = data.dataUri.includes(",")
+          ? data.dataUri.split(",")[1]
+          : data.dataUri;
+        await saveGeneratedFile(data.fileName, base64, data.mimeType);
+        setNote(
+          variant === "light"
             ? "Light copy saved — original stays safe on the Vault."
-            : "Downloaded — the original file."
-          : "Saved to Matriq's cache (no share sheet available).",
+            : "Downloaded — the original file.",
+        );
+        return;
+      }
+
+      // Streaming download — the backend returns the raw file bytes (no base64
+      // JSON), so large PDFs save straight to disk without memory pressure.
+      const destination = new File(Paths.cache, fileName);
+      const downloaded = await File.downloadFileAsync(
+        `${API_BASE}/vault/${item.id}/file?variant=${variant}`,
+        destination,
+        { idempotent: true, headers },
       );
+
+      const available = await Sharing.isAvailableAsync();
+      if (available) {
+        await Sharing.shareAsync(downloaded.uri, {
+          mimeType,
+          dialogTitle: fileName,
+        });
+        setNote(
+          variant === "light"
+            ? "Light copy saved — original stays safe on the Vault."
+            : "Downloaded — the original file.",
+        );
+      } else {
+        setNote("Saved to Matriq's cache (no share sheet available).");
+      }
     } catch (err) {
       setError(formatApiError(err));
     } finally {

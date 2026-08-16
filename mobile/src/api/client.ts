@@ -207,4 +207,15 @@ export const api = {
     apiRequest<T>(path, { method: "POST", body: formData }),
 };
 
+/**
+ * Authorization header for direct (non-JSON) downloads — e.g. the Vault's
+ * streaming file endpoint. Returns null when there's no session so callers
+ * can fall back to an error.
+ */
+export async function authHeaders(): Promise<Record<string, string> | null> {
+  const tokens = await getTokens();
+  if (!tokens?.accessToken) return null;
+  return { Authorization: `Bearer ${tokens.accessToken}` };
+}
+
 export { saveTokens, getTokens };

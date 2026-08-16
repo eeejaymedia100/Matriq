@@ -1,5 +1,9 @@
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
 import { createWorker, type Worker } from "tesseract.js";
+import { spawn } from "child_process";
+import { mkdtemp, writeFile, rm } from "fs/promises";
+import { tmpdir } from "os";
+import { join } from "path";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import pdfParse from "pdf-parse";
 import * as mammoth from "mammoth";
@@ -11,9 +15,10 @@ import { zipSync } from "fflate";
  * Tools (spec §8 + round-2 QA §7) — server-side utilities so Android and the
  * web build behave identically.
  *
- * OCR now prefers the Gemini vision API (round-2 QA §7/§13) and falls back to
- * the bundled tesseract worker when Gemini isn't configured or errors — so the
- * feature never hard-fails on a missing key.
+ * OCR is fully open source: the system Tesseract 5 engine (LSTM) does the
+ * actual recognition with sharp image preprocessing — no API key, no network,
+ * so it always works. A bundled tesseract.js worker is the fallback for
+ * environments without the tesseract binary (e.g. local dev).
  */
 
 const IMAGE_MIME_TYPES = new Set([
@@ -75,26 +80,13 @@ export class ToolsService {
   private readonly logger = new Logger(ToolsService.name);
   private workerPromise: Promise<Worker> | null = null;
 
-  private get geminiKey(): string | undefined {
-    return process.env.GEMINI_API_KEY?.trim() || undefined;
-  }
-  private get geminiModel(): string {
-    return process.env.GEMINI_MODEL?.trim() || "gemini-3.7-flash";
-  }
-  private get geminiBaseUrl(): string {
-    return (
-      process.env.GEMINI_BASE_URL?.trim() ||
-      "https://generativelanguage.googleapis.com/v1beta"
-    );
-  }
-
-  // ── Image to Text (OCR) — Gemini-first, tesseract fallback ──────
+  // ── Image to Text (OCR) — system Tesseract (open source) ───────
 
   async ocrImage(file: Express.Multer.File): Promise<{
     text: string;
     confidence: number;
     readable: boolean;
-    engine: "gemini" | "tesseract";
+    engine: "tesseract";
   }> {
     if (!file?.buffer) {
       throw new BadRequestException("Please choose an image with text to read.");
@@ -110,128 +102,156 @@ export class ToolsService {
       );
     }
 
-    if (this.geminiKey) {
-      // Gemini is the primary engine — a single retry absorbs the transient
-      // 5xx / "high demand" 503s the API returns under load.
-      for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-          const result = await this.ocrWithGemini(file);
-          if (result) return result;
-          // null = the model said there is no text — don't retry, fall through.
-          break;
-        } catch (err) {
-          const retryable = this.isRetryableGeminiError(err);
-          this.logger.warn(
-            `Gemini OCR attempt ${attempt} failed (${err instanceof Error ? err.message : String(err)})${retryable && attempt === 1 ? " — retrying once" : " — falling back to tesseract"}`,
-          );
-          if (!retryable || attempt === 2) break;
-        }
+    // Sharpen the input once (EXIF rotation, grayscale, contrast stretch,
+    // upscale small text) — this is what makes Tesseract accurate on photos.
+    const preprocessed = await this.preprocessForOcr(file.buffer);
+
+    // Primary: the system `tesseract` binary (installed in the Docker image).
+    if (await this.tesseractAvailable()) {
+      try {
+        return await this.ocrWithSystemTesseract(preprocessed);
+      } catch (err) {
+        this.logger.warn(
+          `System tesseract OCR failed (${err instanceof Error ? err.message : String(err)}) — falling back to the tesseract.js worker`,
+        );
       }
     }
 
+    // Fallback: bundled tesseract.js worker (local dev, no binary installed).
     return this.ocrWithTesseract(file);
   }
 
-  /** A 4xx (bad request / model gated) won't heal on retry — 5xx/timeouts will. */
-  private isRetryableGeminiError(err: unknown): boolean {
-    const msg =
-      err instanceof Error ? err.message : String(err);
-    if (msg.startsWith("Gemini HTTP 5")) return true;
-    return /timeout|aborted|fetch failed|ECONN|ETIMEDOUT|ENOTFOUND/i.test(msg);
-  }
+  /** Lazily probe for the system `tesseract` binary (installed in the Docker image). */
+  private tesseractProbe: Promise<boolean> | null = null;
 
-  private async ocrWithGemini(
-    file: Express.Multer.File,
-  ): Promise<{ text: string; confidence: number; readable: boolean; engine: "gemini" } | null> {
-    // Phones upload 3000×4000 photos — downscale before sending so the API
-    // round-trip is fast and stays well under Gemini's 20 MB inline limit.
-    const prepared = await this.prepareImageForGemini(file);
-    const url = `${this.geminiBaseUrl}/models/${this.geminiModel}:generateContent?key=${this.geminiKey}`;
-    const controller = new AbortController();
-    // Gemini can be slow under load (observed 14s+ on this key) — allow up
-    // to 60s before giving up, then the tesseract fallback takes over.
-    const timer = setTimeout(() => controller.abort(), 60_000);
-    const start = Date.now();
-    let res: Response;
-    try {
-      res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: prepared.mimeType,
-                    data: prepared.data,
-                  },
-                },
-                {
-                  text:
-                    "Extract all the readable text from this image. Return only the extracted text, " +
-                    "preserving line breaks where possible. If there is no readable text, reply with exactly: NO_TEXT",
-                },
-              ],
-            },
-          ],
-        }),
-        signal: controller.signal,
+  private tesseractAvailable(): Promise<boolean> {
+    if (!this.tesseractProbe) {
+      this.tesseractProbe = new Promise((resolve) => {
+        const child = spawn("tesseract", ["--version"], { stdio: "ignore" });
+        child.on("error", () => resolve(false));
+        child.on("close", (code) => resolve(code === 0));
       });
-    } finally {
-      clearTimeout(timer);
     }
-
-    if (!res.ok) {
-      throw new Error(`Gemini HTTP ${res.status}`);
-    }
-    const data = (await res.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
-    };
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-    // Defensive: strip any markdown fences the model wraps the answer in.
-    const text = raw
-      .replace(/```(?:text)?\s*/gi, "")
-      .replace(/```/g, "")
-      .replace(/\s+/g, " ")
-      .trim();
-    this.logger.log(
-      `OCR (gemini) done in ${Date.now() - start}ms: ${text.length} chars`,
-    );
-    // The model signals "no readable text" — handle quoting/punctuation.
-    if (!text || /^["'`\s]*(NO_TEXT|NO TEXT)[.!]?["'`\s]*$/i.test(text)) {
-      return null;
-    }
-    return {
-      text: text.slice(0, 5000),
-      confidence: 100,
-      readable: text.length >= 2,
-      engine: "gemini",
-    };
+    return this.tesseractProbe;
   }
 
   /**
-   * Normalise the upload for the Gemini API: honour EXIF rotation and cap the
-   * longest edge at 2048px (re-encoding JPEG keeps photos small and fast).
+   * Run the system tesseract binary with TSV output (per-word confidence) so
+   * we can report an honest confidence score, not a made-up 100%.
    */
-  private async prepareImageForGemini(
-    file: Express.Multer.File,
-  ): Promise<{ mimeType: string; data: string }> {
+  private async ocrWithSystemTesseract(
+    preprocessed: Buffer,
+  ): Promise<{
+    text: string;
+    confidence: number;
+    readable: boolean;
+    engine: "tesseract";
+  }> {
+    const dir = await mkdtemp(join(tmpdir(), "matriq-ocr-"));
+    const inputPath = join(dir, "input.png");
+    await writeFile(inputPath, preprocessed);
+
+    const start = Date.now();
     try {
-      const image = sharp(file.buffer).rotate();
+      const { text, confidence } = await this.runTesseract(inputPath);
+      const readable = text.length >= 4 && confidence >= 40;
+      this.logger.log(
+        `OCR (tesseract) done in ${Date.now() - start}ms: ${text.length} chars, ${confidence}% conf — ${readable ? "readable" : "not readable"}`,
+      );
+      return {
+        text: readable ? text.slice(0, 5000) : "",
+        confidence,
+        readable,
+        engine: "tesseract",
+      };
+    } finally {
+      void rm(dir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  }
+
+  private runTesseract(
+    inputPath: string,
+  ): Promise<{ text: string; confidence: number }> {
+    return new Promise((resolve, reject) => {
+      const child = spawn(
+        "tesseract",
+        [inputPath, "stdout", "-l", "eng", "--psm", "3", "tsv"],
+        { stdio: ["ignore", "pipe", "pipe"] },
+      );
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (d) => (stdout += d));
+      child.stderr.on("data", (d) => (stderr += d));
+      const kill = setTimeout(() => {
+        child.kill("SIGKILL");
+        reject(new Error("tesseract timed out after 60s"));
+      }, 60_000);
+      child.on("error", (err) => {
+        clearTimeout(kill);
+        reject(err);
+      });
+      child.on("close", (code) => {
+        clearTimeout(kill);
+        if (code !== 0) {
+          reject(
+            new Error(`tesseract exited ${code}: ${stderr.slice(0, 200)}`),
+          );
+          return;
+        }
+        resolve(this.parseTesseractTsv(stdout));
+      });
+    });
+  }
+
+  /** Parse tesseract's TSV output into joined line text + mean word confidence. */
+  private parseTesseractTsv(tsv: string): { text: string; confidence: number } {
+    const lines = tsv.split("\n");
+    if (lines.length === 0) return { text: "", confidence: 0 };
+    const lineTexts: string[] = [];
+    const confs: number[] = [];
+    for (let i = 1; i < lines.length; i += 1) {
+      const cols = lines[i].split("\t");
+      if (cols.length < 12) continue;
+      const level = cols[0];
+      if (level === "4") {
+        // line-level row — full text for that line (preserves layout)
+        const text = cols[11] ?? "";
+        if (text.trim()) lineTexts.push(text);
+      } else if (level === "5") {
+        // word-level row — carries the confidence score
+        const conf = parseFloat(cols[10]);
+        if (Number.isFinite(conf) && conf >= 0) confs.push(conf);
+      }
+    }
+    const text = lineTexts.join("\n").replace(/[ \t]+/g, " ").trim();
+    const confidence = confs.length
+      ? Math.round((confs.reduce((a, b) => a + b, 0) / confs.length) * 10) / 10
+      : 0;
+    return { text, confidence };
+  }
+
+  /**
+   * Sharpen the photo for OCR: honour EXIF rotation, convert to grayscale,
+   * stretch contrast, and double the size of small text so Tesseract reads it
+   * reliably. Best-effort — on any sharp failure we use the original buffer.
+   */
+  private async preprocessForOcr(input: Buffer): Promise<Buffer> {
+    try {
+      const image = sharp(input).rotate();
       const meta = await image.metadata();
       const longest = Math.max(meta.width ?? 0, meta.height ?? 0);
-      if (longest > 2048) {
-        const out = await image
-          .resize({ width: 2048, height: 2048, fit: "inside", withoutEnlargement: true })
-          .jpeg({ quality: 85 })
-          .toBuffer();
-        return { mimeType: "image/jpeg", data: out.toString("base64") };
+      const scale = longest > 0 && longest < 1200 ? 2 : 1;
+      const pipeline = image.grayscale().normalize();
+      if (scale > 1) {
+        pipeline.resize({
+          width: Math.round((meta.width ?? 0) * scale) || undefined,
+          height: Math.round((meta.height ?? 0) * scale) || undefined,
+          fit: "inside",
+        });
       }
-      return { mimeType: file.mimetype, data: file.buffer.toString("base64") };
+      return await pipeline.png().toBuffer();
     } catch {
-      // sharp is best-effort here — send the original if preprocessing fails.
-      return { mimeType: file.mimetype, data: file.buffer.toString("base64") };
+      return input;
     }
   }
 
@@ -259,7 +279,7 @@ export class ToolsService {
     const readable = text.length >= 4 && confidence >= 40;
 
     this.logger.log(
-      `OCR (tesseract) done in ${Date.now() - start}ms: ${text.length} chars — ${readable ? "readable" : "not readable"}`,
+      `OCR (tesseract.js) done in ${Date.now() - start}ms: ${text.length} chars — ${readable ? "readable" : "not readable"}`,
     );
     return {
       text: readable ? text.slice(0, 5000) : "",

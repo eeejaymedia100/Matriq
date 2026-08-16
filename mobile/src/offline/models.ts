@@ -21,16 +21,28 @@ export interface OfflineModel {
 
 export const OFFLINE_MODELS: OfflineModel[] = [
   {
+    id: "smollm2-135m",
+    name: "SmolLM2 135M",
+    tier: "Tiny",
+    description:
+      "The quickest to download (~100 MB) — good for fast definitions and simple questions on a bad connection.",
+    sizeBytes: 105_454_432, // ~100 MB
+    downloadUrl:
+      "https://huggingface.co/bartowski/SmolLM2-135M-Instruct-GGUF/resolve/main/SmolLM2-135M-Instruct-Q4_K_M.gguf",
+    ramNote: "~400 MB of RAM while answering",
+    speedNote: "Fastest — answers in seconds",
+  },
+  {
     id: "smollm2-360m",
     name: "SmolLM2 360M",
     tier: "Tiny",
     description:
-      "Fastest option. Good for quick definitions and simple questions. Fits even low-end phones.",
+      "A little smarter than 135M and still fast to download. Good for quick definitions and simple questions.",
     sizeBytes: 270_590_880, // ~258 MB
     downloadUrl:
       "https://huggingface.co/bartowski/SmolLM2-360M-Instruct-GGUF/resolve/main/SmolLM2-360M-Instruct-Q4_K_M.gguf",
     ramNote: "~600 MB of RAM while answering",
-    speedNote: "Fastest — answers in seconds",
+    speedNote: "Fast — answers in seconds",
   },
   {
     id: "qwen2.5-0.5b",
@@ -50,7 +62,7 @@ export const OFFLINE_MODELS: OfflineModel[] = [
     name: "Llama 3.2 1B",
     tier: "Medium",
     description:
-      "Best answer quality of the three — noticeably better at explaining concepts. Needs a newer phone with enough RAM and storage.",
+      "Best answer quality of the lineup — noticeably better at explaining concepts. Needs a newer phone with enough RAM and storage.",
     sizeBytes: 807_694_368, // ~770 MB
     downloadUrl:
       "https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf",
