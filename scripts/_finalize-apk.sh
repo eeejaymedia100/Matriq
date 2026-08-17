@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Matriq — finalize a release APK: wait for the gradle build, ship it to
-# matriq-server, bump the live update manifest, verify, and Telegram the result.
+# matriq-server, bump the live update manifest, verify. Updates are delivered
+# IN-APP only (the UpdateOverlay in the app checks /app-version.json) — no
+# Telegram is sent, per the user's request.
 # Run on cliptonite-server (this box). Safe to re-run; idempotent.
 #
 # The version is read from the BUILT APK (aapt), so the manifest can never
@@ -14,7 +16,7 @@ REMOTE=matriq
 MAX_WAIT_MIN=480
 
 # ── Per-release copy (edit this line each release) ──────────────
-RELEASE_NOTES="${RELEASE_NOTES:-Update: offline-AI downloads are fixed (much faster, shows speed + ETA, and a new ~100MB quick model), Vault downloads large files reliably, and OCR now runs on an open-source engine that always works.}"
+RELEASE_NOTES="${RELEASE_NOTES:-Update: offline-AI downloads now resume instead of restarting when your connection drops, there's a new chat screen with history + model switching, and the download screen no longer shows the list behind it.}"
 
 log() { echo "[finalize $(date '+%F %T')] $*"; }
 
@@ -86,22 +88,7 @@ log "verifying live URLs (non-fatal)"
 curl -s -m 20 https://matriq.com.ng/app-version.json || true; echo
 curl -sI -m 20 https://matriq.com.ng/download/matriq.apk | head -4 || true
 
-log "sending Telegram (summary + APK)"
-ssh -o BatchMode=yes "$REMOTE" "bash -s" -- "$VERSION_NAME" "$VERSION_CODE" <<'REMOTE'
-set -euo pipefail
-VERSION_NAME=$1
-VERSION_CODE=$2
-TOKEN=$(grep -E '^TELEGRAM_BOT_TOKEN=' ~/.hermes/.env | head -1 | cut -d= -f2-)
-CHAT=$(grep -E '^TELEGRAM_HOME_CHANNEL=' ~/.hermes/.env | head -1 | cut -d= -f2-)
-[ -z "$TOKEN" ] || [ -z "$CHAT" ] && { echo "missing telegram env"; exit 1; }
-MSG="Matriq v${VERSION_NAME} (build ${VERSION_CODE}) is LIVE. In-app updates will deliver this automatically — open the app to get it, no redownload needed. Direct link: https://matriq.com.ng/download/matriq.apk"
-curl -s -m 30 "https://api.telegram.org/bot${TOKEN}/sendMessage" \
-  --data-urlencode "chat_id=${CHAT}" --data-urlencode "text=${MSG}" > /tmp/tg-msg.json
-echo "msg resp: $(head -c 160 /tmp/tg-msg.json)"
-curl -s -m 300 "https://api.telegram.org/bot${TOKEN}/sendDocument" \
-  -F "chat_id=${CHAT}" -F "document=@$HOME/matriq/waitlist/matriq.apk" \
-  -F "caption=Matriq v${VERSION_NAME} (build ${VERSION_CODE}) APK" > /tmp/tg-doc.json
-echo "doc resp: $(head -c 160 /tmp/tg-doc.json)"
-REMOTE
+# No Telegram here: updates are delivered in-app only (the app polls
+# /app-version.json and self-updates). Nothing else to announce.
 
 log "DONE"

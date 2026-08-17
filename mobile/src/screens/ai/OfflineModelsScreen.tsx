@@ -510,10 +510,13 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     },
     modalBackdrop: {
       flex: 1,
-      backgroundColor: colors.overlay,
+      // Fully opaque backdrop — the model grid must never show through while
+      // the detail/download sheet is open (user-requested).
+      backgroundColor: colors.bg,
       justifyContent: "center",
       padding: theme.spacing.lg,
     },
+
     modalCard: {
       backgroundColor: colors.surface,
       borderRadius: theme.radii.xl,

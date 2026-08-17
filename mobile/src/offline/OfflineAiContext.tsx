@@ -9,15 +9,15 @@ import React, {
   type ReactNode,
 } from "react";
 import * as FileSystem from "expo-file-system/legacy";
-import { File, Paths } from "expo-file-system";
 import { initLlama, type LlamaContext, type TokenData } from "llama.rn";
-import { getModel, MODELS_DIR, OFFLINE_MODELS, type OfflineModel } from "./models";
+import { getModel, OFFLINE_MODELS, type OfflineModel } from "./models";
 import {
   deleteModelFile,
   ensureModelsDir,
   getFreeSpaceBytes,
   loadConfig,
   modelFileUri,
+  modelPartFileUri,
   reconcileDownloads,
   saveConfig,
   type DownloadedInfo,
@@ -112,6 +112,9 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
   const engineModelIdRef = useRef<string | null>(null);
   const enginePromiseRef = useRef<Promise<void> | null>(null);
   const activeDownloadsRef = useRef<Record<string, AbortController>>({});
+  // Active resumable download tasks, keyed by model id — used to cancel the
+  // native network task (AbortController alone can't stop the legacy task).
+  const activeResumablesRef = useRef<Record<string, FileSystem.DownloadResumable>>({});
 
   const applyConfig = useCallback((next: OfflineConfig) => {
     configRef.current = next;
@@ -259,7 +262,6 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
       // doesn't exist yet — create it before any attempt.
       await ensureModelsDir();
 
-      const destination = new File(Paths.document, `${MODELS_DIR}${id}.gguf`);
       const controller = new AbortController();
       activeDownloadsRef.current[id] = controller;
 
@@ -269,49 +271,90 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
       let lastTime = Date.now();
       let speedBps = 0;
       let etaSeconds: number | null = null;
-      const onProgress = (p: { bytesWritten: number; totalBytes: number }) => {
-        const now = Date.now();
-        const dt = (now - lastTime) / 1000;
-        if (dt > 0) {
-          speedBps = (p.bytesWritten - lastBytes) / dt;
-          lastBytes = p.bytesWritten;
-          lastTime = now;
-          const total = p.totalBytes > 0 ? p.totalBytes : model.sizeBytes;
-          etaSeconds = speedBps > 0 ? (total - p.bytesWritten) / speedBps : null;
-        }
-        const total = p.totalBytes > 0 ? p.totalBytes : model.sizeBytes;
-        const progress = total > 0 ? p.bytesWritten / total : 0;
-        setDownloads((prev) => ({
-          ...prev,
-          [id]: { progress, error: null, speedBps, etaSeconds },
-        }));
-      };
 
-      // One native attempt; if it fails (dropped connection, CDN hiccup) we
-      // restart with a fresh controller so the redirect chain is re-followed
-      // from scratch. File.downloadFileAsync streams straight to disk and
-      // follows Hugging Face's signed-CDNs redirects natively.
-      const attempt = async (): Promise<File | null> => {
+      // One resume-aware attempt. Downloads stream into a `.part` file; on a
+      // dropped connection the partial stays on disk and the next attempt
+      // resumes from it (legacy DownloadResumable sends `Range: bytes=N-`),
+      // so a flaky connection never restarts the whole model from zero.
+      const attempt = async (): Promise<boolean> => {
+        // Resume from whatever partial file already exists.
+        const partUri = modelPartFileUri(id);
+        let resumeData: string | undefined;
         try {
-          return await File.downloadFileAsync(model.downloadUrl, destination, {
-            idempotent: true,
-            headers: { "User-Agent": "Matriq/0.7 (offline-ai)" },
-            signal: controller.signal,
-            onProgress,
-          });
+          const info = await FileSystem.getInfoAsync(partUri);
+          if (info.exists && info.size && info.size > 0) {
+            resumeData = String(info.size);
+            lastBytes = info.size;
+          }
         } catch {
-          return null;
+          // no partial — start fresh
+        }
+
+        const resumable = FileSystem.createDownloadResumable(
+          model.downloadUrl,
+          partUri,
+          {
+            headers: { "User-Agent": "Matriq/0.7 (offline-ai)" },
+          },
+          (p) => {
+            const now = Date.now();
+            const dt = (now - lastTime) / 1000;
+            if (dt > 0) {
+              speedBps = (p.totalBytesWritten - lastBytes) / dt;
+              lastBytes = p.totalBytesWritten;
+              lastTime = now;
+              const total =
+                p.totalBytesExpectedToWrite > 0
+                  ? p.totalBytesExpectedToWrite
+                  : model.sizeBytes;
+              etaSeconds =
+                speedBps > 0 ? (total - p.totalBytesWritten) / speedBps : null;
+            }
+            const total =
+              p.totalBytesExpectedToWrite > 0
+                ? p.totalBytesExpectedToWrite
+                : model.sizeBytes;
+            const progress = total > 0 ? p.totalBytesWritten / total : 0;
+            setDownloads((prev) => ({
+              ...prev,
+              [id]: { progress, error: null, speedBps, etaSeconds },
+            }));
+          },
+          resumeData,
+        );
+        activeResumablesRef.current[id] = resumable;
+
+        try {
+          const result = await resumable.downloadAsync();
+          if (!result?.uri) return false;
+          // Verify the on-disk size matches the model before promoting it.
+          const info = await FileSystem.getInfoAsync(partUri);
+          const size = info.exists && info.size ? info.size : 0;
+          return Math.abs(size - model.sizeBytes) < 1024;
+        } catch {
+          return false;
         }
       };
 
       try {
-        let result = await attempt();
-        if (!result) result = await attempt();
-        if (!result) throw new Error("Download failed");
+        // Up to 4 attempts; each resumes from the partial file, so a flaky
+        // connection can't force a restart-from-zero.
+        let ok = false;
+        for (let i = 0; i < 4 && !controller.signal.aborted; i++) {
+          ok = await attempt();
+          if (ok) break;
+          // Brief backoff before the next resume attempt.
+          await new Promise((r) => setTimeout(r, 1200));
+        }
+        if (!ok) throw new Error("Download failed");
 
-        // The File API exposes the on-disk size directly.
-        const sizeBytes = result.size > 0 ? result.size : model.sizeBytes;
+        // Promote the completed partial to the final model file.
+        await FileSystem.moveAsync({
+          from: modelPartFileUri(id),
+          to: modelFileUri(id),
+        });
 
+        const sizeBytes = model.sizeBytes;
         applyConfig({
           ...configRef.current,
           downloaded: {
@@ -330,18 +373,20 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         if (configRef.current.activeModelId === id) void warmUp();
       } catch {
         // Only surface the error if the user didn't cancel this download.
+        // The partial file is kept on disk, so tapping Download again resumes.
         if (!controller.signal.aborted) {
           setDownloads((prev) => ({
             ...prev,
             [id]: {
               progress: 0,
               error:
-                "Download didn't finish — your connection may have dropped. Check your internet and tap Download again to retry.",
+                "Download paused — your connection dropped. Tap Download again to resume from where it stopped.",
             },
           }));
         }
       } finally {
         delete activeDownloadsRef.current[id];
+        delete activeResumablesRef.current[id];
       }
     },
     [applyConfig, refreshFreeSpace, warmUp],
@@ -354,6 +399,20 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         controller.abort();
         delete activeDownloadsRef.current[id];
       }
+      // Abort the native network task so the partial file stops growing.
+      const resumable = activeResumablesRef.current[id];
+      if (resumable) {
+        try {
+          await resumable.cancelAsync();
+        } catch {
+          // ignore
+        }
+        delete activeResumablesRef.current[id];
+      }
+      // Remove both the partial and any final file.
+      await FileSystem.deleteAsync(modelPartFileUri(id), {
+        idempotent: true,
+      }).catch(() => {});
       await FileSystem.deleteAsync(modelFileUri(id), {
         idempotent: true,
       }).catch(() => {});

@@ -54,7 +54,10 @@ export function StudyScreen({ navigation }: Props) {
   const hasModel = Object.keys(downloaded).length > 0;
 
   const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
+  // Once a model is downloaded, the Offline AI card becomes the chat screen;
+  // the model picker stays reachable via the hamburger inside the chat.
   const openModels = () => stackNav?.navigate("OfflineModels");
+  const openChat = () => stackNav?.navigate("AiChat");
 
   return (
     <ThemedScreen>
@@ -122,7 +125,7 @@ export function StudyScreen({ navigation }: Props) {
           ) : (
             <>
               {hasModel && activeModel ? (
-                <Pressable onPress={openModels}>
+                <Pressable onPress={openChat}>
                   <View
                     style={{
                       padding: 20,
@@ -140,7 +143,7 @@ export function StudyScreen({ navigation }: Props) {
                           {activeModel.name} ready
                         </Text>
                         <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
-                          Answers work with no internet. Tap to manage.
+                          Answers work with no internet. Tap to chat.
                         </Text>
                       </View>
                       <Icon name="chevronRight" size={18} color={colors.textMuted} />

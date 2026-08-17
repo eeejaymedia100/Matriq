@@ -10,9 +10,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Modal,
+  Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
 import { colors, spacing, typography, radii } from "../../theme/colors";
@@ -22,6 +24,12 @@ import {
   useOfflineAi,
   type ChatTurn,
 } from "../../offline/OfflineAiContext";
+import {
+  loadHistory,
+  saveConversation,
+  titleFromMessages,
+  type Conversation,
+} from "../../offline/history";
 
 interface Message {
   id: string;
@@ -138,6 +146,7 @@ function streamAiQuery(
 
 export function AiCompanionScreen() {
   const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProp<MainStackParamList, "AiChat">>();
   const {
     activeModelId,
     preferOffline,
@@ -159,10 +168,17 @@ export function AiCompanionScreen() {
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
   const [systemNotice, setSystemNotice] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const streamRef = useRef<{ abort: () => void } | null>(null);
   const streamingIdRef = useRef<string | null>(null);
   const historyRef = useRef<ChatTurn[]>([]);
+  const conversationIdRef = useRef<string | null>(null);
+  // Whether the current conversation was loaded from history (so it updates
+  // the saved copy rather than creating a duplicate).
+  const loadedIdRef = useRef<string | null>(null);
+  const messagesRef = useRef<Message[]>(messages);
+  messagesRef.current = messages;
 
   const isOfflineNow = online === false;
   const offlineMode = preferOffline || isOfflineNow;
@@ -189,6 +205,55 @@ export function AiCompanionScreen() {
     };
   }, [navigation, warmUp]);
 
+  // Load a conversation from history when navigated with a conversationId.
+  useEffect(() => {
+    const id = route.params?.conversationId;
+    if (!id) return;
+    let mounted = true;
+    void loadHistory().then((list) => {
+      if (!mounted) return;
+      const conv = list.find((c) => c.id === id);
+      if (!conv) return;
+      loadedIdRef.current = id;
+      conversationIdRef.current = id;
+      historyRef.current = conv.messages;
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          content: WELCOME_COPY,
+          timestamp: new Date(),
+        },
+        ...conv.messages.map((m, i) => ({
+          id: `${id}-${Date.now()}-${i}`,
+          role: m.role,
+          content: m.content,
+          timestamp: new Date(),
+        })),
+      ]);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [route.params?.conversationId]);
+
+  // Persist the current conversation to history (debounced by latest save).
+  const persistConversation = useCallback(() => {
+    const turns = messagesRef.current
+      .filter((m) => m.id !== "welcome" && !m.streaming)
+      .map((m) => ({ role: m.role, content: m.content }));
+    if (turns.length === 0) return;
+    const id = conversationIdRef.current ?? `conv-${Date.now()}`;
+    conversationIdRef.current = id;
+    const conv: Conversation = {
+      id,
+      title: titleFromMessages(turns),
+      updatedAt: Date.now(),
+      messages: turns,
+    };
+    void saveConversation(conv);
+  }, []);
+
   const appendToStreaming = useCallback((text: string) => {
     const id = streamingIdRef.current;
     if (!id) return;
@@ -208,19 +273,45 @@ export function AiCompanionScreen() {
       streamingIdRef.current = null;
     }
     setLoading(false);
-  }, []);
+    // Save the completed conversation to history.
+    setTimeout(persistConversation, 0);
+  }, [persistConversation]);
 
-  const replaceStreamingContent = useCallback((id: string, content: string) => {
-    // Single-flight: whoever gets here first wins, the other gives up.
-    if (streamingIdRef.current !== id) return;
-    streamingIdRef.current = null;
+  const replaceStreamingContent = useCallback(
+    (id: string, content: string) => {
+      // Single-flight: whoever gets here first wins, the other gives up.
+      if (streamingIdRef.current !== id) return;
+      streamingIdRef.current = null;
+      streamRef.current?.abort();
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, content, streaming: false } : m,
+        ),
+      );
+      setLoading(false);
+      // Save the completed conversation to history.
+      setTimeout(persistConversation, 0);
+    },
+    [persistConversation],
+  );
+
+  // Start a fresh conversation (clears the messages, drops the loaded id).
+  const newChat = useCallback(() => {
     streamRef.current?.abort();
-    setMessages((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, content, streaming: false } : m,
-      ),
-    );
-    setLoading(false);
+    streamingIdRef.current = null;
+    loadedIdRef.current = null;
+    conversationIdRef.current = null;
+    historyRef.current = [];
+    setMessages([
+      {
+        id: "welcome",
+        role: "assistant",
+        content: WELCOME_COPY,
+        timestamp: new Date(),
+      },
+    ]);
+    setSystemNotice(null);
+    setMenuOpen(false);
   }, []);
 
   const fallbackToNonStreaming = useCallback(
@@ -409,6 +500,14 @@ export function AiCompanionScreen() {
           ListHeaderComponent={
             <View style={styles.header}>
               <View style={styles.headerRow}>
+                <TouchableOpacity
+                  style={styles.menuBtn}
+                  activeOpacity={0.7}
+                  onPress={() => setMenuOpen(true)}
+                  hitSlop={8}
+                >
+                  <Ionicons name="menu" size={24} color={colors.textPrimary} />
+                </TouchableOpacity>
                 <View style={styles.titleWrap}>
                   <Ionicons
                     name="sparkles"
@@ -518,6 +617,70 @@ export function AiCompanionScreen() {
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
+
+      {/* Hamburger menu — history, models, new chat */}
+      <Modal
+        visible={menuOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuOpen(false)}
+      >
+        <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)}>
+          <Pressable style={styles.menuCard} onPress={() => {}}>
+            <Text style={styles.menuTitle}>AI Study Companion</Text>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => {
+                setMenuOpen(false);
+                navigation.navigate("AiHistory");
+              }}
+            >
+              <Ionicons name="time-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>History</Text>
+                <Text style={styles.menuItemSub}>
+                  Reopen past conversations
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => {
+                setMenuOpen(false);
+                navigation.navigate("OfflineModels");
+              }}
+            >
+              <Ionicons name="download-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>Models</Text>
+                <Text style={styles.menuItemSub}>
+                  Switch or download another offline model
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={newChat}
+            >
+              <Ionicons name="add-circle-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>New chat</Text>
+                <Text style={styles.menuItemSub}>
+                  Clear this conversation and start fresh
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -536,9 +699,52 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
+    gap: spacing.sm,
   },
-  titleWrap: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
-  title: { ...typography.h2, color: colors.textPrimary },
+  menuBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.full,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  titleWrap: { flex: 1, flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  title: { ...typography.h2, color: colors.textPrimary, flexShrink: 1 },
+  menuBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(10,4,20,0.6)",
+    justifyContent: "flex-start",
+    paddingTop: 60,
+    paddingHorizontal: spacing.md,
+  },
+  menuCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.xs,
+  },
+  menuTitle: {
+    ...typography.captionBold,
+    color: colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radii.md,
+  },
+  menuItemTitle: { ...typography.bodyBold, color: colors.textPrimary },
+  menuItemSub: { ...typography.caption, color: colors.textMuted, marginTop: 1 },
   chip: {
     flexDirection: "row",
     alignItems: "center",

@@ -47,6 +47,17 @@ export function modelFileUri(modelId: string): string {
 }
 
 /**
+ * In-progress download target. Downloads stream into a `.part` file so a
+ * dropped connection leaves a resumable partial on disk (never a truncated
+ * file that could be mistaken for a complete model). On success the `.part`
+ * is renamed to the final `modelFileUri`. `reconcileDownloads` ignores
+ * `.part` files, so a resumed download is never double-counted.
+ */
+export function modelPartFileUri(modelId: string): string {
+  return `${modelsDir()}${modelId}.gguf.part`;
+}
+
+/**
  * Ensure the models directory exists. MUST be called before any download:
  * the Android native downloader rejects targets whose parent directory
  * doesn't exist yet ("Directory for '...' doesn't exist") — the download
@@ -98,6 +109,9 @@ export async function reconcileDownloads(
     if (!dirInfo.exists || !dirInfo.isDirectory) return config;
     const entries = await FileSystem.readDirectoryAsync(modelsDir());
     for (const entry of entries) {
+      // Only complete `.gguf` files count — a `.gguf.part` in progress must
+      // never be adopted as a finished model.
+      if (!entry.endsWith(".gguf")) continue;
       const id = entry.replace(/\.gguf$/, "");
       if (!id || config.downloaded[id]) continue;
       const info = await FileSystem.getInfoAsync(`${modelsDir()}${entry}`);
@@ -119,6 +133,10 @@ export async function reconcileDownloads(
 
 export async function deleteModelFile(modelId: string): Promise<void> {
   await FileSystem.deleteAsync(modelFileUri(modelId), {
+    idempotent: true,
+  }).catch(() => {});
+  // Also remove any in-progress partial download.
+  await FileSystem.deleteAsync(modelPartFileUri(modelId), {
     idempotent: true,
   }).catch(() => {});
 }

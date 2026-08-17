@@ -32,6 +32,8 @@ export type MainStackParamList = {
   VerificationUpload: undefined;
   VerificationStatus: undefined;
   OfflineModels: undefined;
+  AiChat: { conversationId?: string } | undefined;
+  AiHistory: undefined;
   Notifications: undefined;
   Quiz: undefined;
   CgpaCalculator: undefined;

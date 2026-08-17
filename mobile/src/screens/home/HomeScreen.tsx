@@ -149,6 +149,10 @@ export function HomeScreen({ navigation }: Props) {
     parent?.navigate(screen);
   };
   const goTab = (tab: keyof MainTabParamList) => navigation.navigate(tab);
+  // With a model downloaded, the offline-AI entry opens the chat directly;
+  // otherwise it opens the model picker to download one first.
+  const hasModels = Object.keys(downloaded).length > 0;
+  const goOfflineAi = () => go(hasModels ? "AiChat" : "OfflineModels");
 
   const todosList: Todo[] = [
     {
@@ -165,7 +169,7 @@ export function HomeScreen({ navigation }: Props) {
       hint: "Works with no internet",
       icon: "sparkle",
       done: todos.offlineAi,
-      onPress: () => go("OfflineModels"),
+      onPress: goOfflineAi,
     },
     {
       id: "materials",
@@ -354,11 +358,11 @@ export function HomeScreen({ navigation }: Props) {
                   </Text>
                   <View style={{ flexDirection: "row", gap: 10, marginTop: 14 }}>
                     <Pressable
-                      onPress={() => go("OfflineModels")}
+                      onPress={goOfflineAi}
                       style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, backgroundColor: colors.accent }}
                     >
                       <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: "#170B26" }}>
-                        Set up offline AI
+                        {hasModels ? "Chat with offline AI" : "Set up offline AI"}
                       </Text>
                     </Pressable>
                     <Pressable

@@ -39,6 +39,8 @@ import { ReceiptScreen } from "../screens/payments/ReceiptScreen";
 import { AnnouncementsScreen } from "../screens/announcements/AnnouncementsScreen";
 import { EventsScreen } from "../screens/events/EventsScreen";
 import { OfflineModelsScreen } from "../screens/ai/OfflineModelsScreen";
+import { AiCompanionScreen } from "../screens/ai/AiCompanionScreen";
+import { AiHistoryScreen } from "../screens/ai/AiHistoryScreen";
 import { NotificationFeedScreen } from "../screens/notifications/NotificationFeedScreen";
 import { QuizScreen } from "../screens/study/QuizScreen";
 import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
@@ -157,6 +159,8 @@ function MainNavigator() {
       <MainStack.Screen name="VerificationUpload" component={VerificationUploadScreen} options={{ title: "Verify Identity" }} />
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
+      <MainStack.Screen name="AiChat" component={AiCompanionScreen} options={{ title: "AI Study Companion" }} />
+      <MainStack.Screen name="AiHistory" component={AiHistoryScreen} options={{ title: "Chat history" }} />
       <MainStack.Screen name="Notifications" component={NotificationFeedScreen} options={{ title: "Notifications" }} />
       <MainStack.Screen name="Quiz" component={QuizScreen} options={{ title: "Quiz" }} />
       <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
