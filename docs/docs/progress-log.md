@@ -4,6 +4,22 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-17 — Offline-AI chat screen + resumable downloads + no-Telegram releases (APK v0.7.6 building)
+
+**Status:** code done + verified (mobile tsc clean, web export green, backend untouched); commits `49c8b44` + `9a6fac1` pushed; APK v0.7.6 (build 14) building in tmux `matriq-build`, auto-shipped by the tmux `matriq-finalize` watcher when done (in-app only, NO Telegram).
+
+**Did (all four user requests):**
+- **Chat screen now reachable.** `AiCompanionScreen` was a fully-built chat UI but was NEVER registered in the navigator — users couldn't reach it. Registered as the `AiChat` stack route; Study/Home offline-AI entries now open the chat when a model is downloaded (and the model picker when none is).
+- **Hamburger menu in the chat** (top-left): History / Models / New chat. Conversations persist to `matriq-offline-ai/history.json` after each exchange; new `AiHistoryScreen` lists past chats and reopens them (saved copy is updated, not duplicated).
+- **Downloads now RESUME instead of restarting from zero** (the "3 attempts" pain). Rewrote `startDownload` to use the legacy `createDownloadResumable` (OkHttp, follows HF's signed-CDN redirects, sends `Range: bytes=N-` to resume) streaming into a `.gguf.part` file, with up to 4 auto-retry attempts (1.2s backoff) each resuming from the partial. Verified HF CDN returns 206 for Range requests. On success the `.part` is renamed to the final `.gguf`; `reconcileDownloads` now ignores `.part` files so a partial is never adopted as a finished model; cancel/delete clean up both.
+- **Download modal is now fully opaque** — the model grid no longer shows through the sheet (`modalBackdrop` switched from the translucent `colors.overlay` to solid `colors.bg`).
+- **No more Telegram on releases.** Removed the `sendMessage` + `sendDocument` block from `scripts/_finalize-apk.sh` (this was the "2 telegram files" — one text summary + one APK document). Updates are delivered in-app only via the existing UpdateOverlay polling `app-version.json`. The two messages were sent because the script called Telegram twice (text + APK); both are gone now.
+- **Fixed a bash trap**: an apostrophe inside the finalize script's `${RELEASE_NOTES:-…}` default broke `bash -n` (bash treats it as an unclosed quote context) — reworded the default notes.
+
+**Next:** wait for the finalize watcher → `FINALIZE_EXIT=0` in `/tmp/finalize.log`, verify `matriq.com.ng/app-version.json` serves v14/0.7.6, then the installed app self-updates in-app (no Telegram, no manual download).
+
+**Blockers/flags:** none. (Still open from before, not part of this pass: §2 shared `[association-name]@matriq.app` exec accounts and §11 Android overlay bubble.)
+
 ## 2026-08-16 — Criteria-gap + fixes pass DEPLOYED (backend live + OCR verified), APK v0.7.4 building
 
 **Status:** backend DEPLOYED + OCR verified live (engine: gemini); mobile/admin/dashboard verified; APK v0.7.4 (build 12) building in tmux `matriq-build`.
