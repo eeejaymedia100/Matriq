@@ -12,6 +12,8 @@ export { ThemeTransitionOverlay } from "./ThemeTransitionOverlay";
 export { Icon } from "./icons";
 export type { IconName } from "./icons";
 export { Surface, ThemedScreen } from "./Surface";
+export { FactCard } from "./FactCard";
+export { RecommendedBadge } from "./RecommendedBadge";
 export { AmbientBlobs } from "./AmbientBlobs";
 export {
   Skeleton,

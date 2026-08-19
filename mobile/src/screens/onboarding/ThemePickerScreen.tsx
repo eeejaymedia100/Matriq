@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
   withSpring,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE, brand } from "../../theme/tokens";
 import { Icon } from "../../components/icons";
@@ -22,6 +23,7 @@ import { Icon } from "../../components/icons";
  */
 export function ThemePickerScreen() {
   const { setMode } = useTheme();
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.root}>
@@ -36,7 +38,7 @@ export function ThemePickerScreen() {
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#neutralBg)" />
       </Svg>
 
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.wordmark}>
           <View
             style={{
@@ -66,7 +68,7 @@ export function ThemePickerScreen() {
         <PopPreviewCard onChoose={() => void setMode("pop")} />
       </View>
 
-      <Text style={styles.tagline}>{TAGLINE}</Text>
+      <Text style={[styles.tagline, { paddingBottom: insets.bottom + 40 }]}>{TAGLINE}</Text>
     </View>
   );
 }

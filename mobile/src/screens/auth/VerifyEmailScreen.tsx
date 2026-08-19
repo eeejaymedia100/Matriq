@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../theme/ThemeContext";
 import { Button, ErrorBanner, OtpInput } from "../../components";
@@ -92,7 +92,7 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView

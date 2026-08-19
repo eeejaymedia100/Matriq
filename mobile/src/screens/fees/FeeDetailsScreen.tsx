@@ -2,11 +2,11 @@ import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
@@ -78,7 +78,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
   if (loading) {
     return (
       <ThemedScreen>
-        <SafeAreaView style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <SafeAreaView style={{ flex: 1, alignItems: "center", justifyContent: "center" }} edges={["bottom", "left", "right"]}>
           <ActivityIndicator color={colors.brand} />
         </SafeAreaView>
       </ThemedScreen>
@@ -90,7 +90,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}

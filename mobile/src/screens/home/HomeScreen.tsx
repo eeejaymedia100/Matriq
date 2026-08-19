@@ -2,14 +2,15 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { Surface, ThemedScreen } from "../../components/Surface";
+import { FactCard } from "../../components/FactCard";
 import { Icon, type IconName } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotifications } from "../../contexts/NotificationsContext";
@@ -18,6 +19,7 @@ import { factForTick } from "../../utils/facts";
 import { useDailyFacts } from "../../utils/dailyFacts";
 import { api } from "../../api/client";
 import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
+import { timeAgo } from "../../utils/relativeTime";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
 import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
 import { CelebrationOverlay } from "../../components/CelebrationOverlay";
@@ -46,14 +48,6 @@ function liveClock(): string {
   });
 }
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 60) return `${Math.max(1, mins)}m`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h`;
-  return `${Math.floor(hours / 24)}d`;
-}
 
 export function HomeScreen({ navigation }: Props) {
   const { theme } = useTheme();
@@ -199,7 +193,7 @@ export function HomeScreen({ navigation }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
@@ -327,56 +321,43 @@ export function HomeScreen({ navigation }: Props) {
 
           {/* Hero — rotating fact, or nudge when no materials/AI */}
           <View style={{ paddingHorizontal: 24, marginTop: 24 }}>
-            <Surface variant="sticker" style={{ padding: 20 }}>
-              {todos.offlineAi ? (
-                <>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <Icon name="sparkle" size={16} color={colors.accent} />
-                    <Text style={[theme.typography.small, { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" }]}>
-                      {fact.tag} · just for you
+            {todos.offlineAi ? (
+              <FactCard fact={fact} label="just for you" />
+            ) : (
+              <Surface variant="sticker" style={{ padding: 20 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                  <Icon name="sparkle" size={16} color={colors.accent} />
+                  <Text style={[theme.typography.small, { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" }]}>
+                    Your daily edge
+                  </Text>
+                </View>
+                <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
+                  Facts tuned to your courses
+                </Text>
+                <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
+                  Upload your study materials or set up offline AI and this card fills with
+                  facts and definitions from your own notes — no internet needed.
+                </Text>
+                <View style={{ flexDirection: "row", gap: 10, marginTop: 14 }}>
+                  <Pressable
+                    onPress={goOfflineAi}
+                    style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, backgroundColor: colors.accent }}
+                  >
+                    <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: "#170B26" }}>
+                      {hasModels ? "Chat with offline AI" : "Set up offline AI"}
                     </Text>
-                  </View>
-                  <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>{fact.title}</Text>
-                  <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
-                    {fact.body}
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <Icon name="sparkle" size={16} color={colors.accent} />
-                    <Text style={[theme.typography.small, { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" }]}>
-                      Your daily edge
+                  </Pressable>
+                  <Pressable
+                    onPress={() => go("MyMaterials")}
+                    style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: colors.borderStrong }}
+                  >
+                    <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: colors.textPrimary }}>
+                      Upload materials
                     </Text>
-                  </View>
-                  <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
-                    Facts tuned to your courses
-                  </Text>
-                  <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
-                    Upload your study materials or set up offline AI and this card fills with
-                    facts and definitions from your own notes — no internet needed.
-                  </Text>
-                  <View style={{ flexDirection: "row", gap: 10, marginTop: 14 }}>
-                    <Pressable
-                      onPress={goOfflineAi}
-                      style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, backgroundColor: colors.accent }}
-                    >
-                      <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: "#170B26" }}>
-                        {hasModels ? "Chat with offline AI" : "Set up offline AI"}
-                      </Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={() => go("MyMaterials")}
-                      style={{ flex: 1, alignItems: "center", paddingVertical: 10, borderRadius: 12, borderWidth: 1.5, borderColor: colors.borderStrong }}
-                    >
-                      <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: colors.textPrimary }}>
-                        Upload materials
-                      </Text>
-                    </Pressable>
-                  </View>
-                </>
-              )}
-            </Surface>
+                  </Pressable>
+                </View>
+              </Surface>
+            )}
           </View>
 
           {/* Vault + next class */}

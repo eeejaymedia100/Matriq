@@ -16,7 +16,7 @@ REMOTE=matriq
 MAX_WAIT_MIN=480
 
 # ── Per-release copy (edit this line each release) ──────────────
-RELEASE_NOTES="${RELEASE_NOTES:-Update: offline-AI downloads now resume instead of restarting when your connection drops, plus a new chat screen with history and model switching, and a download screen that no longer shows the list behind it.}"
+RELEASE_NOTES="${RELEASE_NOTES:-Update: the app now fits your screen with proper top and bottom margins, the AI chat box is no longer hidden behind your phone buttons, and the study screen hides the other models once one is downloaded.}"
 
 log() { echo "[finalize $(date '+%F %T')] $*"; }
 

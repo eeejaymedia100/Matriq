@@ -2,11 +2,11 @@ import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../theme/ThemeContext";
@@ -14,6 +14,7 @@ import { ThemedScreen } from "../../components/Surface";
 import { Icon, type IconName } from "../../components/icons";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
+import { timeAgo } from "../../utils/relativeTime";
 import { useNotifications } from "../../contexts/NotificationsContext";
 import type { AppNotification } from "../../types/api";
 import type { MainStackParamList } from "../../navigation/types";
@@ -43,20 +44,6 @@ const VALID_LINKS = new Set([
   "Timetable",
 ]);
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-  });
-}
 
 /**
  * The in-app notification feed (round-2 QA §9) — where the Home bell points.
@@ -136,7 +123,7 @@ export function NotificationFeedScreen({ navigation }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}

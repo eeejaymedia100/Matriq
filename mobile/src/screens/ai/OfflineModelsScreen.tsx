@@ -12,11 +12,13 @@ import {
   Pressable,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Button, Icon } from "../../components";
+import { RecommendedBadge } from "../../components/RecommendedBadge";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { formatBytes, type OfflineModel } from "../../offline/models";
 import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
@@ -34,6 +36,7 @@ export function OfflineModelsScreen() {
   const styles = makeStyles(theme, colors);
 
   const navigation = useNavigation<Nav>();
+  const insets = useSafeAreaInsets();
   const { models, freeSpace, preferOffline, setPreferOffline, refreshFreeSpace } =
     useOfflineAi();
   const [selected, setSelected] = useState<OfflineModel | null>(null);
@@ -46,7 +49,10 @@ export function OfflineModelsScreen() {
     <ThemedScreen>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: theme.spacing.xxl + insets.bottom },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>
@@ -194,20 +200,7 @@ function ModelTile({
       <Text style={[theme.typography.small, { color: colors.textMuted }]}>
         {formatBytes(model.sizeBytes)}
       </Text>
-      {model.recommended ? (
-        <View
-          style={{
-            borderRadius: 999,
-            paddingHorizontal: 7,
-            paddingVertical: 2,
-            backgroundColor: colors.accent,
-          }}
-        >
-          <Text style={{ fontSize: 9, fontWeight: "700", color: "#170B26" }}>
-            Recommended
-          </Text>
-        </View>
-      ) : null}
+      {model.recommended ? <RecommendedBadge /> : null}
     </Pressable>
   );
 }
@@ -259,6 +252,8 @@ function ModelDetailModal({
       transparent
       animationType="fade"
       onRequestClose={onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
     >
       <Pressable
         style={styles.modalBackdrop}

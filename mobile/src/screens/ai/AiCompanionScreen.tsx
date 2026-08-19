@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TextInput,
   TouchableOpacity,
@@ -13,6 +12,7 @@ import {
   Modal,
   Pressable,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -441,22 +441,8 @@ export function AiCompanionScreen() {
     }
   };
 
-  const chipLabel = !activeModelId
-    ? "Offline AI"
-    : engineState === "ready"
-      ? "Offline AI ready"
-      : engineState === "loading"
-        ? `Loading ${Math.round(engineProgress * 100)}%`
-        : "Offline AI";
-  const chipColor =
-    offlineMode || engineState === "ready"
-      ? colors.success
-      : isOfflineNow
-        ? colors.warning
-        : colors.textMuted;
-
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -467,6 +453,8 @@ export function AiCompanionScreen() {
           data={messages}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
           onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
           renderItem={({ item }) => (
             <View
@@ -516,26 +504,6 @@ export function AiCompanionScreen() {
                   />
                   <Text style={styles.title}>AI Study Companion</Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.chip}
-                  activeOpacity={0.7}
-                  onPress={() => navigation.navigate("OfflineModels")}
-                >
-                  <Ionicons
-                    name={
-                      engineState === "ready"
-                        ? "cloud-done"
-                        : online === false
-                          ? "cloud-offline"
-                          : "download"
-                    }
-                    size={14}
-                    color={chipColor}
-                  />
-                  <Text style={[styles.chipText, { color: chipColor }]}>
-                    {chipLabel}
-                  </Text>
-                </TouchableOpacity>
               </View>
               <Text style={styles.subtitle}>
                 {offlineMode
@@ -624,6 +592,8 @@ export function AiCompanionScreen() {
         transparent
         animationType="fade"
         onRequestClose={() => setMenuOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
       >
         <Pressable style={styles.menuBackdrop} onPress={() => setMenuOpen(false)}>
           <Pressable style={styles.menuCard} onPress={() => {}}>
@@ -745,18 +715,6 @@ const styles = StyleSheet.create({
   },
   menuItemTitle: { ...typography.bodyBold, color: colors.textPrimary },
   menuItemSub: { ...typography.caption, color: colors.textMuted, marginTop: 1 },
-  chip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
-  },
-  chipText: { ...typography.small },
   subtitle: {
     ...typography.caption,
     color: colors.textMuted,

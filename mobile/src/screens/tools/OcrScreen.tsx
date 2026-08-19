@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   Image,
   ActivityIndicator,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
@@ -93,7 +93,7 @@ export function OcrScreen() {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"

@@ -2,7 +2,6 @@ import React, { useRef, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   TouchableOpacity,
   Dimensions,
@@ -10,6 +9,7 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE } from "../../theme/tokens";
 import { Button } from "../../components";

@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, SafeAreaView, Linking } from "react-native";
+import { View, Text, Linking } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE } from "../../theme/tokens";
 import { Button } from "../../components";

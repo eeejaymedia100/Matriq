@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   TextInput,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
@@ -97,7 +97,7 @@ export function QuizScreen() {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";

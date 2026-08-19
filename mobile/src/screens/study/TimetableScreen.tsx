@@ -2,18 +2,19 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   TextInput,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
+import { timeAgo } from "../../utils/relativeTime";
 import type { TimetableUpdate } from "../../types/api";
 import {
   getTimetable,
@@ -120,7 +121,7 @@ export function TimetableScreen() {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
@@ -433,20 +434,6 @@ function scopeLabel(u: TimetableUpdate): string {
     : `All departments · ${u.level}`;
 }
 
-function timeAgo(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-  });
-}
 
 function field(colors: import("../../theme/themes").MatriqThemeColors, radii: { md: number }) {
   return {

@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Share,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button, LoadingScreen, ReceiptSkeleton } from "../../components";
@@ -49,7 +49,7 @@ export function ReceiptScreen({ route }: ReceiptScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Receipt</Text>
 

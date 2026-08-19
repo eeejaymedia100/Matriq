@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { View, Text, SafeAreaView, TextInput, Platform } from "react-native";
+import { View, Text, TextInput, Platform, KeyboardAvoidingView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { Button, ErrorBanner, WheelPicker } from "../../components";
 import { Icon } from "../../components/icons";
@@ -71,6 +72,10 @@ export function CompleteProfileScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
       <View style={{ flex: 1, padding: 24, paddingTop: 40 }}>
         <View style={{ alignItems: "center", marginBottom: 20 }}>
           <View
@@ -190,6 +195,7 @@ export function CompleteProfileScreen({ navigation }: Props) {
           </Text>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

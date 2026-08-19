@@ -1,5 +1,6 @@
 import React from "react";
 import { Modal, View, Text, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
 
@@ -31,6 +32,7 @@ export function ConfirmSheet({
 }: ConfirmSheetProps) {
   const { theme } = useTheme();
   const colors = theme.colors;
+  const insets = useSafeAreaInsets();
 
   // react-native-web's Modal is historically quirky; the web build renders
   // the sheet as a position:fixed overlay instead, which always covers the
@@ -61,7 +63,7 @@ export function ConfirmSheet({
             borderTopLeftRadius: 28,
             borderTopRightRadius: 28,
             padding: 24,
-            paddingBottom: 32,
+            paddingBottom: Math.max(insets.bottom, 24),
             borderWidth: theme.mode === "glass" ? 1 : 0,
             borderColor: colors.border,
           }}
@@ -132,7 +134,7 @@ export function ConfirmSheet({
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
       {sheet}
     </Modal>
   );

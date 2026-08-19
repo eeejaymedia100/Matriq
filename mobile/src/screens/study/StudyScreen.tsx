@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
+import { FactCard } from "../../components/FactCard";
+import { RecommendedBadge } from "../../components/RecommendedBadge";
 import { Icon, type IconName } from "../../components/icons";
 import { useOfflineAi } from "../../offline/OfflineAiContext";
 import { OFFLINE_MODELS, formatBytes, getModel } from "../../offline/models";
@@ -61,7 +63,7 @@ export function StudyScreen({ navigation }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}
@@ -72,31 +74,8 @@ export function StudyScreen({ navigation }: Props) {
           </Text>
 
           {/* 1 — Rotating fact card (shared with Home) */}
-          <View
-            style={{
-              marginTop: 20,
-              padding: 20,
-              borderRadius: theme.radii.lg,
-              backgroundColor: colors.surface,
-              borderWidth: 1,
-              borderColor: colors.border,
-            }}
-          >
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
-              <Icon name="sparkle" size={15} color={colors.accent} />
-              <Text
-                style={[
-                  theme.typography.small,
-                  { color: colors.textMuted, letterSpacing: 1, textTransform: "uppercase" },
-                ]}
-              >
-                {fact.tag} · did you know
-              </Text>
-            </View>
-            <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>{fact.title}</Text>
-            <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
-              {fact.body}
-            </Text>
+          <View style={{ marginTop: 20 }}>
+            <FactCard fact={fact} label="did you know" />
           </View>
 
           {/* 2 — Offline AI setup */}
@@ -122,59 +101,57 @@ export function StudyScreen({ navigation }: Props) {
                 </Text>
               </View>
             </View>
-          ) : (
-            <>
-              {hasModel && activeModel ? (
-                <Pressable onPress={openChat}>
-                  <View
-                    style={{
-                      padding: 20,
-                      borderRadius: theme.radii.lg,
-                      backgroundColor: colors.surface,
-                      borderWidth: 1,
-                      borderColor: colors.accent + "66",
-                      marginBottom: 12,
-                    }}
-                  >
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-                      <Icon name="sparkle" size={18} color={colors.accent} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-                          {activeModel.name} ready
-                        </Text>
-                        <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
-                          Answers work with no internet. Tap to chat.
-                        </Text>
-                      </View>
-                      <Icon name="chevronRight" size={18} color={colors.textMuted} />
-                    </View>
-                  </View>
-                </Pressable>
-              ) : (
-                <Pressable onPress={openModels}>
-                  <View
-                    style={{
-                      padding: 20,
-                      borderRadius: theme.radii.lg,
-                      backgroundColor: colors.surface,
-                      borderWidth: 1,
-                      borderColor: colors.border,
-                      marginBottom: 12,
-                    }}
-                  >
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
-                      <Icon name="sparkle" size={18} color={colors.accent} />
-                      <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-                        Download a model once, use it forever
-                      </Text>
-                    </View>
-                    <Text style={[theme.typography.caption, { color: colors.textSecondary, lineHeight: 19 }]}>
-                      Pick the model that fits your phone and data. The engine ships
-                      with the app — only the model itself is downloaded, over Wi-Fi.
+          ) : hasModel && activeModel ? (
+            <Pressable onPress={openChat}>
+              <View
+                style={{
+                  padding: 20,
+                  borderRadius: theme.radii.lg,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1,
+                  borderColor: colors.accent + "66",
+                  marginBottom: 12,
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                  <Icon name="sparkle" size={18} color={colors.accent} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                      {activeModel.name} ready
+                    </Text>
+                    <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+                      Answers work with no internet. Tap to chat.
                     </Text>
                   </View>
-                </Pressable>
-              )}
+                  <Icon name="chevronRight" size={18} color={colors.textMuted} />
+                </View>
+              </View>
+            </Pressable>
+          ) : (
+            <>
+              <Pressable onPress={openModels}>
+                <View
+                  style={{
+                    padding: 20,
+                    borderRadius: theme.radii.lg,
+                    backgroundColor: colors.surface,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    marginBottom: 12,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <Icon name="sparkle" size={18} color={colors.accent} />
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                      Download a model once, use it forever
+                    </Text>
+                  </View>
+                  <Text style={[theme.typography.caption, { color: colors.textSecondary, lineHeight: 19 }]}>
+                    Pick the model that fits your phone and data. The engine ships
+                    with the app — only the model itself is downloaded, over Wi-Fi.
+                  </Text>
+                </View>
+              </Pressable>
 
               {/* Model options — download size + provisional RAM */}
               <View style={{ gap: 10, marginBottom: 8 }}>
@@ -209,20 +186,7 @@ export function StudyScreen({ navigation }: Props) {
                             <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
                               {m.name}
                             </Text>
-                            {m.recommended ? (
-                              <View
-                                style={{
-                                  borderRadius: 999,
-                                  paddingHorizontal: 8,
-                                  paddingVertical: 2,
-                                  backgroundColor: colors.accent,
-                                }}
-                              >
-                                <Text style={{ fontSize: 10, fontWeight: "700", color: "#170B26" }}>
-                                  Recommended
-                                </Text>
-                              </View>
-                            ) : null}
+                            {m.recommended ? <RecommendedBadge /> : null}
                           </View>
                           <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
                             {m.speedNote} · {formatBytes(m.sizeBytes)} download

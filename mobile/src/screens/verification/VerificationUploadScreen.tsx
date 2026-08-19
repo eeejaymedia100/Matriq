@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Alert,
   TouchableOpacity,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Button, Card, Icon } from "../../components";
@@ -134,7 +134,7 @@ export function VerificationUploadScreen({ navigation, route }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView contentContainerStyle={styles.container}>
           <Text style={styles.title}>Identity Verification</Text>
           <Text style={styles.subtitle}>

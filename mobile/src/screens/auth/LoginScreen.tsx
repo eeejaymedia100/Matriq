@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { Input, Button, ErrorBanner, OtpInput } from "../../components";
 import { Icon } from "../../components/icons";
@@ -101,7 +101,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={{ flex: 1 }}
       >
         <ScrollView

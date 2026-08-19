@@ -2,7 +2,7 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.7.6",
+    "version": "0.7.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -24,7 +24,7 @@
         "backgroundColor": "#6C3BAA"
       },
       "package": "app.matriq.mobile",
-      "versionCode": 14,
+      "versionCode": 15,
       "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"]
     },
     "plugins": [
@@ -42,6 +42,13 @@
         {
           "photosPermission": "Matriq uses your photos to upload a student ID for identity verification.",
           "cameraPermission": "Matriq uses your camera to photograph your student ID for identity verification."
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "enforceContrast": false,
+          "style": "light"
         }
       ],
       "expo-build-properties",

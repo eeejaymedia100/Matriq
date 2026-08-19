@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Linking,
   Alert,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, Button } from "../../components";
@@ -44,7 +44,7 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Pay Dues</Text>
 

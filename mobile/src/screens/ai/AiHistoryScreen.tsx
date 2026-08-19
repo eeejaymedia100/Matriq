@@ -2,11 +2,11 @@ import React, { useCallback, useState } from "react";
 import {
   View,
   Text,
-  SafeAreaView,
   ScrollView,
   Pressable,
   ActivityIndicator,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../theme/ThemeContext";
@@ -17,24 +17,10 @@ import {
   loadHistory,
   type Conversation,
 } from "../../offline/history";
+import { relativeTimeFrom } from "../../utils/relativeTime";
 import type { MainStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<MainStackParamList, "AiHistory">;
-
-function timeLabel(ts: number): string {
-  const diff = Date.now() - ts;
-  const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(ts).toLocaleDateString(undefined, {
-    day: "numeric",
-    month: "short",
-  });
-}
 
 /**
  * Past AI conversations. Tapping one reopens it in the chat screen; swipe
@@ -73,7 +59,7 @@ export function AiHistoryScreen({ navigation }: Props) {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           showsVerticalScrollIndicator={false}
@@ -157,7 +143,7 @@ export function AiHistoryScreen({ navigation }: Props) {
                       </Text>
                       <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]}>
                         {conv.messages.filter((m) => m.role === "user").length} questions ·{" "}
-                        {timeLabel(conv.updatedAt)}
+                        {relativeTimeFrom(conv.updatedAt)}
                       </Text>
                     </View>
                     <Icon name="chevronRight" size={16} color={colors.textMuted} />

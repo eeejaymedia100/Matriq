@@ -3,11 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   FlatList,
   TouchableOpacity,
   RefreshControl,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, spacing, typography, radii } from "../../theme/colors";
 import { Card, ListScreenSkeleton, ErrorBanner } from "../../components";
@@ -86,7 +86,7 @@ export function AnnouncementsScreen() {
   if (loading) return <ListScreenSkeleton rows={5} titleWidth={185} />;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
       <FlatList
         data={announcements}
         keyExtractor={(item) => item.id}

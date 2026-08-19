@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
-import { View, Text, SafeAreaView, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,

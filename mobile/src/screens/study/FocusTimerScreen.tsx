@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, SafeAreaView, Pressable } from "react-native";
+import { View, Text, Pressable } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
@@ -66,7 +67,7 @@ export function FocusTimerScreen() {
 
   return (
     <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
         <View style={{ flex: 1, padding: 24, alignItems: "center", justifyContent: "center" }}>
           <Text style={[theme.typography.captionBold, { color: colors.textMuted, letterSpacing: 2, textTransform: "uppercase" }]}>
             {onBreak ? "Break — stretch & hydrate" : "Focus block"}

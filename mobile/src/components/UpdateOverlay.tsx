@@ -161,6 +161,8 @@ export function UpdateOverlay() {
       transparent
       animationType="fade"
       onRequestClose={handleNo}
+      statusBarTranslucent
+      navigationBarTranslucent
     >
       <View style={styles.backdrop}>
         <View

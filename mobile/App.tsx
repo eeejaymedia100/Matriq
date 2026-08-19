@@ -1,5 +1,6 @@
 import React from "react";
 import { StatusBar } from "expo-status-bar";
+import { NavigationBar } from "expo-navigation-bar";
 import {
   NavigationContainer,
   DefaultTheme,
@@ -63,6 +64,7 @@ function AppInner() {
         <NotificationsProvider>
           <NavigationContainer theme={navTheme}>
             <StatusBar style={isGlass ? "light" : "dark"} />
+            <NavigationBar style={isGlass ? "light" : "dark"} />
             <AppNavigator />
             <UpdateOverlay />
           </NavigationContainer>
