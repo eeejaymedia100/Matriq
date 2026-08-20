@@ -168,6 +168,17 @@ export function formatApiError(err: unknown): FriendlyError {
       };
     }
 
+    // Upload rejected — the file was bigger than the server can accept
+    // (multer file-size limit). The client compresses images before upload,
+    // so this mostly catches unusual files that slip through.
+    if (status === 413) {
+      return {
+        title: "That file is too large",
+        message: "The file was bigger than the server can accept.",
+        action: "Try a smaller file — or a clearer, closer photo — and try again.",
+      };
+    }
+
     // Validation / bad request
     if (status === 400 || status === 422 || code === "VALIDATION_FAILED") {
       return {

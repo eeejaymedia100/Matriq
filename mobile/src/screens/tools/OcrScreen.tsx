@@ -15,6 +15,10 @@ import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
+import {
+  MAX_UPLOAD_BYTES,
+  optimizeImageForUpload,
+} from "../../utils/imageOptimize";
 
 /**
  * Image to Text (OCR) — spec §8. Runs through the backend so Android and the
@@ -26,7 +30,11 @@ export function OcrScreen() {
   const { theme } = useTheme();
   const colors = theme.colors;
 
-  const [image, setImage] = useState<{ uri: string; fileName?: string } | null>(null);
+  const [image, setImage] = useState<{
+    uri: string;
+    fileName?: string;
+    bytes?: number;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{
     text: string;
@@ -43,9 +51,18 @@ export function OcrScreen() {
       quality: 0.9,
     });
     if (res.canceled || res.assets.length === 0) return;
+    const asset = res.assets[0];
+    // Resize to ≤1200px + JPEG 0.7 so the upload never hits the payload limit
+    // and the server never chokes on a 3000×4000 photo.
+    const optimized = await optimizeImageForUpload(
+      asset.uri,
+      asset.fileName ?? "photo.jpg",
+      { width: asset.width, height: asset.height },
+    );
     setImage({
-      uri: res.assets[0].uri,
-      fileName: res.assets[0].fileName ?? "photo.jpg",
+      uri: optimized.uri,
+      fileName: optimized.fileName,
+      bytes: optimized.bytes,
     });
     setResult(null);
     setError(null);
@@ -56,13 +73,33 @@ export function OcrScreen() {
     if (!perm.granted) return;
     const res = await ImagePicker.launchCameraAsync({ quality: 0.9 });
     if (res.canceled || res.assets.length === 0) return;
-    setImage({ uri: res.assets[0].uri, fileName: "camera.jpg" });
+    const asset = res.assets[0];
+    const optimized = await optimizeImageForUpload(
+      asset.uri,
+      "camera.jpg",
+      { width: asset.width, height: asset.height },
+    );
+    setImage({
+      uri: optimized.uri,
+      fileName: optimized.fileName,
+      bytes: optimized.bytes,
+    });
     setResult(null);
     setError(null);
   };
 
   const readText = async () => {
     if (!image) return;
+    // Hard guard: even compressed, an image over the backend cap would just
+    // come back as a 413 — tell the user before uploading.
+    if (image.bytes && image.bytes > MAX_UPLOAD_BYTES) {
+      setError({
+        title: "That photo is still too large",
+        message: "Even after compressing, this photo is over the upload limit.",
+        action: "Try a clearer, closer shot — or a screenshot with bigger text.",
+      });
+      return;
+    }
     setBusy(true);
     setResult(null);
     setError(null);

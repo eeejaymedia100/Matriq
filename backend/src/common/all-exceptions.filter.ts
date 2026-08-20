@@ -43,7 +43,31 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const body = this.toEnvelope(exception);
+    // Log the EXACT cause server-side (stack + message). The client only ever
+    // sees the sanitized envelope — never the internal detail.
+    this.logServerError(exception, body.statusCode);
     res.status(body.statusCode).json(body);
+  }
+
+  /**
+   * Server-side diagnostics for failures the client is shown generically:
+   * - 5xx (unhandled errors and internal HttpExceptions) → full stack.
+   * - 413 (multer file-size limit) → a warning, so an unexpected spike in
+   *   oversized uploads is visible instead of silent 413s.
+   * Everything else (4xx validation/auth/etc.) is expected traffic — no log.
+   */
+  private logServerError(exception: unknown, status: number): void {
+    if (status >= 500) {
+      const err =
+        exception instanceof Error ? exception : new Error(String(exception));
+      this.logger.error(`HTTP ${status} — ${err.stack ?? err.message}`);
+      return;
+    }
+    if (status === HttpStatus.PAYLOAD_TOO_LARGE) {
+      this.logger.warn(
+        "HTTP 413 — upload rejected: payload over the file-size limit",
+      );
+    }
   }
 
   private toEnvelope(exception: unknown): ErrorEnvelope {
@@ -105,10 +129,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
-    // Unknown error — 500 with nothing sensitive leaked.
-    const err =
-      exception instanceof Error ? exception : new Error(String(exception));
-    this.logger.error(`Unhandled exception: ${err.stack ?? err.message}`);
+    // Unknown error — 500 with nothing sensitive leaked (the exact cause is
+    // logged in logServerError).
     return this.envelope(
       HttpStatus.INTERNAL_SERVER_ERROR,
       "INTERNAL",
