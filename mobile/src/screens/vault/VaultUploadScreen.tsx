@@ -19,6 +19,7 @@ import { ConfirmSheet } from "../../components/ConfirmSheet";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { bytesLabel } from "../../utils/files";
+import { optimizeImageForUpload } from "../../utils/imageOptimize";
 import { TERMS_URL } from "../../constants/legal";
 import type { VaultItemDto } from "./VaultScreen";
 
@@ -74,13 +75,30 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
     });
     if (res.canceled || res.assets.length === 0) return;
     const a = res.assets[0];
-    setAsset({
-      uri: a.uri,
-      name: a.name ?? "file",
-      mimeType: a.mimeType ?? "application/pdf",
-      size: a.size,
-      file: a.file,
-    });
+    const isImage = (a.mimeType ?? "").startsWith("image/");
+    if (isImage) {
+      // Large photos are resized to ≤1200px + JPEG 0.7 before upload so they
+      // never hit the 20 MB cap or crash low-end devices. Small images are
+      // left untouched — the Vault keeps the original pristine by design.
+      const optimized = await optimizeImageForUpload(a.uri, a.name ?? "photo.jpg", {
+        skipUnderBytes: 1.5 * 1024 * 1024,
+      });
+      setAsset({
+        uri: optimized.uri,
+        name: optimized.fileName,
+        mimeType: "image/jpeg",
+        size: optimized.bytes > 0 ? optimized.bytes : undefined,
+        file: undefined,
+      });
+    } else {
+      setAsset({
+        uri: a.uri,
+        name: a.name ?? "file",
+        mimeType: a.mimeType ?? "application/pdf",
+        size: a.size,
+        file: a.file,
+      });
+    }
     setError(null);
   };
 

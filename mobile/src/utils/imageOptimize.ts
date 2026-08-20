@@ -56,6 +56,17 @@ function getImageSize(
   });
 }
 
+export interface OptimizeOptions {
+  /** Known dimensions (expo-image-picker returns them) — skips Image.getSize. */
+  knownSize?: { width: number; height: number };
+  /**
+   * When set, files under this many bytes are returned untouched. Use where
+   * the "original file" matters (e.g. the Vault keeps originals pristine and
+   * makes a light copy itself) so small uploads aren't needlessly re-encoded.
+   */
+  skipUnderBytes?: number;
+}
+
 /**
  * Resize (longest side ≤ 1200px) + re-encode to JPEG 0.7. Pass the asset's
  * known width/height (expo-image-picker returns them) to skip the extra
@@ -64,9 +75,23 @@ function getImageSize(
 export async function optimizeImageForUpload(
   uri: string,
   fileName: string,
-  knownSize?: { width: number; height: number },
+  options: OptimizeOptions = {},
 ): Promise<OptimizedImage> {
+  const { knownSize, skipUnderBytes } = options;
   try {
+    // Keep small originals untouched (e.g. Vault's "original is kept
+    // pristine" promise) — only compress files that actually need it.
+    if (skipUnderBytes && skipUnderBytes > 0) {
+      const info = await FileSystem.getInfoAsync(uri).catch(() => null);
+      if (
+        info?.exists === true &&
+        typeof info.size === "number" &&
+        info.size < skipUnderBytes
+      ) {
+        return { uri, fileName, bytes: info.size };
+      }
+    }
+
     const size = knownSize ?? (await getImageSize(uri).catch(() => null));
     const width = size?.width ?? 0;
     const height = size?.height ?? 0;

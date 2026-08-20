@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
+import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
@@ -42,6 +43,7 @@ export function OcrScreen() {
     readable: boolean;
   } | null>(null);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const pick = async () => {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -57,7 +59,7 @@ export function OcrScreen() {
     const optimized = await optimizeImageForUpload(
       asset.uri,
       asset.fileName ?? "photo.jpg",
-      { width: asset.width, height: asset.height },
+      { knownSize: { width: asset.width, height: asset.height } },
     );
     setImage({
       uri: optimized.uri,
@@ -77,7 +79,7 @@ export function OcrScreen() {
     const optimized = await optimizeImageForUpload(
       asset.uri,
       "camera.jpg",
-      { width: asset.width, height: asset.height },
+      { knownSize: { width: asset.width, height: asset.height } },
     );
     setImage({
       uri: optimized.uri,
@@ -86,6 +88,13 @@ export function OcrScreen() {
     });
     setResult(null);
     setError(null);
+  };
+
+  const copyText = async () => {
+    if (!result?.text) return;
+    await Clipboard.setStringAsync(result.text).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1600);
   };
 
   const readText = async () => {
@@ -103,6 +112,7 @@ export function OcrScreen() {
     setBusy(true);
     setResult(null);
     setError(null);
+    setCopied(false);
     try {
       const formData = new FormData();
       if (Platform.OS === "web") {
@@ -293,6 +303,36 @@ export function OcrScreen() {
                   <Text selectable style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>
                     {result.text}
                   </Text>
+                  <Pressable
+                    onPress={() => void copyText()}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 6,
+                      alignSelf: "flex-start",
+                      marginTop: 12,
+                      paddingVertical: 8,
+                      paddingHorizontal: 14,
+                      borderRadius: theme.radii.pill,
+                      backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
+                      borderWidth: 1,
+                      borderColor: copied ? colors.success + "66" : colors.border,
+                    }}
+                  >
+                    <Icon
+                      name={copied ? "check" : "copy"}
+                      size={14}
+                      color={copied ? colors.success : colors.textSecondary}
+                    />
+                    <Text
+                      style={[
+                        theme.typography.captionBold,
+                        { color: copied ? colors.success : colors.textSecondary },
+                      ]}
+                    >
+                      {copied ? "Copied to clipboard" : "Copy text"}
+                    </Text>
+                  </Pressable>
                 </>
               ) : (
                 <>

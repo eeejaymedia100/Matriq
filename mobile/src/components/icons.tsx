@@ -65,6 +65,7 @@ export type IconName =
   | "globe"
   | "qrCode"
   | "trendingUp"
+  | "copy"
   | "dot";
 
 const ICONS: Record<IconName, React.ReactNode> = {
@@ -386,6 +387,12 @@ const ICONS: Record<IconName, React.ReactNode> = {
       <Rect x="3" y="14" width="7" height="7" rx="1" />
       <Path d="M14 14h3v3h-3z" />
       <Path d="M20 14h1v4h-4v-1" />
+    </>
+  ),
+  copy: (
+    <>
+      <Rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+      <Path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
     </>
   ),
   trendingUp: (
