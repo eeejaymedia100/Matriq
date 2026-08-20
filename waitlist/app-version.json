@@ -1,7 +1,7 @@
 {
-  "versionCode": 15,
-  "versionName": "0.7.7",
+  "versionCode": 16,
+  "versionName": "0.7.8",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "Update: the app now fits your screen with proper top and bottom margins, the AI chat box is no longer hidden behind your phone buttons, and the study screen hides the other models once one is downloaded.",
-  "publishedAt": "2026-08-19T16:19:53.514Z"
+  "notes": "Update: the on-screen keyboard no longer covers what you type (inputs lift above it) and the offline AI chat no longer repeats words mid-answer.",
+  "publishedAt": "2026-08-20T13:51:16.522Z"
 }
