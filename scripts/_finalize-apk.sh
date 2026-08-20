@@ -16,7 +16,7 @@ REMOTE=matriq
 MAX_WAIT_MIN=480
 
 # ── Per-release copy (edit this line each release) ──────────────
-RELEASE_NOTES="${RELEASE_NOTES:-Update: the app now fits your screen with proper top and bottom margins, the AI chat box is no longer hidden behind your phone buttons, and the study screen hides the other models once one is downloaded.}"
+RELEASE_NOTES="${RELEASE_NOTES:-Update: the on-screen keyboard no longer covers what you're typing — inputs lift above it — and the offline AI chat no longer repeats words and phrases mid-answer.}"
 
 log() { echo "[finalize $(date '+%F %T')] $*"; }
 
