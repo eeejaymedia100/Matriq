@@ -503,13 +503,18 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
           temperature: 0.7,
           top_k: 40,
           top_p: 0.9,
+          penalty_repeat: 1.15,
           stop: STOP_WORDS,
         },
         (data: TokenData) => {
-          // `token` is always populated; `content` is populated on most
-          // builds. Prefer content, fall back to the raw token.
-          const text = data.content ?? data.token ?? "";
-          if (text) onToken?.(text);
+          // `token` is the single-token delta; `content` is the
+          // accumulated buffer.  We must emit only the delta —
+          // concatenating the accumulated buffer would duplicate all
+          // prior text and cause visible repetition.
+          if (onToken) {
+            const delta = data.token ?? "";
+            if (delta) onToken(delta);
+          }
         },
       );
       return result.text;

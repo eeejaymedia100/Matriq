@@ -25,7 +25,8 @@
       },
       "package": "app.matriq.mobile",
       "versionCode": 15,
-      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"]
+      "permissions": ["android.permission.REQUEST_INSTALL_PACKAGES"],
+      "softwareKeyboardLayoutMode": "resize"
     },
     "plugins": [
       "expo-secure-store",

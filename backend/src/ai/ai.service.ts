@@ -768,6 +768,7 @@ Make sure answerIndex points at the correct option and options are plausible.
             { role: "user", content: userPrompt },
           ] satisfies OllamaChatMessage[],
           stream: false,
+          options: { repeat_penalty: 1.15 },
         }),
         signal: controller.signal,
       });
@@ -824,6 +825,7 @@ Make sure answerIndex points at the correct option and options are plausible.
             { role: "user", content: userPrompt },
           ] satisfies OllamaChatMessage[],
           stream: true,
+          options: { repeat_penalty: 1.15 },
         }),
         signal: controller.signal,
       });
