@@ -1,7 +1,7 @@
 {
-  "versionCode": 7,
-  "versionName": "0.6.0",
+  "versionCode": 15,
+  "versionName": "0.7.7",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "v0.6.0 build 7: The Vault is live (search past questions & materials, uploads with smart-storage light copies, admin review queue), Image to Text (OCR), Image to PDF and File Compressor tools, scheduled account deletion (6-month grace, sign-in cancels), and a reworked Dues & Payments screen.",
-  "publishedAt": "2026-08-15T00:00:00Z"
+  "notes": "Update: the app now fits your screen with proper top and bottom margins, the AI chat box is no longer hidden behind your phone buttons, and the study screen hides the other models once one is downloaded.",
+  "publishedAt": "2026-08-19T16:19:53.514Z"
 }

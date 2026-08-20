@@ -1,4 +1,4 @@
-/* Matriq waitlist — form logic (student pitch + growth survey) */
+/* Matriq waitlist — form logic (student pitch + growth survey) + 3D interactivity */
 (function () {
   "use strict";
 
@@ -23,6 +23,9 @@
       .then(function (data) {
         if (data && typeof data.total === "number") {
           countEl.textContent = data.total.toLocaleString("en-NG");
+          countEl.classList.remove("pop");
+          void countEl.offsetWidth; // restart animation
+          countEl.classList.add("pop");
         }
       })
       .catch(function () { /* keep placeholder */ });
@@ -63,6 +66,8 @@
 
   function submitForm(formEl, msgEl, btnEl, opts) {
     opts = opts || {};
+    var label = opts.label || "Join the waitlist";
+    var loadingLabel = opts.loadingLabel || "Joining…";
     var email = readVal(opts.emailId || "email");
     var fullName = readVal(opts.nameId || "fullName");
 
@@ -74,9 +79,9 @@
     btnEl.disabled = true;
     btnEl.classList.add("loading");
     if (btnEl.querySelector(".btn-label")) {
-      btnEl.querySelector(".btn-label").textContent = "Joining…";
+      btnEl.querySelector(".btn-label").textContent = loadingLabel;
     } else {
-      btnEl.textContent = "Joining…";
+      btnEl.textContent = loadingLabel;
     }
 
     var payload = { email: email };
@@ -117,7 +122,12 @@
           show(msgEl, "ok", name + " on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
           formEl.reset();
           resetExecToggle();
-          if (countEl) countEl.textContent = data.position.toLocaleString("en-NG");
+          if (countEl) {
+            countEl.textContent = data.position.toLocaleString("en-NG");
+            countEl.classList.remove("pop");
+            void countEl.offsetWidth;
+            countEl.classList.add("pop");
+          }
         } else if (data && data.error && data.error.message) {
           show(msgEl, "err", data.error.message);
         } else {
@@ -132,9 +142,9 @@
       .finally(function () {
         btnEl.disabled = false;
         btnEl.classList.remove("loading");
-        var label = btnEl.querySelector(".btn-label");
-        if (label) label.textContent = "Join the waitlist";
-        else btnEl.textContent = "Join the waitlist";
+        var labelEl = btnEl.querySelector(".btn-label");
+        if (labelEl) labelEl.textContent = label;
+        else btnEl.textContent = label;
       });
   }
 
@@ -143,8 +153,10 @@
   if (heroForm) {
     heroForm.addEventListener("submit", function (e) {
       e.preventDefault();
-      submitForm(heroForm, document.getElementById("form-msg"), document.getElementById("join-btn"), {
+      submitForm(heroForm, document.getElementById("form-msg"), document.getElementById("email-btn"), {
         survey: true,
+        label: "Email me at launch instead",
+        loadingLabel: "Sending…",
       });
     });
   }
@@ -156,7 +168,156 @@
       submitForm(ctaForm, document.getElementById("cta-form-msg"), ctaForm.querySelector("button"), {
         emailId: "cta-email",
         nameId: "",
+        label: "Email me",
+        loadingLabel: "Sending…",
       });
     });
   }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 3D + motion polish (progressive enhancement — page works without it)
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── Scroll progress + nav state ───────────────────────────────
+  var progressEl = document.getElementById("scroll-progress");
+  var navEl = document.getElementById("nav");
+  var scrollSpies = Array.prototype.slice.call(document.querySelectorAll("[data-scrollspy]"));
+  var spySections = scrollSpies
+    .map(function (link) { return document.getElementById(link.getAttribute("data-scrollspy")); })
+    .filter(Boolean);
+
+  function onScroll() {
+    var doc = document.documentElement;
+    var max = doc.scrollHeight - window.innerHeight;
+    var p = max > 0 ? window.scrollY / max : 0;
+    if (progressEl) progressEl.style.transform = "scaleX(" + Math.min(1, Math.max(0, p)) + ")";
+    if (navEl) navEl.classList.toggle("scrolled", window.scrollY > 24);
+
+    // Scrollspy — highlight the nav link for the section in view
+    var current = "";
+    var probe = window.scrollY + window.innerHeight * 0.35;
+    spySections.forEach(function (sec) {
+      if (sec && sec.offsetTop <= probe) current = sec.id;
+    });
+    scrollSpies.forEach(function (link) {
+      link.classList.toggle("active", link.getAttribute("data-scrollspy") === current);
+    });
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  // ── Reveal-on-scroll ──────────────────────────────────────────
+  var revealEls = document.querySelectorAll(".reveal");
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("in-view");
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+    revealEls.forEach(function (el) { io.observe(el); });
+  } else {
+    revealEls.forEach(function (el) { el.classList.add("in-view"); });
+  }
+
+  // ── 3D tilt on cards (pointer-driven, desktops/touch both work) ──
+  var tiltEls = document.querySelectorAll("[data-tilt]");
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (!reduceMotion && tiltEls.length && window.matchMedia("(pointer: fine)").matches) {
+    tiltEls.forEach(function (card) {
+      var rx = 0, ry = 0, tx = 0, ty = 0, cx = 0, cy = 0, raf = null;
+
+      function apply() {
+        rx += (ty - rx) * 0.12;
+        ry += (tx - ry) * 0.12;
+        cx += (tx - cx) * 0.12;
+        cy += (ty - cy) * 0.12;
+        card.style.transform =
+          "perspective(900px) rotateX(" + rx.toFixed(2) + "deg) rotateY(" + ry.toFixed(2) + "deg) translate3d(" +
+          (cx * 6).toFixed(2) + "px, " + (cy * 6).toFixed(2) + "px, 0)";
+        raf = null;
+      }
+
+      card.addEventListener("pointermove", function (e) {
+        if (card.classList.contains("reveal") && !card.classList.contains("in-view")) return;
+        var r = card.getBoundingClientRect();
+        tx = ((e.clientY - r.top) / r.height - 0.5) * -10;
+        ty = ((e.clientX - r.left) / r.width - 0.5) * 10;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      card.addEventListener("pointerleave", function () {
+        tx = 0; ty = 0;
+        if (!raf) raf = requestAnimationFrame(apply);
+        setTimeout(function () { card.style.transform = ""; }, 350);
+      });
+    });
+  }
+
+  // ── Cursor glow (fine pointers only) ──────────────────────────
+  var glow = document.getElementById("cursor-glow");
+  if (glow && window.matchMedia("(pointer: fine)").matches && !reduceMotion) {
+    var gx = 0, gy = 0, gtx = 0, gty = 0, graf = null;
+    window.addEventListener("pointermove", function (e) {
+      gtx = e.clientX; gty = e.clientY;
+      glow.classList.add("is-on");
+      if (!graf) {
+        graf = requestAnimationFrame(function loop() {
+          gx += (gtx - gx) * 0.12;
+          gy += (gty - gy) * 0.12;
+          glow.style.transform = "translate(" + gx + "px, " + gy + "px) translate(-50%, -50%)";
+          if (Math.abs(gtx - gx) > 0.5 || Math.abs(gty - gy) > 0.5) {
+            graf = requestAnimationFrame(loop);
+          } else {
+            graf = null;
+          }
+        });
+      }
+    });
+    window.addEventListener("pointerleave", function () { glow.classList.remove("is-on"); });
+  }
+
+  // ── Load the Three.js scene (importmap + dynamic import) ──────
+  function supportsImportMap() {
+    return typeof HTMLScriptElement !== "undefined" && "supports" in HTMLScriptElement &&
+      HTMLScriptElement.supports("importmap");
+  }
+
+  function initScene() {
+    if (!supportsImportMap()) return; // old browser → CSS orbs carry the look
+    try {
+      if (!(window.WebGL2RenderingContext || window.WebGLRenderingContext)) return;
+    } catch (e) { return; }
+
+    var map = document.createElement("script");
+    map.type = "importmap";
+    map.textContent = JSON.stringify({
+      imports: {
+        three: "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+      },
+    });
+    document.head.appendChild(map);
+
+    import("./scene.js").catch(function () {
+      /* scene failed to load — the CSS ambient background remains */
+    });
+  }
+
+  // Start the scene once the hero is near the viewport (keeps first paint fast).
+  var started = false;
+  function startWhenVisible() {
+    if (started) return;
+    var hero = document.getElementById("join");
+    var r = hero && hero.getBoundingClientRect();
+    if (!r || r.top < window.innerHeight * 1.2) {
+      started = true;
+      initScene();
+    }
+  }
+  startWhenVisible();
+  window.addEventListener("scroll", startWhenVisible, { passive: true });
+  window.addEventListener("resize", startWhenVisible, { passive: true });
 })();
