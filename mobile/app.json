@@ -20,8 +20,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundColor": "#6C3BAA"
+        "foregroundImage": "./assets/adaptive/foreground-light.png",
+        "backgroundColor": "#FFFFFF"
       },
       "package": "app.matriq.mobile",
       "versionCode": 16,
@@ -30,12 +30,18 @@
     },
     "plugins": [
       "expo-secure-store",
+      "./plugins/withThemeIcons",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#6C3BAA",
+          "backgroundColor": "#121212",
           "image": "./assets/splash-icon.png",
-          "imageWidth": 200
+          "imageWidth": 160,
+          "dark": {
+            "backgroundColor": "#121212",
+            "image": "./assets/splash-icon-dark.png",
+            "imageWidth": 160
+          }
         }
       ],
       [

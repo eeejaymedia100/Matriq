@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { useTheme } from "../theme/ThemeContext";
@@ -234,7 +234,12 @@ function SessionGate({ children }: { children: React.ReactNode }) {
 
 // ── Root navigator ─────────────────────────────────────────────
 
-export function AppNavigator() {
+export function AppNavigator({
+  onFirstContent,
+}: {
+  /** Fired once the first real screen (not a loading state) is about to render. */
+  onFirstContent?: () => void;
+}) {
   const { isAuthenticated, isLoading } = useAuth();
   const { hasThemeChoice, hydrated, fontsReady } = useTheme();
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
@@ -249,6 +254,21 @@ export function AppNavigator() {
       }
     })();
   }, []);
+
+  // True once every LoadingScreen gate has cleared (fonts, auth, theme,
+  // onboarding) — the splash overlay fades out only after this.
+  const contentReady =
+    fontsReady &&
+    !isLoading &&
+    (isAuthenticated || (hydrated && hasThemeChoice && showOnboarding !== null));
+
+  const notified = useRef(false);
+  useEffect(() => {
+    if (contentReady && !notified.current) {
+      notified.current = true;
+      onFirstContent?.();
+    }
+  }, [contentReady, onFirstContent]);
 
   if (!fontsReady || isLoading) {
     return <LoadingScreen message="Loading Matriq…" />;
