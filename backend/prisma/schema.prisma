@@ -112,6 +112,9 @@ model User {
   // dashboard (scroll-picker UI in the app). Nullable: legacy accounts are
   // prompted to complete their profile on next launch.
   dateOfBirth     DateTime?         @map("date_of_birth")
+  // Profile picture: S3 object key when object storage is enabled, otherwise
+  // a base64 data-URI (vault-style fallback). Null = no photo set.
+  profilePhotoUrl  String?          @map("profile_photo_url")
   mfaEnabled       Boolean          @default(false) @map("mfa_enabled")
   mfaSecret        String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
   createdAt        DateTime         @default(now()) @map("created_at")

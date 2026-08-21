@@ -40,6 +40,7 @@ import { AuthService } from "./auth.service";
 import { MfaService } from "./mfa.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EmailService } from "../email/email.service";
+import { StorageService } from "../storage/storage.service";
 
 describe("AuthService", () => {
   let service: AuthService;
@@ -155,6 +156,12 @@ describe("AuthService", () => {
       }),
     };
 
+    const mockStorageService = {
+      put: jest.fn().mockResolvedValue("profiles/uuid-1/avatar.jpg"),
+      getBuffer: jest.fn().mockResolvedValue(Buffer.from("fake-avatar")),
+      remove: jest.fn().mockResolvedValue(true),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -162,6 +169,7 @@ describe("AuthService", () => {
         { provide: JwtService, useValue: mockJwtService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MfaService, useValue: mockMfaService },
+        { provide: StorageService, useValue: mockStorageService },
         EmailService,
       ],
     }).compile();
@@ -680,6 +688,80 @@ describe("AuthService", () => {
         }),
       ).rejects.toThrow(BadRequestException);
       expect(prisma.user.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("uploadProfilePhoto", () => {
+    it("should reject non-image uploads", async () => {
+      await expect(
+        service.uploadProfilePhoto("uuid-1", {
+          buffer: Buffer.from("x"),
+          mimetype: "application/pdf",
+        } as Express.Multer.File),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should reject missing files", async () => {
+      await expect(
+        service.uploadProfilePhoto(
+          "uuid-1",
+          undefined as unknown as Express.Multer.File,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should store the photo and return the renderable URL", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        profilePhotoUrl: null,
+      });
+      (prisma.user.update as jest.Mock).mockResolvedValue({
+        ...verifiedUser,
+        profilePhotoUrl: "profiles/uuid-1/avatar.jpg",
+      });
+
+      const result = await service.uploadProfilePhoto("uuid-1", {
+        buffer: Buffer.from("fake-jpeg-bytes"),
+        mimetype: "image/jpeg",
+        originalname: "me.jpg",
+        size: 16,
+      } as Express.Multer.File);
+
+      expect(result.profilePhotoUrl).toBe("/me/photo");
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            profilePhotoUrl: expect.stringContaining("profiles/"),
+          }),
+        }),
+      );
+    });
+  });
+
+  describe("getProfilePhoto", () => {
+    it("should return null when no photo is set", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        profilePhotoUrl: null,
+      });
+      await expect(service.getProfilePhoto("uuid-1")).resolves.toBeNull();
+    });
+
+    it("should decode a data-URI photo", async () => {
+      const b64 = Buffer.from("avatar-bytes").toString("base64");
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        profilePhotoUrl: `data:image/jpeg;base64,${b64}`,
+      });
+      const result = await service.getProfilePhoto("uuid-1");
+      expect(result?.buffer.toString()).toBe("avatar-bytes");
+      expect(result?.mimeType).toBe("image/jpeg");
+    });
+
+    it("should fetch an object-storage photo", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue({
+        profilePhotoUrl: "profiles/uuid-1/avatar.jpg",
+      });
+      const result = await service.getProfilePhoto("uuid-1");
+      expect(result?.mimeType).toBe("image/jpeg");
+      expect(result?.buffer.toString()).toBe("fake-avatar");
     });
   });
 });

@@ -2348,6 +2348,7 @@ export const UserScalarFieldEnum = {
   verificationEmailCount: 'verificationEmailCount',
   verificationEmailWindowStart: 'verificationEmailWindowStart',
   dateOfBirth: 'dateOfBirth',
+  profilePhotoUrl: 'profilePhotoUrl',
   mfaEnabled: 'mfaEnabled',
   mfaSecret: 'mfaSecret',
   createdAt: 'createdAt',

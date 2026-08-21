@@ -14,6 +14,7 @@ import * as crypto from "node:crypto";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { PrismaService } from "../prisma/prisma.service";
 import { EmailService } from "../email/email.service";
+import { StorageService } from "../storage/storage.service";
 import { MfaService } from "./mfa.service";
 import { RegisterStayliteDto } from "./dto/register-staylite.dto";
 import { RegisterFresherDto } from "./dto/register-fresher.dto";
@@ -71,6 +72,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
     private readonly mfaService: MfaService,
+    private readonly storageService: StorageService,
   ) {}
 
   // ── Registration: Staylite ────────────────────────────────────
@@ -609,6 +611,7 @@ export class AuthService {
 
     return {
       ...profile,
+      profilePhotoUrl: this.profilePhotoUrlFor(user.profilePhotoUrl),
       executive: (executiveRoles ?? []).map((e) => ({
         id: e.id,
         associationId: e.associationId,
@@ -617,6 +620,142 @@ export class AuthService {
         shortCode: e.association.shortCode,
       })),
     };
+  }
+
+  /**
+   * Upload (and replace) the user's profile picture. The image is validated
+   * server-side, downscaled to a square avatar, and stored in object storage
+   * (or as a data-URI fallback when object storage is off). Returns the
+   * renderable photo URL.
+   */
+  async uploadProfilePhoto(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<{ profilePhotoUrl: string | null; message: string }> {
+    if (!file?.buffer || !file.buffer.length) {
+      throw new BadRequestException("Please choose an image to upload.");
+    }
+    if (!file.mimetype.startsWith("image/")) {
+      throw new BadRequestException(
+        "That file isn't an image — upload a JPG, PNG or WebP photo.",
+      );
+    }
+
+    let avatar: Buffer;
+    try {
+      const sharp = (await import("sharp")).default;
+      // Square-crop the centre of the photo so it renders cleanly in the
+      // circular avatar, then downscale — avatars never need more than 600px.
+      avatar = await sharp(file.buffer)
+        .rotate()
+        .resize(600, 600, { fit: "cover", position: "centre" })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+    } catch (err) {
+      this.logger.warn(
+        `Avatar processing failed: ${err instanceof Error ? err.message : String(err)} — storing as-is`,
+      );
+      avatar = file.buffer;
+    }
+
+    // Remove the previous photo first (best-effort), so a replaced avatar
+    // never orphans its old object.
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePhotoUrl: true },
+    });
+    const previous = existing?.profilePhotoUrl ?? null;
+    if (previous && !previous.startsWith("data:")) {
+      void this.storageService.remove(previous);
+    }
+
+    const objectKey = `profiles/${userId}/avatar.jpg`;
+    const storedKey = await this.storageService.put(
+      objectKey,
+      avatar,
+      "image/jpeg",
+    );
+    const stored = storedKey
+      ? storedKey
+      : `data:image/jpeg;base64,${avatar.toString("base64")}`;
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhotoUrl: stored },
+    });
+
+    this.logger.log(
+      `Profile photo updated for user ${userId} (${avatar.length} bytes, ${storedKey ? "object storage" : "data-URI"})`,
+    );
+
+    return {
+      profilePhotoUrl: this.profilePhotoUrlFor(stored),
+      message: "Profile photo updated.",
+    };
+  }
+
+  /**
+   * Remove the user's profile photo (deletes the stored object when it's in
+   * object storage). Returns the cleared photo URL.
+   */
+  async removeProfilePhoto(userId: string): Promise<{
+    profilePhotoUrl: null;
+    message: string;
+  }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePhotoUrl: true },
+    });
+    const stored = user?.profilePhotoUrl ?? null;
+    if (stored && !stored.startsWith("data:")) {
+      void this.storageService.remove(stored);
+    }
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { profilePhotoUrl: null },
+    });
+    this.logger.log(`Profile photo removed for user ${userId}`);
+    return { profilePhotoUrl: null, message: "Profile photo removed." };
+  }
+
+  /**
+   * Fetch the raw profile photo bytes for the authenticated GET endpoint.
+   * Returns null when no photo is set (the controller 404s).
+   */
+  async getProfilePhoto(userId: string): Promise<{
+    buffer: Buffer;
+    mimeType: string;
+  } | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { profilePhotoUrl: true },
+    });
+    const stored = user?.profilePhotoUrl ?? null;
+    if (!stored) return null;
+
+    if (stored.startsWith("data:")) {
+      const match = /^data:([\w/+-]+);base64,(.+)$/.exec(stored);
+      if (!match) return null;
+      return {
+        buffer: Buffer.from(match[2], "base64"),
+        mimeType: match[1],
+      };
+    }
+
+    const buffer = await this.storageService.getBuffer(stored);
+    if (!buffer) return null;
+    return { buffer, mimeType: "image/jpeg" };
+  }
+
+  /**
+   * Turn the stored profile photo value into something the app can render:
+   * a data-URI stays as-is; an object-storage key maps to the authenticated
+   * photo endpoint (the client prefixes API_BASE).
+   */
+  private profilePhotoUrlFor(stored: string | null): string | null {
+    if (!stored) return null;
+    if (stored.startsWith("data:")) return stored;
+    return "/me/photo";
   }
 
   async updateProfile(
@@ -664,7 +803,10 @@ export class AuthService {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, verificationToken: __, ...profile } = user;
-    return profile;
+    return {
+      ...profile,
+      profilePhotoUrl: this.profilePhotoUrlFor(user.profilePhotoUrl),
+    };
   }
 
   async getPaymentHistory(userId: string) {

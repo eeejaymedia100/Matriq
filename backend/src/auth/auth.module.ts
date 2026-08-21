@@ -10,6 +10,7 @@ import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { EmailModule } from "../email/email.module";
 import { AuditModule } from "../audit/audit.module";
+import { StorageModule } from "../storage/storage.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuditModule } from "../audit/audit.module";
     }),
     EmailModule,
     AuditModule,
+    StorageModule,
   ],
   controllers: [AuthController],
   providers: [

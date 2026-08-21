@@ -122,6 +122,24 @@ export class StorageService {
     }
   }
 
+  /**
+   * Delete an object. Returns true when removed (or already gone), false on
+   * failure. Best-effort — callers replace stale avatars and should never
+   * fail because cleanup hiccuped.
+   */
+  async remove(key: string): Promise<boolean> {
+    if (!this.enabled || !this.client) return true;
+    try {
+      await this.client.removeObject(this.bucket, key);
+      return true;
+    } catch (err) {
+      this.logger.warn(
+        `Object storage remove failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return false;
+    }
+  }
+
   /** Create the bucket once, if it doesn't exist yet. Never throws. */
   private async ensureBucket(): Promise<void> {
     if (!this.client || this.bucketReady) return;

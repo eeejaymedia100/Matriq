@@ -52,6 +52,7 @@ export type UserMinAggregateOutputType = {
   verificationEmailCount: number | null
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
   createdAt: Date | null
@@ -78,6 +79,7 @@ export type UserMaxAggregateOutputType = {
   verificationEmailCount: number | null
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
   createdAt: Date | null
@@ -104,6 +106,7 @@ export type UserCountAggregateOutputType = {
   verificationEmailCount: number
   verificationEmailWindowStart: number
   dateOfBirth: number
+  profilePhotoUrl: number
   mfaEnabled: number
   mfaSecret: number
   createdAt: number
@@ -140,6 +143,7 @@ export type UserMinAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
   createdAt?: true
@@ -166,6 +170,7 @@ export type UserMaxAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
   createdAt?: true
@@ -192,6 +197,7 @@ export type UserCountAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
   createdAt?: true
@@ -305,6 +311,7 @@ export type UserGroupByOutputType = {
   verificationEmailCount: number
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  profilePhotoUrl: string | null
   mfaEnabled: boolean
   mfaSecret: string | null
   createdAt: Date
@@ -354,6 +361,7 @@ export type UserWhereInput = {
   verificationEmailCount?: Prisma.IntFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -395,6 +403,7 @@ export type UserOrderByWithRelationInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -439,6 +448,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   verificationEmailCount?: Prisma.IntFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -480,6 +490,7 @@ export type UserOrderByWithAggregationInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -514,6 +525,7 @@ export type UserScalarWhereWithAggregatesInput = {
   verificationEmailCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  profilePhotoUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -540,6 +552,7 @@ export type UserCreateInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -581,6 +594,7 @@ export type UserUncheckedCreateInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -622,6 +636,7 @@ export type UserUpdateInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -663,6 +678,7 @@ export type UserUncheckedUpdateInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -704,6 +720,7 @@ export type UserCreateManyInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -730,6 +747,7 @@ export type UserUpdateManyMutationInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -756,6 +774,7 @@ export type UserUncheckedUpdateManyInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -782,6 +801,7 @@ export type UserCountOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -812,6 +832,7 @@ export type UserMaxOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -838,6 +859,7 @@ export type UserMinOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -1132,6 +1154,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1172,6 +1195,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1228,6 +1252,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1268,6 +1293,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1308,6 +1334,7 @@ export type UserCreateWithoutMembershipsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1348,6 +1375,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1404,6 +1432,7 @@ export type UserUpdateWithoutMembershipsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1444,6 +1473,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1484,6 +1514,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1524,6 +1555,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1580,6 +1612,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1620,6 +1653,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1660,6 +1694,7 @@ export type UserCreateWithoutPaymentsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1700,6 +1735,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1756,6 +1792,7 @@ export type UserUpdateWithoutPaymentsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1796,6 +1833,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1836,6 +1874,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1876,6 +1915,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -1932,6 +1972,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1972,6 +2013,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2012,6 +2054,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2052,6 +2095,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2108,6 +2152,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2148,6 +2193,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2188,6 +2234,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2228,6 +2275,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2284,6 +2332,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2324,6 +2373,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2364,6 +2414,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2404,6 +2455,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2449,6 +2501,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2489,6 +2542,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2545,6 +2599,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2585,6 +2640,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2636,6 +2692,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2676,6 +2733,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2716,6 +2774,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2756,6 +2815,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2812,6 +2872,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2852,6 +2913,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2892,6 +2954,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2932,6 +2995,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -2988,6 +3052,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3028,6 +3093,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3068,6 +3134,7 @@ export type UserCreateWithoutVaultItemsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3108,6 +3175,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3164,6 +3232,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3204,6 +3273,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3244,6 +3314,7 @@ export type UserCreateWithoutNotificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3284,6 +3355,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3340,6 +3412,7 @@ export type UserUpdateWithoutNotificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3380,6 +3453,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3420,6 +3494,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3460,6 +3535,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3516,6 +3592,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3556,6 +3633,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3596,6 +3674,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3636,6 +3715,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
   createdAt?: Date | string
@@ -3692,6 +3772,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3732,6 +3813,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -3929,6 +4011,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
   createdAt?: boolean
@@ -3971,6 +4054,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
   createdAt?: boolean
@@ -3997,6 +4081,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
   createdAt?: boolean
@@ -4023,6 +4108,7 @@ export type UserSelectScalar = {
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
   createdAt?: boolean
@@ -4031,7 +4117,7 @@ export type UserSelectScalar = {
   deletionScheduledAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
@@ -4090,6 +4176,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     verificationEmailCount: number
     verificationEmailWindowStart: Date | null
     dateOfBirth: Date | null
+    profilePhotoUrl: string | null
     mfaEnabled: boolean
     mfaSecret: string | null
     createdAt: Date
@@ -4551,6 +4638,7 @@ export interface UserFieldRefs {
   readonly verificationEmailCount: Prisma.FieldRef<"User", 'Int'>
   readonly verificationEmailWindowStart: Prisma.FieldRef<"User", 'DateTime'>
   readonly dateOfBirth: Prisma.FieldRef<"User", 'DateTime'>
+  readonly profilePhotoUrl: Prisma.FieldRef<"User", 'String'>
   readonly mfaEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly mfaSecret: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>

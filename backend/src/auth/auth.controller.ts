@@ -3,14 +3,22 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
   Body,
   Query,
   Header,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Req,
+  Res,
+  StreamableFile,
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Response } from "express";
 import { Request } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { ipAndEmailTracker } from "../throttler/trackers";
@@ -176,6 +184,44 @@ export class AuthController {
     @Body() dto: UpdateProfileDto,
   ) {
     return this.authService.updateProfile(user.sub, dto);
+  }
+
+  // ── Profile photo ─────────────────────────────────────────────
+
+  @Post("me/photo")
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor("photo", { limits: { fileSize: 11 * 1024 * 1024 } }),
+  )
+  uploadProfilePhoto(
+    @CurrentUser() user: JwtPayload,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.authService.uploadProfilePhoto(user.sub, file);
+  }
+
+  @Delete("me/photo")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  removeProfilePhoto(@CurrentUser() user: JwtPayload) {
+    return this.authService.removeProfilePhoto(user.sub);
+  }
+
+  @Get("me/photo")
+  @UseGuards(JwtAuthGuard)
+  async getProfilePhoto(
+    @CurrentUser() user: JwtPayload,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
+    const photo = await this.authService.getProfilePhoto(user.sub);
+    if (!photo) {
+      throw new NotFoundException("No profile photo set");
+    }
+    res?.set({
+      "Content-Type": photo.mimeType,
+      "Cache-Control": "private, max-age=3600",
+    });
+    return new StreamableFile(photo.buffer);
   }
 
   @Get("me/badges")
