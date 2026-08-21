@@ -255,12 +255,17 @@ export function AppNavigator({
     })();
   }, []);
 
-  // True once every LoadingScreen gate has cleared (fonts, auth, theme,
-  // onboarding) — the splash overlay fades out only after this.
+  // True once a REAL screen (not a loading gate) is about to render — the
+  // splash overlay fades out only after this. Mirrors the render branches
+  // below exactly: authenticated → SessionGate, no theme choice yet →
+  // ThemePickerScreen, otherwise → AuthNavigator. The ThemePicker IS real
+  // first content, so it must NOT be gated on hasThemeChoice (that was the
+  // stuck-splash bug on fresh installs — contentReady stayed false forever
+  // and onFirstContent never fired).
   const contentReady =
     fontsReady &&
     !isLoading &&
-    (isAuthenticated || (hydrated && hasThemeChoice && showOnboarding !== null));
+    (isAuthenticated || (hydrated && showOnboarding !== null));
 
   const notified = useRef(false);
   useEffect(() => {

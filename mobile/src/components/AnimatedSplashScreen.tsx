@@ -50,8 +50,11 @@ export function AnimatedSplashScreen({ ready, onDone }: AnimatedSplashScreenProp
     });
     overlayOpacity.value = withDelay(
       120,
-      withTiming(0, { duration: 620, easing: Easing.out(Easing.cubic) }, (finished) => {
-        if (finished) onDone();
+      withTiming(0, { duration: 620, easing: Easing.out(Easing.cubic) }, () => {
+        // Fire unconditionally — if reanimated ever reports an interrupted
+        // animation, the overlay must still unmount (App.tsx also has a
+        // 4s hard failsafe on top of this).
+        onDone();
       }),
     );
   }, [ready, onDone, logoScale, logoOpacity, overlayOpacity]);

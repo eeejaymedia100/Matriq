@@ -50,12 +50,22 @@ function AppInner() {
   const [splashVisible, setSplashVisible] = useState(true);
   const [firstContentReady, setFirstContentReady] = useState(false);
   const [minSplashElapsed, setMinSplashElapsed] = useState(false);
+  const [forceHide, setForceHide] = useState(false);
 
   // Hand the native launch screen off to the JS overlay the moment the overlay
   // has rendered (same pixels → no flash). Fonts/auth may still be loading
   // behind it — the overlay covers that until the first real screen mounts.
   useEffect(() => {
     SplashScreen.hideAsync().catch(() => {});
+  }, []);
+
+  // HARD FAILSAFE: no matter what (a gate never resolving, an animation
+  // callback that never fires), the splash overlay is force-unmounted after
+  // 4s so the user can never be trapped on the splash screen. The app behind
+  // it is always rendering real content or a spinner by then.
+  useEffect(() => {
+    const t = setTimeout(() => setForceHide(true), 4000);
+    return () => clearTimeout(t);
   }, []);
 
   // Keep the brand splash up for a minimum beat even on instant cold starts.
@@ -98,7 +108,7 @@ function AppInner() {
         </OfflineAiProvider>
       </AuthProvider>
 
-      {splashVisible && (
+      {splashVisible && !forceHide && (
         <AnimatedSplashScreen
           ready={fontsReady && firstContentReady && minSplashElapsed}
           onDone={handleSplashDone}
