@@ -7,13 +7,11 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
-  KeyboardAvoidingView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
@@ -385,17 +383,11 @@ export function VaultScreen({ navigation }: Props) {
   const myPending = mine.filter((m) => m.moderationStatus !== "approved");
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-        <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+    <KeyboardScreen
+      edges={["top", "left", "right"]}
+      padding={0}
+      contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
+    >
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
             <View style={{ flex: 1 }}>
               <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Vault</Text>
@@ -594,9 +586,6 @@ export function VaultScreen({ navigation }: Props) {
               All your uploads are live. Nice.
             </Text>
           ) : null}
-        </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

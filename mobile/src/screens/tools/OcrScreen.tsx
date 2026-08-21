@@ -2,17 +2,15 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   Image,
   ActivityIndicator,
   Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
@@ -139,13 +137,8 @@ export function OcrScreen() {
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+    <KeyboardScreen paddingBottom={40}>
+
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Image to Text</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
             Read text out of a photo — a whiteboard, a printed note, a screenshot.
@@ -350,8 +343,6 @@ export function OcrScreen() {
               )}
             </View>
           ) : null}
-        </ScrollView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

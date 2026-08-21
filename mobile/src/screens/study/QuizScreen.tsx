@@ -2,16 +2,12 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
@@ -98,17 +94,8 @@ export function QuizScreen() {
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+    <KeyboardScreen paddingBottom={40}>
+
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Quiz maker</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
             Questions built from your uploaded materials — not generic.
@@ -411,9 +398,6 @@ export function QuizScreen() {
               </Pressable>
             </View>
           ) : null}
-        </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

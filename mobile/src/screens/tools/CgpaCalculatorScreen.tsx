@@ -2,15 +2,11 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import {
   calculateCgpa,
@@ -107,17 +103,8 @@ export function CgpaCalculatorScreen() {
   ];
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+    <KeyboardScreen paddingBottom={40}>
+
           {/* ── Calculator ─────────────────────────────────────── */}
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>CGPA</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
@@ -421,10 +408,7 @@ export function CgpaCalculatorScreen() {
               )}
             </View>
           ) : null}
-        </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }
 

@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Platform } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Input, Button, ErrorBanner, PasswordStrength, TermsCheckbox } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth, type FresherData } from "../../contexts/AuthContext";
@@ -114,15 +108,8 @@ export function RegisterFresherScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={{ padding: 24, paddingTop: 24, paddingBottom: 48 }}
-          keyboardShouldPersistTaps="handled"
-        >
+    <KeyboardScreen themed={false} paddingTop={24} paddingBottom={48}>
+
           <View style={{ marginBottom: 16 }}>
             <View
               style={{
@@ -226,8 +213,6 @@ export function RegisterFresherScreen({ navigation }: Props) {
             loading={loading}
             size="lg"
           />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </KeyboardScreen>
   );
 }

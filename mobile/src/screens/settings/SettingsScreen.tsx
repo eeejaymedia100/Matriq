@@ -2,17 +2,15 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  ScrollView,
   Pressable,
   TextInput,
   Linking,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import Constants from "expo-constants";
 import { useTheme } from "../../theme/ThemeContext";
 import type { ThemeMode } from "../../theme/themes";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon, type IconName } from "../../components/icons";
 import { ThemeTransitionOverlay } from "../../components/ThemeTransitionOverlay";
 import { ConfirmSheet } from "../../components/ConfirmSheet";
@@ -173,12 +171,11 @@ export function SettingsScreen({ navigation }: Props) {
   ];
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
-        <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
-          showsVerticalScrollIndicator={false}
-        >
+    <KeyboardScreen
+      edges={["top", "left", "right"]}
+      padding={0}
+      contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
+    >
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Settings</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
             Make Matriq yours.
@@ -357,8 +354,6 @@ export function SettingsScreen({ navigation }: Props) {
           >
             The smart way.
           </Text>
-        </ScrollView>
-      </SafeAreaView>
 
       {/* Theme transition sequence */}
       {themeFx ? <ThemeTransitionOverlay to={themeFx} onComplete={finishThemeSwitch} /> : null}
@@ -447,6 +442,6 @@ export function SettingsScreen({ navigation }: Props) {
           </View>
         </View>
       </ConfirmSheet>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

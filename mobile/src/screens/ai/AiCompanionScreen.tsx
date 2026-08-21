@@ -6,19 +6,17 @@ import {
   FlatList,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
   Modal,
   Pressable,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { useTheme } from "../../theme/ThemeContext";
 import { api, API_BASE, getTokens } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
@@ -530,14 +528,41 @@ export function AiCompanionScreen() {
   const followUps = lastUserMessage ? suggestFollowUps(lastUserMessage) : [];
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={styles.safe} edges={["bottom", "left", "right"]}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-        >
-          <FlatList
+    <KeyboardScreen
+      scroll={false}
+      padding={0}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+      footer={
+        <View style={styles.inputBar}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Ask a question..."
+            placeholderTextColor={colors.textMuted}
+            value={input}
+            onChangeText={setInput}
+            multiline
+            maxLength={500}
+            onSubmitEditing={() => void sendMessage()}
+            blurOnSubmit={false}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendBtn,
+              (!input.trim() || loading) && styles.sendBtnDisabled,
+            ]}
+            onPress={() => void sendMessage()}
+            disabled={!input.trim() || loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
+            )}
+          </TouchableOpacity>
+        </View>
+      }
+    >
+      <FlatList
             ref={flatListRef}
             data={messages}
             keyExtractor={(item) => item.id}
@@ -724,34 +749,6 @@ export function AiCompanionScreen() {
             }
           />
 
-          <View style={styles.inputBar}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Ask a question..."
-              placeholderTextColor={colors.textMuted}
-              value={input}
-              onChangeText={setInput}
-              multiline
-              maxLength={500}
-              onSubmitEditing={() => void sendMessage()}
-              blurOnSubmit={false}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendBtn,
-                (!input.trim() || loading) && styles.sendBtnDisabled,
-              ]}
-              onPress={() => void sendMessage()}
-              disabled={!input.trim() || loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
-              )}
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
 
         {/* Hamburger menu — history, models, new chat */}
         <Modal
@@ -817,9 +814,8 @@ export function AiCompanionScreen() {
               </TouchableOpacity>
             </Pressable>
           </Pressable>
-        </Modal>
-      </SafeAreaView>
-    </ThemedScreen>
+      </Modal>
+    </KeyboardScreen>
   );
 }
 

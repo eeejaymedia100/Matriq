@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { Button, OtpInput } from "../../components";
 import { setPasscode } from "../../utils/passcode";
@@ -40,13 +39,8 @@ export function PasscodeSetupScreen({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
-        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={{ flex: 1 }}>
-          <ScrollView
-            contentContainerStyle={{ flexGrow: 1, padding: 24, justifyContent: "center" }}
-            keyboardShouldPersistTaps="handled"
-          >
+    <KeyboardScreen center>
+
             <View style={{ alignItems: "center", marginBottom: 28 }}>
               <View
                 style={{
@@ -129,9 +123,6 @@ export function PasscodeSetupScreen({ onDone }: { onDone: () => void }) {
                 </View>
               )}
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

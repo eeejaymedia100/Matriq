@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Input, Button, ErrorBanner, OtpInput } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -99,15 +93,8 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, padding: 24, paddingTop: 48 }}
-          keyboardShouldPersistTaps="handled"
-        >
+    <KeyboardScreen themed={false} center paddingTop={48}>
+
           <View style={{ alignItems: "center", marginBottom: 24 }}>
             <View
               style={{
@@ -245,8 +232,6 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
               </Text>
             </View>
           )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </KeyboardScreen>
   );
 }

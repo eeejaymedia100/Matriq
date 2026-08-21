@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { View, Text, Pressable } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,7 +8,7 @@ import Animated, {
   Easing,
 } from "react-native-reanimated";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { OtpInput } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
@@ -71,9 +70,8 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={{ flex: 1, padding: 24, justifyContent: "center" }}>
+    <KeyboardScreen center scroll={false}>
+
           <View style={{ alignItems: "center", marginBottom: 30 }}>
             <View
               style={{
@@ -152,8 +150,6 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
               Forgot your passcode? Sign in with your password and it will be reset.
             </Text>
           </View>
-        </View>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }

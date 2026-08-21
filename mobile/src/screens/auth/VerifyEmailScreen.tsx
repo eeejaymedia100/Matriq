@@ -1,14 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, Platform } from "react-native";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../theme/ThemeContext";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Button, ErrorBanner, OtpInput } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
@@ -90,15 +84,8 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
   const formatCountdown = (s: number) => `0:${s.toString().padStart(2, "0")}`;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={{ flex: 1 }}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, padding: 24, paddingTop: 48 }}
-          keyboardShouldPersistTaps="handled"
-        >
+    <KeyboardScreen themed={false} center paddingTop={48}>
+
           <View style={{ alignItems: "center", marginBottom: 24 }}>
             <View
               style={{
@@ -204,8 +191,6 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
           >
             ← Back to sign in
           </Text>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </KeyboardScreen>
   );
 }

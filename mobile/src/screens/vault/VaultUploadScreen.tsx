@@ -8,12 +8,10 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
-  KeyboardAvoidingView,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { ConfirmSheet } from "../../components/ConfirmSheet";
 import { api } from "../../api/client";
@@ -148,17 +146,8 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-          <ScrollView
-            contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
+    <KeyboardScreen paddingBottom={40}>
+
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Add to the Vault</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4, lineHeight: 22 }]}>
             Share a past question or material with students in your school —
@@ -464,10 +453,6 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               </Text>
             )}
           </Pressable>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
-
       <ConfirmSheet
         visible={!!done}
         title="Uploaded"
@@ -476,7 +461,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
         onConfirm={() => navigation.goBack()}
         onClose={() => navigation.goBack()}
       />
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }
 
