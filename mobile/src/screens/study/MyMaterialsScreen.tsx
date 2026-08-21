@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
 import * as ImagePicker from "expo-image-picker";
@@ -79,6 +87,10 @@ export function MyMaterialsScreen() {
   return (
     <ThemedScreen>
       <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
@@ -195,6 +207,7 @@ export function MyMaterialsScreen() {
             </View>
           )}
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedScreen>
   );

@@ -7,6 +7,7 @@ import {
   TextInput,
   ActivityIndicator,
   Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
@@ -386,6 +387,10 @@ export function VaultScreen({ navigation }: Props) {
   return (
     <ThemedScreen>
       <SafeAreaView style={{ flex: 1 }} edges={["top", "left", "right"]}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
         <ScrollView
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
@@ -590,6 +595,7 @@ export function VaultScreen({ navigation }: Props) {
             </Text>
           ) : null}
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedScreen>
   );

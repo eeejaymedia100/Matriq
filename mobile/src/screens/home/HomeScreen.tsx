@@ -11,6 +11,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { Surface, ThemedScreen } from "../../components/Surface";
 import { FactCard } from "../../components/FactCard";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 import { Icon, type IconName } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNotifications } from "../../contexts/NotificationsContext";
@@ -187,7 +188,6 @@ export function HomeScreen({ navigation }: Props) {
   const remainingTodos = todosList.filter((t) => !t.done);
   const allDone = remainingTodos.length === 0;
   const fact = factForTick(tick, facts);
-  const initial = (user?.fullName?.trim().charAt(0) ?? "S").toUpperCase();
   const firstName = user?.fullName?.split(" ")[0] ?? "there";
   const verified = !!user?.emailVerified;
 
@@ -204,25 +204,16 @@ export function HomeScreen({ navigation }: Props) {
               <Pressable onPress={() => go("Profile")}>
                 <View
                   style={{
-                    width: 46,
-                    height: 46,
                     borderRadius: 999,
-                    backgroundColor: colors.brand,
-                    alignItems: "center",
-                    justifyContent: "center",
                     borderWidth: 2,
                     borderColor: colors.accent + "66",
                   }}
                 >
-                  <Text
-                    style={{
-                      fontFamily: "PlusJakartaSans_800ExtraBold",
-                      fontSize: 19,
-                      color: "#FFFFFF",
-                    }}
-                  >
-                    {initial}
-                  </Text>
+                  <ProfileAvatar
+                    url={user?.profilePhotoUrl ?? null}
+                    name={user?.fullName}
+                    size={46}
+                  />
                 </View>
               </Pressable>
               <View style={{ flex: 1, marginLeft: 12 }}>
@@ -280,6 +271,37 @@ export function HomeScreen({ navigation }: Props) {
                 ) : null}
               </Pressable>
             </View>
+          </View>
+
+          {/* AI Study Companion — always-visible quick shortcut */}
+          <View style={{ paddingHorizontal: 24, marginTop: 20 }}>
+            <Pressable onPress={goOfflineAi} accessibilityRole="button">
+              <Surface style={{ padding: 16, flexDirection: "row", alignItems: "center", marginBottom: 0 }}>
+                <View
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 13,
+                    backgroundColor: colors.surfaceAlt,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Icon name="sparkle" size={21} color={colors.brand} />
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                    AI Study Companion
+                  </Text>
+                  <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
+                    {hasModels
+                      ? "Ask anything — works with no internet"
+                      : "Set up offline AI — free answers, no data"}
+                  </Text>
+                </View>
+                <Icon name="chevronRight" size={18} color={colors.textMuted} />
+              </Surface>
+            </Pressable>
           </View>
 
           {/* My To-Do's — completed items disappear entirely (§5) */}

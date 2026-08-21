@@ -65,6 +65,17 @@ export interface ChatTurn {
   content: string;
 }
 
+/**
+ * Optional facts about the student, injected into the system prompt so the
+ * AI "remembers" who it's talking to (name, level, faculty, department).
+ */
+export interface StudentContext {
+  name?: string | null;
+  level?: string | null;
+  faculty?: string | null;
+  department?: string | null;
+}
+
 interface DownloadInfo {
   progress: number; // 0..1
   error: string | null;
@@ -96,6 +107,7 @@ interface OfflineAiContextValue {
   ask: (
     history: ChatTurn[],
     onToken?: (text: string) => void,
+    opts?: { student?: StudentContext },
   ) => Promise<string>;
 }
 
@@ -156,6 +168,20 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
       void refreshFreeSpace();
     })();
   }, [refreshFreeSpace]);
+
+  // Speed: warm the engine up as soon as an active model is known, so the
+  // first question in chat doesn't pay the full model-loading delay.
+  useEffect(() => {
+    if (
+      configRef.current.activeModelId &&
+      configRef.current.downloaded[configRef.current.activeModelId] &&
+      engineState !== "ready" &&
+      engineState !== "loading"
+    ) {
+      void warmUp();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.activeModelId, Object.keys(config.downloaded).length]);
 
   const warmUp = useCallback(async () => {
     const modelId = configRef.current.activeModelId;
@@ -482,6 +508,7 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
     async (
       history: ChatTurn[],
       onToken?: (text: string) => void,
+      opts?: { student?: StudentContext },
     ): Promise<string> => {
       if (!engineRef.current) {
         await warmUp();
@@ -491,19 +518,35 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         throw new Error("The offline AI model is not ready yet.");
       }
 
+      // Memory: the AI knows who it's talking to (name, level, faculty,
+      // department) and gets the recent conversation — not just the last
+      // question — so it can reference earlier topics and the student's level.
+      const student = opts?.student;
+      const studentBits = [
+        student?.name ? `- Name: ${student.name}` : null,
+        student?.level ? `- Level: ${student.level}` : null,
+        student?.faculty ? `- Faculty: ${student.faculty}` : null,
+        student?.department ? `- Department: ${student.department}` : null,
+      ].filter(Boolean);
+      const system = studentBits.length
+        ? `${SYSTEM_PROMPT}\n\n---\n\n### About the student you're helping\n${studentBits.join("\n")}\nUse these details to tailor answers (e.g. match their level of study). Never repeat these details back verbatim.`
+        : SYSTEM_PROMPT;
+
       const messages: Array<{ role: string; content: string }> = [
-        { role: "system", content: SYSTEM_PROMPT },
-        ...history.slice(-6),
+        { role: "system", content: system },
+        // A bounded but generous window so the model remembers the thread.
+        ...history.slice(-16),
       ];
 
       const result = await engine.completion(
         {
           messages,
-          n_predict: 512,
+          n_predict: 384,
           temperature: 0.7,
           top_k: 40,
           top_p: 0.9,
           penalty_repeat: 1.15,
+          penalty_last_n: 128,
           stop: STOP_WORDS,
         },
         (data: TokenData) => {

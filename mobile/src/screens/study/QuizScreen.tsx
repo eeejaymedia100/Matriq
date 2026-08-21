@@ -6,6 +6,8 @@ import {
   Pressable,
   TextInput,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
@@ -98,6 +100,10 @@ export function QuizScreen() {
   return (
     <ThemedScreen>
       <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
@@ -406,6 +412,7 @@ export function QuizScreen() {
             </View>
           ) : null}
         </ScrollView>
+        </KeyboardAvoidingView>
       </SafeAreaView>
     </ThemedScreen>
   );
