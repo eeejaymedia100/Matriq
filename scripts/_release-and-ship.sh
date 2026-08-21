@@ -39,25 +39,55 @@ if [ -z "$APK" ]; then
 fi
 log "APK: $APK ($(du -h "$APK" | cut -f1))"
 
-# The Telegram bot token lives on the matriq server — copy the APK there and
+# Telegram's bot API caps documents at 50MB but the raw APK is ~63MB (native
+# libs are stored uncompressed). Zip it — max compression gets it to ~31MB,
+# well under the limit, and any Android file manager extracts it natively.
+ZIP=/tmp/matriq-release.apk.zip
+python3 - "$APK" "$ZIP" <<'PY'
+import sys, zipfile, os
+apk, out = sys.argv[1], sys.argv[2]
+with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+    z.write(apk, "matriq.apk")
+print("zip: %.1f MB" % (os.path.getsize(out) / 1048576))
+PY
+
+VERSION=$(node -p "require('$ROOT/mobile/app.json').expo.version")
+
+# The Telegram bot token lives on the matriq server — copy the zip there and
 # send from the server so the token never leaves it.
-scp -o BatchMode=yes "$APK" matriq:/tmp/matriq-release.apk >> "$LOG" 2>&1 || {
-  log "scp of APK to server failed"; exit 1; }
-RESP=$(ssh -o BatchMode=yes matriq 'bash -s' <<'EOF'
-  TOKEN=$(grep -E "^TELEGRAM_BOT_TOKEN=" ~/.hermes/.env | cut -d= -f2- | tr -d "\r")
-  curl -s \
-    -F chat_id=6911908487 \
-    -F "caption=Matriq v0.7.9 (build 17) — offline OCR, automatic token refresh, offline Vault. Install by opening this file." \
-    -F document=@/tmp/matriq-release.apk \
-    "https://api.telegram.org/bot${TOKEN}/sendDocument"
+scp -o BatchMode=yes "$ZIP" matriq:/tmp/matriq-release.apk.zip >> "$LOG" 2>&1 || {
+  log "scp of zip to server failed"; exit 1; }
+RESP=$(ssh -o BatchMode=yes matriq "bash -s" <<EOF
+  TOKEN=\$(grep -E "^TELEGRAM_BOT_TOKEN=" ~/.hermes/.env | cut -d= -f2- | tr -d "\r")
+  curl -s \\
+    -F chat_id=6911908487 \\
+    -F "caption=Matriq v${VERSION} — this ZIP contains matriq.apk. Extract it in Files, then tap the APK to install. Or use the direct link in the next message." \\
+    -F document=@/tmp/matriq-release.apk.zip \\
+    "https://api.telegram.org/bot\${TOKEN}/sendDocument"
 EOF
 )
 echo "$RESP" >> "$LOG"
 if echo "$RESP" | grep -q '"ok":true'; then
-  log "TELEGRAM SEND OK"
+  log "TELEGRAM ZIP SEND OK"
 else
-  log "TELEGRAM SEND FAILED — check the response above (likely the 50MB bot limit)"
+  log "TELEGRAM ZIP SEND FAILED — response above"
   exit 1
+fi
+
+# Also send the direct download link (zero-friction install path).
+LINK_RESP=$(ssh -o BatchMode=yes matriq "bash -s" <<EOF
+  TOKEN=\$(grep -E "^TELEGRAM_BOT_TOKEN=" ~/.hermes/.env | cut -d= -f2- | tr -d "\r")
+  curl -s \\
+    -F chat_id=6911908487 \\
+    -F "text=📲 Direct APK link — tap on your phone and install straight from the browser:\nhttps://matriq.com.ng/download/matriq.apk\n\nMatriq v${VERSION} (latest)" \\
+    "https://api.telegram.org/bot\${TOKEN}/sendMessage"
+EOF
+)
+echo "$LINK_RESP" >> "$LOG"
+if echo "$LINK_RESP" | grep -q '"ok":true'; then
+  log "TELEGRAM LINK SEND OK"
+else
+  log "TELEGRAM LINK SEND FAILED — response above"
 fi
 
 log "=== PIPELINE DONE ==="
