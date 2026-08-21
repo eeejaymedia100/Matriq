@@ -13,11 +13,19 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
-import { File, Paths } from "expo-file-system";
+import { File } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { api, API_BASE, authHeaders } from "../../api/client";
+import { useAuth } from "../../contexts/AuthContext";
 import { formatApiError } from "../../utils/errors";
 import { bytesLabel, extensionForMime, saveGeneratedFile } from "../../utils/files";
+import {
+  cacheVaultSearch,
+  cachedVaultFile,
+  readCachedVaultSearch,
+  rememberVaultFile,
+  vaultFileDestination,
+} from "../../utils/vaultCache";
 import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Vault">;
@@ -58,6 +66,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 export function VaultScreen({ navigation }: Props) {
   const { theme } = useTheme();
   const colors = theme.colors;
+  const { isAuthenticated } = useAuth();
 
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("all");
@@ -65,6 +74,8 @@ export function VaultScreen({ navigation }: Props) {
   const [mine, setMine] = useState<VaultItemDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
+  /** True when the list is showing a saved copy because the network failed. */
+  const [offline, setOffline] = useState(false);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
@@ -94,8 +105,20 @@ export function VaultScreen({ navigation }: Props) {
         );
         setItems(data.items);
         setError(null);
+        setOffline(false);
+        // Save the latest list so the Vault still opens offline later.
+        void cacheVaultSearch(data.items);
       } catch (err) {
-        setError(formatApiError(err));
+        // Network / session failure — fall back to the saved copy instead of
+        // stranding the student with an empty error page.
+        const cached = await readCachedVaultSearch();
+        if (cached && cached.length > 0) {
+          setItems(cached as VaultItemDto[]);
+          setOffline(true);
+          setError(null);
+        } else {
+          setError(formatApiError(err));
+        }
       } finally {
         setSearching(false);
         setLoading(false);
@@ -104,11 +127,26 @@ export function VaultScreen({ navigation }: Props) {
     [],
   );
 
+  // Offline first-paint: show the last saved list instantly, then refresh.
+  // The "offline" note only flips on when a network fetch actually fails.
+  useEffect(() => {
+    if (items.length > 0) return;
+    void readCachedVaultSearch().then((cached) => {
+      if (cached && cached.length > 0) {
+        setItems(cached as VaultItemDto[]);
+        setLoading(false);
+      }
+    });
+  }, [items.length]);
+
   useFocusEffect(
     useCallback(() => {
+      // Rely on the global auth lifecycle: when the session expired the app
+      // is already redirecting — don't fire requests that would 401.
+      if (!isAuthenticated) return;
       void loadMine();
       void runSearch("", "all", false);
-    }, [loadMine, runSearch]),
+    }, [loadMine, runSearch, isAuthenticated]),
   );
 
   // Debounced search as the student types (course-code first).
@@ -137,14 +175,9 @@ export function VaultScreen({ navigation }: Props) {
           : item.mimeType;
 
       const headers = await authHeaders();
-      if (!headers) {
-        setError({
-          title: "Signed out",
-          message: "Please sign in again to download files.",
-          action: "",
-        });
-        return;
-      }
+      // authHeaders() already broadcasts session expiry on a failed refresh;
+      // the global auth lifecycle redirects — just stop here, no banner.
+      if (!headers) return;
 
       if (Platform.OS === "web") {
         // Web: the new File.downloadFileAsync isn't implemented there — keep
@@ -166,14 +199,42 @@ export function VaultScreen({ navigation }: Props) {
         return;
       }
 
-      // Streaming download — the backend returns the raw file bytes (no base64
-      // JSON), so large PDFs save straight to disk without memory pressure.
-      const destination = new File(Paths.cache, fileName);
+      // Offline reopen: if a copy was downloaded before, share it straight
+      // from disk — no network, no re-download.
+      const cached = await cachedVaultFile(item.id, variant);
+      if (cached) {
+        const local = new File(cached.uri);
+        if (local.exists) {
+          const available = await Sharing.isAvailableAsync();
+          if (available) {
+            await Sharing.shareAsync(local.uri, {
+              mimeType: cached.mimeType,
+              dialogTitle: cached.fileName,
+            });
+            setNote("Opened your saved copy — no internet needed.");
+          } else {
+            setNote("Saved copy found on this device.");
+          }
+          return;
+        }
+      }
+
+      // Fresh streaming download into the persistent vault folder, so it
+      // stays available offline (document dir, not the purgeable cache).
+      const destination = vaultFileDestination(item.id, variant, fileName);
+      if (!destination) return;
       const downloaded = await File.downloadFileAsync(
         `${API_BASE}/vault/${item.id}/file?variant=${variant}`,
         destination,
         { idempotent: true, headers },
       );
+      void rememberVaultFile(item.id, variant, {
+        uri: downloaded.uri,
+        fileName,
+        mimeType,
+        sizeBytes: item.sizeBytes,
+        cachedAt: Date.now(),
+      });
 
       const available = await Sharing.isAvailableAsync();
       if (available) {
@@ -184,10 +245,10 @@ export function VaultScreen({ navigation }: Props) {
         setNote(
           variant === "light"
             ? "Light copy saved — original stays safe on the Vault."
-            : "Downloaded — the original file.",
+            : "Downloaded — saved on your device for offline access.",
         );
       } else {
-        setNote("Saved to Matriq's cache (no share sheet available).");
+        setNote("Saved on your device — reopen it anytime, even offline.");
       }
     } catch (err) {
       setError(formatApiError(err));
@@ -509,6 +570,27 @@ export function VaultScreen({ navigation }: Props) {
                   {error.message} {error.action}
                 </Text>
               </View>
+            </View>
+          ) : null}
+
+          {offline ? (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 8,
+                marginTop: 14,
+                backgroundColor: colors.infoBg,
+                borderRadius: 12,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: colors.info + "44",
+              }}
+            >
+              <Icon name="download" size={15} color={colors.info} />
+              <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1 }]}>
+                Showing your saved copy — you're offline. Downloads you've made before still work.
+              </Text>
             </View>
           ) : null}
 
