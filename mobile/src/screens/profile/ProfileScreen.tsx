@@ -5,13 +5,18 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Pressable,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
+import { ProfileAvatar } from "../../components/ProfileAvatar";
 import { Card, Button, Input } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../api/client";
+import { optimizeImageForUpload } from "../../utils/imageOptimize";
 import type { User } from "../../types/api";
 import { markTodoDone } from "../../utils/todos";
 import { checkTodoBadge } from "../../utils/badges";
@@ -22,10 +27,107 @@ export function ProfileScreen() {
   const colors = theme.colors;
   const styles = makeStyles(theme, colors);
 
-  const { user, refreshUser, logout } = useAuth();
+  const {
+    user,
+    refreshUser,
+    logout,
+    uploadProfilePhoto,
+    removeProfilePhoto,
+  } = useAuth();
   const [profile, setProfile] = useState<Partial<User>>({});
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  /** Pick (library or camera), optimize, then upload the new photo. */
+  const changePhoto = async (source: "library" | "camera") => {
+    try {
+      const perm =
+        source === "camera"
+          ? await ImagePicker.requestCameraPermissionsAsync()
+          : await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(
+          "Permission needed",
+          source === "camera"
+            ? "Allow camera access to take a profile photo."
+            : "Allow photo access to pick a profile photo.",
+        );
+        return;
+      }
+      const res =
+        source === "camera"
+          ? await ImagePicker.launchCameraAsync({ quality: 0.9 })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ["images"],
+              quality: 0.9,
+            });
+      if (res.canceled || res.assets.length === 0) return;
+      const asset = res.assets[0];
+      setPhotoBusy(true);
+      // Compress on-device first — a raw 3000×4000 photo would blow past the
+      // upload cap and waste data on a 600px avatar.
+      const optimized = await optimizeImageForUpload(
+        asset.uri,
+        asset.fileName ?? "profile.jpg",
+        { knownSize: { width: asset.width, height: asset.height } },
+      );
+      await uploadProfilePhoto(optimized.uri, optimized.fileName);
+      // Uploading a real photo genuinely completes the "Add a profile photo"
+      // to-do (spec §6), not just visiting the screen.
+      await markTodoDone("photo");
+      await checkTodoBadge();
+      Alert.alert("Photo updated", "Your new profile picture is live.");
+    } catch (err) {
+      Alert.alert(
+        "Couldn't update photo",
+        err instanceof Error ? err.message : "Try again with a smaller image.",
+      );
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const removePhoto = async () => {
+    setPhotoBusy(true);
+    try {
+      await removeProfilePhoto();
+      Alert.alert("Photo removed", "Your profile picture has been removed.");
+    } catch (err) {
+      Alert.alert(
+        "Couldn't remove photo",
+        err instanceof Error ? err.message : "Try again.",
+      );
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const promptPhoto = () => {
+    const buttons: Array<{
+      text: string;
+      style?: "default" | "cancel" | "destructive";
+      onPress?: () => void;
+    }> = [
+      {
+        text: "Take a photo",
+        onPress: () => void changePhoto("camera"),
+      },
+      {
+        text: "Choose from library",
+        onPress: () => void changePhoto("library"),
+      },
+    ];
+    if (user?.profilePhotoUrl) {
+      buttons.push({
+        text: "Remove photo",
+        style: "destructive",
+        onPress: () => void removePhoto(),
+      });
+    }
+    buttons.push({ text: "Cancel", style: "cancel" });
+    Alert.alert("Profile photo", "How do you want to set your photo?", buttons);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -64,11 +166,54 @@ export function ProfileScreen() {
         <ScrollView contentContainerStyle={styles.container}>
           {/* Avatar */}
           <View style={styles.avatarSection}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {user?.fullName?.charAt(0)?.toUpperCase() ?? "S"}
+            <Pressable onPress={photoBusy ? undefined : promptPhoto}>
+              <View
+                style={{
+                  position: "relative",
+                  borderWidth: 2,
+                  borderColor: colors.accent + "66",
+                  borderRadius: 999,
+                }}
+              >
+                <ProfileAvatar
+                  url={user?.profilePhotoUrl ?? null}
+                  name={user?.fullName}
+                  size={88}
+                />
+                {photoBusy ? (
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      borderRadius: 999,
+                      backgroundColor: "rgba(13,6,32,0.55)",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <ActivityIndicator size="small" color="#FFFFFF" />
+                  </View>
+                ) : null}
+              </View>
+            </Pressable>
+            <Pressable
+              onPress={promptPhoto}
+              disabled={photoBusy}
+              style={{ marginTop: theme.spacing.sm }}
+            >
+              <Text
+                style={{
+                  fontFamily: theme.typography.captionBold.fontFamily,
+                  fontSize: theme.typography.captionBold.fontSize,
+                  color: colors.brand,
+                }}
+              >
+                {photoBusy ? "Uploading…" : "Change photo"}
               </Text>
-            </View>
+            </Pressable>
             <Text style={styles.name}>{user?.fullName}</Text>
             <Text style={styles.email}>{user?.email}</Text>
             <View style={styles.badge}>
@@ -203,11 +348,6 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
       alignItems: "center",
       justifyContent: "center",
       marginBottom: theme.spacing.sm,
-    },
-    avatarText: {
-      fontFamily: theme.typography.h1.fontFamily,
-      fontSize: 32,
-      color: "#FFFFFF",
     },
     name: {
       fontFamily: theme.typography.h2.fontFamily,

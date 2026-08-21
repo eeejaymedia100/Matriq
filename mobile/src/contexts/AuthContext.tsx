@@ -30,6 +30,8 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateProfile: (data: ProfileUpdate) => Promise<User>;
+  uploadProfilePhoto: (uri: string, fileName: string) => Promise<User>;
+  removeProfilePhoto: () => Promise<User>;
   uploadVerification: (associationId: string, fileUri: string, fileName: string) => Promise<{ id: string; status: string }>;
   getVerificationStatus: () => Promise<VerificationRequest[]>;
 }
@@ -229,6 +231,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  /**
+   * Upload a profile picture (multipart POST /me/photo) and refresh local
+   * state so the new photo shows everywhere immediately.
+   */
+  const uploadProfilePhoto = useCallback(
+    async (uri: string, fileName: string): Promise<User> => {
+      const formData = new FormData();
+      formData.append("photo", {
+        uri,
+        name: fileName || "profile.jpg",
+        type: "image/jpeg",
+      } as unknown as Blob);
+      const data = await api.upload<{ profilePhotoUrl: string | null }>(
+        "/me/photo",
+        formData,
+      );
+      // The upload response only carries the URL — refetch the full profile
+      // so every field (including the new photo) is in sync.
+      await refreshUser();
+      return { ...state.user, profilePhotoUrl: data.profilePhotoUrl } as User;
+    },
+    [refreshUser, state.user],
+  );
+
+  /** Remove the profile picture (DELETE /me/photo) and refresh local state. */
+  const removeProfilePhoto = useCallback(async (): Promise<User> => {
+    await api.delete<{ message: string }>("/me/photo");
+    await refreshUser();
+    return { ...state.user, profilePhotoUrl: null } as User;
+  }, [refreshUser, state.user]);
+
   // ── Verification ──────────────────────────────────────────────
 
   const uploadVerification = useCallback(
@@ -289,6 +322,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         refreshUser,
         updateProfile,
+        uploadProfilePhoto,
+        removeProfilePhoto,
         uploadVerification,
         getVerificationStatus,
       }}

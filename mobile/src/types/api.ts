@@ -17,6 +17,12 @@ export interface User {
   dateOfBirth: string | null;
   /** Spec §10: set when the student scheduled account deletion (6 months out). */
   deletionScheduledAt: string | null;
+  /**
+   * Profile picture. A data-URI renders directly; otherwise it's an API
+   * path (e.g. "/me/photo") that needs the auth header — prefix API_BASE.
+   * Null = no photo uploaded yet.
+   */
+  profilePhotoUrl: string | null;
 }
 
 export interface AuthResponse {
