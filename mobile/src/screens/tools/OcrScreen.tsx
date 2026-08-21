@@ -18,6 +18,10 @@ import {
   MAX_UPLOAD_BYTES,
   optimizeImageForUpload,
 } from "../../utils/imageOptimize";
+import {
+  isOfflineOcrAvailable,
+  recognizeImageOffline,
+} from "../../offline/ocr";
 
 /**
  * Image to Text (OCR) — spec §8. Runs through the backend so Android and the
@@ -29,6 +33,11 @@ export function OcrScreen() {
   const { theme } = useTheme();
   const colors = theme.colors;
 
+  // Bundled on-device engine (ML Kit) — when present, recognition runs locally
+  // with zero internet; the server path stays as the fallback (web, or if the
+  // native engine ever fails on a photo).
+  const offlineAvailable = isOfflineOcrAvailable();
+
   const [image, setImage] = useState<{
     uri: string;
     fileName?: string;
@@ -39,6 +48,7 @@ export function OcrScreen() {
     text: string;
     confidence: number;
     readable: boolean;
+    engine: "offline" | "server";
   } | null>(null);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -97,21 +107,44 @@ export function OcrScreen() {
 
   const readText = async () => {
     if (!image) return;
-    // Hard guard: even compressed, an image over the backend cap would just
-    // come back as a 413 — tell the user before uploading.
-    if (image.bytes && image.bytes > MAX_UPLOAD_BYTES) {
-      setError({
-        title: "That photo is still too large",
-        message: "Even after compressing, this photo is over the upload limit.",
-        action: "Try a clearer, closer shot — or a screenshot with bigger text.",
-      });
-      return;
-    }
     setBusy(true);
     setResult(null);
     setError(null);
     setCopied(false);
+
+    // 1) Offline-first: the bundled on-device engine. No upload, no internet,
+    // no quota — works in the exam hall with zero signal.
+    if (offlineAvailable) {
+      try {
+        const res = await recognizeImageOffline(image.uri);
+        const text = (res.text ?? "").trim();
+        const readable = text.length >= 4;
+        setResult({
+          text: readable ? text.slice(0, 5000) : "",
+          confidence: 0,
+          readable,
+          engine: "offline",
+        });
+        setBusy(false);
+        return;
+      } catch {
+        // Native engine hiccup (e.g. undecodable image) — fall through to the
+        // server path below rather than leaving the student stuck.
+      }
+    }
+
+    // 2) Server fallback (web, or when the on-device engine failed).
     try {
+      // Hard guard: even compressed, an image over the backend cap would just
+      // come back as a 413 — tell the user before uploading.
+      if (image.bytes && image.bytes > MAX_UPLOAD_BYTES) {
+        setError({
+          title: "That photo is still too large",
+          message: "Even after compressing, this photo is over the upload limit.",
+          action: "Try a clearer, closer shot — or a screenshot with bigger text.",
+        });
+        return;
+      }
       const formData = new FormData();
       if (Platform.OS === "web") {
         const blob = await (await fetch(image.uri)).blob();
@@ -128,7 +161,7 @@ export function OcrScreen() {
         confidence: number;
         readable: boolean;
       }>("/tools/ocr", formData);
-      setResult(data);
+      setResult({ ...data, engine: "server" });
     } catch (err) {
       setError(formatApiError(err));
     } finally {
@@ -143,6 +176,29 @@ export function OcrScreen() {
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
             Read text out of a photo — a whiteboard, a printed note, a screenshot.
           </Text>
+
+          {offlineAvailable ? (
+            <View
+              style={{
+                alignSelf: "flex-start",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                marginTop: 12,
+                paddingVertical: 6,
+                paddingHorizontal: 12,
+                borderRadius: theme.radii.pill,
+                backgroundColor: colors.successBg,
+                borderWidth: 1,
+                borderColor: colors.success + "44",
+              }}
+            >
+              <Icon name="wifiOff" size={13} color={colors.success} />
+              <Text style={[theme.typography.captionBold, { color: colors.success }]}>
+                Offline — recognized on your phone, no internet needed
+              </Text>
+            </View>
+          ) : null}
 
           {!image ? (
             <View
@@ -269,7 +325,9 @@ export function OcrScreen() {
             <View style={{ alignItems: "center", marginTop: 24 }}>
               <ActivityIndicator color={colors.brand} />
               <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 10 }]}>
-                Reading the text… (first run takes a few seconds)
+                {offlineAvailable
+                  ? "Reading on your device…"
+                  : "Reading the text… (first run takes a few seconds)"}
               </Text>
             </View>
           ) : null}
@@ -290,7 +348,9 @@ export function OcrScreen() {
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 10 }}>
                     <Icon name="check" size={15} color={colors.success} />
                     <Text style={[theme.typography.captionBold, { color: colors.success }]}>
-                      Text detected · {result.confidence}% confidence
+                      {result.engine === "offline"
+                        ? "Text detected · recognized on your device"
+                        : `Text detected · ${result.confidence}% confidence`}
                     </Text>
                   </View>
                   <Text selectable style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>

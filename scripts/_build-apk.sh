@@ -27,6 +27,10 @@ npx expo prebuild --platform android --no-install > /tmp/prebuild.log 2>&1 || {
   echo "PREBUILD FAILED"; tail -8 /tmp/prebuild.log; exit 1;
 }
 
+# Trim the ML Kit OCR module to Latin-only (see scripts/_patch-mlkit.sh).
+# Runs again here defensively in case postinstall was skipped.
+bash ../scripts/_patch-mlkit.sh
+
 # Prebuild regenerates build.gradle from app.json (so versionCode/versionName
 # should already be right). Pin them defensively in case an older prebuild
 # reset versionCode to 1.
