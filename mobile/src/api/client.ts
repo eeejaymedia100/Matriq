@@ -46,6 +46,62 @@ export async function clearTokens(): Promise<void> {
   await deleteItem(TOKEN_KEY);
 }
 
+// ── Session-expiry broadcast ────────────────────────────────
+// When the refresh token can't be exchanged anymore, the API layer emits a
+// global "session expired" event instead of leaving screens stranded with an
+// inline 401 banner. AuthContext subscribes and clears the session, which
+// makes the navigator redirect to the sign-in flow.
+
+type SessionExpiredListener = () => void;
+const sessionExpiredListeners = new Set<SessionExpiredListener>();
+
+/** Subscribe to session expiry. Returns an unsubscribe function. */
+export function onSessionExpired(listener: SessionExpiredListener): () => void {
+  sessionExpiredListeners.add(listener);
+  return () => {
+    sessionExpiredListeners.delete(listener);
+  };
+}
+
+function emitSessionExpired(): void {
+  sessionExpiredListeners.forEach((listener) => {
+    try {
+      listener();
+    } catch {
+      // A listener must never break the request that triggered the event.
+    }
+  });
+}
+
+/**
+ * Decode the JWT `exp` claim (seconds). Returns null when the token isn't a
+ * readable JWT — callers then treat it as valid and let the server decide.
+ */
+function jwtExpiry(token: string): number | null {
+  try {
+    const part = token.split(".")[1];
+    if (!part) return null;
+    const b64 = part.replace(/-/g, "+").replace(/_/g, "/");
+    const json = decodeURIComponent(
+      atob(b64)
+        .split("")
+        .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
+        .join(""),
+    );
+    const payload = JSON.parse(json) as { exp?: unknown };
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}
+
+/** True when the access token is missing, expired, or within `skewMs` of expiry. */
+function isAccessTokenStale(token: string, skewMs = 60_000): boolean {
+  const exp = jwtExpiry(token);
+  if (exp === null) return false;
+  return exp - Date.now() < skewMs;
+}
+
 // ── Errors ─────────────────────────────────────────────────────
 
 /**
@@ -102,34 +158,56 @@ function extractErrorMessage(body: unknown, status: number): string {
 
 // ── HTTP client ────────────────────────────────────────────────
 
+/**
+ * Exchange the refresh token for a fresh access token. Concurrent callers
+ * share one in-flight request (the backend rotates refresh tokens, so two
+ * parallel refreshes would invalidate each other). Returns the new access
+ * token, or null when there's nothing to refresh or the exchange failed
+ * (tokens are cleared in that case).
+ */
+let refreshPromise: Promise<string | null> | null = null;
+
 async function refreshAccessToken(): Promise<string | null> {
-  const tokens = await getTokens();
-  if (!tokens?.refreshToken) return null;
+  if (refreshPromise) return refreshPromise;
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refreshToken: tokens.refreshToken }),
-    });
-
-    if (!res.ok) {
+  refreshPromise = (async () => {
+    const tokens = await getTokens();
+    if (!tokens?.refreshToken) {
       await clearTokens();
       return null;
     }
 
-    const data = (await res.json()) as {
-      accessToken: string;
-      refreshToken: string;
-    };
-    await saveTokens({
-      accessToken: data.accessToken,
-      refreshToken: data.refreshToken,
-    });
-    return data.accessToken;
-  } catch {
-    await clearTokens();
-    return null;
+    try {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: tokens.refreshToken }),
+      });
+
+      if (!res.ok) {
+        await clearTokens();
+        return null;
+      }
+
+      const data = (await res.json()) as {
+        accessToken: string;
+        refreshToken: string;
+      };
+      await saveTokens({
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+      });
+      return data.accessToken;
+    } catch {
+      await clearTokens();
+      return null;
+    }
+  })();
+
+  try {
+    return await refreshPromise;
+  } finally {
+    refreshPromise = null;
   }
 }
 
@@ -156,8 +234,12 @@ export async function apiRequest<T>(
     headers,
   });
 
-  // Auto-refresh on 401
-  if (res.status === 401 && tokens?.refreshToken) {
+  // Global 401 interceptor: exchange the refresh token in the background and
+  // retry the failed request once, transparently. A failed exchange (or a
+  // second 401 with the fresh token) means the session is gone for good —
+  // broadcast it so the app redirects to sign-in instead of stranding the
+  // screen with an inline error banner.
+  if (res.status === 401) {
     const newToken = await refreshAccessToken();
     if (newToken) {
       headers["Authorization"] = `Bearer ${newToken}`;
@@ -165,6 +247,13 @@ export async function apiRequest<T>(
         ...options,
         headers,
       });
+      if (res.status === 401) {
+        await clearTokens();
+        emitSessionExpired();
+      }
+    } else {
+      await clearTokens();
+      emitSessionExpired();
     }
   }
 
@@ -211,10 +300,26 @@ export const api = {
  * Authorization header for direct (non-JSON) downloads — e.g. the Vault's
  * streaming file endpoint. Returns null when there's no session so callers
  * can fall back to an error.
+ *
+ * Refreshes first when the access token is expired or nearly so, so a
+ * long-running download can't open with a stale token and 401 mid-stream.
+ * A failed refresh broadcasts session expiry (the app redirects to sign-in)
+ * and returns null.
  */
 export async function authHeaders(): Promise<Record<string, string> | null> {
   const tokens = await getTokens();
   if (!tokens?.accessToken) return null;
+
+  if (isAccessTokenStale(tokens.accessToken)) {
+    const fresh = await refreshAccessToken();
+    if (!fresh) {
+      await clearTokens();
+      emitSessionExpired();
+      return null;
+    }
+    return { Authorization: `Bearer ${fresh}` };
+  }
+
   return { Authorization: `Bearer ${tokens.accessToken}` };
 }
 

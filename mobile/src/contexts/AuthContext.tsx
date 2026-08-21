@@ -6,7 +6,13 @@ import React, {
   useEffect,
   type ReactNode,
 } from "react";
-import { api, saveTokens, clearTokens, getTokens, API_BASE } from "../api/client";
+import {
+  api,
+  saveTokens,
+  clearTokens,
+  getTokens,
+  onSessionExpired,
+} from "../api/client";
 import type { AuthResponse, User, VerificationRequest } from "../types/api";
 
 interface AuthState {
@@ -96,6 +102,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setState((s) => ({ ...s, isLoading: false }));
       }
     })();
+  }, []);
+
+  // Global auth lifecycle: when the API layer can't refresh the session
+  // anymore (refresh token invalid/expired), clear everything and flip back
+  // to signed-out — the navigator then redirects to the sign-in flow instead
+  // of leaving the user staring at an inline 401 banner.
+  useEffect(() => {
+    return onSessionExpired(() => {
+      void clearTokens();
+      setState({ user: null, isLoading: false, isAuthenticated: false });
+    });
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
@@ -270,7 +287,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       fileUri: string,
       fileName: string,
     ): Promise<{ id: string; status: string }> => {
-      // Build FormData for multipart upload
+      // Build FormData for multipart upload. Goes through the API client so
+      // the global 401 interceptor (token refresh) applies here too.
       const formData = new FormData();
       formData.append("document", {
         uri: fileUri,
@@ -279,23 +297,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } as unknown as Blob);
       formData.append("associationId", associationId);
 
-      const tokens = await getTokens();
-      const res = await fetch(`${API_BASE}/me/verification/upload`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${tokens?.accessToken ?? ""}`,
-        },
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = (await res.json().catch(() => ({
-          error: { message: "Upload failed" },
-        }))) as { error: { message: string } };
-        throw new Error(err.error.message);
-      }
-
-      return res.json() as Promise<{ id: string; status: string }>;
+      return api.upload<{ id: string; status: string }>(
+        "/me/verification/upload",
+        formData,
+      );
     },
     [],
   );
