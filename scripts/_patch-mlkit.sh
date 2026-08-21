@@ -13,7 +13,12 @@
 # it's wired into package.json "postinstall" and invoked by the APK build.
 set -euo pipefail
 
-MODULE="mobile/node_modules/@react-native-ml-kit/text-recognition"
+# Resolve the repo root from this script's own location so it works
+# regardless of the caller's CWD (the build script invokes it from mobile/).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+MODULE="$ROOT/mobile/node_modules/@react-native-ml-kit/text-recognition"
 GRADLE="$MODULE/android/build.gradle"
 JAVA="$MODULE/android/src/main/java/com/rnmlkit/textrecognition/TextRecognitionModule.java"
 
