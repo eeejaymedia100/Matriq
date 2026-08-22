@@ -1,17 +1,9 @@
-import React, { useEffect } from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, Pressable, StyleSheet, Animated, Easing } from "react-native";
 import Svg, { Defs, LinearGradient, Stop, Rect } from "react-native-svg";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-  withSpring,
-} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE, brand } from "../../theme/tokens";
-import { Icon } from "../../components/icons";
 
 /**
  * The very first screen (spec §4) — before onboarding, before anything else.
@@ -20,6 +12,12 @@ import { Icon } from "../../components/icons";
  * blob breathing behind its frosted surface; the Pop card already shows the
  * clay shadow under a lime dot. Choosing transitions the whole UI into that
  * theme immediately (no flash of the wrong theme first).
+ *
+ * NOTE: this screen deliberately uses React Native's core `Animated` (JS
+ * thread) instead of react-native-reanimated. It is the very first screen a
+ * fresh install renders, and it runs an unbounded loop on mount — we keep the
+ * riskiest animation off the native worklet runtime here so a native crash on
+ * first open is impossible. Behavior and look are identical.
  */
 export function ThemePickerScreen() {
   const { setMode } = useTheme();
@@ -76,26 +74,49 @@ export function ThemePickerScreen() {
 /* ── Glass preview ─────────────────────────────────────────── */
 
 function GlassPreviewCard({ onChoose }: { onChoose: () => void }) {
-  const breathe = useSharedValue(0.9);
+  // Breathing blob — core Animated loop (JS thread), safe on first mount.
+  const breathe = useRef(new Animated.Value(0.9)).current;
   useEffect(() => {
-    breathe.value = withRepeat(
-      withTiming(1.15, { duration: 2600 }),
-      -1,
-      true,
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(breathe, {
+          toValue: 1.15,
+          duration: 1300,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(breathe, {
+          toValue: 0.9,
+          duration: 1300,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ]),
     );
+    loop.start();
+    return () => loop.stop();
   }, [breathe]);
 
-  const blobStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: breathe.value }],
-    opacity: 0.5 + (breathe.value - 0.9) * 1.6,
-  }));
+  const blobScale = breathe.interpolate({
+    inputRange: [0.9, 1.15],
+    outputRange: [0.95, 1.12],
+  });
+  const blobOpacity = breathe.interpolate({
+    inputRange: [0.9, 1.15],
+    outputRange: [0.5, 0.9],
+  });
 
-  const press = useSharedValue(1);
+  // Press feedback — core Animated spring.
+  const press = useRef(new Animated.Value(1)).current;
 
   return (
     <Pressable
-      onPressIn={() => (press.value = withSpring(0.97, { damping: 20, stiffness: 320 }))}
-      onPressOut={() => (press.value = withSpring(1, { damping: 14, stiffness: 220 }))}
+      onPressIn={() =>
+        Animated.spring(press, { toValue: 0.97, useNativeDriver: true, damping: 20, stiffness: 320 }).start()
+      }
+      onPressOut={() =>
+        Animated.spring(press, { toValue: 1, useNativeDriver: true, damping: 14, stiffness: 220 }).start()
+      }
       onPress={onChoose}
     >
       <Animated.View style={[styles.card, { transform: [{ scale: press }] }]}>
@@ -111,7 +132,7 @@ function GlassPreviewCard({ onChoose }: { onChoose: () => void }) {
                 top: -30,
                 right: -20,
               },
-              blobStyle,
+              { transform: [{ scale: blobScale }], opacity: blobOpacity },
             ]}
           />
           <View style={styles.glassSurface}>
@@ -137,12 +158,16 @@ function GlassPreviewCard({ onChoose }: { onChoose: () => void }) {
 /* ── Pop preview ───────────────────────────────────────────── */
 
 function PopPreviewCard({ onChoose }: { onChoose: () => void }) {
-  const press = useSharedValue(1);
+  const press = useRef(new Animated.Value(1)).current;
 
   return (
     <Pressable
-      onPressIn={() => (press.value = withSpring(0.97, { damping: 20, stiffness: 320 }))}
-      onPressOut={() => (press.value = withSpring(1, { damping: 14, stiffness: 220 }))}
+      onPressIn={() =>
+        Animated.spring(press, { toValue: 0.97, useNativeDriver: true, damping: 20, stiffness: 320 }).start()
+      }
+      onPressOut={() =>
+        Animated.spring(press, { toValue: 1, useNativeDriver: true, damping: 14, stiffness: 220 }).start()
+      }
       onPress={onChoose}
     >
       <Animated.View
