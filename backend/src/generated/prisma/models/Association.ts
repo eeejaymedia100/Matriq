@@ -28,8 +28,12 @@ export type AssociationMinAggregateOutputType = {
   id: string | null
   name: string | null
   shortCode: string | null
+  institutionId: string | null
   faculty: string | null
+  department: string | null
   whatsappNumber: string | null
+  email: string | null
+  passwordHash: string | null
   status: $Enums.AssociationStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -39,8 +43,12 @@ export type AssociationMaxAggregateOutputType = {
   id: string | null
   name: string | null
   shortCode: string | null
+  institutionId: string | null
   faculty: string | null
+  department: string | null
   whatsappNumber: string | null
+  email: string | null
+  passwordHash: string | null
   status: $Enums.AssociationStatus | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -50,8 +58,12 @@ export type AssociationCountAggregateOutputType = {
   id: number
   name: number
   shortCode: number
+  institutionId: number
   faculty: number
+  department: number
   whatsappNumber: number
+  email: number
+  passwordHash: number
   status: number
   transparency: number
   createdAt: number
@@ -64,8 +76,12 @@ export type AssociationMinAggregateInputType = {
   id?: true
   name?: true
   shortCode?: true
+  institutionId?: true
   faculty?: true
+  department?: true
   whatsappNumber?: true
+  email?: true
+  passwordHash?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -75,8 +91,12 @@ export type AssociationMaxAggregateInputType = {
   id?: true
   name?: true
   shortCode?: true
+  institutionId?: true
   faculty?: true
+  department?: true
   whatsappNumber?: true
+  email?: true
+  passwordHash?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -86,8 +106,12 @@ export type AssociationCountAggregateInputType = {
   id?: true
   name?: true
   shortCode?: true
+  institutionId?: true
   faculty?: true
+  department?: true
   whatsappNumber?: true
+  email?: true
+  passwordHash?: true
   status?: true
   transparency?: true
   createdAt?: true
@@ -171,8 +195,12 @@ export type AssociationGroupByOutputType = {
   id: string
   name: string
   shortCode: string
+  institutionId: string | null
   faculty: string
+  department: string | null
   whatsappNumber: string
+  email: string | null
+  passwordHash: string | null
   status: $Enums.AssociationStatus
   transparency: runtime.JsonValue | null
   createdAt: Date
@@ -204,8 +232,12 @@ export type AssociationWhereInput = {
   id?: Prisma.UuidFilter<"Association"> | string
   name?: Prisma.StringFilter<"Association"> | string
   shortCode?: Prisma.StringFilter<"Association"> | string
+  institutionId?: Prisma.UuidNullableFilter<"Association"> | string | null
   faculty?: Prisma.StringFilter<"Association"> | string
+  department?: Prisma.StringNullableFilter<"Association"> | string | null
   whatsappNumber?: Prisma.StringFilter<"Association"> | string
+  email?: Prisma.StringNullableFilter<"Association"> | string | null
+  passwordHash?: Prisma.StringNullableFilter<"Association"> | string | null
   status?: Prisma.EnumAssociationStatusFilter<"Association"> | $Enums.AssociationStatus
   transparency?: Prisma.JsonNullableFilter<"Association">
   createdAt?: Prisma.DateTimeFilter<"Association"> | Date | string
@@ -219,14 +251,19 @@ export type AssociationWhereInput = {
   verificationRequests?: Prisma.VerificationRequestListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   timetableUpdates?: Prisma.TimetableUpdateListRelationFilter
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }
 
 export type AssociationOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   shortCode?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
   faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   transparency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -240,17 +277,22 @@ export type AssociationOrderByWithRelationInput = {
   verificationRequests?: Prisma.VerificationRequestOrderByRelationAggregateInput
   vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
   timetableUpdates?: Prisma.TimetableUpdateOrderByRelationAggregateInput
+  institution?: Prisma.InstitutionOrderByWithRelationInput
 }
 
 export type AssociationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   shortCode?: string
+  email?: string
   AND?: Prisma.AssociationWhereInput | Prisma.AssociationWhereInput[]
   OR?: Prisma.AssociationWhereInput[]
   NOT?: Prisma.AssociationWhereInput | Prisma.AssociationWhereInput[]
   name?: Prisma.StringFilter<"Association"> | string
+  institutionId?: Prisma.UuidNullableFilter<"Association"> | string | null
   faculty?: Prisma.StringFilter<"Association"> | string
+  department?: Prisma.StringNullableFilter<"Association"> | string | null
   whatsappNumber?: Prisma.StringFilter<"Association"> | string
+  passwordHash?: Prisma.StringNullableFilter<"Association"> | string | null
   status?: Prisma.EnumAssociationStatusFilter<"Association"> | $Enums.AssociationStatus
   transparency?: Prisma.JsonNullableFilter<"Association">
   createdAt?: Prisma.DateTimeFilter<"Association"> | Date | string
@@ -264,14 +306,19 @@ export type AssociationWhereUniqueInput = Prisma.AtLeast<{
   verificationRequests?: Prisma.VerificationRequestListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   timetableUpdates?: Prisma.TimetableUpdateListRelationFilter
-}, "id" | "shortCode">
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
+}, "id" | "shortCode" | "email">
 
 export type AssociationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   shortCode?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
   faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   transparency?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -288,8 +335,12 @@ export type AssociationScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Association"> | string
   name?: Prisma.StringWithAggregatesFilter<"Association"> | string
   shortCode?: Prisma.StringWithAggregatesFilter<"Association"> | string
+  institutionId?: Prisma.UuidNullableWithAggregatesFilter<"Association"> | string | null
   faculty?: Prisma.StringWithAggregatesFilter<"Association"> | string
+  department?: Prisma.StringNullableWithAggregatesFilter<"Association"> | string | null
   whatsappNumber?: Prisma.StringWithAggregatesFilter<"Association"> | string
+  email?: Prisma.StringNullableWithAggregatesFilter<"Association"> | string | null
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Association"> | string | null
   status?: Prisma.EnumAssociationStatusWithAggregatesFilter<"Association"> | $Enums.AssociationStatus
   transparency?: Prisma.JsonNullableWithAggregatesFilter<"Association">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Association"> | Date | string
@@ -301,7 +352,10 @@ export type AssociationCreateInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -315,14 +369,19 @@ export type AssociationCreateInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -343,7 +402,10 @@ export type AssociationUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -357,14 +419,19 @@ export type AssociationUpdateInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -384,8 +451,12 @@ export type AssociationCreateManyInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -397,7 +468,10 @@ export type AssociationUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,20 +482,38 @@ export type AssociationUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type AssociationListRelationFilter = {
+  every?: Prisma.AssociationWhereInput
+  some?: Prisma.AssociationWhereInput
+  none?: Prisma.AssociationWhereInput
+}
+
+export type AssociationOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type AssociationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   shortCode?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   transparency?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -432,8 +524,12 @@ export type AssociationMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   shortCode?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -443,8 +539,12 @@ export type AssociationMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   shortCode?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   whatsappNumber?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -458,6 +558,48 @@ export type AssociationScalarRelationFilter = {
 export type AssociationNullableScalarRelationFilter = {
   is?: Prisma.AssociationWhereInput | null
   isNot?: Prisma.AssociationWhereInput | null
+}
+
+export type AssociationCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput> | Prisma.AssociationCreateWithoutInstitutionInput[] | Prisma.AssociationUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutInstitutionInput | Prisma.AssociationCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.AssociationCreateManyInstitutionInputEnvelope
+  connect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+}
+
+export type AssociationUncheckedCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput> | Prisma.AssociationCreateWithoutInstitutionInput[] | Prisma.AssociationUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutInstitutionInput | Prisma.AssociationCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.AssociationCreateManyInstitutionInputEnvelope
+  connect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+}
+
+export type AssociationUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput> | Prisma.AssociationCreateWithoutInstitutionInput[] | Prisma.AssociationUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutInstitutionInput | Prisma.AssociationCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.AssociationUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.AssociationUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.AssociationCreateManyInstitutionInputEnvelope
+  set?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  disconnect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  delete?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  connect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  update?: Prisma.AssociationUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.AssociationUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.AssociationUpdateManyWithWhereWithoutInstitutionInput | Prisma.AssociationUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.AssociationScalarWhereInput | Prisma.AssociationScalarWhereInput[]
+}
+
+export type AssociationUncheckedUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput> | Prisma.AssociationCreateWithoutInstitutionInput[] | Prisma.AssociationUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.AssociationCreateOrConnectWithoutInstitutionInput | Prisma.AssociationCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.AssociationUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.AssociationUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.AssociationCreateManyInstitutionInputEnvelope
+  set?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  disconnect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  delete?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  connect?: Prisma.AssociationWhereUniqueInput | Prisma.AssociationWhereUniqueInput[]
+  update?: Prisma.AssociationUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.AssociationUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.AssociationUpdateManyWithWhereWithoutInstitutionInput | Prisma.AssociationUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.AssociationScalarWhereInput | Prisma.AssociationScalarWhereInput[]
 }
 
 export type EnumAssociationStatusFieldUpdateOperationsInput = {
@@ -592,12 +734,108 @@ export type AssociationUpdateOneRequiredWithoutTimetableUpdatesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AssociationUpdateToOneWithWhereWithoutTimetableUpdatesInput, Prisma.AssociationUpdateWithoutTimetableUpdatesInput>, Prisma.AssociationUncheckedUpdateWithoutTimetableUpdatesInput>
 }
 
+export type AssociationCreateWithoutInstitutionInput = {
+  id?: string
+  name: string
+  shortCode: string
+  faculty: string
+  department?: string | null
+  whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
+  status?: $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  executives?: Prisma.AssociationExecutiveCreateNestedManyWithoutAssociationInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutAssociationInput
+  fees?: Prisma.FeeCreateNestedManyWithoutAssociationInput
+  announcements?: Prisma.AnnouncementCreateNestedManyWithoutAssociationInput
+  events?: Prisma.EventCreateNestedManyWithoutAssociationInput
+  aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
+  timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+}
+
+export type AssociationUncheckedCreateWithoutInstitutionInput = {
+  id?: string
+  name: string
+  shortCode: string
+  faculty: string
+  department?: string | null
+  whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
+  status?: $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  executives?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutAssociationInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutAssociationInput
+  fees?: Prisma.FeeUncheckedCreateNestedManyWithoutAssociationInput
+  announcements?: Prisma.AnnouncementUncheckedCreateNestedManyWithoutAssociationInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutAssociationInput
+  aiDocuments?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutAssociationInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutAssociationInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutAssociationInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedCreateNestedManyWithoutAssociationInput
+}
+
+export type AssociationCreateOrConnectWithoutInstitutionInput = {
+  where: Prisma.AssociationWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput>
+}
+
+export type AssociationCreateManyInstitutionInputEnvelope = {
+  data: Prisma.AssociationCreateManyInstitutionInput | Prisma.AssociationCreateManyInstitutionInput[]
+  skipDuplicates?: boolean
+}
+
+export type AssociationUpsertWithWhereUniqueWithoutInstitutionInput = {
+  where: Prisma.AssociationWhereUniqueInput
+  update: Prisma.XOR<Prisma.AssociationUpdateWithoutInstitutionInput, Prisma.AssociationUncheckedUpdateWithoutInstitutionInput>
+  create: Prisma.XOR<Prisma.AssociationCreateWithoutInstitutionInput, Prisma.AssociationUncheckedCreateWithoutInstitutionInput>
+}
+
+export type AssociationUpdateWithWhereUniqueWithoutInstitutionInput = {
+  where: Prisma.AssociationWhereUniqueInput
+  data: Prisma.XOR<Prisma.AssociationUpdateWithoutInstitutionInput, Prisma.AssociationUncheckedUpdateWithoutInstitutionInput>
+}
+
+export type AssociationUpdateManyWithWhereWithoutInstitutionInput = {
+  where: Prisma.AssociationScalarWhereInput
+  data: Prisma.XOR<Prisma.AssociationUpdateManyMutationInput, Prisma.AssociationUncheckedUpdateManyWithoutInstitutionInput>
+}
+
+export type AssociationScalarWhereInput = {
+  AND?: Prisma.AssociationScalarWhereInput | Prisma.AssociationScalarWhereInput[]
+  OR?: Prisma.AssociationScalarWhereInput[]
+  NOT?: Prisma.AssociationScalarWhereInput | Prisma.AssociationScalarWhereInput[]
+  id?: Prisma.UuidFilter<"Association"> | string
+  name?: Prisma.StringFilter<"Association"> | string
+  shortCode?: Prisma.StringFilter<"Association"> | string
+  institutionId?: Prisma.UuidNullableFilter<"Association"> | string | null
+  faculty?: Prisma.StringFilter<"Association"> | string
+  department?: Prisma.StringNullableFilter<"Association"> | string | null
+  whatsappNumber?: Prisma.StringFilter<"Association"> | string
+  email?: Prisma.StringNullableFilter<"Association"> | string | null
+  passwordHash?: Prisma.StringNullableFilter<"Association"> | string | null
+  status?: Prisma.EnumAssociationStatusFilter<"Association"> | $Enums.AssociationStatus
+  transparency?: Prisma.JsonNullableFilter<"Association">
+  createdAt?: Prisma.DateTimeFilter<"Association"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Association"> | Date | string
+}
+
 export type AssociationCreateWithoutExecutivesInput = {
   id?: string
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -610,14 +848,19 @@ export type AssociationCreateWithoutExecutivesInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutExecutivesInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -653,7 +896,10 @@ export type AssociationUpdateWithoutExecutivesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -666,14 +912,19 @@ export type AssociationUpdateWithoutExecutivesInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutExecutivesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -693,7 +944,10 @@ export type AssociationCreateWithoutMembershipsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -706,14 +960,19 @@ export type AssociationCreateWithoutMembershipsInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutMembershipsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -749,7 +1008,10 @@ export type AssociationUpdateWithoutMembershipsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -762,14 +1024,19 @@ export type AssociationUpdateWithoutMembershipsInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -789,7 +1056,10 @@ export type AssociationCreateWithoutVerificationRequestsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -802,14 +1072,19 @@ export type AssociationCreateWithoutVerificationRequestsInput = {
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutVerificationRequestsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -845,7 +1120,10 @@ export type AssociationUpdateWithoutVerificationRequestsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -858,14 +1136,19 @@ export type AssociationUpdateWithoutVerificationRequestsInput = {
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutVerificationRequestsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -885,7 +1168,10 @@ export type AssociationCreateWithoutFeesInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -898,14 +1184,19 @@ export type AssociationCreateWithoutFeesInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutFeesInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -941,7 +1232,10 @@ export type AssociationUpdateWithoutFeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -954,14 +1248,19 @@ export type AssociationUpdateWithoutFeesInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutFeesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -981,7 +1280,10 @@ export type AssociationCreateWithoutAnnouncementsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -994,14 +1296,19 @@ export type AssociationCreateWithoutAnnouncementsInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutAnnouncementsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1037,7 +1344,10 @@ export type AssociationUpdateWithoutAnnouncementsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1050,14 +1360,19 @@ export type AssociationUpdateWithoutAnnouncementsInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutAnnouncementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1077,7 +1392,10 @@ export type AssociationCreateWithoutEventsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1090,14 +1408,19 @@ export type AssociationCreateWithoutEventsInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutEventsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1133,7 +1456,10 @@ export type AssociationUpdateWithoutEventsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1146,14 +1472,19 @@ export type AssociationUpdateWithoutEventsInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1173,7 +1504,10 @@ export type AssociationCreateWithoutAiDocumentsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1186,14 +1520,19 @@ export type AssociationCreateWithoutAiDocumentsInput = {
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutAiDocumentsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1229,7 +1568,10 @@ export type AssociationUpdateWithoutAiDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1242,14 +1584,19 @@ export type AssociationUpdateWithoutAiDocumentsInput = {
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutAiDocumentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1269,7 +1616,10 @@ export type AssociationCreateWithoutVaultItemsInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1282,14 +1632,19 @@ export type AssociationCreateWithoutVaultItemsInput = {
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   timetableUpdates?: Prisma.TimetableUpdateCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutVaultItemsInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1325,7 +1680,10 @@ export type AssociationUpdateWithoutVaultItemsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1338,14 +1696,19 @@ export type AssociationUpdateWithoutVaultItemsInput = {
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutVaultItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1365,7 +1728,10 @@ export type AssociationCreateWithoutTimetableUpdatesInput = {
   name: string
   shortCode: string
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1378,14 +1744,19 @@ export type AssociationCreateWithoutTimetableUpdatesInput = {
   aiDocuments?: Prisma.AiDocumentCreateNestedManyWithoutAssociationInput
   verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutAssociationInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutAssociationInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutAssociationsInput
 }
 
 export type AssociationUncheckedCreateWithoutTimetableUpdatesInput = {
   id?: string
   name: string
   shortCode: string
+  institutionId?: string | null
   faculty: string
+  department?: string | null
   whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
   status?: $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
@@ -1421,7 +1792,10 @@ export type AssociationUpdateWithoutTimetableUpdatesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1434,14 +1808,19 @@ export type AssociationUpdateWithoutTimetableUpdatesInput = {
   aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutAssociationsNestedInput
 }
 
 export type AssociationUncheckedUpdateWithoutTimetableUpdatesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
   transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1454,6 +1833,84 @@ export type AssociationUncheckedUpdateWithoutTimetableUpdatesInput = {
   aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
   verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
+}
+
+export type AssociationCreateManyInstitutionInput = {
+  id?: string
+  name: string
+  shortCode: string
+  faculty: string
+  department?: string | null
+  whatsappNumber: string
+  email?: string | null
+  passwordHash?: string | null
+  status?: $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type AssociationUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  executives?: Prisma.AssociationExecutiveUpdateManyWithoutAssociationNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutAssociationNestedInput
+  fees?: Prisma.FeeUpdateManyWithoutAssociationNestedInput
+  announcements?: Prisma.AnnouncementUpdateManyWithoutAssociationNestedInput
+  events?: Prisma.EventUpdateManyWithoutAssociationNestedInput
+  aiDocuments?: Prisma.AiDocumentUpdateManyWithoutAssociationNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutAssociationNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUpdateManyWithoutAssociationNestedInput
+}
+
+export type AssociationUncheckedUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  executives?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutAssociationNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutAssociationNestedInput
+  fees?: Prisma.FeeUncheckedUpdateManyWithoutAssociationNestedInput
+  announcements?: Prisma.AnnouncementUncheckedUpdateManyWithoutAssociationNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutAssociationNestedInput
+  aiDocuments?: Prisma.AiDocumentUncheckedUpdateManyWithoutAssociationNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutAssociationNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutAssociationNestedInput
+  timetableUpdates?: Prisma.TimetableUpdateUncheckedUpdateManyWithoutAssociationNestedInput
+}
+
+export type AssociationUncheckedUpdateManyWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortCode?: Prisma.StringFieldUpdateOperationsInput | string
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  whatsappNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumAssociationStatusFieldUpdateOperationsInput | $Enums.AssociationStatus
+  transparency?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1563,8 +2020,12 @@ export type AssociationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   id?: boolean
   name?: boolean
   shortCode?: boolean
+  institutionId?: boolean
   faculty?: boolean
+  department?: boolean
   whatsappNumber?: boolean
+  email?: boolean
+  passwordHash?: boolean
   status?: boolean
   transparency?: boolean
   createdAt?: boolean
@@ -1578,6 +2039,7 @@ export type AssociationSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   verificationRequests?: boolean | Prisma.Association$verificationRequestsArgs<ExtArgs>
   vaultItems?: boolean | Prisma.Association$vaultItemsArgs<ExtArgs>
   timetableUpdates?: boolean | Prisma.Association$timetableUpdatesArgs<ExtArgs>
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["association"]>
 
@@ -1585,39 +2047,53 @@ export type AssociationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   id?: boolean
   name?: boolean
   shortCode?: boolean
+  institutionId?: boolean
   faculty?: boolean
+  department?: boolean
   whatsappNumber?: boolean
+  email?: boolean
+  passwordHash?: boolean
   status?: boolean
   transparency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["association"]>
 
 export type AssociationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   shortCode?: boolean
+  institutionId?: boolean
   faculty?: boolean
+  department?: boolean
   whatsappNumber?: boolean
+  email?: boolean
+  passwordHash?: boolean
   status?: boolean
   transparency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["association"]>
 
 export type AssociationSelectScalar = {
   id?: boolean
   name?: boolean
   shortCode?: boolean
+  institutionId?: boolean
   faculty?: boolean
+  department?: boolean
   whatsappNumber?: boolean
+  email?: boolean
+  passwordHash?: boolean
   status?: boolean
   transparency?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AssociationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "shortCode" | "faculty" | "whatsappNumber" | "status" | "transparency" | "createdAt" | "updatedAt", ExtArgs["result"]["association"]>
+export type AssociationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "shortCode" | "institutionId" | "faculty" | "department" | "whatsappNumber" | "email" | "passwordHash" | "status" | "transparency" | "createdAt" | "updatedAt", ExtArgs["result"]["association"]>
 export type AssociationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   executives?: boolean | Prisma.Association$executivesArgs<ExtArgs>
   memberships?: boolean | Prisma.Association$membershipsArgs<ExtArgs>
@@ -1628,10 +2104,15 @@ export type AssociationInclude<ExtArgs extends runtime.Types.Extensions.Internal
   verificationRequests?: boolean | Prisma.Association$verificationRequestsArgs<ExtArgs>
   vaultItems?: boolean | Prisma.Association$vaultItemsArgs<ExtArgs>
   timetableUpdates?: boolean | Prisma.Association$timetableUpdatesArgs<ExtArgs>
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.AssociationCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type AssociationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type AssociationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type AssociationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
+}
+export type AssociationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institution?: boolean | Prisma.Association$institutionArgs<ExtArgs>
+}
 
 export type $AssociationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Association"
@@ -1645,13 +2126,18 @@ export type $AssociationPayload<ExtArgs extends runtime.Types.Extensions.Interna
     verificationRequests: Prisma.$VerificationRequestPayload<ExtArgs>[]
     vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
     timetableUpdates: Prisma.$TimetableUpdatePayload<ExtArgs>[]
+    institution: Prisma.$InstitutionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     shortCode: string
+    institutionId: string | null
     faculty: string
+    department: string | null
     whatsappNumber: string
+    email: string | null
+    passwordHash: string | null
     status: $Enums.AssociationStatus
     transparency: runtime.JsonValue | null
     createdAt: Date
@@ -2059,6 +2545,7 @@ export interface Prisma__AssociationClient<T, Null = never, ExtArgs extends runt
   verificationRequests<T extends Prisma.Association$verificationRequestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$verificationRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VerificationRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vaultItems<T extends Prisma.Association$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   timetableUpdates<T extends Prisma.Association$timetableUpdatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$timetableUpdatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimetableUpdatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  institution<T extends Prisma.Association$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Association$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2091,8 +2578,12 @@ export interface AssociationFieldRefs {
   readonly id: Prisma.FieldRef<"Association", 'String'>
   readonly name: Prisma.FieldRef<"Association", 'String'>
   readonly shortCode: Prisma.FieldRef<"Association", 'String'>
+  readonly institutionId: Prisma.FieldRef<"Association", 'String'>
   readonly faculty: Prisma.FieldRef<"Association", 'String'>
+  readonly department: Prisma.FieldRef<"Association", 'String'>
   readonly whatsappNumber: Prisma.FieldRef<"Association", 'String'>
+  readonly email: Prisma.FieldRef<"Association", 'String'>
+  readonly passwordHash: Prisma.FieldRef<"Association", 'String'>
   readonly status: Prisma.FieldRef<"Association", 'AssociationStatus'>
   readonly transparency: Prisma.FieldRef<"Association", 'Json'>
   readonly createdAt: Prisma.FieldRef<"Association", 'DateTime'>
@@ -2351,6 +2842,10 @@ export type AssociationCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    */
   data: Prisma.AssociationCreateManyInput | Prisma.AssociationCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssociationIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2421,6 +2916,10 @@ export type AssociationUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many Associations to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AssociationIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2703,6 +3202,25 @@ export type Association$timetableUpdatesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.TimetableUpdateScalarFieldEnum | Prisma.TimetableUpdateScalarFieldEnum[]
+}
+
+/**
+ * Association.institution
+ */
+export type Association$institutionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institution
+   */
+  select?: Prisma.InstitutionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institution
+   */
+  omit?: Prisma.InstitutionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstitutionInclude<ExtArgs> | null
+  where?: Prisma.InstitutionWhereInput
 }
 
 /**

@@ -11,6 +11,7 @@ import { Prisma, VerificationStatus } from "../generated/prisma/client";
 import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
 import { InAppNotificationsService } from "../notifications/in-app.service";
+import { InstitutionsService } from "../institutions/institutions.service";
 
 @Injectable()
 export class AdminService {
@@ -21,6 +22,7 @@ export class AdminService {
     private readonly auditService: AuditService,
     private readonly aiService: AiService,
     private readonly inAppNotificationsService: InAppNotificationsService,
+    private readonly institutionsService: InstitutionsService,
   ) {}
 
   /**
@@ -52,6 +54,10 @@ export class AdminService {
         name: a.name,
         shortCode: a.shortCode,
         faculty: a.faculty,
+        department: a.department ?? null,
+        institutionId: a.institutionId,
+        hasLogin: Boolean(a.passwordHash),
+        loginEmail: a.email ?? null,
         status: a.status,
         memberCount: a._count.memberships,
         feeCount: a._count.fees,
@@ -68,32 +74,172 @@ export class AdminService {
   }
 
   /**
-   * Create a new association.
+   * Create a new association with optional institution/faculty/department
+   * targeting, association login credentials, and auto-membership + notification
+   * fan-out to matching students.
    */
-  async createAssociation(dto: {
-    name: string;
-    shortCode: string;
-    faculty: string;
-    whatsappNumber?: string;
-  }) {
+  async createAssociation(
+    dto: {
+      name: string;
+      shortCode: string;
+      institutionId?: string;
+      faculty: string;
+      department?: string;
+      whatsappNumber?: string;
+      email?: string;
+      password?: string;
+    },
+    adminId: string,
+    ipAddress: string,
+  ) {
+    // Hash association login password if provided.
+    let passwordHash: string | undefined;
+    if (dto.email && dto.password) {
+      const existing = await this.prisma.association.findUnique({
+        where: { email: dto.email.toLowerCase().trim() },
+      });
+      if (existing) {
+        throw new ConflictException(
+          "An association with this login email already exists",
+        );
+      }
+      passwordHash = await argon2.hash(dto.password, {
+        type: argon2.argon2id,
+        memoryCost: 65536,
+        timeCost: 3,
+        parallelism: 4,
+      });
+    }
+
     const association = await this.prisma.association.create({
       data: {
         name: dto.name,
         shortCode: dto.shortCode.toUpperCase(),
+        institutionId: dto.institutionId || null,
         faculty: dto.faculty,
+        department: dto.department || null,
         whatsappNumber: dto.whatsappNumber || "",
+        email: dto.email?.toLowerCase().trim() || null,
+        passwordHash: passwordHash || null,
       },
     });
 
-    this.logger.log(`Admin created association: ${association.name}`);
+    await this.auditService.log({
+      actorType: "admin",
+      actorId: adminId,
+      action: "association.created",
+      targetType: "association",
+      targetId: association.id,
+      ipAddress,
+      metadata: {
+        name: association.name,
+        shortCode: association.shortCode,
+        institutionId: dto.institutionId || null,
+        faculty: dto.faculty,
+        department: dto.department || null,
+        hasLogin: Boolean(dto.email),
+      },
+    });
+
+    this.logger.log(
+      `Admin ${adminId} created association: ${association.name} (faculty=${association.faculty}, department=${association.department || "faculty-wide"}, institution=${dto.institutionId || "none"})`,
+    );
+
+    // ── Auto-membership + notifications for matching students ─────
+    // When an association is scoped to a specific institution + faculty
+    // (and optionally department), find all registered users matching that
+    // scope and auto-add them as live members, then notify them.
+    if (dto.institutionId) {
+      void this.autoEnrollAndNotify(
+        association.id,
+        dto.institutionId,
+        dto.faculty,
+        dto.department,
+      );
+    }
 
     return {
       id: association.id,
       name: association.name,
       shortCode: association.shortCode,
       faculty: association.faculty,
+      department: association.department,
+      institutionId: association.institutionId,
+      hasLogin: Boolean(association.passwordHash),
       status: association.status,
     };
+  }
+
+  /**
+   * Auto-enroll matching students into a newly created association and send
+   * them an in-app notification that dues are now available. Fire-and-forget.
+   */
+  private async autoEnrollAndNotify(
+    associationId: string,
+    institutionId: string,
+    faculty: string,
+    department?: string | null,
+  ): Promise<void> {
+    try {
+      const userWhere: Record<string, unknown> = {
+        institutionId,
+        faculty,
+        ...(department ? { department } : {}),
+        deletedAt: null,
+        emailVerified: true,
+      };
+
+      const users = await this.prisma.user.findMany({
+        where: userWhere as Prisma.UserWhereInput,
+        select: { id: true },
+      });
+
+      if (users.length === 0) {
+        this.logger.log(
+          `No matching users for association ${associationId} auto-enrollment.`,
+        );
+        return;
+      }
+
+      // Batch-upsert memberships as `live`.
+      const membershipData = users.map((u) => ({
+        userId: u.id,
+        associationId,
+        status: "live" as const,
+      }));
+
+      for (const row of membershipData) {
+        await this.prisma.membership.upsert({
+          where: {
+            userId_associationId: {
+              userId: row.userId,
+              associationId: row.associationId,
+            },
+          },
+          create: row,
+          update: { status: "live" },
+        });
+      }
+
+      this.logger.log(
+        `Auto-enrolled ${users.length} users into association ${associationId}`,
+      );
+
+      // Notify them that they can now pay dues.
+      void this.inAppNotificationsService.createForUsers(
+        users.map((u) => u.id),
+        {
+          title: "You can now pay your dues!",
+          body: `Your faculty association is now on Matriq. Open the app to pay your dues and get your e-receipt instantly.`,
+          type: "dues",
+          link: "Fees",
+        },
+      );
+    } catch (err) {
+      this.logger.warn(
+        `Auto-enrollment for association ${associationId} failed (not critical): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 
   /**
@@ -172,10 +318,17 @@ export class AdminService {
       }),
       // Active-user trend / growth over time (spec §1): signups in the
       // last 7 and 30 days plus a 6-week series for the trend card.
-      this.prisma.user.count({ where: { deletedAt: null, createdAt: { gte: weekAgo } } }),
-      this.prisma.user.count({ where: { deletedAt: null, createdAt: { gte: monthAgo } } }),
+      this.prisma.user.count({
+        where: { deletedAt: null, createdAt: { gte: weekAgo } },
+      }),
+      this.prisma.user.count({
+        where: { deletedAt: null, createdAt: { gte: monthAgo } },
+      }),
       this.prisma.user.findMany({
-        where: { deletedAt: null, createdAt: { gte: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000) } },
+        where: {
+          deletedAt: null,
+          createdAt: { gte: new Date(Date.now() - 42 * 24 * 60 * 60 * 1000) },
+        },
         select: { createdAt: true },
       }),
       this.prisma.association.findMany({
@@ -587,7 +740,9 @@ export class AdminService {
     // (round-2 QA §9). Fire-and-forget — moderation is already committed.
     void this.inAppNotificationsService.createForUser(item.userId, {
       title:
-        status === "approved" ? "Vault upload approved" : "Vault upload rejected",
+        status === "approved"
+          ? "Vault upload approved"
+          : "Vault upload rejected",
       body:
         status === "approved"
           ? `"${item.title}" (${item.courseCode}) is now live for your school.`
@@ -621,7 +776,9 @@ export class AdminService {
     const title = dto.title.trim().slice(0, 140);
     const body = dto.body.trim().slice(0, 500);
     if (!title || !body) {
-      throw new BadRequestException("Broadcast needs both a title and a message");
+      throw new BadRequestException(
+        "Broadcast needs both a title and a message",
+      );
     }
 
     await this.auditService.log({

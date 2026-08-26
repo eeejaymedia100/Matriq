@@ -49,6 +49,9 @@ import { VerificationUploadScreen } from "../screens/verification/VerificationUp
 import { VerificationStatusScreen } from "../screens/verification/VerificationStatusScreen";
 import { CgpaCalculatorScreen } from "../screens/tools/CgpaCalculatorScreen";
 import { OcrScreen } from "../screens/tools/OcrScreen";
+import { NotesScreen } from "../screens/notes/NotesScreen";
+import { NoteEditorScreen } from "../screens/notes/NoteEditorScreen";
+import { DocumentReaderScreen } from "../screens/vault/DocumentReaderScreen";
 import { ImageToPdfScreen } from "../screens/tools/ImageToPdfScreen";
 import { FileCompressorScreen } from "../screens/tools/FileCompressorScreen";
 import { PdfMergeScreen } from "../screens/tools/PdfMergeScreen";
@@ -165,6 +168,9 @@ function MainNavigator() {
       <MainStack.Screen name="Quiz" component={QuizScreen} options={{ title: "Quiz" }} />
       <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
       <MainStack.Screen name="Ocr" component={OcrScreen} options={{ title: "Image to Text" }} />
+      <MainStack.Screen name="Notes" component={NotesScreen} options={{ title: "Notes" }} />
+      <MainStack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ title: "Note" }} />
+      <MainStack.Screen name="DocumentReader" component={DocumentReaderScreen} options={{ title: "Read" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
       <MainStack.Screen name="FileCompressor" component={FileCompressorScreen} options={{ title: "File Compressor" }} />
       <MainStack.Screen name="PdfMerge" component={PdfMergeScreen} options={{ title: "PDF Merge" }} />

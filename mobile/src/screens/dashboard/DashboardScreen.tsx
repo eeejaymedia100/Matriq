@@ -241,7 +241,7 @@ export function DashboardScreen({ navigation }: { navigation: { navigate: (s: st
                     </View>
                     <TouchableOpacity
                       style={styles.payBtn}
-                      onPress={() => navigation.navigate("PayFee", { feeId: fee.id })}
+                      onPress={() => navigation.navigate("PayFee", { feeId: fee.id, feeAmountKobo: fee.amountKobo })}
                     >
                       <Text style={styles.payBtnText}>Pay Now</Text>
                     </TouchableOpacity>

@@ -88,13 +88,18 @@ export async function loadConfig(): Promise<OfflineConfig> {
 }
 
 export async function saveConfig(config: OfflineConfig): Promise<void> {
-  await FileSystem.makeDirectoryAsync(`${baseDir()}matriq-offline-ai/`, {
-    intermediates: true,
-  }).catch(() => {});
-  await FileSystem.writeAsStringAsync(
-    `${baseDir()}${CONFIG_FILE}`,
-    JSON.stringify(config),
-  );
+  try {
+    await FileSystem.makeDirectoryAsync(`${baseDir()}matriq-offline-ai/`, {
+      intermediates: true,
+    }).catch(() => {});
+    await FileSystem.writeAsStringAsync(
+      `${baseDir()}${CONFIG_FILE}`,
+      JSON.stringify(config),
+    );
+  } catch {
+    // Persistence is best-effort: a failed write (quota, locked storage)
+    // must never propagate to boot or config-change callers.
+  }
 }
 
 /**

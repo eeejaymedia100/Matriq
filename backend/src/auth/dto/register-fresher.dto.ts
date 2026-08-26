@@ -25,6 +25,9 @@ export class RegisterFresherDto {
   department: string;
 
   @IsString()
+  institutionId?: string;
+
+  @IsString()
   @IsNotEmpty()
   privacyPolicyVersion: string;
 

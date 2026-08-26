@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Platform } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
-import { Input, Button, ErrorBanner, PasswordStrength, TermsCheckbox } from "../../components";
+import { Input, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth, type FresherData } from "../../contexts/AuthContext";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
@@ -23,6 +23,9 @@ type FieldKey = keyof Pick<
   FresherData,
   "fullName" | "email" | "jambNumber" | "faculty" | "department" | "password"
 >;
+
+const INSTITUTION_HINT =
+  "Pick your school so your faculty association finds you automatically. Not listed? Just type your faculty and department below.";
 
 function validate(form: FresherData): Partial<Record<FieldKey, string>> {
   const e: Partial<Record<FieldKey, string>> = {};
@@ -47,6 +50,7 @@ export function RegisterFresherScreen({ navigation }: Props) {
     password: "",
     fullName: "",
     jambNumber: "",
+    institutionId: "",
     faculty: "",
     department: "",
     privacyPolicyVersion: "1.0",
@@ -169,23 +173,14 @@ export function RegisterFresherScreen({ navigation }: Props) {
             error={fieldError("jambNumber")}
             valid={!fieldError("jambNumber")}
           />
-          <Input
-            label="Faculty"
-            placeholder="Science"
-            value={form.faculty}
-            onChangeText={(v) => update("faculty", v)}
-            onBlur={() => onBlur("faculty")}
-            error={fieldError("faculty")}
-            valid={!fieldError("faculty")}
-          />
-          <Input
-            label="Department"
-            placeholder="Biochemistry"
-            value={form.department}
-            onChangeText={(v) => update("department", v)}
-            onBlur={() => onBlur("department")}
-            error={fieldError("department")}
-            valid={!fieldError("department")}
+          <InstitutionCascadePicker
+            institutionId={form.institutionId ?? ""}
+            faculty={form.faculty}
+            department={form.department}
+            onChange={(institutionId, faculty, department) =>
+              setForm((f) => ({ ...f, institutionId, faculty, department }))
+            }
+            hint={INSTITUTION_HINT}
           />
           <Input
             label="Password"

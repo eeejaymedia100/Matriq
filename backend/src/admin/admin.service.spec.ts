@@ -8,6 +8,7 @@ import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { InAppNotificationsService } from "../notifications/in-app.service";
+import { InstitutionsService } from "../institutions/institutions.service";
 
 // Mock otplib to avoid ESM/CJS compatibility issues
 jest.mock("otplib", () => ({
@@ -321,7 +322,12 @@ describe("AdminService", () => {
       findUnique: jest.Mock;
       update: jest.Mock;
     };
-    user: { count: jest.Mock; findMany: jest.Mock; findUnique: jest.Mock; update: jest.Mock };
+    user: {
+      count: jest.Mock;
+      findMany: jest.Mock;
+      findUnique: jest.Mock;
+      update: jest.Mock;
+    };
     payment: { count: jest.Mock; aggregate: jest.Mock; groupBy: jest.Mock };
     fee: { findMany: jest.Mock };
     vaultItem: { groupBy: jest.Mock; count: jest.Mock };
@@ -369,7 +375,16 @@ describe("AdminService", () => {
         { provide: PrismaService, useValue: prisma },
         { provide: AuditService, useValue: mockAudit },
         { provide: AiService, useValue: mockAiService },
-        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
+        { provide: InstitutionsService, useValue: {} },
+        {
+          provide: InAppNotificationsService,
+          useValue: {
+            createForUser: jest.fn().mockResolvedValue(undefined),
+            createForUsers: jest.fn().mockResolvedValue(undefined),
+            createForAssociationMembers: jest.fn().mockResolvedValue(undefined),
+            createForAllUsers: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
@@ -386,11 +401,15 @@ describe("AdminService", () => {
         status: "active",
       });
 
-      const result = await service.createAssociation({
-        name: "NAAS",
-        shortCode: "naas",
-        faculty: "Agriculture",
-      });
+      const result = await service.createAssociation(
+        {
+          name: "NAAS",
+          shortCode: "naas",
+          faculty: "Agriculture",
+        },
+        "admin-1",
+        "127.0.0.1",
+      );
 
       expect(result.shortCode).toBe("NAAS");
       expect(prisma.association.create).toHaveBeenCalled();

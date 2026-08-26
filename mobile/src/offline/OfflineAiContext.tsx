@@ -155,17 +155,29 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Load persisted state once at startup.
+  // Fully guarded: a storage failure (locked document dir, quota, etc.) must
+  // degrade to a fresh default config — never an unhandled rejection that
+  // could take the app down during boot.
   useEffect(() => {
     (async () => {
-      // Make sure the models directory exists up front — the Android native
-      // downloader fails immediately when the target directory is missing.
-      await ensureModelsDir();
-      const loaded = await loadConfig();
-      const reconciled = await reconcileDownloads(loaded);
-      configRef.current = reconciled;
-      setConfigState(reconciled);
-      void saveConfig(reconciled);
-      void refreshFreeSpace();
+      try {
+        // Make sure the models directory exists up front — the Android native
+        // downloader fails immediately when the target directory is missing.
+        await ensureModelsDir();
+        const loaded = await loadConfig();
+        const reconciled = await reconcileDownloads(loaded);
+        configRef.current = reconciled;
+        setConfigState(reconciled);
+        await saveConfig(reconciled);
+      } catch {
+        // Storage unavailable/corrupt — fall back to defaults so the offline
+        // AI feature is disabled but the app itself keeps booting.
+        const fallback = { ...configRef.current };
+        configRef.current = fallback;
+        setConfigState(fallback);
+      } finally {
+        void refreshFreeSpace();
+      }
     })();
   }, [refreshFreeSpace]);
 
@@ -222,8 +234,8 @@ export function OfflineAiProvider({ children }: { children: ReactNode }) {
         engineRef.current = null;
         engineModelIdRef.current = null;
       }
-      const uri = modelFileUri(modelId);
       try {
+        const uri = modelFileUri(modelId);
         const ctx = await initLlama(
           {
             model: uri,

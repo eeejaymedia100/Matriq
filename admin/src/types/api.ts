@@ -8,9 +8,38 @@ export interface Association {
   name: string;
   shortCode: string;
   faculty: string;
+  department: string | null;
+  institutionId: string | null;
   whatsappNumber: string;
   status: "active" | "suspended";
   transparency: Record<string, unknown> | null;
+  /** Association dashboard login (custom password set by the admin). */
+  hasLogin: boolean;
+  loginEmail: string | null;
+  memberCount: number;
+  feeCount: number;
+}
+
+export interface Institution {
+  id: string;
+  name: string;
+  shortName: string | null;
+  type: "university" | "polytechnic" | "college_of_education";
+  state: string | null;
+}
+
+export interface Faculty {
+  id: string;
+  name: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+}
+
+export interface InstitutionCascade extends Institution {
+  faculties: Array<Faculty & { departments: Department[] }>;
 }
 
 export interface AnalyticsData {
@@ -110,6 +139,11 @@ export interface AdminVerificationRequest {
     registrationType: string;
   };
   association: { id: string; name: string; shortCode: string };
+}
+
+export interface VaultTextPreview {
+  text: string;
+  source: "pdf" | "ocr" | "none";
 }
 
 export interface AdminVaultItem {

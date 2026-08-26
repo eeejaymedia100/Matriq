@@ -1,12 +1,5 @@
-import React, { useEffect } from "react";
-import { Image, StyleSheet, Text, useColorScheme } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withTiming,
-} from "react-native-reanimated";
+import React, { useEffect, useRef } from "react";
+import { Animated, Easing, Image, StyleSheet, Text, useColorScheme } from "react-native";
 import { TAGLINE } from "../theme/tokens";
 
 /** Matches the native splash config in app.json so the native → JS handoff is
@@ -22,9 +15,14 @@ interface AnimatedSplashScreenProps {
 
 /**
  * JS splash overlay that takes over from the native launch screen and
- * seamlessly scales + fades the brand logo out into the first app screen
- * (passcode). The logo follows the system light/dark mode: purple M in light,
- * lime M in dark — matching the theme-aware launcher icons.
+ * seamlessly scales + fades the brand logo out into the first app screen.
+ *
+ * NOTE: this component deliberately uses React Native's core `Animated` (JS
+ * thread) instead of react-native-reanimated. It is the very first thing that
+ * animates — reanimated's JSI worklet runtime may not be fully initialized yet
+ * on this frame, and calling useSharedValue / withTiming before the native
+ * bridge is ready causes a silent native crash (no JS error, the app just
+ * closes). ThemePickerScreen follows the same rule for the same reason.
  */
 export function AnimatedSplashScreen({ ready, onDone }: AnimatedSplashScreenProps) {
   const scheme = useColorScheme();
@@ -33,47 +31,62 @@ export function AnimatedSplashScreen({ ready, onDone }: AnimatedSplashScreenProp
     ? require("../../assets/splash-icon-dark.png")
     : require("../../assets/splash-icon.png");
 
-  const logoScale = useSharedValue(1);
-  const logoOpacity = useSharedValue(1);
-  const overlayOpacity = useSharedValue(1);
+  const logoScale = useRef(new Animated.Value(1)).current;
+  const logoOpacity = useRef(new Animated.Value(1)).current;
+  const overlayOpacity = useRef(new Animated.Value(1)).current;
+  const hasStarted = useRef(false);
 
   useEffect(() => {
-    if (!ready) return;
-    // Logo scales up and fades, then the whole overlay dissolves into the app.
-    logoScale.value = withTiming(1.22, {
-      duration: 600,
-      easing: Easing.inOut(Easing.cubic),
-    });
-    logoOpacity.value = withTiming(0, {
-      duration: 450,
-      easing: Easing.out(Easing.quad),
-    });
-    overlayOpacity.value = withDelay(
-      120,
-      withTiming(0, { duration: 620, easing: Easing.out(Easing.cubic) }, () => {
-        // Fire unconditionally — if reanimated ever reports an interrupted
-        // animation, the overlay must still unmount (App.tsx also has a
-        // 4s hard failsafe on top of this).
-        onDone();
+    if (!ready || hasStarted.current) return;
+    hasStarted.current = true;
+
+    // Logo scales up and fades.
+    Animated.parallel([
+      Animated.timing(logoScale, {
+        toValue: 1.22,
+        duration: 600,
+        easing: Easing.inOut(Easing.cubic),
+        useNativeDriver: true,
       }),
-    );
+      Animated.timing(logoOpacity, {
+        toValue: 0,
+        duration: 450,
+        easing: Easing.out(Easing.quad),
+        useNativeDriver: true,
+      }),
+      // Overlay fades with a slight delay.
+      Animated.sequence([
+        Animated.delay(120),
+        Animated.timing(overlayOpacity, {
+          toValue: 0,
+          duration: 620,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(({ finished }) => {
+      // Fire unconditionally — "finished" is false when the animation was
+      // interrupted (e.g. App.tsx's 4s hard failsafe unmounts us early), but
+      // the overlay must always unmount so the user is never trapped.
+      onDone();
+    });
   }, [ready, onDone, logoScale, logoOpacity, overlayOpacity]);
 
-  const logoStyle = useAnimatedStyle(() => ({
-    opacity: logoOpacity.value,
-    transform: [{ scale: logoScale.value }],
-  }));
+  const logoAnimStyle = {
+    opacity: logoOpacity,
+    transform: [{ scale: logoScale }],
+  };
 
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
-  }));
+  const overlayAnimStyle = {
+    opacity: overlayOpacity,
+  };
 
   return (
     <Animated.View
-      style={[StyleSheet.absoluteFill, styles.overlay, overlayStyle]}
+      style={[StyleSheet.absoluteFill, styles.overlay, overlayAnimStyle]}
       pointerEvents={ready ? "none" : "auto"}
     >
-      <Animated.View style={[styles.center, logoStyle]}>
+      <Animated.View style={[styles.center, logoAnimStyle]}>
         <Image source={logo} style={styles.logo} resizeMode="contain" />
         <Text style={styles.tagline}>{TAGLINE}</Text>
       </Animated.View>

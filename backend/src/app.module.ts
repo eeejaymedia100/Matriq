@@ -21,6 +21,7 @@ import { VaultModule } from "./vault/vault.module";
 import { ToolsModule } from "./tools/tools.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
+import { InstitutionsModule } from "./institutions/institutions.module";
 import { TimetableModule } from "./timetable/timetable.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
@@ -62,6 +63,7 @@ import { EmailModule } from "./email/email.module";
     ToolsModule,
     NotificationsModule,
     WaitlistModule,
+    InstitutionsModule,
     TimetableModule,
     HealthModule,
     EmailModule,

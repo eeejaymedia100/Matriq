@@ -220,7 +220,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                       </Text>
                     </View>
                     <Pressable
-                      onPress={() => navigation.navigate("PayFee", { feeId: fee.id })}
+                      onPress={() => navigation.navigate("PayFee", { feeId: fee.id, feeAmountKobo: fee.amountKobo })}
                       style={{
                         marginTop: 12,
                         alignItems: "center",

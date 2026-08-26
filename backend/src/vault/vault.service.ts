@@ -6,9 +6,12 @@ import {
   Logger,
 } from "@nestjs/common";
 import { zipSync } from "fflate";
+import pdfParse from "pdf-parse";
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { AuditService } from "../audit/audit.service";
+import { ToolsService } from "../tools/tools.service";
 import type {
   VaultItemType,
   VaultVisibility,
@@ -46,6 +49,14 @@ export interface UploadVaultDto {
   termsVersion: string;
 }
 
+export class RenameVaultItemDto {
+  /** New display filename (extension is preserved automatically when omitted). */
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  originalName: string;
+}
+
 export function normalizeCourseCode(raw: string): string {
   return raw.trim().toUpperCase().replace(/\s+/g, " ");
 }
@@ -58,6 +69,7 @@ export class VaultService {
     private readonly prisma: PrismaService,
     private readonly storageService: StorageService,
     private readonly auditService: AuditService,
+    private readonly toolsService: ToolsService,
   ) {}
 
   // ── Student: search the vault ─────────────────────────────────
@@ -269,6 +281,178 @@ export class VaultService {
     };
   }
 
+  // ── Student: rename (owner only) ──────────────────────────────
+
+  /**
+   * Rename an upload's display filename. Owner-only; the stored file itself
+   * is untouched — only `originalName` changes. When the new name has no
+   * extension (or a different one), the original extension wins so the file
+   * stays a PDF/PNG/… after a rename.
+   */
+  async renameItem(
+    userId: string,
+    ipAddress: string,
+    itemId: string,
+    originalName: string,
+  ) {
+    const item = await this.prisma.vaultItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!item || item.deletedAt) {
+      throw new NotFoundException("That item isn't in the Vault anymore.");
+    }
+    if (item.userId !== userId) {
+      throw new ForbiddenException("You can only rename your own uploads.");
+    }
+
+    let name = (originalName ?? "")
+      .replace(/[\\/]/g, "_")
+      .replace(/[\u0000-\u001f]/g, "")
+      .trim()
+      .slice(0, 200);
+    if (!name) {
+      throw new BadRequestException("Enter a file name.");
+    }
+
+    // Extension preservation: "chm101 answers" → "chm101 answers.pdf", and
+    // "answers.docx" on a PDF item → "answers.pdf" (rename ≠ convert).
+    const currentExt =
+      item.originalName.match(/\.[a-z0-9]+$/i)?.[0]?.toLowerCase() ?? "";
+    if (currentExt) {
+      name = /\.[a-z0-9]+$/i.test(name)
+        ? name.replace(/\.[a-z0-9]+$/i, currentExt)
+        : `${name}${currentExt}`;
+    }
+
+    const updated = await this.prisma.vaultItem.update({
+      where: { id: itemId },
+      data: { originalName: name },
+    });
+
+    await this.auditService.log({
+      actorType: "student",
+      actorId: userId,
+      action: "vault.rename",
+      targetType: "vault_item",
+      targetId: itemId,
+      ipAddress,
+      metadata: { from: item.originalName, to: name },
+    });
+
+    this.logger.log(
+      `Vault rename: user=${userId}, item=${itemId} "${item.originalName}" → "${name}"`,
+    );
+
+    return this.toPublicItem(updated);
+  }
+
+  // ── Student: read (extract text) ──────────────────────────────
+
+  /**
+   * Extract readable text from a vault file for the in-app reader. PDFs use
+   * the embedded text layer; image uploads (photos of notes/past questions)
+   * go through the same Tesseract OCR engine as /tools/ocr. Never throws for
+   * unreadable content — returns source "none" so the UI can guide the
+   * student (e.g. "scanned PDF — run it through Image to Text").
+   */
+  async getText(
+    userId: string,
+    itemId: string,
+  ): Promise<{ text: string; source: "pdf" | "ocr" | "none" }> {
+    const { ref, mimeType } = await this.resolveDownload(
+      userId,
+      itemId,
+      "original",
+    );
+    const buffer = await this.fetchFileBuffer(ref);
+    if (!buffer || buffer.length === 0) return { text: "", source: "none" };
+    return this.extractText(buffer, mimeType);
+  }
+
+  /**
+   * Extract readable text from a file's bytes. PDFs use the embedded text
+   * layer; images run through the same Tesseract OCR engine as /tools/ocr.
+   * Never throws for unreadable content — returns source "none".
+   */
+  private async extractText(
+    buffer: Buffer,
+    mimeType: string,
+  ): Promise<{ text: string; source: "pdf" | "ocr" | "none" }> {
+    if (mimeType === "application/pdf") {
+      try {
+        // pdf-parse 1.1.1's bundled pdf.js (v1.10.100) FAILS on Node Buffer
+        // instances — "Invalid PDF structure" — while parsing the identical
+        // bytes as a plain Uint8Array always works (the Buffer pool / subclass
+        // handling is broken on modern Node). The exact-size Uint8Array copy
+        // is the fix; the cast satisfies pdf-parse's Buffer-typed signature.
+        const data = await pdfParse(
+          new Uint8Array(buffer) as unknown as Buffer,
+        );
+        const text = (data.text ?? "").replace(/\s+/g, " ").trim();
+        if (text) return { text: text.slice(0, 50_000), source: "pdf" };
+      } catch {
+        // Corrupt/edge-case PDF — fall through to "none".
+      }
+      return { text: "", source: "none" };
+    }
+
+    if (IMAGE_MIME_TYPES.has(mimeType)) {
+      try {
+        const result = await this.toolsService.ocrBuffer(buffer, mimeType);
+        if (result.readable && result.text) {
+          return { text: result.text.slice(0, 50_000), source: "ocr" };
+        }
+      } catch {
+        // OCR failure — treat as unreadable, the UI still shows the image.
+      }
+      return { text: "", source: "none" };
+    }
+
+    return { text: "", source: "none" };
+  }
+
+  // ── Admin: preview (moderation queue) ─────────────────────────
+  // The AdminGuard on the route is the authorization — these fetch the file
+  // directly without student-scope checks so moderators can review content.
+
+  /** Text preview of any vault item (PDF text layer or OCR for images). */
+  async getTextForAdmin(
+    itemId: string,
+  ): Promise<{ text: string; source: "pdf" | "ocr" | "none" }> {
+    const item = await this.prisma.vaultItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!item || item.deletedAt) {
+      throw new NotFoundException("Vault item not found");
+    }
+    const buffer = await this.fetchFileBuffer(item.storageRef);
+    if (!buffer || buffer.length === 0) return { text: "", source: "none" };
+    return this.extractText(buffer, item.mimeType);
+  }
+
+  /** Raw file of any vault item (image preview / original download). */
+  async getFileForAdmin(
+    itemId: string,
+  ): Promise<{ buffer: Buffer; mimeType: string; fileName: string }> {
+    const item = await this.prisma.vaultItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!item || item.deletedAt) {
+      throw new NotFoundException("Vault item not found");
+    }
+    const buffer = await this.fetchFileBuffer(item.storageRef);
+    if (!buffer) {
+      throw new NotFoundException(
+        "The file couldn't be retrieved from storage right now.",
+      );
+    }
+    return {
+      buffer,
+      mimeType: item.mimeType,
+      fileName: item.originalName || `${item.courseCode}.pdf`,
+    };
+  }
+
   // ── Student: download ─────────────────────────────────────────
 
   /** Resolve which file (original or light companion) a user may fetch. */
@@ -391,23 +575,25 @@ export class VaultService {
       variant,
     );
 
-    let buffer: Buffer;
-    if (ref.startsWith("data:")) {
-      buffer = Buffer.from(ref.split(",")[1] ?? "", "base64");
-    } else {
-      const fetched = await this.storageService.getBuffer(ref);
-      if (fetched) {
-        buffer = fetched;
-      } else {
-        throw new NotFoundException(
-          "The file couldn't be retrieved from storage right now.",
-        );
-      }
+    const buffer = await this.fetchFileBuffer(ref);
+    if (!buffer) {
+      throw new NotFoundException(
+        "The file couldn't be retrieved from storage right now.",
+      );
     }
 
     await this.bumpDownloads(itemId);
 
     return { buffer, mimeType, fileName, sizeBytes };
+  }
+
+  /** Resolve a storage ref to raw bytes (data-URI fallback or object storage). */
+  private async fetchFileBuffer(ref: string): Promise<Buffer | null> {
+    if (ref.startsWith("data:")) {
+      return Buffer.from(ref.split(",")[1] ?? "", "base64");
+    }
+    const fetched = await this.storageService.getBuffer(ref);
+    return fetched ?? null;
   }
 
   private async bumpDownloads(itemId: string): Promise<void> {

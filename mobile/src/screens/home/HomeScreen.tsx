@@ -20,6 +20,7 @@ import { factForTick } from "../../utils/facts";
 import { useDailyFacts } from "../../utils/dailyFacts";
 import { api } from "../../api/client";
 import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
+import { listNotes } from "../../utils/notes";
 import { timeAgo } from "../../utils/relativeTime";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
 import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
@@ -69,6 +70,7 @@ export function HomeScreen({ navigation }: Props) {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [nextClassEntry, setNextClassEntry] = useState<TimetableEntry | null>(null);
   const [celebration, setCelebration] = useState<Badge | null>(null);
+  const [notesCount, setNotesCount] = useState(0);
 
   useEffect(() => {
     const clock = setInterval(() => setNow(liveClock()), 30_000);
@@ -86,6 +88,7 @@ export function HomeScreen({ navigation }: Props) {
       (async () => {
         setTodos(await getTodoState());
         setNextClassEntry(nextClass(await getTimetable()));
+        setNotesCount((await listNotes()).length);
         void refreshUnread();
 
         try {
@@ -382,8 +385,36 @@ export function HomeScreen({ navigation }: Props) {
             )}
           </View>
 
-          {/* Vault + next class */}
+          {/* Notes + Vault + next class */}
           <View style={{ paddingHorizontal: 24, marginTop: 8 }}>
+            <Pressable onPress={() => go("Notes")}>
+              <Surface style={{ padding: 18, marginBottom: 12 }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <View
+                    style={{
+                      width: 42,
+                      height: 42,
+                      borderRadius: 13,
+                      backgroundColor: colors.surfaceAlt,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon name="pen" size={21} color={colors.brand} />
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>My Notes</Text>
+                    <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
+                      {notesCount > 0
+                        ? `${notesCount} note${notesCount === 1 ? "" : "s"} · private, saved on this phone`
+                        : "Jot ideas & lecture points — private, no internet needed"}
+                    </Text>
+                  </View>
+                  <Icon name="chevronRight" size={18} color={colors.textMuted} />
+                </View>
+              </Surface>
+            </Pressable>
+
             <Pressable onPress={() => goTab("Vault")}>
               <Surface style={{ padding: 18, marginBottom: 12 }}>
                 <View style={{ flexDirection: "row", alignItems: "center" }}>

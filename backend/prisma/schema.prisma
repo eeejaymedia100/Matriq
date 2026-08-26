@@ -85,7 +85,57 @@ enum VaultVisibility {
   private
 }
 
+enum InstitutionType {
+  university
+  polytechnic
+  college_of_education
+}
+
 // ── Tables ─────────────────────────────────────────────────────────
+
+// ── Academic hierarchy (institution → faculties → departments) ──────
+// The dropdown cascade used at registration and when the admin scopes an
+// association to a specific faculty or department. Names are the source of
+// truth for matching students to associations.
+model Institution {
+  id         String          @id @default(uuid()) @db.Uuid
+  name       String          @unique
+  shortName  String?         @map("short_name")
+  type       InstitutionType @default(university)
+  state      String?         // e.g. "Lagos", "Oyo"
+  createdAt  DateTime        @default(now()) @map("created_at")
+
+  faculties  Faculty[]
+  users      User[]
+  associations Association[]
+
+  @@map("institutions")
+}
+
+model Faculty {
+  id            String   @id @default(uuid()) @db.Uuid
+  institutionId String   @map("institution_id") @db.Uuid
+  name          String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  departments Department[]
+
+  @@unique([institutionId, name])
+  @@map("faculties")
+}
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  facultyId String   @map("faculty_id") @db.Uuid
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  faculty Faculty @relation(fields: [facultyId], references: [id], onDelete: Cascade)
+
+  @@unique([facultyId, name])
+  @@map("departments")
+}
 
 model User {
   id               String           @id @default(uuid()) @db.Uuid
@@ -96,6 +146,7 @@ model User {
   matricNumber     String?          @map("matric_number")
   jambNumber       String?          @map("jamb_number")
   matricStatus     MatricStatus?    @map("matric_status")
+  institutionId    String?          @map("institution_id") @db.Uuid
   faculty          String
   department       String
   level            String
@@ -141,6 +192,7 @@ model User {
   eventAttendance       EventAttendance[]
   vaultItems            VaultItem[]
   notifications         Notification[]
+  institution   Institution?           @relation(fields: [institutionId], references: [id])
 
   @@map("users")
 }
@@ -149,8 +201,12 @@ model Association {
   id             String            @id @default(uuid()) @db.Uuid
   name           String
   shortCode      String            @unique @map("short_code")
+  institutionId  String?           @map("institution_id") @db.Uuid
   faculty        String
+  department     String?           // null = faculty-wide; set = department-specific
   whatsappNumber String            @map("whatsapp_number")
+  email          String?           @unique  // association dashboard login
+  passwordHash   String?           @map("password_hash")
   status         AssociationStatus @default(active)
   transparency   Json?             // president-editable "where dues go" breakdown
   createdAt      DateTime          @default(now()) @map("created_at")
@@ -166,6 +222,7 @@ model Association {
   verificationRequests VerificationRequest[]
   vaultItems       VaultItem[]
   timetableUpdates TimetableUpdate[]
+  institution   Institution?           @relation(fields: [institutionId], references: [id])
 
   @@map("associations")
 }
@@ -262,6 +319,7 @@ model Fee {
   refundReason      String?       @map("refund_reason")
   disputeReference  String?       @map("dispute_reference")
   rankAtPayment     Int?          @map("rank_at_payment")
+  developerFeeKobo  Int           @default(0) @map("developer_fee_kobo") // ₦150 platform fee
   createdAt         DateTime      @default(now()) @map("created_at")
   updatedAt         DateTime      @updatedAt @map("updated_at")
 

@@ -186,6 +186,42 @@ export class VerificationService {
     };
   }
 
+  // ── Admin: view document (platform oversight) ─────────────────
+  // The AdminGuard on the route is the authorization — no executive
+  // association scoping, so platform admins can review any request.
+
+  async getDocumentForAdmin(
+    requestId: string,
+  ): Promise<{ buffer: Buffer; mimeType: string; fileName: string }> {
+    const request = await this.prisma.verificationRequest.findUnique({
+      where: { id: requestId },
+    });
+    if (!request) {
+      throw new NotFoundException("Verification request not found");
+    }
+
+    let buffer: Buffer | null;
+    if (request.documentStorageRef.startsWith("data:")) {
+      buffer = Buffer.from(
+        request.documentStorageRef.split(",")[1] ?? "",
+        "base64",
+      );
+    } else {
+      buffer = await this.storageService.getBuffer(request.documentStorageRef);
+    }
+    if (!buffer || buffer.length === 0) {
+      throw new NotFoundException(
+        "Document could not be retrieved from storage",
+      );
+    }
+
+    return {
+      buffer,
+      mimeType: request.documentMimeType,
+      fileName: request.documentOriginalName || "verification-document",
+    };
+  }
+
   // ── Executive: approve ────────────────────────────────────────
 
   async approve(

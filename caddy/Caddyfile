@@ -53,7 +53,7 @@ http://matriq.com.ng, http://api.matriq.com.ng {
 # Lets the mobile student app be tested TODAY while the .ng nameserver
 # change propagates (up to 24h). Once DNS is live, clients switch to
 # https://api.matriq.com.ng/v1 and this block can be removed.
-http://34.158.175.253 {
+http://34.91.191.164 {
     handle /v1/* {
         reverse_proxy backend:3000 {
             header_up Host api.matriq.com.ng

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import { useSession } from "@/components/SessionProvider";
-import { listVerificationRequests } from "@/lib/api";
+import { listVerificationRequests, fetchVerificationDocument } from "@/lib/api";
 import type { AdminVerificationRequest } from "@/types/api";
 
 export default function VerificationPage() {
@@ -13,6 +13,57 @@ export default function VerificationPage() {
   const [requests, setRequests] = useState<AdminVerificationRequest[]>([]);
   const [filter, setFilter] = useState<string>("pending");
   const [loading, setLoading] = useState(true);
+  const [viewing, setViewing] = useState<AdminVerificationRequest | null>(null);
+  const [docUrl, setDocUrl] = useState<string | null>(null);
+  const [docMime, setDocMime] = useState<string | null>(null);
+  const [docName, setDocName] = useState<string | null>(null);
+  const [docLoading, setDocLoading] = useState(false);
+  const [docError, setDocError] = useState<string | null>(null);
+
+  const openDocument = async (req: AdminVerificationRequest) => {
+    if (!token) return;
+    setViewing(req);
+    setDocUrl(null);
+    setDocError(null);
+    setDocLoading(true);
+    try {
+      const { blob, mimeType, fileName } = await fetchVerificationDocument(
+        token,
+        req.id,
+      );
+      setDocMime(mimeType);
+      setDocName(fileName);
+      if (mimeType.startsWith("image/")) {
+        setDocUrl(URL.createObjectURL(blob));
+      } else {
+        // Non-image (e.g. a PDF) — offer the download instead.
+        const url = URL.createObjectURL(blob);
+        setDocUrl(url);
+      }
+    } catch (err) {
+      setDocError(err instanceof Error ? err.message : "Couldn't load the document");
+    } finally {
+      setDocLoading(false);
+    }
+  };
+
+  const closeDocument = () => {
+    setViewing(null);
+    setDocUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  };
+
+  const downloadDocument = () => {
+    if (!docUrl) return;
+    const a = document.createElement("a");
+    a.href = docUrl;
+    a.download = docName ?? "verification-document";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
 
   useEffect(() => {
     if (!token) {
@@ -98,6 +149,12 @@ export default function VerificationPage() {
                       {req.status}
                     </span>
                   </div>
+                  <button
+                    onClick={() => void openDocument(req)}
+                    className="mt-1 px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition-colors"
+                  >
+                    View document
+                  </button>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-500">
                     <div>
                       <span className="font-medium text-gray-400">
@@ -133,6 +190,76 @@ export default function VerificationPage() {
           ))}
         </div>
       )}
+
+      {/* Document viewer modal */}
+      {viewing ? (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={closeDocument}
+        >
+          <div
+            className="bg-gray-900 rounded-xl border border-gray-800 max-w-2xl w-full max-h-[90vh] overflow-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+              <div className="min-w-0">
+                <p className="text-white font-semibold truncate">
+                  {viewing.user.fullName}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {docName ?? viewing.documentOriginalName} · {viewing.association.name}
+                </p>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {docUrl && !docMime?.startsWith("image/") ? (
+                  <button
+                    onClick={downloadDocument}
+                    className="px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  >
+                    Download
+                  </button>
+                ) : null}
+                <button
+                  onClick={closeDocument}
+                  className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="p-5">
+              {docLoading ? (
+                <div className="h-64 bg-gray-800 rounded-lg animate-pulse" />
+              ) : docError ? (
+                <p className="text-sm text-red-400">{docError}</p>
+              ) : docUrl ? (
+                docMime?.startsWith("image/") ? (
+                  <div className="bg-gray-950 rounded-lg p-2 flex justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- blob URL can't use next/image */}
+                    <img
+                      src={docUrl}
+                      alt={viewing.user.fullName}
+                      className="max-h-[65vh] rounded object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-sm text-gray-400 mb-4">
+                      This document isn&apos;t an image — download it to review.
+                    </p>
+                    <button
+                      onClick={downloadDocument}
+                      className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    >
+                      Download {docName}
+                    </button>
+                  </div>
+                )
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </AdminLayout>
   );
 }

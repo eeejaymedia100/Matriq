@@ -22,7 +22,7 @@ export type MainTabParamList = {
 export type MainStackParamList = {
   CompleteProfile: undefined;
   Home: NavigatorScreenParams<MainTabParamList>;
-  PayFee: { feeId: string };
+  PayFee: { feeId: string; feeAmountKobo?: number };
   Receipt: { paymentId: string };
   Referrals: undefined;
   Profile: undefined;
@@ -42,6 +42,16 @@ export type MainStackParamList = {
   FocusTimer: undefined;
   DeadlineTracker: undefined;
   VaultUpload: undefined;
+  Notes: undefined;
+  NoteEditor: { id?: string } | undefined;
+  /** In-app reader for a vault file (text extraction + image preview). */
+  DocumentReader: {
+    itemId: string;
+    originalName: string;
+    title: string;
+    courseCode: string;
+    mimeType: string;
+  };
   Ocr: undefined;
   ImageToPdf: undefined;
   FileCompressor: undefined;

@@ -47,6 +47,7 @@ export interface StayliteData {
   password: string;
   fullName: string;
   matricNumber: string;
+  institutionId?: string;
   faculty: string;
   department: string;
   level: string;
@@ -67,6 +68,7 @@ export interface FresherData {
   password: string;
   fullName: string;
   jambNumber: string;
+  institutionId?: string;
   faculty: string;
   department: string;
   privacyPolicyVersion: string;

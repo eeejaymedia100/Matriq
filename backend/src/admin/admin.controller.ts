@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -10,9 +11,11 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  Res,
+  StreamableFile,
   ForbiddenException,
 } from "@nestjs/common";
-import { Request } from "express";
+import { Request, Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { ipAndEmailTracker } from "../throttler/trackers";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -24,6 +27,9 @@ import {
 } from "./admin-auth.service";
 import { AdminService } from "./admin.service";
 import { AuditService } from "../audit/audit.service";
+import { InstitutionsService } from "../institutions/institutions.service";
+import { VaultService } from "../vault/vault.service";
+import { VerificationService } from "../verification/verification.service";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { AdminPayload } from "./admin-auth.service";
 import {
@@ -70,13 +76,32 @@ class CreateAssociationDto {
   @IsNotEmpty()
   shortCode: string;
 
+  // Institution scoping (dropdown cascade) — optional to stay compatible
+  // with legacy free-text faculty associations.
+  @IsOptional()
+  institutionId?: string;
+
   @IsString()
   @IsNotEmpty()
   faculty: string;
 
+  // Optional: scope to a specific department. Null = faculty-wide.
+  @IsOptional()
+  department?: string;
+
   @IsString()
   @IsOptional()
   whatsappNumber?: string;
+
+  // Optional: association dashboard login (custom password set by admin).
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @MinLength(8)
+  @IsOptional()
+  password?: string;
 }
 
 class UpdateStatusDto {
@@ -100,6 +125,9 @@ export class AdminController {
     private readonly adminAuthService: AdminAuthService,
     private readonly adminService: AdminService,
     private readonly auditService: AuditService,
+    private readonly institutionsService: InstitutionsService,
+    private readonly vaultService: VaultService,
+    private readonly verificationService: VerificationService,
   ) {}
 
   // ── Auth ──────────────────────────────────────────────────────
@@ -190,18 +218,8 @@ export class AdminController {
     @CurrentUser() user: AdminPayload,
     @Req() req: Request,
   ) {
-    const result = await this.adminService.createAssociation(dto);
     const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
-
-    await this.auditService.log({
-      actorType: "admin",
-      actorId: user.sub,
-      action: "association.created",
-      targetType: "association",
-      targetId: result.id,
-      ipAddress: ip,
-      metadata: { name: result.name, shortCode: result.shortCode },
-    });
+    const result = await this.adminService.createAssociation(dto, user.sub, ip);
 
     return result;
   }
@@ -330,6 +348,55 @@ export class AdminController {
     return this.adminService.listVaultItems(status);
   }
 
+  // ── Vault moderation preview (review the actual content) ──────
+
+  @Get("vault-items/:id/text")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  vaultItemText(@Param("id") id: string) {
+    return this.vaultService.getTextForAdmin(id);
+  }
+
+  @Get("vault-items/:id/file")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async vaultItemFile(
+    @Param("id") id: string,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
+    const { buffer, mimeType, fileName } =
+      await this.vaultService.getFileForAdmin(id);
+    res?.set({
+      "Content-Type": mimeType,
+      "Content-Disposition": `inline; filename="${this.safeHeaderName(fileName)}"`,
+      "Cache-Control": "private, max-age=300",
+    });
+    return new StreamableFile(buffer);
+  }
+
+  // ── Verification document preview (platform oversight) ────────
+
+  @Get("verification-requests/:id/document")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async verificationDocument(
+    @Param("id") id: string,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
+    const { buffer, mimeType, fileName } =
+      await this.verificationService.getDocumentForAdmin(id);
+    res?.set({
+      "Content-Type": mimeType,
+      "Content-Disposition": `inline; filename="${this.safeHeaderName(fileName)}"`,
+      "Cache-Control": "private, max-age=300",
+    });
+    return new StreamableFile(buffer);
+  }
+
+  private safeHeaderName(name: string): string {
+    const cleaned = name
+      .replace(/[\r\n"\\]/g, "_")
+      .replace(/[^\x20-\x7e]/g, "");
+    return cleaned.trim() || "document";
+  }
+
   @Post("vault-items/:id/moderate")
   @UseGuards(JwtAuthGuard, AdminGuard)
   @HttpCode(HttpStatus.OK)
@@ -428,6 +495,64 @@ export class AdminController {
   ) {
     const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
     return this.adminService.createAdmin(dto, user.sub, ip);
+  }
+
+  // ── Institution management (admin) ────────────────────────────
+
+  @Get("institutions/cascade")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminCascade() {
+    return this.institutionsService.fullCascade();
+  }
+
+  @Post("institutions")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  createInstitution(
+    @Body()
+    dto: {
+      name: string;
+      shortName?: string;
+      type?: string;
+      state?: string;
+    },
+  ) {
+    return this.institutionsService.create(dto);
+  }
+
+  @Delete("institutions/:id")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  removeInstitution(@Param("id") id: string) {
+    return this.institutionsService.remove(id);
+  }
+
+  @Post("institutions/:id/faculties")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addFaculty(@Param("id") id: string, @Body() dto: { name: string }) {
+    return this.institutionsService.addFaculty(id, dto.name);
+  }
+
+  @Delete("faculties/:id")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  removeFaculty(@Param("id") id: string) {
+    return this.institutionsService.removeFaculty(id);
+  }
+
+  @Post("faculties/:id/departments")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.CREATED)
+  addDepartment(@Param("id") id: string, @Body() dto: { name: string }) {
+    return this.institutionsService.addDepartment(id, dto.name);
+  }
+
+  @Delete("departments/:id")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  removeDepartment(@Param("id") id: string) {
+    return this.institutionsService.removeDepartment(id);
   }
 
   // ── Bootstrap (development only) ──────────────────────────────

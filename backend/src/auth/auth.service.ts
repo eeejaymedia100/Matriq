@@ -123,6 +123,7 @@ export class AuthService {
           registrationType: "staylite",
           matricNumber: dto.matricNumber,
           matricStatus: "provisional",
+          institutionId: dto.institutionId || null,
           faculty: dto.faculty,
           department: dto.department,
           level: dto.level,
@@ -205,6 +206,7 @@ export class AuthService {
           registrationType: "fresher",
           jambNumber: dto.jambNumber,
           matricStatus: "provisional",
+          institutionId: dto.institutionId || null,
           faculty: dto.faculty,
           department: dto.department,
           level: "100",
@@ -384,6 +386,78 @@ export class AuthService {
 
     this.logger.log(`User logged in: ${user.id} (${user.email})`);
     return this.generateTokens(user);
+  }
+
+  // ── Association login (custom password set by admin) ─────────
+
+  /**
+   * Login as an association (not a student). The admin sets a custom email
+   * and password when creating the association. Returns a JWT access token
+   * that identifies the association for executive dashboard actions.
+   */
+  async loginAssociation(dto: { email: string; password: string }): Promise<{
+    accessToken: string;
+    association: {
+      id: string;
+      name: string;
+      shortCode: string;
+      faculty: string;
+      department: string | null;
+    };
+  }> {
+    const normalized = dto.email.toLowerCase().trim();
+    const association = await this.prisma.association.findUnique({
+      where: { email: normalized },
+    });
+
+    if (!association || !association.passwordHash) {
+      throw new UnauthorizedException(
+        "Invalid email or password. Associations without a dashboard login cannot sign in.",
+      );
+    }
+
+    const valid = await argon2.verify(association.passwordHash, dto.password);
+    if (!valid) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        code: "INVALID_CREDENTIALS",
+        message:
+          "Incorrect email or password. Please check your details and try again.",
+      });
+    }
+
+    if (association.status === "suspended") {
+      throw new UnauthorizedException(
+        "This association has been suspended. Contact the platform admin.",
+      );
+    }
+
+    const payload = {
+      sub: association.id,
+      role: "association" as const,
+      associationId: association.id,
+      associationName: association.name,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: "24h",
+      secret: this.configService.get<string>("JWT_SECRET"),
+    });
+
+    this.logger.log(
+      `Association logged in: ${association.id} (${association.shortCode})`,
+    );
+
+    return {
+      accessToken,
+      association: {
+        id: association.id,
+        name: association.name,
+        shortCode: association.shortCode,
+        faculty: association.faculty,
+        department: association.department ?? null,
+      },
+    };
   }
 
   /**

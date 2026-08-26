@@ -20,7 +20,11 @@ import { AnimatedSplashScreen } from "./src/components/AnimatedSplashScreen";
 
 // Keep the native launch screen up until the JS splash overlay is on screen —
 // both are #121212 with the same centered logo, so the handoff is invisible.
-void SplashScreen.preventAutoHideAsync();
+// Guarded: on web / Expo Go this call is unsupported and rejecting here must
+// never become an unhandled rejection (or a fatal crash on cold start).
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // Nothing to keep hidden — the JS splash overlay covers the handoff anyway.
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,8 +59,18 @@ function AppInner() {
   // Hand the native launch screen off to the JS overlay the moment the overlay
   // has rendered (same pixels → no flash). Fonts/auth may still be loading
   // behind it — the overlay covers that until the first real screen mounts.
+  // try/finally: even if hiding throws (e.g. web/Expo Go where the native
+  // screen doesn't exist), nothing else is left waiting on the promise.
   useEffect(() => {
-    SplashScreen.hideAsync().catch(() => {});
+    (async () => {
+      try {
+        await SplashScreen.hideAsync();
+      } catch {
+        // No native splash to hide — the JS overlay is the only splash here.
+      } finally {
+        // No teardown needed — hideAsync has no native counterpart to reset.
+      }
+    })();
   }, []);
 
   // HARD FAILSAFE: no matter what (a gate never resolving, an animation

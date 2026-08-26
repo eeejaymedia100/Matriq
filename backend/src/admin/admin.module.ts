@@ -8,6 +8,9 @@ import { AdminGuard } from "./admin.guard";
 import { AuditModule } from "../audit/audit.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { AiModule } from "../ai/ai.module";
+import { InstitutionsModule } from "../institutions/institutions.module";
+import { VaultModule } from "../vault/vault.module";
+import { VerificationModule } from "../verification/verification.module";
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { AiModule } from "../ai/ai.module";
     AuditModule,
     NotificationsModule,
     AiModule,
+    InstitutionsModule,
+    VaultModule,
+    VerificationModule,
   ],
   controllers: [AdminController],
   providers: [AdminAuthService, AdminService, AdminGuard],

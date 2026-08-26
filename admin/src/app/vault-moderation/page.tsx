@@ -1,11 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import { useSession } from "@/components/SessionProvider";
-import { listVaultItems, moderateVaultItem } from "@/lib/api";
-import type { AdminVaultItem } from "@/types/api";
+import {
+  listVaultItems,
+  moderateVaultItem,
+  getVaultItemText,
+  fetchVaultItemFile,
+} from "@/lib/api";
+import type { AdminVaultItem, VaultTextPreview } from "@/types/api";
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -21,6 +26,87 @@ export default function VaultModerationPage() {
   const [loading, setLoading] = useState(true);
   const [actionId, setActionId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const [preview, setPreview] = useState<VaultTextPreview | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    blob: Blob;
+    mimeType: string;
+    fileName: string;
+  } | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
+
+  const revokePreviewUrl = useCallback(() => {
+    if (previewUrlRef.current) {
+      URL.revokeObjectURL(previewUrlRef.current);
+      previewUrlRef.current = null;
+    }
+  }, []);
+
+  const clearPreview = useCallback(() => {
+    setPreviewingId(null);
+    setPreview(null);
+    setPreviewFile(null);
+    setPreviewError(null);
+    revokePreviewUrl();
+    setPreviewImageUrl(null);
+  }, [revokePreviewUrl]);
+
+  const togglePreview = async (item: AdminVaultItem) => {
+    if (!token) return;
+    if (previewingId === item.id) {
+      clearPreview();
+      return;
+    }
+    setPreviewingId(item.id);
+    setPreview(null);
+    setPreviewFile(null);
+    setPreviewError(null);
+    setPreviewLoading(true);
+    try {
+      const [text, file] = await Promise.all([
+        getVaultItemText(token, item.id),
+        fetchVaultItemFile(token, item.id),
+      ]);
+      setPreview(text);
+      setPreviewFile(file);
+      if (file.mimeType.startsWith("image/")) {
+        revokePreviewUrl();
+        previewUrlRef.current = URL.createObjectURL(file.blob);
+        setPreviewImageUrl(previewUrlRef.current);
+      }
+    } catch (err) {
+      setPreviewError(
+        err instanceof Error ? err.message : "Couldn't load the preview",
+      );
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const downloadOriginal = (file: {
+    blob: Blob;
+    mimeType: string;
+    fileName: string;
+  }) => {
+    const url = URL.createObjectURL(file.blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 4000);
+  };
+
+  useEffect(() => {
+    // Revoke any live object URL when the page unmounts.
+    return () => revokePreviewUrl();
+  }, [revokePreviewUrl]);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -160,25 +246,86 @@ export default function VaultModerationPage() {
                   )}
                 </div>
 
-                {item.moderationStatus === "pending" && (
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleModerate(item.id, "approved")}
-                      disabled={actionId === item.id}
-                      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
-                    >
-                      {actionId === item.id ? "..." : "Approve"}
-                    </button>
-                    <button
-                      onClick={() => handleModerate(item.id, "rejected")}
-                      disabled={actionId === item.id}
-                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => void togglePreview(item)}
+                    disabled={previewLoading && previewingId === item.id}
+                    className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                      previewingId === item.id
+                        ? "bg-purple-600 border-purple-600 text-white"
+                        : "bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
+                    }`}
+                  >
+                    {previewingId === item.id ? "Close" : "Preview"}
+                  </button>
+                  {item.moderationStatus === "pending" && (
+                    <>
+                      <button
+                        onClick={() => handleModerate(item.id, "approved")}
+                        disabled={actionId === item.id}
+                        className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
+                      >
+                        {actionId === item.id ? "..." : "Approve"}
+                      </button>
+                      <button
+                        onClick={() => handleModerate(item.id, "rejected")}
+                        disabled={actionId === item.id}
+                        className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
+
+              {/* Inline preview — see the actual content before deciding */}
+              {previewingId === item.id ? (
+                <div className="mt-4 border-t border-gray-800 pt-4">
+                  {previewLoading ? (
+                    <div className="h-20 bg-gray-800 rounded-lg animate-pulse" />
+                  ) : previewError ? (
+                    <p className="text-sm text-red-400">{previewError}</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {previewImageUrl && (
+                        <div className="bg-gray-950 rounded-lg p-2 flex justify-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- blob URL can't use next/image */}
+                          <img
+                            src={previewImageUrl}
+                            alt={item.originalName}
+                            className="max-h-80 rounded object-contain"
+                          />
+                        </div>
+                      )}
+                      {preview?.text ? (
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                            {preview.source === "pdf" ? "Text layer" : "OCR text"}
+                          </p>
+                          <p className="text-sm text-gray-300 whitespace-pre-wrap bg-gray-950 rounded-lg p-3 max-h-72 overflow-y-auto leading-relaxed">
+                            {preview.text}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          {previewFile?.mimeType.startsWith("image/") || preview?.source === "none"
+                            ? "No readable text in this file."
+                            : "No readable text found."}
+                        </p>
+                      )}
+                      {previewFile && !previewFile.mimeType.startsWith("image/") && (
+                        <button
+                          onClick={() => downloadOriginal(previewFile)}
+                          className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition-colors"
+                        >
+                          Download original ({previewFile.fileName})
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

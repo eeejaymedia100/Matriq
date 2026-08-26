@@ -31,6 +31,13 @@ const PDF_MIME = "application/pdf";
 const DOCX_MIME =
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
+export interface OcrResult {
+  text: string;
+  confidence: number;
+  readable: boolean;
+  engine: "tesseract";
+}
+
 export interface GeneratedFile {
   fileName: string;
   mimeType: string;
@@ -82,12 +89,7 @@ export class ToolsService {
 
   // ── Image to Text (OCR) — system Tesseract (open source) ───────
 
-  async ocrImage(file: Express.Multer.File): Promise<{
-    text: string;
-    confidence: number;
-    readable: boolean;
-    engine: "tesseract";
-  }> {
+  async ocrImage(file: Express.Multer.File): Promise<OcrResult> {
     if (!file?.buffer) {
       throw new BadRequestException("Please choose an image with text to read.");
     }
@@ -102,9 +104,17 @@ export class ToolsService {
       );
     }
 
+    return this.ocrBuffer(file.buffer, file.mimetype);
+  }
+
+  /**
+   * Run OCR on an in-memory image buffer — shared by /tools/ocr and the Vault
+   * document reader (scanned image uploads are read the same way).
+   */
+  async ocrBuffer(buffer: Buffer, _mimeType: string): Promise<OcrResult> {
     // Sharpen the input once (EXIF rotation, grayscale, contrast stretch,
     // upscale small text) — this is what makes Tesseract accurate on photos.
-    const preprocessed = await this.preprocessForOcr(file.buffer);
+    const preprocessed = await this.preprocessForOcr(buffer);
 
     // Primary: the system `tesseract` binary (installed in the Docker image).
     if (await this.tesseractAvailable()) {
@@ -118,7 +128,7 @@ export class ToolsService {
     }
 
     // Fallback: bundled tesseract.js worker (local dev, no binary installed).
-    return this.ocrWithTesseract(file);
+    return this.ocrWithTesseract(buffer);
   }
 
   /** Lazily probe for the system `tesseract` binary (installed in the Docker image). */
@@ -258,12 +268,7 @@ export class ToolsService {
     }
   }
 
-  private async ocrWithTesseract(file: Express.Multer.File): Promise<{
-    text: string;
-    confidence: number;
-    readable: boolean;
-    engine: "tesseract";
-  }> {
+  private async ocrWithTesseract(buffer: Buffer): Promise<OcrResult> {
     // The first run downloads eng traineddata — never let either step hang
     // forever (tesseract.js has no abort handle in this version, so race it).
     const worker = await this.withTimeout(
@@ -273,7 +278,7 @@ export class ToolsService {
     );
     const start = Date.now();
     const { data } = await this.withTimeout(
-      worker.recognize(file.buffer),
+      worker.recognize(buffer),
       60_000,
       "OCR recognition",
     );
@@ -375,7 +380,13 @@ export class ToolsService {
     this.assertPdf(file);
     // NOTE: pdf-parse is pinned to 1.1.1 (the `{ text }` contract). v2.x has a
     // totally different structured API — don't "upgrade" it blindly.
-    const data = await pdfParse(file.buffer);
+    // pdf.js 1.10.100 FAILS on Node Buffer instances ("Invalid PDF structure")
+    // while parsing identical bytes as a plain Uint8Array always works — the
+    // exact-size Uint8Array copy is REQUIRED. Don't "simplify" back to
+    // `pdfParse(file.buffer)`; the cast satisfies pdf-parse's Buffer types.
+    const data = await pdfParse(
+      new Uint8Array(file.buffer) as unknown as Buffer,
+    );
     const text = data.text?.trim();
     if (!text) {
       throw new BadRequestException(

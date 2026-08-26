@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Param,
   Body,
   Query,
@@ -14,10 +15,15 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Request, Response } from "express";
+import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { JwtPayload } from "../auth/auth.service";
-import { VaultService, UploadVaultDto } from "./vault.service";
+import {
+  VaultService,
+  UploadVaultDto,
+  RenameVaultItemDto,
+} from "./vault.service";
 
 @Controller("v1")
 export class VaultController {
@@ -93,6 +99,31 @@ export class VaultController {
     // fall back to a generic name if the result is empty.
     const cleaned = name.replace(/[\r\n"\\]/g, "_").replace(/[^\x20-\x7e]/g, "");
     return cleaned.trim() || "download";
+  }
+
+  // ── Rename (owner only) ───────────────────────────────────────
+
+  @Patch("vault/:id")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  rename(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") id: string,
+    @Req() req: Request,
+    @Body() body: RenameVaultItemDto,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.vaultService.renameItem(user.sub, ip, id, body.originalName);
+  }
+
+  // ── Read (extract text for the in-app reader) ─────────────────
+  // Images run through Tesseract OCR, so this is CPU-bound like /tools/ocr.
+
+  @Get("vault/:id/text")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  text(@CurrentUser() user: JwtPayload, @Param("id") id: string) {
+    return this.vaultService.getText(user.sub, id);
   }
 
   // ── My uploads ────────────────────────────────────────────────

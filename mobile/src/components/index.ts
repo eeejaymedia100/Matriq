@@ -9,6 +9,7 @@ export { OtpInput } from "./OtpInput";
 export { TermsCheckbox } from "./TermsCheckbox";
 export { ConfirmSheet } from "./ConfirmSheet";
 export { ThemeTransitionOverlay } from "./ThemeTransitionOverlay";
+export { InstitutionCascadePicker } from "./InstitutionCascadePicker";
 export { Icon } from "./icons";
 export type { IconName } from "./icons";
 export { Surface, ThemedScreen } from "./Surface";

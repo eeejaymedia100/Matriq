@@ -19,10 +19,18 @@ import type { Payment } from "../../types/api";
 type PayFeeScreenProps = NativeStackScreenProps<MainStackParamList, "PayFee">;
 
 export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
-  const { feeId } = route.params;
+  const { feeId, feeAmountKobo } = route.params;
   const [loading, setLoading] = useState(false);
   const [payment, setPayment] = useState<Payment | null>(null);
   const [error, setError] = useState("");
+
+  // Platform developer fee (₦150) — covers development cost + e-receipt.
+  // Always shown to the student so there's no surprise at the gateway.
+  const developerFeeKobo = payment?.developerFeeKobo ?? 15000;
+  const feeKobo = payment?.feeAmountKobo ?? feeAmountKobo ?? 0;
+  const totalKobo = payment?.totalAmountKobo ?? feeKobo + developerFeeKobo;
+
+  const formatNaira = (kobo: number) => `₦${(kobo / 100).toLocaleString()}`;
 
   const handleInitiate = async () => {
     setError("");
@@ -60,6 +68,30 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
               You are about to initiate a payment. You will be redirected to our secure payment
               gateway (Paystack) to complete this transaction.
             </Text>
+
+            {/* Fee breakdown — dues + ₦150 developer fee (development & e-receipt) */}
+            {feeKobo > 0 && (
+              <View style={styles.infoBox}>
+                <Text style={styles.infoTitle}>Amount Breakdown</Text>
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.breakdownLabel}>Association dues</Text>
+                  <Text style={styles.breakdownValue}>{formatNaira(feeKobo)}</Text>
+                </View>
+                <View style={styles.breakdownRow}>
+                  <Text style={styles.breakdownLabel}>Developer fee (app development + e-receipt)</Text>
+                  <Text style={styles.breakdownValue}>{formatNaira(developerFeeKobo)}</Text>
+                </View>
+                <View style={[styles.breakdownRow, styles.breakdownTotal]}>
+                  <Text style={styles.breakdownTotalLabel}>Total</Text>
+                  <Text style={styles.breakdownTotalValue}>{formatNaira(totalKobo)}</Text>
+                </View>
+                <Text style={styles.feeNote}>
+                  The ₦150 developer fee covers the cost of developing and maintaining this
+                  platform and issuing your instant e-receipt.
+                </Text>
+              </View>
+            )}
+
             <View style={styles.infoBox}>
               <Text style={styles.infoTitle}>Payment Methods Available:</Text>
               <View style={styles.infoItemRow}>
@@ -76,7 +108,7 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
               </View>
             </View>
             <Button
-              title="Proceed to Payment"
+              title={`Pay ${formatNaira(totalKobo)}`}
               onPress={handleInitiate}
               loading={loading}
               size="lg"
@@ -92,9 +124,15 @@ export function PayFeeScreen({ route, navigation }: PayFeeScreenProps) {
               <Text style={styles.refLabel}>Reference:</Text>
               <Text style={styles.refValue}>{payment.internalReference}</Text>
             </View>
-            <Text style={styles.statusText}>
-              Status: {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-            </Text>
+            {payment.totalAmountKobo ? (
+              <Text style={styles.statusText}>
+                Total charged: {formatNaira(payment.totalAmountKobo)} (incl. {formatNaira(payment.developerFeeKobo ?? 0)} developer fee)
+              </Text>
+            ) : (
+              <Text style={styles.statusText}>
+                Status: {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+              </Text>
+            )}
             <Button
               title="View Receipt"
               onPress={() => navigation.navigate("Receipt", { paymentId: payment.id })}
@@ -125,6 +163,13 @@ const styles = StyleSheet.create({
   infoTitle: { ...typography.captionBold, color: colors.textPrimary, marginBottom: spacing.xs },
   infoItem: { ...typography.caption, color: colors.textSecondary },
   infoItemRow: { flexDirection: "row", alignItems: "center", gap: 8, marginVertical: 2 },
+  breakdownRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginVertical: 3 },
+  breakdownLabel: { ...typography.caption, color: colors.textSecondary, flex: 1, paddingRight: 8 },
+  breakdownValue: { ...typography.captionBold, color: colors.textPrimary },
+  breakdownTotal: { borderTopWidth: 1, borderTopColor: colors.border, marginTop: 6, paddingTop: 6 },
+  breakdownTotalLabel: { ...typography.captionBold, color: colors.textPrimary },
+  breakdownTotalValue: { ...typography.captionBold, color: colors.textPrimary },
+  feeNote: { ...typography.caption, color: colors.textMuted, marginTop: 8, lineHeight: 18 },
   successText: { ...typography.h3, color: colors.success },
   successRow: {
     flexDirection: "row",

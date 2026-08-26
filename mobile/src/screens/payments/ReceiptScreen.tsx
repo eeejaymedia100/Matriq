@@ -80,8 +80,20 @@ export function ReceiptScreen({ route }: ReceiptScreenProps) {
 
           <View style={styles.details}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Amount</Text>
+              <Text style={styles.detailLabel}>Dues</Text>
               <Text style={styles.detailValue}>₦{(payment.amountKobo / 100).toLocaleString()}</Text>
+            </View>
+            {typeof payment.developerFeeKobo === "number" && payment.developerFeeKobo > 0 ? (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Developer fee (development + e-receipt)</Text>
+                <Text style={styles.detailValue}>₦{(payment.developerFeeKobo / 100).toLocaleString()}</Text>
+              </View>
+            ) : null}
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Total charged</Text>
+              <Text style={styles.detailValue}>
+                ₦{((payment.amountKobo + (payment.developerFeeKobo ?? 0)) / 100).toLocaleString()}
+              </Text>
             </View>
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>Fee</Text>

@@ -29,11 +29,13 @@ export type AggregatePayment = {
 export type PaymentAvgAggregateOutputType = {
   amountKobo: number | null
   rankAtPayment: number | null
+  developerFeeKobo: number | null
 }
 
 export type PaymentSumAggregateOutputType = {
   amountKobo: number | null
   rankAtPayment: number | null
+  developerFeeKobo: number | null
 }
 
 export type PaymentMinAggregateOutputType = {
@@ -50,6 +52,7 @@ export type PaymentMinAggregateOutputType = {
   refundReason: string | null
   disputeReference: string | null
   rankAtPayment: number | null
+  developerFeeKobo: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -68,6 +71,7 @@ export type PaymentMaxAggregateOutputType = {
   refundReason: string | null
   disputeReference: string | null
   rankAtPayment: number | null
+  developerFeeKobo: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,6 +90,7 @@ export type PaymentCountAggregateOutputType = {
   refundReason: number
   disputeReference: number
   rankAtPayment: number
+  developerFeeKobo: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -95,11 +100,13 @@ export type PaymentCountAggregateOutputType = {
 export type PaymentAvgAggregateInputType = {
   amountKobo?: true
   rankAtPayment?: true
+  developerFeeKobo?: true
 }
 
 export type PaymentSumAggregateInputType = {
   amountKobo?: true
   rankAtPayment?: true
+  developerFeeKobo?: true
 }
 
 export type PaymentMinAggregateInputType = {
@@ -116,6 +123,7 @@ export type PaymentMinAggregateInputType = {
   refundReason?: true
   disputeReference?: true
   rankAtPayment?: true
+  developerFeeKobo?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -134,6 +142,7 @@ export type PaymentMaxAggregateInputType = {
   refundReason?: true
   disputeReference?: true
   rankAtPayment?: true
+  developerFeeKobo?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -152,6 +161,7 @@ export type PaymentCountAggregateInputType = {
   refundReason?: true
   disputeReference?: true
   rankAtPayment?: true
+  developerFeeKobo?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -257,6 +267,7 @@ export type PaymentGroupByOutputType = {
   refundReason: string | null
   disputeReference: string | null
   rankAtPayment: number | null
+  developerFeeKobo: number
   createdAt: Date
   updatedAt: Date
   _count: PaymentCountAggregateOutputType | null
@@ -298,6 +309,7 @@ export type PaymentWhereInput = {
   refundReason?: Prisma.StringNullableFilter<"Payment"> | string | null
   disputeReference?: Prisma.StringNullableFilter<"Payment"> | string | null
   rankAtPayment?: Prisma.IntNullableFilter<"Payment"> | number | null
+  developerFeeKobo?: Prisma.IntFilter<"Payment"> | number
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -319,6 +331,7 @@ export type PaymentOrderByWithRelationInput = {
   refundReason?: Prisma.SortOrderInput | Prisma.SortOrder
   disputeReference?: Prisma.SortOrderInput | Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrderInput | Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -343,6 +356,7 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   refundReason?: Prisma.StringNullableFilter<"Payment"> | string | null
   disputeReference?: Prisma.StringNullableFilter<"Payment"> | string | null
   rankAtPayment?: Prisma.IntNullableFilter<"Payment"> | number | null
+  developerFeeKobo?: Prisma.IntFilter<"Payment"> | number
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -364,6 +378,7 @@ export type PaymentOrderByWithAggregationInput = {
   refundReason?: Prisma.SortOrderInput | Prisma.SortOrder
   disputeReference?: Prisma.SortOrderInput | Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrderInput | Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PaymentCountOrderByAggregateInput
@@ -390,6 +405,7 @@ export type PaymentScalarWhereWithAggregatesInput = {
   refundReason?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   disputeReference?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
   rankAtPayment?: Prisma.IntNullableWithAggregatesFilter<"Payment"> | number | null
+  developerFeeKobo?: Prisma.IntWithAggregatesFilter<"Payment"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
 }
@@ -406,6 +422,7 @@ export type PaymentCreateInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutPaymentsInput
@@ -427,6 +444,7 @@ export type PaymentUncheckedCreateInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentInput
@@ -444,6 +462,7 @@ export type PaymentUpdateInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutPaymentsNestedInput
@@ -465,6 +484,7 @@ export type PaymentUncheckedUpdateInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentNestedInput
@@ -484,6 +504,7 @@ export type PaymentCreateManyInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -500,6 +521,7 @@ export type PaymentUpdateManyMutationInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -518,6 +540,7 @@ export type PaymentUncheckedUpdateManyInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,6 +569,7 @@ export type PaymentCountOrderByAggregateInput = {
   refundReason?: Prisma.SortOrder
   disputeReference?: Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -553,6 +577,7 @@ export type PaymentCountOrderByAggregateInput = {
 export type PaymentAvgOrderByAggregateInput = {
   amountKobo?: Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
 }
 
 export type PaymentMaxOrderByAggregateInput = {
@@ -569,6 +594,7 @@ export type PaymentMaxOrderByAggregateInput = {
   refundReason?: Prisma.SortOrder
   disputeReference?: Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -587,6 +613,7 @@ export type PaymentMinOrderByAggregateInput = {
   refundReason?: Prisma.SortOrder
   disputeReference?: Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -594,6 +621,7 @@ export type PaymentMinOrderByAggregateInput = {
 export type PaymentSumOrderByAggregateInput = {
   amountKobo?: Prisma.SortOrder
   rankAtPayment?: Prisma.SortOrder
+  developerFeeKobo?: Prisma.SortOrder
 }
 
 export type PaymentScalarRelationFilter = {
@@ -723,6 +751,7 @@ export type PaymentCreateWithoutUserInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   fee: Prisma.FeeCreateNestedOneWithoutPaymentsInput
@@ -742,6 +771,7 @@ export type PaymentUncheckedCreateWithoutUserInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentInput
@@ -790,6 +820,7 @@ export type PaymentScalarWhereInput = {
   refundReason?: Prisma.StringNullableFilter<"Payment"> | string | null
   disputeReference?: Prisma.StringNullableFilter<"Payment"> | string | null
   rankAtPayment?: Prisma.IntNullableFilter<"Payment"> | number | null
+  developerFeeKobo?: Prisma.IntFilter<"Payment"> | number
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
 }
@@ -806,6 +837,7 @@ export type PaymentCreateWithoutFeeInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutPaymentsInput
@@ -825,6 +857,7 @@ export type PaymentUncheckedCreateWithoutFeeInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   receipt?: Prisma.ReceiptUncheckedCreateNestedOneWithoutPaymentInput
@@ -868,6 +901,7 @@ export type PaymentCreateWithoutReceiptInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   user?: Prisma.UserCreateNestedOneWithoutPaymentsInput
@@ -888,6 +922,7 @@ export type PaymentUncheckedCreateWithoutReceiptInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -920,6 +955,7 @@ export type PaymentUpdateWithoutReceiptInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutPaymentsNestedInput
@@ -940,6 +976,7 @@ export type PaymentUncheckedUpdateWithoutReceiptInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -957,6 +994,7 @@ export type PaymentCreateManyUserInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -973,6 +1011,7 @@ export type PaymentUpdateWithoutUserInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   fee?: Prisma.FeeUpdateOneRequiredWithoutPaymentsNestedInput
@@ -992,6 +1031,7 @@ export type PaymentUncheckedUpdateWithoutUserInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentNestedInput
@@ -1010,6 +1050,7 @@ export type PaymentUncheckedUpdateManyWithoutUserInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1027,6 +1068,7 @@ export type PaymentCreateManyFeeInput = {
   refundReason?: string | null
   disputeReference?: string | null
   rankAtPayment?: number | null
+  developerFeeKobo?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1043,6 +1085,7 @@ export type PaymentUpdateWithoutFeeInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneWithoutPaymentsNestedInput
@@ -1062,6 +1105,7 @@ export type PaymentUncheckedUpdateWithoutFeeInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   receipt?: Prisma.ReceiptUncheckedUpdateOneWithoutPaymentNestedInput
@@ -1080,6 +1124,7 @@ export type PaymentUncheckedUpdateManyWithoutFeeInput = {
   refundReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   disputeReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   rankAtPayment?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  developerFeeKobo?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1100,6 +1145,7 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   refundReason?: boolean
   disputeReference?: boolean
   rankAtPayment?: boolean
+  developerFeeKobo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Payment$userArgs<ExtArgs>
@@ -1121,6 +1167,7 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   refundReason?: boolean
   disputeReference?: boolean
   rankAtPayment?: boolean
+  developerFeeKobo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Payment$userArgs<ExtArgs>
@@ -1141,6 +1188,7 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   refundReason?: boolean
   disputeReference?: boolean
   rankAtPayment?: boolean
+  developerFeeKobo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.Payment$userArgs<ExtArgs>
@@ -1161,11 +1209,12 @@ export type PaymentSelectScalar = {
   refundReason?: boolean
   disputeReference?: boolean
   rankAtPayment?: boolean
+  developerFeeKobo?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "feeId" | "amountKobo" | "status" | "gatewayReference" | "internalReference" | "method" | "paidAt" | "refundedAt" | "refundReason" | "disputeReference" | "rankAtPayment" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "feeId" | "amountKobo" | "status" | "gatewayReference" | "internalReference" | "method" | "paidAt" | "refundedAt" | "refundReason" | "disputeReference" | "rankAtPayment" | "developerFeeKobo" | "createdAt" | "updatedAt", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Payment$userArgs<ExtArgs>
   fee?: boolean | Prisma.FeeDefaultArgs<ExtArgs>
@@ -1201,6 +1250,7 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     refundReason: string | null
     disputeReference: string | null
     rankAtPayment: number | null
+    developerFeeKobo: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["payment"]>
@@ -1642,6 +1692,7 @@ export interface PaymentFieldRefs {
   readonly refundReason: Prisma.FieldRef<"Payment", 'String'>
   readonly disputeReference: Prisma.FieldRef<"Payment", 'String'>
   readonly rankAtPayment: Prisma.FieldRef<"Payment", 'Int'>
+  readonly developerFeeKobo: Prisma.FieldRef<"Payment", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Payment", 'DateTime'>
 }

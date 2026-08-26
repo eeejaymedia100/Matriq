@@ -43,6 +43,7 @@ export type UserMinAggregateOutputType = {
   matricNumber: string | null
   jambNumber: string | null
   matricStatus: $Enums.MatricStatus | null
+  institutionId: string | null
   faculty: string | null
   department: string | null
   level: string | null
@@ -70,6 +71,7 @@ export type UserMaxAggregateOutputType = {
   matricNumber: string | null
   jambNumber: string | null
   matricStatus: $Enums.MatricStatus | null
+  institutionId: string | null
   faculty: string | null
   department: string | null
   level: string | null
@@ -97,6 +99,7 @@ export type UserCountAggregateOutputType = {
   matricNumber: number
   jambNumber: number
   matricStatus: number
+  institutionId: number
   faculty: number
   department: number
   level: number
@@ -134,6 +137,7 @@ export type UserMinAggregateInputType = {
   matricNumber?: true
   jambNumber?: true
   matricStatus?: true
+  institutionId?: true
   faculty?: true
   department?: true
   level?: true
@@ -161,6 +165,7 @@ export type UserMaxAggregateInputType = {
   matricNumber?: true
   jambNumber?: true
   matricStatus?: true
+  institutionId?: true
   faculty?: true
   department?: true
   level?: true
@@ -188,6 +193,7 @@ export type UserCountAggregateInputType = {
   matricNumber?: true
   jambNumber?: true
   matricStatus?: true
+  institutionId?: true
   faculty?: true
   department?: true
   level?: true
@@ -302,6 +308,7 @@ export type UserGroupByOutputType = {
   matricNumber: string | null
   jambNumber: string | null
   matricStatus: $Enums.MatricStatus | null
+  institutionId: string | null
   faculty: string
   department: string
   level: string
@@ -352,6 +359,7 @@ export type UserWhereInput = {
   matricNumber?: Prisma.StringNullableFilter<"User"> | string | null
   jambNumber?: Prisma.StringNullableFilter<"User"> | string | null
   matricStatus?: Prisma.EnumMatricStatusNullableFilter<"User"> | $Enums.MatricStatus | null
+  institutionId?: Prisma.UuidNullableFilter<"User"> | string | null
   faculty?: Prisma.StringFilter<"User"> | string
   department?: Prisma.StringFilter<"User"> | string
   level?: Prisma.StringFilter<"User"> | string
@@ -383,6 +391,7 @@ export type UserWhereInput = {
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -394,6 +403,7 @@ export type UserOrderByWithRelationInput = {
   matricNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   jambNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   matricStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
   faculty?: Prisma.SortOrder
   department?: Prisma.SortOrder
   level?: Prisma.SortOrder
@@ -425,6 +435,7 @@ export type UserOrderByWithRelationInput = {
   eventAttendance?: Prisma.EventAttendanceOrderByRelationAggregateInput
   vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  institution?: Prisma.InstitutionOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -440,6 +451,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   matricNumber?: Prisma.StringNullableFilter<"User"> | string | null
   jambNumber?: Prisma.StringNullableFilter<"User"> | string | null
   matricStatus?: Prisma.EnumMatricStatusNullableFilter<"User"> | $Enums.MatricStatus | null
+  institutionId?: Prisma.UuidNullableFilter<"User"> | string | null
   faculty?: Prisma.StringFilter<"User"> | string
   department?: Prisma.StringFilter<"User"> | string
   level?: Prisma.StringFilter<"User"> | string
@@ -470,6 +482,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }, "id" | "email" | "verificationToken">
 
 export type UserOrderByWithAggregationInput = {
@@ -481,6 +494,7 @@ export type UserOrderByWithAggregationInput = {
   matricNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   jambNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   matricStatus?: Prisma.SortOrderInput | Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
   faculty?: Prisma.SortOrder
   department?: Prisma.SortOrder
   level?: Prisma.SortOrder
@@ -516,6 +530,7 @@ export type UserScalarWhereWithAggregatesInput = {
   matricNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   jambNumber?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   matricStatus?: Prisma.EnumMatricStatusNullableWithAggregatesFilter<"User"> | $Enums.MatricStatus | null
+  institutionId?: Prisma.UuidNullableWithAggregatesFilter<"User"> | string | null
   faculty?: Prisma.StringWithAggregatesFilter<"User"> | string
   department?: Prisma.StringWithAggregatesFilter<"User"> | string
   level?: Prisma.StringWithAggregatesFilter<"User"> | string
@@ -574,6 +589,7 @@ export type UserCreateInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -585,6 +601,7 @@ export type UserUncheckedCreateInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -658,6 +675,7 @@ export type UserUpdateInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -669,6 +687,7 @@ export type UserUncheckedUpdateInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -711,6 +730,7 @@ export type UserCreateManyInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -765,6 +785,7 @@ export type UserUncheckedUpdateManyInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -783,6 +804,16 @@ export type UserUncheckedUpdateManyInput = {
   deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
+export type UserListRelationFilter = {
+  every?: Prisma.UserWhereInput
+  some?: Prisma.UserWhereInput
+  none?: Prisma.UserWhereInput
+}
+
+export type UserOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type UserCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
@@ -792,6 +823,7 @@ export type UserCountOrderByAggregateInput = {
   matricNumber?: Prisma.SortOrder
   jambNumber?: Prisma.SortOrder
   matricStatus?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   department?: Prisma.SortOrder
   level?: Prisma.SortOrder
@@ -823,6 +855,7 @@ export type UserMaxOrderByAggregateInput = {
   matricNumber?: Prisma.SortOrder
   jambNumber?: Prisma.SortOrder
   matricStatus?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   department?: Prisma.SortOrder
   level?: Prisma.SortOrder
@@ -850,6 +883,7 @@ export type UserMinOrderByAggregateInput = {
   matricNumber?: Prisma.SortOrder
   jambNumber?: Prisma.SortOrder
   matricStatus?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
   faculty?: Prisma.SortOrder
   department?: Prisma.SortOrder
   level?: Prisma.SortOrder
@@ -882,12 +916,46 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
-export type StringFieldUpdateOperationsInput = {
-  set?: string
+export type UserCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput> | Prisma.UserCreateWithoutInstitutionInput[] | Prisma.UserUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstitutionInput | Prisma.UserCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.UserCreateManyInstitutionInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
+export type UserUncheckedCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput> | Prisma.UserCreateWithoutInstitutionInput[] | Prisma.UserUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstitutionInput | Prisma.UserCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.UserCreateManyInstitutionInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput> | Prisma.UserCreateWithoutInstitutionInput[] | Prisma.UserUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstitutionInput | Prisma.UserCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.UserUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.UserCreateManyInstitutionInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.UserUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutInstitutionInput | Prisma.UserUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput> | Prisma.UserCreateWithoutInstitutionInput[] | Prisma.UserUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutInstitutionInput | Prisma.UserCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.UserUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.UserCreateManyInstitutionInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.UserUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutInstitutionInput | Prisma.UserUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
 export type EnumRegistrationTypeFieldUpdateOperationsInput = {
@@ -912,10 +980,6 @@ export type IntFieldUpdateOperationsInput = {
   decrement?: number
   multiply?: number
   divide?: number
-}
-
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
 }
 
 export type UserCreateNestedOneWithoutExecutiveRolesInput = {
@@ -1136,6 +1200,147 @@ export type UserUpdateOneRequiredWithoutRefreshTokenFamiliesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokenFamiliesInput, Prisma.UserUpdateWithoutRefreshTokenFamiliesInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokenFamiliesInput>
 }
 
+export type UserCreateWithoutInstitutionInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutInstitutionInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutInstitutionInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput>
+}
+
+export type UserCreateManyInstitutionInputEnvelope = {
+  data: Prisma.UserCreateManyInstitutionInput | Prisma.UserCreateManyInstitutionInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutInstitutionInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutInstitutionInput, Prisma.UserUncheckedUpdateWithoutInstitutionInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutInstitutionInput, Prisma.UserUncheckedCreateWithoutInstitutionInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutInstitutionInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutInstitutionInput, Prisma.UserUncheckedUpdateWithoutInstitutionInput>
+}
+
+export type UserUpdateManyWithWhereWithoutInstitutionInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutInstitutionInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.UuidFilter<"User"> | string
+  fullName?: Prisma.StringFilter<"User"> | string
+  email?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringNullableFilter<"User"> | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFilter<"User"> | $Enums.RegistrationType
+  matricNumber?: Prisma.StringNullableFilter<"User"> | string | null
+  jambNumber?: Prisma.StringNullableFilter<"User"> | string | null
+  matricStatus?: Prisma.EnumMatricStatusNullableFilter<"User"> | $Enums.MatricStatus | null
+  institutionId?: Prisma.UuidNullableFilter<"User"> | string | null
+  faculty?: Prisma.StringFilter<"User"> | string
+  department?: Prisma.StringFilter<"User"> | string
+  level?: Prisma.StringFilter<"User"> | string
+  emailVerified?: Prisma.BoolFilter<"User"> | boolean
+  verificationToken?: Prisma.StringNullableFilter<"User"> | string | null
+  verificationCodeExpiresAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  verificationEmailCount?: Prisma.IntFilter<"User"> | number
+  verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
+  mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  deletionScheduledAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+}
+
 export type UserCreateWithoutExecutiveRolesInput = {
   id?: string
   fullName: string
@@ -1175,6 +1380,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -1186,6 +1392,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -1273,6 +1480,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -1284,6 +1492,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1355,6 +1564,7 @@ export type UserCreateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1366,6 +1576,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -1453,6 +1664,7 @@ export type UserUpdateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1464,6 +1676,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1535,6 +1748,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -1546,6 +1760,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -1633,6 +1848,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -1644,6 +1860,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1715,6 +1932,7 @@ export type UserCreateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -1726,6 +1944,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -1813,6 +2032,7 @@ export type UserUpdateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -1824,6 +2044,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1895,6 +2116,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -1906,6 +2128,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -1993,6 +2216,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -2004,6 +2228,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2075,6 +2300,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -2086,6 +2312,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -2173,6 +2400,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -2184,6 +2412,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2255,6 +2484,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutEventAttendanceInput = {
@@ -2266,6 +2496,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -2353,6 +2584,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventAttendanceInput = {
@@ -2364,6 +2596,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2435,6 +2668,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -2446,6 +2680,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -2522,6 +2757,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -2533,6 +2769,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -2620,6 +2857,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -2631,6 +2869,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2713,6 +2952,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -2724,6 +2964,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2795,6 +3036,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -2806,6 +3048,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -2893,6 +3136,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -2904,6 +3148,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2975,6 +3220,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -2986,6 +3232,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -3073,6 +3320,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -3084,6 +3332,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3155,6 +3404,7 @@ export type UserCreateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutVaultItemsInput = {
@@ -3166,6 +3416,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -3253,6 +3504,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVaultItemsInput = {
@@ -3264,6 +3516,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3335,6 +3588,7 @@ export type UserCreateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -3346,6 +3600,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -3433,6 +3688,7 @@ export type UserUpdateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -3444,6 +3700,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3515,6 +3772,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -3526,6 +3784,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -3613,6 +3872,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -3624,6 +3884,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3695,6 +3956,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -3706,6 +3968,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   matricNumber?: string | null
   jambNumber?: string | null
   matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
   faculty: string
   department: string
   level: string
@@ -3793,9 +4056,121 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateManyInstitutionInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+}
+
+export type UserUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutInstitutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3831,9 +4206,37 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
   aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
   legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -4002,6 +4405,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   matricNumber?: boolean
   jambNumber?: boolean
   matricStatus?: boolean
+  institutionId?: boolean
   faculty?: boolean
   department?: boolean
   level?: boolean
@@ -4033,6 +4437,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -4045,6 +4450,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   matricNumber?: boolean
   jambNumber?: boolean
   matricStatus?: boolean
+  institutionId?: boolean
   faculty?: boolean
   department?: boolean
   level?: boolean
@@ -4061,6 +4467,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   deletedAt?: boolean
   deletionScheduledAt?: boolean
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -4072,6 +4479,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   matricNumber?: boolean
   jambNumber?: boolean
   matricStatus?: boolean
+  institutionId?: boolean
   faculty?: boolean
   department?: boolean
   level?: boolean
@@ -4088,6 +4496,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   updatedAt?: boolean
   deletedAt?: boolean
   deletionScheduledAt?: boolean
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -4099,6 +4508,7 @@ export type UserSelectScalar = {
   matricNumber?: boolean
   jambNumber?: boolean
   matricStatus?: boolean
+  institutionId?: boolean
   faculty?: boolean
   department?: boolean
   level?: boolean
@@ -4117,7 +4527,7 @@ export type UserSelectScalar = {
   deletionScheduledAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "institutionId" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
@@ -4134,10 +4544,15 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -4157,6 +4572,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     eventAttendance: Prisma.$EventAttendancePayload<ExtArgs>[]
     vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    institution: Prisma.$InstitutionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -4167,6 +4583,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     matricNumber: string | null
     jambNumber: string | null
     matricStatus: $Enums.MatricStatus | null
+    institutionId: string | null
     faculty: string
     department: string
     level: string
@@ -4592,6 +5009,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   eventAttendance<T extends Prisma.User$eventAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vaultItems<T extends Prisma.User$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  institution<T extends Prisma.User$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4629,6 +5047,7 @@ export interface UserFieldRefs {
   readonly matricNumber: Prisma.FieldRef<"User", 'String'>
   readonly jambNumber: Prisma.FieldRef<"User", 'String'>
   readonly matricStatus: Prisma.FieldRef<"User", 'MatricStatus'>
+  readonly institutionId: Prisma.FieldRef<"User", 'String'>
   readonly faculty: Prisma.FieldRef<"User", 'String'>
   readonly department: Prisma.FieldRef<"User", 'String'>
   readonly level: Prisma.FieldRef<"User", 'String'>
@@ -4899,6 +5318,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -4969,6 +5392,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -5395,6 +5822,25 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.institution
+ */
+export type User$institutionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institution
+   */
+  select?: Prisma.InstitutionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institution
+   */
+  omit?: Prisma.InstitutionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstitutionInclude<ExtArgs> | null
+  where?: Prisma.InstitutionWhereInput
 }
 
 /**

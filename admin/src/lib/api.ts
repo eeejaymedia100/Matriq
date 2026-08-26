@@ -7,11 +7,13 @@ import type {
   AdminVerificationRequest,
   AiDocument,
   AdminVaultItem,
+  VaultTextPreview,
   AdminUser,
   AdminExecutive,
   AdminAccount,
   WaitlistEntry,
   WaitlistStats,
+  InstitutionCascade,
 } from "@/types/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/v1";
@@ -55,7 +57,16 @@ export async function listAssociations(token: string) {
 }
 
 export async function createAssociation(
-  data: { name: string; shortCode: string; faculty: string; whatsappNumber: string },
+  data: {
+    name: string;
+    shortCode: string;
+    institutionId?: string;
+    faculty: string;
+    department?: string;
+    whatsappNumber: string;
+    email?: string;
+    password?: string;
+  },
   token: string,
 ) {
   return fetchApi<Association>("/admin/associations", {
@@ -74,6 +85,63 @@ export async function updateAssociationStatus(
     method: "PATCH",
     token,
     body: JSON.stringify({ status }),
+  });
+}
+
+// ── Institutions (hierarchy for association targeting) ────────────
+
+export async function listInstitutions(token: string) {
+  return fetchApi<{ institutions: InstitutionCascade[] }>(
+    "/admin/institutions/cascade",
+    { token },
+  );
+}
+
+export async function createInstitution(
+  data: { name: string; shortName?: string; type?: string; state?: string },
+  token: string,
+) {
+  return fetchApi<{ id: string; name: string }>("/admin/institutions", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function removeInstitution(id: string, token: string) {
+  return fetchApi<{ message: string }>(`/admin/institutions/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export async function addFaculty(institutionId: string, name: string, token: string) {
+  return fetchApi<{ id: string; name: string }>(`/admin/institutions/${institutionId}/faculties`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function removeFaculty(id: string, token: string) {
+  return fetchApi<{ message: string }>(`/admin/faculties/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export async function addDepartment(facultyId: string, name: string, token: string) {
+  return fetchApi<{ id: string; name: string }>(`/admin/faculties/${facultyId}/departments`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ name }),
+  });
+}
+
+export async function removeDepartment(id: string, token: string) {
+  return fetchApi<{ message: string }>(`/admin/departments/${id}`, {
+    method: "DELETE",
+    token,
   });
 }
 
@@ -105,10 +173,12 @@ export async function listPayments(
   }>(`/admin/payments${query ? `?${query}` : ""}`, { token });
 }
 
-export async function listFees(token: string) {
-  return fetchApi<{ fees: AdminFee[]; total: number }>("/admin/fees", {
-    token,
-  });
+export async function listFees(token: string, associationId?: string) {
+  const qs = associationId ? `?associationId=${associationId}` : "";
+  return fetchApi<{ fees: AdminFee[]; total: number }>(
+    `/admin/fees${qs}`,
+    { token },
+  );
 }
 
 // ── Global verification queue ─────────────────────────────────────
@@ -166,6 +236,46 @@ export async function moderateVaultItem(
     token,
     body: JSON.stringify({ status }),
   });
+}
+
+// ── Moderation previews (review the actual content) ────────────────
+
+/** Text preview of a vault item (PDF text layer, or OCR for images). */
+export async function getVaultItemText(token: string, id: string) {
+  return fetchApi<VaultTextPreview>(`/admin/vault-items/${id}/text`, {
+    token,
+  });
+}
+
+/**
+ * Fetch a raw file (vault item or verification document) as a Blob with
+ * its mime type — used for image previews and original downloads.
+ */
+async function fetchFileBlob(
+  path: string,
+  token: string,
+): Promise<{ blob: Blob; mimeType: string; fileName: string }> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to fetch file (${res.status})`);
+  }
+  const disposition = res.headers.get("Content-Disposition") ?? "";
+  const match = disposition.match(/filename="?([^";]+)"?/);
+  return {
+    blob: await res.blob(),
+    mimeType: res.headers.get("Content-Type") ?? "application/octet-stream",
+    fileName: match?.[1] ?? "file",
+  };
+}
+
+export function fetchVaultItemFile(token: string, id: string) {
+  return fetchFileBlob(`/admin/vault-items/${id}/file`, token);
+}
+
+export function fetchVerificationDocument(token: string, id: string) {
+  return fetchFileBlob(`/admin/verification-requests/${id}/document`, token);
 }
 
 // ── Users ─────────────────────────────────────────────────────────

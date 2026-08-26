@@ -1,11 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import AdminLayout from "@/components/AdminLayout";
 import { useSession } from "@/components/SessionProvider";
-import { listPayments, listFees } from "@/lib/api";
-import type { AdminPayment, AdminFee } from "@/types/api";
+import { listPayments, listFees, listAssociations } from "@/lib/api";
+import type {
+  AdminPayment,
+  AdminFee,
+  Association,
+} from "@/types/api";
 
 const STATUS_COLORS: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -22,24 +26,10 @@ export default function PaymentsPage() {
   const { token } = useSession();
   const [payments, setPayments] = useState<AdminPayment[]>([]);
   const [fees, setFees] = useState<AdminFee[]>([]);
+  const [associations, setAssociations] = useState<Association[]>([]);
   const [filter, setFilter] = useState<string>("");
+  const [assocFilter, setAssocFilter] = useState<string>("");
   const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async () => {
-    if (!token) return;
-    try {
-      const [p, f] = await Promise.all([
-        listPayments(token, filter ? { status: filter } : {}),
-        listFees(token),
-      ]);
-      setPayments(p.payments);
-      setFees(f.fees);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, filter]);
 
   useEffect(() => {
     if (!token) {
@@ -49,13 +39,20 @@ export default function PaymentsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [p, f] = await Promise.all([
-          listPayments(token, filter ? { status: filter } : {}),
-          listFees(token),
+        const [p, f, a] = await Promise.all([
+          listPayments(
+            token,
+            filter
+              ? { status: filter, associationId: assocFilter || undefined }
+              : { associationId: assocFilter || undefined },
+          ),
+          listFees(token, assocFilter || undefined),
+          listAssociations(token),
         ]);
         if (!cancelled) {
           setPayments(p.payments);
           setFees(f.fees);
+          setAssociations(a.associations);
         }
       } catch (err) {
         console.error(err);
@@ -66,7 +63,7 @@ export default function PaymentsPage() {
     return () => {
       cancelled = true;
     };
-  }, [router, token, filter]);
+  }, [router, token, filter, assocFilter]);
 
   const totalCollected = fees.reduce((s, f) => s + f.collectedKobo, 0);
   const totalPaidCount = fees.reduce((s, f) => s + f.paidCount, 0);
@@ -74,6 +71,28 @@ export default function PaymentsPage() {
   return (
     <AdminLayout>
       <h1 className="text-2xl font-bold text-white mb-6">Payments</h1>
+
+      {/* Association drill-down (platform-wide default, per-association view) */}
+      <div className="flex items-center gap-3 mb-6">
+        <label className="text-sm text-gray-400">Association</label>
+        <select
+          value={assocFilter}
+          onChange={(e) => setAssocFilter(e.target.value)}
+          className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+        >
+          <option value="">All associations</option>
+          {associations.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name} ({a.shortCode})
+            </option>
+          ))}
+        </select>
+        {assocFilter ? (
+          <span className="text-xs text-gray-500">
+            Showing {associations.find((a) => a.id === assocFilter)?.name ?? "this association"} only
+          </span>
+        ) : null}
+      </div>
 
       {/* Summary strip */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">

@@ -112,3 +112,12 @@ export const VaultVisibility = {
 } as const
 
 export type VaultVisibility = (typeof VaultVisibility)[keyof typeof VaultVisibility]
+
+
+export const InstitutionType = {
+  university: 'university',
+  polytechnic: 'polytechnic',
+  college_of_education: 'college_of_education'
+} as const
+
+export type InstitutionType = (typeof InstitutionType)[keyof typeof InstitutionType]

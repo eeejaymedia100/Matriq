@@ -18,7 +18,9 @@ export interface InitiatePaymentDto {
 
 export interface PaymentResponse {
   id: string;
-  amountKobo: number;
+  feeAmountKobo: number;
+  developerFeeKobo: number;
+  totalAmountKobo: number;
   status: string;
   internalReference: string;
   checkoutUrl: string | null;
@@ -36,6 +38,17 @@ export class PaymentsService {
     private readonly notificationsService: NotificationsService,
     private readonly inAppNotificationsService: InAppNotificationsService,
   ) {}
+
+  /**
+   * Platform developer fee added to every dues payment (₦150 by default).
+   * Configurable via the DEVELOPER_FEE_KOBO env var. This covers the
+   * platform's development cost and the e-receipt service.
+   */
+  private developerFeeKobo(): number {
+    const raw = this.configService.get<string>("DEVELOPER_FEE_KOBO");
+    const parsed = raw ? Number.parseInt(raw, 10) : NaN;
+    return Number.isInteger(parsed) && parsed >= 0 ? parsed : 15000; // ₦150
+  }
 
   /**
    * Initiate a payment for a specific fee.
@@ -117,7 +130,9 @@ export class PaymentsService {
         );
         return {
           id: replayed.id,
-          amountKobo: replayed.amountKobo,
+          feeAmountKobo: replayed.amountKobo,
+          developerFeeKobo: replayed.developerFeeKobo,
+          totalAmountKobo: replayed.amountKobo + replayed.developerFeeKobo,
           status: replayed.status,
           internalReference: replayed.internalReference,
           checkoutUrl: null,
@@ -125,6 +140,9 @@ export class PaymentsService {
         };
       }
     }
+
+    const developerFee = this.developerFeeKobo();
+    const totalAmountKobo = fee.amountKobo + developerFee;
 
     const paystackSecret = this.configService.get<string>(
       "PAYSTACK_SECRET_KEY",
@@ -148,7 +166,7 @@ export class PaymentsService {
               email: (
                 await this.prisma.user.findUnique({ where: { id: userId } })
               )?.email,
-              amount: fee.amountKobo,
+              amount: totalAmountKobo,
               reference: internalReference,
               metadata: {
                 userId,
@@ -175,12 +193,15 @@ export class PaymentsService {
       }
     }
 
-    // Create the payment record
+    // Create the payment record. amountKobo stays as the fee amount (that's
+    // what the association collects); the platform developer fee is tracked
+    // separately in developerFeeKobo and charged on top at the gateway.
     const payment = await this.prisma.payment.create({
       data: {
         userId,
         feeId: fee.id,
         amountKobo: fee.amountKobo,
+        developerFeeKobo: developerFee,
         status: "pending",
         internalReference,
         gatewayReference,
@@ -198,7 +219,9 @@ export class PaymentsService {
       metadata: {
         feeId: fee.id,
         feeName: fee.name,
-        amountKobo: fee.amountKobo,
+        feeAmountKobo: fee.amountKobo,
+        developerFeeKobo: developerFee,
+        totalAmountKobo,
         internalReference,
       },
     });
@@ -209,7 +232,9 @@ export class PaymentsService {
 
     return {
       id: payment.id,
-      amountKobo: payment.amountKobo,
+      feeAmountKobo: payment.amountKobo,
+      developerFeeKobo: payment.developerFeeKobo,
+      totalAmountKobo: payment.amountKobo + payment.developerFeeKobo,
       status: payment.status,
       internalReference: payment.internalReference,
       checkoutUrl,
@@ -383,7 +408,7 @@ export class PaymentsService {
       return; // Idempotent
     }
 
-    const amount = gatewayData.amount as number; // Paystack returns in kobo
+    const amount = gatewayData.amount as number; // Paystack returns in kobo (fee + developer fee)
     const channel = gatewayData.channel as string;
     const paidAtRaw = gatewayData.paid_at as string;
 

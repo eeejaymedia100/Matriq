@@ -1,9 +1,15 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { BadRequestException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import { VaultService } from "./vault.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { AuditService } from "../audit/audit.service";
+import { ToolsService } from "../tools/tools.service";
 
 describe("VaultService", () => {
   let service: VaultService;
@@ -19,13 +25,17 @@ describe("VaultService", () => {
     type: "past_question",
     visibility: "public",
     originalName: "chm101.pdf",
+    storageRef: "data:application/pdf;base64,AAAA",
+    companionRef: null,
     mimeType: "application/pdf",
     sizeBytes: 1024,
     companionSizeBytes: null,
+    companionMimeType: null,
     moderationStatus: "approved",
     rejectionReason: null,
     downloads: 0,
     createdAt: new Date(),
+    deletedAt: null,
     user: { fullName: "Ada", level: "200" },
   };
 
@@ -51,8 +61,19 @@ describe("VaultService", () => {
     isEnabled: true,
     put: jest.fn().mockResolvedValue("vault/assoc-1/user-1/key.pdf"),
     getDataUri: jest.fn().mockResolvedValue(null),
+    getBuffer: jest.fn().mockResolvedValue(null),
   };
   const mockAudit = { log: jest.fn().mockResolvedValue(undefined) };
+  const mockTools = {
+    ocrBuffer: jest
+      .fn()
+      .mockResolvedValue({
+        text: "CHEMISTRY 2019 past questions",
+        confidence: 92,
+        readable: true,
+        engine: "tesseract",
+      }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,6 +82,7 @@ describe("VaultService", () => {
         { provide: PrismaService, useValue: mockPrisma() },
         { provide: StorageService, useValue: mockStorage },
         { provide: AuditService, useValue: mockAudit },
+        { provide: ToolsService, useValue: mockTools },
       ],
     }).compile();
 
@@ -101,6 +123,155 @@ describe("VaultService", () => {
         .where;
       expect(where.AND).toEqual(
         expect.arrayContaining([{ type: "past_question" }]),
+      );
+    });
+  });
+
+  describe("renameItem", () => {
+    it("rejects renaming someone else's upload", async () => {
+      await expect(
+        service.renameItem("other-user", "1.2.3.4", "item-1", "my name"),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("rejects an empty name", async () => {
+      await expect(
+        service.renameItem("user-1", "1.2.3.4", "item-1", "   "),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("appends the original extension when the new name omits it", async () => {
+      (prisma.vaultItem.update as jest.Mock).mockResolvedValue({
+        ...mockItem,
+        originalName: "chm101 2019 answers.pdf",
+      });
+
+      await service.renameItem("user-1", "1.2.3.4", "item-1", "chm101 2019 answers");
+
+      const data = (prisma.vaultItem.update as jest.Mock).mock.calls[0][0].data;
+      expect(data.originalName).toBe("chm101 2019 answers.pdf");
+      expect(mockAudit.log).toHaveBeenCalledWith(
+        expect.objectContaining({
+          actorType: "student",
+          action: "vault.rename",
+          metadata: { from: "chm101.pdf", to: "chm101 2019 answers.pdf" },
+        }),
+      );
+    });
+
+    it("swaps a different extension back to the file's real one", async () => {
+      (prisma.vaultItem.update as jest.Mock).mockResolvedValue({
+        ...mockItem,
+        originalName: "chm101 answers.pdf",
+      });
+
+      await service.renameItem("user-1", "1.2.3.4", "item-1", "chm101 answers.docx");
+
+      const data = (prisma.vaultItem.update as jest.Mock).mock.calls[0][0].data;
+      expect(data.originalName).toBe("chm101 answers.pdf");
+    });
+  });
+
+  describe("getText", () => {
+    it("extracts the embedded text layer from a PDF", async () => {
+      const pdf = await PDFDocument.create();
+      const page = pdf.addPage([400, 400]);
+      const font = await pdf.embedFont(StandardFonts.Helvetica);
+      page.drawText("Hello Matriq OCR test", {
+        x: 50,
+        y: 350,
+        size: 14,
+        font,
+      });
+      const bytes = await pdf.save();
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        storageRef: `data:application/pdf;base64,${Buffer.from(bytes).toString("base64")}`,
+      });
+
+      const result = await service.getText("user-1", "item-1");
+      expect(result.source).toBe("pdf");
+      expect(result.text).toContain("Hello Matriq OCR test");
+    });
+
+    it("returns none for a PDF without a text layer (scanned)", async () => {
+      const result = await service.getText("user-1", "item-1");
+      expect(result).toEqual({ text: "", source: "none" });
+    });
+
+    it("runs OCR on image uploads", async () => {
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        storageRef: "data:image/jpeg;base64,/9j/4AAQSkZJRg==",
+        mimeType: "image/jpeg",
+        originalName: "photo.jpg",
+      });
+
+      const result = await service.getText("user-1", "item-1");
+      expect(result.source).toBe("ocr");
+      expect(result.text).toContain("CHEMISTRY 2019");
+      expect(mockTools.ocrBuffer).toHaveBeenCalled();
+    });
+
+    it("returns none for unreadable content without throwing", async () => {
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        mimeType: "application/zip",
+      });
+
+      const result = await service.getText("user-1", "item-1");
+      expect(result).toEqual({ text: "", source: "none" });
+    });
+
+    it("denies text for items the student can't download", async () => {
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        userId: "someone-else",
+        visibility: "private",
+      });
+
+      await expect(service.getText("user-1", "item-1")).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+  });
+
+  describe("admin preview", () => {
+    it("getTextForAdmin extracts the PDF text layer without student scoping", async () => {
+      const pdf = await PDFDocument.create();
+      const page = pdf.addPage([400, 400]);
+      const font = await pdf.embedFont(StandardFonts.Helvetica);
+      page.drawText("Admin preview works", { x: 50, y: 350, size: 14, font });
+      const bytes = await pdf.save();
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        userId: "someone-else", // admin path must NOT enforce ownership
+        storageRef: `data:application/pdf;base64,${Buffer.from(bytes).toString("base64")}`,
+      });
+
+      const result = await service.getTextForAdmin("item-1");
+      expect(result.source).toBe("pdf");
+      expect(result.text).toContain("Admin preview works");
+    });
+
+    it("getFileForAdmin returns the raw file for image preview", async () => {
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce({
+        ...mockItem,
+        storageRef: "data:image/jpeg;base64,/9j/4AAQSkZJRg==",
+        mimeType: "image/jpeg",
+        originalName: "scan.jpg",
+      });
+
+      const result = await service.getFileForAdmin("item-1");
+      expect(result.mimeType).toBe("image/jpeg");
+      expect(result.fileName).toBe("scan.jpg");
+      expect(result.buffer.length).toBeGreaterThan(0);
+    });
+
+    it("getTextForAdmin throws NotFound for missing items", async () => {
+      (prisma.vaultItem.findUnique as jest.Mock).mockResolvedValueOnce(null);
+      await expect(service.getTextForAdmin("nope")).rejects.toThrow(
+        NotFoundException,
       );
     });
   });

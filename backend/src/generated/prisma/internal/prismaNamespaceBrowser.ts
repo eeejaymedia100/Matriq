@@ -51,6 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  Institution: 'Institution',
+  Faculty: 'Faculty',
+  Department: 'Department',
   User: 'User',
   Association: 'Association',
   AssociationExecutive: 'AssociationExecutive',
@@ -94,6 +97,38 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const InstitutionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  shortName: 'shortName',
+  type: 'type',
+  state: 'state',
+  createdAt: 'createdAt'
+} as const
+
+export type InstitutionScalarFieldEnum = (typeof InstitutionScalarFieldEnum)[keyof typeof InstitutionScalarFieldEnum]
+
+
+export const FacultyScalarFieldEnum = {
+  id: 'id',
+  institutionId: 'institutionId',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type FacultyScalarFieldEnum = (typeof FacultyScalarFieldEnum)[keyof typeof FacultyScalarFieldEnum]
+
+
+export const DepartmentScalarFieldEnum = {
+  id: 'id',
+  facultyId: 'facultyId',
+  name: 'name',
+  createdAt: 'createdAt'
+} as const
+
+export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   fullName: 'fullName',
@@ -103,6 +138,7 @@ export const UserScalarFieldEnum = {
   matricNumber: 'matricNumber',
   jambNumber: 'jambNumber',
   matricStatus: 'matricStatus',
+  institutionId: 'institutionId',
   faculty: 'faculty',
   department: 'department',
   level: 'level',
@@ -128,8 +164,12 @@ export const AssociationScalarFieldEnum = {
   id: 'id',
   name: 'name',
   shortCode: 'shortCode',
+  institutionId: 'institutionId',
   faculty: 'faculty',
+  department: 'department',
   whatsappNumber: 'whatsappNumber',
+  email: 'email',
+  passwordHash: 'passwordHash',
   status: 'status',
   transparency: 'transparency',
   createdAt: 'createdAt',
@@ -208,6 +248,7 @@ export const PaymentScalarFieldEnum = {
   refundReason: 'refundReason',
   disputeReference: 'disputeReference',
   rankAtPayment: 'rankAtPayment',
+  developerFeeKobo: 'developerFeeKobo',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

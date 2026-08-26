@@ -137,6 +137,17 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  // ── Auth: Association login ──────────────────────────────────
+
+  @Post("auth/association/login")
+  @HttpCode(HttpStatus.OK)
+  @Throttle({
+    default: { ttl: 60000, limit: 5, getTracker: ipAndEmailTracker },
+  })
+  loginAssociation(@Body() dto: { email: string; password: string }) {
+    return this.authService.loginAssociation(dto);
+  }
+
   // ── Auth: MFA login challenge (step 2) ───────────────────────
 
   @Post("auth/mfa/challenge")

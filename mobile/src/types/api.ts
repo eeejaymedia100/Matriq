@@ -53,7 +53,14 @@ export interface Fee {
 
 export interface Payment {
   id: string;
+  /** The association's own dues amount (what the association collects). */
   amountKobo: number;
+  /** Legacy alias — the backend response now names it feeAmountKobo. */
+  feeAmountKobo?: number;
+  /** ₦150 platform developer fee (development + e-receipt). */
+  developerFeeKobo?: number;
+  /** feeAmountKobo + developerFeeKobo — what the student is charged. */
+  totalAmountKobo?: number;
   status: string;
   internalReference: string;
   method: string | null;

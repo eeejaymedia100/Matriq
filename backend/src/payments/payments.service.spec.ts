@@ -61,7 +61,15 @@ describe("PaymentsService", () => {
         { provide: ConfigService, useValue: mockConfig },
         { provide: AuditService, useValue: mockAudit },
         { provide: NotificationsService, useValue: mockNotifications },
-        { provide: InAppNotificationsService, useValue: { createForUser: jest.fn().mockResolvedValue(undefined), createForUsers: jest.fn().mockResolvedValue(undefined), createForAssociationMembers: jest.fn().mockResolvedValue(undefined), createForAllUsers: jest.fn().mockResolvedValue(undefined) } },
+        {
+          provide: InAppNotificationsService,
+          useValue: {
+            createForUser: jest.fn().mockResolvedValue(undefined),
+            createForUsers: jest.fn().mockResolvedValue(undefined),
+            createForAssociationMembers: jest.fn().mockResolvedValue(undefined),
+            createForAllUsers: jest.fn().mockResolvedValue(undefined),
+          },
+        },
       ],
     }).compile();
 
@@ -91,6 +99,7 @@ describe("PaymentsService", () => {
     mockPrisma.payment.create.mockResolvedValue({
       id: "pay1",
       amountKobo: 500000,
+      developerFeeKobo: 15000,
       status: "pending",
       internalReference: "MTQ-ABCD1234",
       createdAt: new Date(),
@@ -99,7 +108,9 @@ describe("PaymentsService", () => {
     const result = await service.initiate("u1", { feeId: "fee1" }, "127.0.0.1");
 
     expect(result.status).toBe("pending");
-    expect(result.amountKobo).toBe(500000);
+    expect(result.feeAmountKobo).toBe(500000);
+    expect(result.developerFeeKobo).toBe(15000);
+    expect(result.totalAmountKobo).toBe(515000);
     expect(mockPrisma.payment.create).toHaveBeenCalled();
     expect(mockAudit.log).toHaveBeenCalled();
   });

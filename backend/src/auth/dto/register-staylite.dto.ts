@@ -24,9 +24,13 @@ export class RegisterStayliteDto {
   @IsNotEmpty()
   department: string;
 
+  // Optional: link to an institution for association auto-targeting.
   @IsString()
   @IsNotEmpty()
   level: string;
+
+  @IsString()
+  institutionId?: string;
 
   // Legal consent: which versions the user is accepting during registration
   @IsString()

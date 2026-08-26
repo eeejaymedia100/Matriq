@@ -13,6 +13,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
+import { ConfirmSheet } from "../../components/ConfirmSheet";
 import { File } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { api, API_BASE, authHeaders } from "../../api/client";
@@ -79,9 +80,15 @@ export function VaultScreen({ navigation }: Props) {
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [renameTarget, setRenameTarget] = useState<VaultItemDto | null>(null);
+  const [renameValue, setRenameValue] = useState("");
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameError, setRenameError] = useState<string | null>(null);
 
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
+  const stackNav = navigation.getParent() as
+    | { navigate: (s: string, p?: object) => void }
+    | undefined;
 
   const loadMine = useCallback(async () => {
     try {
@@ -257,6 +264,41 @@ export function VaultScreen({ navigation }: Props) {
     }
   };
 
+  const doRename = async () => {
+    if (!renameTarget) return;
+    const name = renameValue.trim();
+    if (!name) {
+      setRenameError("Enter a file name.");
+      return;
+    }
+    setRenameBusy(true);
+    setRenameError(null);
+    try {
+      const updated = await api.patch<VaultItemDto>(`/vault/${renameTarget.id}`, {
+        originalName: name,
+      });
+      // Refresh both lists in place so the new name shows immediately.
+      setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      setMine((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      setRenameTarget(null);
+      setNote("File renamed.");
+    } catch (err) {
+      setRenameError(
+        err instanceof Error
+          ? err.message
+          : "Couldn't rename the file — try again.",
+      );
+    } finally {
+      setRenameBusy(false);
+    }
+  };
+
+  const openRename = (item: VaultItemDto) => {
+    setRenameTarget(item);
+    setRenameValue(item.originalName || item.title);
+    setRenameError(null);
+  };
+
   const statusChip = (item: VaultItemDto) => {
     if (item.moderationStatus === "pending") {
       return (
@@ -296,8 +338,9 @@ export function VaultScreen({ navigation }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Round-2 QA §6: compact file-manager rows — filename + upload date
-  // up front; tapping a row expands the download actions.
-  const renderItem = (item: VaultItemDto, showOwner = false) => {
+  // up front; tapping a row expands the download actions. `own` enables the
+  // rename action (only the owner may rename an upload).
+  const renderItem = (item: VaultItemDto, showOwner = false, own = false) => {
     const expanded = expandedId === item.id;
     const uploadDate = new Date(item.createdAt).toLocaleDateString(undefined, {
       day: "numeric",
@@ -396,6 +439,28 @@ export function VaultScreen({ navigation }: Props) {
             ) : null}
             <View style={{ flexDirection: "row", gap: 8 }}>
               <Pressable
+                onPress={() =>
+                  stackNav?.navigate("DocumentReader", {
+                    itemId: item.id,
+                    originalName: item.originalName || item.title,
+                    title: item.title,
+                    courseCode: item.courseCode,
+                    mimeType: item.mimeType,
+                  })
+                }
+                style={{
+                  flex: 1,
+                  alignItems: "center",
+                  paddingVertical: 10,
+                  borderRadius: theme.radii.md,
+                  backgroundColor: colors.surfaceAlt,
+                  borderWidth: 1.5,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>Read</Text>
+              </Pressable>
+              <Pressable
                 onPress={() => void download(item, "original")}
                 disabled={downloadingId === item.id}
                 style={{
@@ -416,6 +481,22 @@ export function VaultScreen({ navigation }: Props) {
                   </Text>
                 )}
               </Pressable>
+              {own ? (
+                <Pressable
+                  onPress={() => openRename(item)}
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingVertical: 10,
+                    paddingHorizontal: 14,
+                    borderRadius: theme.radii.md,
+                    borderWidth: 1.5,
+                    borderColor: colors.borderStrong,
+                  }}
+                >
+                  <Icon name="pen" size={16} color={colors.textPrimary} />
+                </Pressable>
+              ) : null}
               {item.hasCompanion ? (
                 <Pressable
                   onPress={() => void download(item, "light")}
@@ -659,7 +740,7 @@ export function VaultScreen({ navigation }: Props) {
               <Text style={[theme.typography.small, { color: colors.textMuted, marginBottom: 12 }]}>
                 Public uploads go live after a quick admin review.
               </Text>
-              {mine.map((item) => renderItem(item, true))}
+              {mine.map((item) => renderItem(item, true, true))}
             </>
           ) : null}
 
@@ -668,6 +749,55 @@ export function VaultScreen({ navigation }: Props) {
               All your uploads are live. Nice.
             </Text>
           ) : null}
+
+      {/* Rename sheet — owner-only, keeps the file's real extension */}
+      <ConfirmSheet
+        visible={!!renameTarget}
+        title="Rename file"
+        body="The file keeps its format — just the name changes."
+        confirmLabel={renameBusy ? "Saving…" : "Rename"}
+        onConfirm={() => void doRename()}
+        onClose={() => {
+          if (!renameBusy) setRenameTarget(null);
+        }}
+      >
+        <TextInput
+          value={renameValue}
+          onChangeText={(t) => {
+            setRenameValue(t);
+            setRenameError(null);
+          }}
+          autoFocus
+          selectTextOnFocus
+          placeholder="New file name"
+          placeholderTextColor={colors.textMuted}
+          style={{
+            marginTop: 14,
+            backgroundColor: colors.surfaceAlt,
+            borderRadius: theme.radii.md,
+            borderWidth: 1.5,
+            borderColor: renameError ? colors.error : colors.borderStrong,
+            color: colors.textPrimary,
+            fontFamily: "PlusJakartaSans_400Regular",
+            fontSize: 15,
+            paddingHorizontal: 14,
+            paddingVertical: 12,
+          }}
+        />
+        <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 6 }]}>
+          Tip: type just the name — ".pdf" (or your file's extension) is added automatically.
+        </Text>
+        {renameError ? (
+          <Text style={[theme.typography.captionBold, { color: colors.error, marginTop: 8 }]}>
+            {renameError}
+          </Text>
+        ) : null}
+        {renameBusy ? (
+          <View style={{ marginTop: 10 }}>
+            <ActivityIndicator size="small" color={colors.brand} />
+          </View>
+        ) : null}
+      </ConfirmSheet>
     </KeyboardScreen>
   );
 }
