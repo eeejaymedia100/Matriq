@@ -81,6 +81,182 @@ const DEPARTMENTS: Record<string, string[]> = {
     "Biology", "Chemistry", "Physics", "Mathematics", "Computer Science",
     "Integrated Science",
   ],
+  "Life Sciences": [
+    "Biochemistry", "Botany", "Microbiology", "Zoology", "Plant Science",
+    "Animal and Environmental Biology", "Fisheries", "Cell Biology and Genetics",
+  ],
+  "Physical Sciences": [
+    "Chemistry", "Computer Science", "Geology", "Mathematics", "Physics",
+    "Statistics", "Geoscience",
+  ],
+  "Physical and Earth Sciences": [
+    "Chemistry", "Computer Science", "Geology", "Mathematics", "Physics",
+    "Statistics", "Marine Sciences",
+  ],
+  "Biological Sciences": [
+    "Biochemistry", "Microbiology", "Plant Science and Biotechnology",
+    "Zoology and Environmental Biology", "Animal and Environmental Biology",
+  ],
+  "Biosciences": [
+    "Biochemistry", "Microbiology", "Plant Science", "Zoology", "Anatomy", "Physiology",
+  ],
+  "Natural Sciences": [
+    "Chemistry", "Mathematics", "Physics", "Geology", "Geography", "Computer Science",
+    "Microbiology", "Biochemistry", "Statistics",
+  ],
+  "Humanities": [
+    "English", "History", "Philosophy", "Linguistics", "Religious Studies",
+    "Music", "Theatre Arts", "Foreign Languages",
+  ],
+  "Medicine": [
+    "Medicine and Surgery", "Anaesthesia", "Community Medicine", "Internal Medicine",
+    "Obstetrics and Gynaecology", "Ophthalmology", "Paediatrics", "Psychiatry", "Radiology", "Surgery",
+  ],
+  "Dentistry": ["Dentistry", "Child Dental Health", "Oral and Maxillofacial Surgery", "Preventive Dentistry", "Restorative Dentistry"],
+  "Dental Sciences": ["Dentistry", "Child Dental Health", "Oral and Maxillofacial Surgery", "Preventive Dentistry", "Restorative Dentistry"],
+  "Dental Surgery": ["Dentistry", "Child Dental Health", "Oral and Maxillofacial Surgery", "Preventive Dentistry", "Restorative Dentistry"],
+  "Nursing": ["Nursing Science"],
+  "Administration": [
+    "Accounting", "Business Administration", "Local Government and Development Studies",
+    "Public Administration",
+  ],
+  "Agriculture and Forestry": [
+    "Agricultural Economics", "Animal Science", "Agronomy", "Forest Resources Management",
+  ],
+  "Agriculture and Agricultural Technology": [
+    "Agricultural Economics", "Agricultural Extension", "Animal Production",
+    "Crop Production", "Food Science and Technology", "Soil Science",
+  ],
+  "Animal Science and Livestock Production": [
+    "Animal Breeding and Physiology", "Animal Nutrition and Forage Science",
+    "Livestock Production and Management",
+  ],
+  "Plant Science and Crop Production": [
+    "Agronomy", "Crop Protection", "Horticulture", "Plant Breeding and Seed Science",
+  ],
+  "Environmental Resources Management": [
+    "Forestry and Wildlife Management", "Environmental Management and Toxicology",
+    "Aquaculture and Fisheries Management", "Ecotourism and Wildlife Management",
+  ],
+  "Food Science and Human Ecology": [
+    "Food Science and Technology", "Home Science and Management", "Nutrition and Dietetics",
+    "Restaurant and Tourism Management",
+  ],
+  "Engineering and Engineering Technology": [
+    "Agricultural and Bioresources Engineering", "Chemical Engineering", "Civil Engineering",
+    "Computer Engineering", "Electrical/Electronic Engineering", "Mechanical Engineering",
+    "Mechatronics Engineering",
+  ],
+  "Engineering and Technology": [
+    "Agricultural Engineering", "Chemical Engineering", "Civil Engineering",
+    "Electrical and Electronics Engineering", "Mechanical Engineering",
+    "Water Resources and Environmental Engineering",
+  ],
+  "Environmental Technology": [
+    "Architecture", "Building Technology", "Estate Management", "Quantity Surveying",
+    "Surveying and Geoinformatics", "Urban and Regional Planning",
+  ],
+  "Earth and Environmental Sciences": [
+    "Geology", "Mining Engineering", "Environmental Sciences", "Geography",
+    "Meteorology", "Geomatics",
+  ],
+  "Earth and Mineral Sciences": [
+    "Applied Geology", "Applied Geophysics", "Mining Engineering", "Marine Science and Technology",
+  ],
+  "Applied Sciences": [
+    "Biochemistry", "Biology", "Chemistry", "Computer Science", "Geology", "Mathematics",
+    "Microbiology", "Physics", "Statistics",
+  ],
+  "Applied Natural Sciences": [
+    "Applied Biology", "Applied Biochemistry", "Applied Chemistry", "Applied Mathematics and Statistics",
+    "Applied Microbiology", "Applied Physics", "Computer Science", "Geology and Mining",
+  ],
+  "Information and Communication Technology": [
+    "Computer Science", "Cyber Security", "Information Technology", "Software Engineering",
+    "Data Science", "Library and Information Science", "Mass Communication",
+  ],
+  "Communication and Information Sciences": [
+    "Information and Communication Science", "Library and Information Science",
+    "Mass Communication", "Telecommunication Science", "Computer Science",
+  ],
+  "Communication and Media Studies": [
+    "Mass Communication", "Broadcasting", "Journalism", "Public Relations and Advertising",
+    "Film and Multimedia Studies", "Media and Communication Studies",
+  ],
+  "Communication": ["Mass Communication", "Broadcasting", "Journalism"],
+  "Communications and Media Studies": [
+    "Mass Communication", "Broadcasting", "Journalism", "Public Relations and Advertising",
+  ],
+  "Creative Arts": ["Fine and Applied Arts", "Music", "Theatre Arts", "Creative Writing", "Design"],
+  "Architecture": ["Architecture"],
+  "Computing": [
+    "Computer Science", "Cyber Security", "Information Technology", "Software Engineering", "Data Science",
+  ],
+  "Computing and Informatics": [
+    "Computer Science", "Cyber Security", "Information Technology", "Software Engineering",
+    "Data Science", "Systems Engineering",
+  ],
+  "Health Professions": [
+    "Nursing Science", "Medical Laboratory Science", "Physiotherapy", "Occupational Therapy",
+    "Medical Radiography and Radiological Sciences", "Public Health", "Health Administration",
+  ],
+  "Allied Health Sciences": [
+    "Nursing Science", "Medical Laboratory Science", "Physiotherapy", "Radiography",
+    "Public Health", "Health Information Management", "Optometry",
+  ],
+  "Allied Medical Sciences": [
+    "Nursing Science", "Medical Laboratory Science", "Radiography", "Physiotherapy",
+    "Public Health", "Optometry",
+  ],
+  "Basic Clinical Sciences": [
+    "Medical Biochemistry", "Medical Microbiology", "Chemical Pathology", "Haematology and Blood Transfusion",
+    "Anatomy", "Physiology", "Pharmacology",
+  ],
+  "Clinical Medicine": [
+    "Medicine and Surgery", "Anaesthesia", "Community Medicine", "Internal Medicine",
+    "Obstetrics and Gynaecology", "Paediatrics", "Psychiatry", "Surgery",
+  ],
+  "Arabic and Islamic Studies": ["Arabic Studies", "Islamic Studies"],
+  "Arts and Islamic Studies": ["Arabic Studies", "Islamic Studies", "English", "History", "Philosophy", "Linguistics", "Theatre Arts"],
+  "Arts and Humanities": [
+    "English", "History", "Philosophy", "Linguistics", "Religious Studies", "Music",
+    "Theatre Arts", "Foreign Languages", "Fine and Applied Arts",
+  ],
+  "Arts and Social Sciences": [
+    "English", "History", "Geography", "Economics", "Political Science", "Sociology",
+    "Religious Studies", "Fine and Applied Arts", "Philosophy", "Linguistics", "Theatre Arts",
+  ],
+  "Business Administration": [
+    "Accountancy", "Business Administration", "Marketing", "Banking and Finance", "Management",
+  ],
+  "Social and Management Sciences": [
+    "Economics", "Political Science", "Sociology", "Psychology", "Geography", "Mass Communication",
+    "Accounting", "Business Administration", "Banking and Finance", "Marketing", "Public Administration",
+  ],
+  "Management Technology": [
+    "Project Management Technology", "Transport Management Technology", "Financial Management Technology",
+    "Entrepreneurship Management Technology", "Business Management Technology", "Urban and Regional Planning",
+  ],
+  "Transport and Logistics": [
+    "Transport Management", "Logistics and Supply Chain Management", "Maritime Transport",
+  ],
+  "Food and Applied Sciences": [
+    "Food Science and Technology", "Nutrition and Dietetics", "Home Science", "Microbiology", "Biochemistry",
+  ],
+  "Environmental Management and Toxicology": [
+    "Environmental Management", "Environmental Toxicology and Food Security",
+  ],
+  "Science and Technology Education": [
+    "Biology Education", "Chemistry Education", "Physics Education", "Mathematics Education",
+    "Integrated Science Education", "Computer Education", "Educational Technology",
+  ],
+  "Health Sciences": [
+    "Nursing Science", "Medical Laboratory Science", "Public Health", "Physiotherapy", "Radiography",
+    "Optometry", "Health Information Management",
+  ],
+  "Health Science and Technology": [
+    "Medical Rehabilitation", "Nursing Sciences", "Medical Laboratory Technology", "Public Health",
+  ],
   // ── Health-sciences universities ───────────────────────────────
   "Allied Health Sciences": [
     "Nursing Science", "Medical Radiography", "Physiotherapy",
@@ -543,6 +719,218 @@ const INSTITUTIONS: InstitutionSeed[] = [
   ["Nigerian University of Technology and Management", "NUTM", "Lagos", "university", TECHNOLOGY],
 ];
 
+// ══ Per-institution faculty overrides ══════════════════════════
+// Exact, current faculty lists for the major universities (sourced from each
+// institution's official site / NUC programme lists, 2025–2026). These REPLACE
+// the type templates for these schools — the majors carry their real
+// faculty names (e.g. UNILAG's "Life Sciences" and "Physical & Earth
+// Sciences" instead of a generic "Science"). All other institutions keep
+// the standard type template, which is the correct general shape for them.
+//
+// Faculty names are matched to the DEPARTMENTS templates above; a faculty
+// without a template entry simply gets no departments (still selectable).
+
+const FACULTY_OVERRIDES: Record<string, string[]> = {
+  // ── UNILAG (19 faculties, incl. the 8 new ones from 2025) ──────
+  "University of Lagos": [
+    "Arts", "Basic Clinical Sciences", "Basic Medical Sciences",
+    "Clinical Sciences", "Communication and Media Studies",
+    "Computing and Informatics", "Creative Arts", "Dental Sciences",
+    "Education", "Engineering", "Environmental Sciences",
+    "Health Professions", "Law", "Life Sciences", "Management Sciences",
+    "Pharmacy", "Physical and Earth Sciences", "Social Sciences",
+    "Architecture",
+  ],
+  // ── UNN (15 faculties) ────────────────────────────────────────
+  "University of Nigeria, Nsukka": [
+    "Agriculture", "Arts", "Biological Sciences", "Business Administration",
+    "Education", "Engineering", "Dentistry", "Environmental Studies",
+    "Health Science and Technology", "Law", "Pharmaceutical Sciences",
+    "Physical Sciences", "Social Sciences", "Medical Sciences",
+    "Veterinary Medicine",
+  ],
+  // ── OAU (13 faculties) ─────────────────────────────────────────
+  "Obafemi Awolowo University": [
+    "Administration", "Agriculture", "Arts", "Basic Medical Sciences",
+    "Clinical Sciences", "Dentistry", "Education", "Engineering",
+    "Environmental Design", "Law", "Pharmacy", "Science", "Social Sciences",
+  ],
+  // ── ABU (18 faculties) ─────────────────────────────────────────
+  "Ahmadu Bello University": [
+    "Administration", "Agriculture", "Allied Health Sciences", "Arts",
+    "Basic Clinical Sciences", "Basic Medical Sciences", "Clinical Sciences",
+    "Dental Surgery", "Education", "Engineering", "Environmental Design",
+    "Law", "Life Sciences", "Physical Sciences", "Pharmacy", "Social Sciences",
+    "Veterinary Medicine", "Management Sciences",
+  ],
+  // ── UI (15 faculties) ──────────────────────────────────────────
+  "University of Ibadan": [
+    "Agriculture and Forestry", "Arts", "Basic Clinical Sciences",
+    "Basic Medical Sciences", "Clinical Sciences", "Computing", "Dentistry",
+    "Education", "Law", "Nursing", "Pharmacy", "Science", "Social Sciences",
+    "Technology", "Veterinary Medicine",
+  ],
+  // ── UNIBEN (17 faculties) ──────────────────────────────────────
+  "University of Benin": [
+    "Agriculture", "Arts", "Basic Clinical Sciences", "Basic Medical Sciences",
+    "Clinical Sciences", "Communication and Media Studies", "Dentistry",
+    "Education", "Engineering", "Environmental Sciences", "Law", "Life Sciences",
+    "Management Sciences", "Nursing", "Pharmacy", "Physical Sciences",
+    "Social Sciences",
+  ],
+  // ── UNILORIN (16 faculties) ────────────────────────────────────
+  "University of Ilorin": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Communication and Information Sciences", "Education",
+    "Engineering and Technology", "Environmental Sciences", "Law",
+    "Life Sciences", "Management Sciences", "Pharmaceutical Sciences",
+    "Physical Sciences", "Social Sciences", "Veterinary Medicine",
+  ],
+  // ── UNIPORT (16 faculties) ─────────────────────────────────────
+  "University of Port Harcourt": [
+    "Agriculture", "Allied Health Sciences", "Basic Medical Sciences",
+    "Clinical Sciences", "Communication and Media Studies", "Computing",
+    "Dentistry", "Education", "Engineering", "Humanities", "Law",
+    "Management Sciences", "Pharmaceutical Sciences", "Science",
+    "Social Sciences",
+  ],
+  // ── UNIJOS (15 faculties) ──────────────────────────────────────
+  "University of Jos": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Computing", "Education", "Engineering", "Environmental Sciences", "Law",
+    "Management Sciences", "Natural Sciences", "Pharmaceutical Sciences",
+    "Social Sciences", "Veterinary Medicine", "Dental Sciences",
+  ],
+  // ── UNICAL (13 faculties) ──────────────────────────────────────
+  "University of Calabar": [
+    "Agriculture", "Allied Medical Sciences", "Arts", "Basic Clinical Sciences",
+    "Basic Medical Sciences", "Biological Sciences", "Education", "Engineering",
+    "Law", "Management Sciences", "Social Sciences", "Medicine", "Dentistry",
+  ],
+  // ── BUK (19 faculties) ─────────────────────────────────────────
+  "Bayero University Kano": [
+    "Agriculture", "Allied Health Sciences", "Arts and Islamic Studies",
+    "Basic Clinical Sciences", "Basic Medical Sciences", "Clinical Sciences",
+    "Communication", "Computing", "Dentistry", "Earth and Environmental Sciences",
+    "Education", "Engineering", "Law", "Life Sciences", "Management Sciences",
+    "Pharmaceutical Sciences", "Physical Sciences", "Science", "Veterinary Medicine",
+  ],
+  // ── UNIZIK (17 faculties) ──────────────────────────────────────
+  "Nnamdi Azikiwe University": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Biosciences",
+    "Education", "Engineering", "Environmental Sciences", "Health Sciences",
+    "Law", "Management Sciences", "Medicine", "Pharmaceutical Sciences",
+    "Physical Sciences", "Social Sciences", "Sciences",
+  ],
+  // ── UNIMAID ────────────────────────────────────────────────────
+  "University of Maiduguri": [
+    "Agriculture", "Arts", "Communications and Media Studies", "Education",
+    "Engineering", "Environmental Studies", "Law", "Life Sciences",
+    "Management Sciences", "Science", "Social Sciences", "Veterinary Medicine",
+    "Basic Medical Sciences", "Clinical Sciences", "Dentistry", "Pharmacy",
+    "Allied Health Sciences",
+  ],
+  // ── UDUS (18 faculties) ────────────────────────────────────────
+  "Usmanu Danfodiyo University, Sokoto": [
+    "Agriculture", "Arts", "Arabic and Islamic Studies", "Basic Medical Sciences",
+    "Clinical Sciences", "Dentistry", "Education", "Engineering", "Law",
+    "Management Sciences", "Pharmacy", "Science", "Social Sciences",
+    "Veterinary Medicine",
+  ],
+  // ── UNIUYO (13 faculties) ──────────────────────────────────────
+  "University of Uyo": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Business Administration",
+    "Clinical Sciences", "Education", "Engineering", "Environmental Studies",
+    "Law", "Management Sciences", "Pharmacy", "Social Sciences",
+    "Biological Sciences", "Physical Sciences",
+  ],
+  // ── UNIABUJA ───────────────────────────────────────────────────
+  "University of Abuja": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Education", "Engineering", "Environmental Sciences", "Law",
+    "Management Sciences", "Science", "Social Sciences", "Veterinary Medicine",
+  ],
+  // ── LASU (14 faculties/schools) ────────────────────────────────
+  "Lagos State University": [
+    "Arts", "Allied Health Sciences", "Basic Medical Sciences",
+    "Clinical Sciences", "Communication and Media Studies", "Education",
+    "Engineering", "Law", "Management Sciences", "Science", "Social Sciences",
+    "Transport and Logistics",
+  ],
+  // ── FUTA (7 schools) ───────────────────────────────────────────
+  "Federal University of Technology, Akure": [
+    "Agriculture and Agricultural Technology", "Applied Sciences",
+    "Engineering", "Environmental Technology", "Earth and Mineral Sciences",
+    "Information and Communication Technology", "Health Sciences",
+  ],
+  // ── FUTO ───────────────────────────────────────────────────────
+  "Federal University of Technology, Owerri": [
+    "Agriculture and Agricultural Technology", "Engineering", "Science",
+    "Management Technology", "Environmental Sciences", "Health Sciences",
+    "Information and Communication Technology",
+  ],
+  // ── FUTMINNA ───────────────────────────────────────────────────
+  "Federal University of Technology, Minna": [
+    "Agriculture", "Engineering and Engineering Technology", "Environmental Technology",
+    "Information and Communication Technology", "Life Sciences", "Physical Sciences",
+    "Science and Technology Education",
+  ],
+  // ── FUNAAB (9 colleges) ────────────────────────────────────────
+  "Federal University of Agriculture, Abeokuta": [
+    "Agriculture", "Animal Science and Livestock Production", "Biosciences",
+    "Engineering", "Environmental Resources Management",
+    "Food Science and Human Ecology", "Management Sciences",
+    "Plant Science and Crop Production", "Veterinary Medicine",
+  ],
+  // ── MOUAU ──────────────────────────────────────────────────────
+  "Michael Okpara University of Agriculture, Umudike": [
+    "Agriculture", "Animal Science and Fisheries Management",
+    "Engineering and Engineering Technology", "Environmental Sciences",
+    "Food and Applied Sciences", "Health Sciences", "Management Sciences",
+    "Natural and Applied Sciences", "Veterinary Medicine",
+  ],
+  // ── ESUT ───────────────────────────────────────────────────────
+  "Enugu State University of Science and Technology": [
+    "Applied Natural Sciences", "Agriculture", "Arts and Social Sciences",
+    "Basic Medical Sciences", "Clinical Medicine", "Education", "Engineering",
+    "Environmental Sciences", "Law", "Management Sciences", "Pharmacy",
+    "Science", "Social Sciences",
+  ],
+  // ── OOU ────────────────────────────────────────────────────────
+  "Olabisi Onabanjo University": [
+    "Arts", "Science", "Social and Management Sciences", "Education",
+    "Engineering", "Law", "Basic Medical Sciences", "Clinical Sciences",
+    "Pharmacy", "Agriculture", "Communication and Media Studies",
+  ],
+  // ── RSU ────────────────────────────────────────────────────────
+  "Rivers State University": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Communication and Media Studies", "Education", "Engineering",
+    "Environmental Sciences", "Law", "Management Sciences", "Science",
+    "Social Sciences",
+  ],
+  // ── DELSU ──────────────────────────────────────────────────────
+  "Delta State University, Abraka": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Education", "Engineering", "Environmental Sciences", "Law",
+    "Management Sciences", "Pharmacy", "Science", "Social Sciences",
+  ],
+  // ── UNIOSUN ────────────────────────────────────────────────────
+  "Osun State University": [
+    "Agriculture", "Arts and Humanities", "Basic Clinical Sciences",
+    "Basic Medical Sciences", "Clinical Sciences", "Communication and Media Studies",
+    "Education", "Engineering", "Environmental Sciences", "Law",
+    "Management Sciences", "Science", "Social Sciences",
+  ],
+  // ── ABSU ───────────────────────────────────────────────────────
+  "Abia State University": [
+    "Agriculture", "Arts", "Basic Medical Sciences", "Clinical Sciences",
+    "Education", "Engineering", "Environmental Sciences", "Health Sciences",
+    "Law", "Management Sciences", "Science", "Social Sciences",
+    "Veterinary Medicine",
+  ],
+};
+
 async function main() {
   let institutions = 0;
   let faculties = 0;
@@ -556,7 +944,11 @@ async function main() {
     });
     institutions += 1;
 
-    for (const key of facultyKeys) {
+    // Use the per-institution override when one exists (major universities
+    // carry their real faculty lists); otherwise the type template applies.
+    const keys = FACULTY_OVERRIDES[name] ?? facultyKeys;
+
+    for (const key of keys) {
       const departmentsList = DEPARTMENTS[key] ?? [];
       const faculty = await prisma.faculty.upsert({
         where: { institutionId_name: { institutionId: institution.id, name: key } },
