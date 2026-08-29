@@ -17,10 +17,12 @@ import { ThemedScreen } from "./Surface";
  * Combines the three pieces every input screen needs so none of them have to
  * hand-roll it:
  *   - SafeAreaView (react-native-safe-area-context) for notch/home-bar insets
- *   - KeyboardAvoidingView — `padding` on iOS; on Android it's intentionally
- *     left off because app.json sets `softwareKeyboardLayoutMode: "resize"`,
- *     which makes the OS resize the window natively (adding a KAV behavior on
- *     Android would double-shift the layout)
+ *   - KeyboardAvoidingView — `padding` on both platforms. app.json sets
+ *     `softwareKeyboardLayoutMode: "pan"` on Android (the OS never resizes the
+ *     window), so the KAV pads the content by the measured keyboard height.
+ *     This is deterministic across Android versions — including Android 15+
+ *     edge-to-edge, where `adjustResize` stops resizing and the keyboard
+ *     would otherwise cover inputs/composers.
  *   - ScrollView with `flexGrow: 1` + `keyboardShouldPersistTaps="handled"` so
  *     inputs scroll above the keyboard and taps on buttons dismiss it
  *
@@ -87,7 +89,7 @@ export function KeyboardScreen({
     <SafeAreaView style={{ flex: 1 }} edges={edges}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior="padding"
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
         {scroll ? (

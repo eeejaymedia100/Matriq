@@ -28,7 +28,7 @@
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
-      "softwareKeyboardLayoutMode": "resize"
+      "softwareKeyboardLayoutMode": "pan"
     },
     "plugins": [
       "expo-secure-store",
@@ -79,7 +79,7 @@
       "expo-sharing"
     ],
     "extra": {
-      "apiUrl": "http://35.204.163.157/v1"
+      "apiUrl": "http://34.91.191.164/v1"
     }
   }
 }

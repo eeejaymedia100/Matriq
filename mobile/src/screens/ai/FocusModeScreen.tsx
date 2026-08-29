@@ -130,9 +130,9 @@ export function FocusModeScreen() {
    */
   const buildFocusMapOnline = useCallback(async (topic: string): Promise<FocusMap> => {
     const prompt =
-      `Produce a concept map of this academic topic as ONE JSON object and nothing else (no markdown). ` +
-      `Schema: {"nodes":[{"id":"n1","label":"short name","kind":"definition|type|component|process|example|application|importance|note","summary":"one short sentence","detail":"3-6 sentence explanation"}],"links":[{"from":"n1","to":"n2","label":"relationship"}]}. ` +
-      `Include the topic itself with kind "topic"; use 6-12 nodes; unique ids n1..nN; links reference existing ids. Topic: ${topic}`;
+      `Produce a concept map of this academic topic as ONE JSON object only (no markdown). ` +
+      `Schema: {"nodes":[{"id":"n1","label":"short name","kind":"definition|type|component|process|example|application|importance|note","summary":"short phrase","detail":"2-3 sentences"}],"links":[{"from":"n1","to":"n2","label":"relationship"}]}. ` +
+      `Include the topic itself with kind "topic"; use 6-10 nodes; unique ids n1..nN; links reference existing ids; keep the JSON under 3000 characters. Topic: ${topic}`;
     const data = await api.post<{ response: string }>("/ai/query", {
       query: prompt,
     });

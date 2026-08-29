@@ -8,9 +8,11 @@ const EXPO_API_URL = Constants.expoConfig?.extra?.apiUrl as string | undefined;
 
 // Production API for release builds. https://api.matriq.com.ng works once
 // the GCP firewall allows TCP 443 and DNS points at the matriq-server VM
-// (35.204.163.157, e2-standard-4). Until then, dev builds use app.json
-// extra.apiUrl (http://35.204.163.157/v1), which works right now over the
-// publicly open port 80.
+// (e2-standard-4). Until then, dev builds use app.json extra.apiUrl
+// (http://<vm-ip>/v1, kept in sync with the Caddyfile temporary-IP block),
+// which works right now over the publicly open port 80. NOTE: the VM's
+// ephemeral IP changes on restart — keep app.json extra.apiUrl in sync with
+// the live instance (see caddy/Caddyfile).
 const TEST_API_URL = "https://api.matriq.com.ng/v1";
 
 // Release builds embed this constant at prebuild time; dev builds honour

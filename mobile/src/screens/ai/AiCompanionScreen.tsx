@@ -471,6 +471,16 @@ export function AiCompanionScreen() {
     };
   }, []);
 
+  // Abort any in-flight stream when leaving the screen so the request (and
+  // its safety-net fallback) can't keep updating a screen that's gone.
+  useEffect(() => {
+    return () => {
+      streamRef.current?.abort();
+      streamRef.current = null;
+      streamingIdRef.current = null;
+    };
+  }, []);
+
   // ── Import the student's own study files (explicit picker permission) ──
 
   /** Extract text for a material and mark it ready (or failed) for the AI. */
@@ -817,11 +827,38 @@ export function AiCompanionScreen() {
       }
 
       // ── Online mode: stream from the server ────────────────────────
+      // Heartbeat safety net: if the stream emits nothing for 12s (slow
+      // server warm-up, dropped connection, silent stall), retry via the
+      // regular endpoint instead of leaving the user staring at a spinner.
+      // Every chunk restarts the deadline, so a slow-but-alive stream is
+      // never cut off mid-answer.
+      let safetyTimer: ReturnType<typeof setTimeout> | null = null;
+      const armSafetyNet = () => {
+        if (safetyTimer) clearTimeout(safetyTimer);
+        safetyTimer = setTimeout(() => {
+          safetyTimer = null;
+          if (streamingIdRef.current === aiMsgId) {
+            void fallbackToNonStreaming(aiMsgId, text);
+          }
+        }, 12_000);
+      };
+      const disarmSafetyNet = () => {
+        if (safetyTimer) {
+          clearTimeout(safetyTimer);
+          safetyTimer = null;
+        }
+      };
+
       try {
         const stream = streamAiQuery(
           text,
-          (chunk) => appendToStreaming(chunk),
+          (chunk) => {
+            // Any progress means the stream is alive — restart the deadline.
+            armSafetyNet();
+            appendToStreaming(chunk);
+          },
           () => {
+            disarmSafetyNet();
             // Stream failed (e.g. network dropped) — if a local model is
             // available, switch to it seamlessly; otherwise retry non-streaming.
             if (localReady) {
@@ -833,17 +870,13 @@ export function AiCompanionScreen() {
               void fallbackToNonStreaming(aiMsgId, text);
             }
           },
-          () => finishStreaming(),
+          () => {
+            disarmSafetyNet();
+            finishStreaming();
+          },
         );
         streamRef.current = stream;
-
-        // Safety net: if the stream never emits anything within 12s, retry via
-        // the regular endpoint instead of leaving the user staring at a spinner.
-        setTimeout(() => {
-          if (streamingIdRef.current === aiMsgId) {
-            void fallbackToNonStreaming(aiMsgId, text);
-          }
-        }, 12_000);
+        armSafetyNet();
       } catch (err) {
         const friendly = formatApiError(err);
         replaceStreamingContent(
