@@ -2869,7 +2869,9 @@ export const VaultItemScalarFieldEnum = {
   downloads: 'downloads',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  level: 'level',
+  session: 'session'
 } as const
 
 export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]

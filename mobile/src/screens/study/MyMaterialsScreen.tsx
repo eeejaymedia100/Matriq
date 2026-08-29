@@ -18,6 +18,7 @@ import {
 } from "../../utils/materials";
 import { markTodoDone } from "../../utils/todos";
 import { checkTodoBadge } from "../../utils/badges";
+import { logStudyActivity } from "../../utils/streak";
 
 /**
  * My materials (spec §9 #4) — this student's own saved books & notes,
@@ -50,6 +51,8 @@ export function MyMaterialsScreen() {
     setTitle("");
     await markTodoDone("materials");
     await checkTodoBadge();
+    // Adding a study material counts as a study day for the streak.
+    void logStudyActivity();
   };
 
   const pickDocument = async () => {

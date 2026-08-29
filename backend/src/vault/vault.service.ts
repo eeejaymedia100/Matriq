@@ -7,7 +7,14 @@ import {
 } from "@nestjs/common";
 import { zipSync } from "fflate";
 import pdfParse from "pdf-parse";
-import { IsNotEmpty, IsString, MaxLength } from "class-validator";
+import {
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from "class-validator";
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { AuditService } from "../audit/audit.service";
@@ -32,7 +39,15 @@ import type {
  */
 
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
+// Chunked upload path — used for large files so the whole document is never
+// held in a single multer buffer (a 200 MB upload would otherwise blow the
+// server's memory). Chunks are 4-6 MB; the total is capped at 200 MB.
+const MAX_CHUNK_BYTES = 6 * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 200 * 1024 * 1024;
+const MAX_CHUNK_COUNT = 512;
 const IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+// Videos are deliberately NOT accepted into the academic document storage
+// system at this stage — no video storage/processing infrastructure.
 const ALLOWED_MIME_TYPES = new Set([
   "application/pdf",
   "image/jpeg",
@@ -46,6 +61,44 @@ export interface UploadVaultDto {
   type: VaultItemType;
   visibility: VaultVisibility;
   /** Version of the Terms of Use the student accepted at first upload (spec §14). */
+  termsVersion: string;
+  /** Optional discovery metadata (academic level, e.g. "100"). */
+  level?: string;
+  /** Optional discovery metadata (academic session, e.g. "2023/2024"). */
+  session?: string;
+}
+
+/** Body of the chunked-upload completion call. */
+export class CompleteChunkedUploadDto {
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(64)
+  uploadId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(200)
+  originalName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
+  mimeType: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(MAX_CHUNK_COUNT)
+  totalChunks: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(MAX_TOTAL_UPLOAD_BYTES)
+  sizeBytes: number;
+
+  courseCode: string;
+  title: string;
+  type: VaultItemType;
+  visibility: VaultVisibility;
   termsVersion: string;
 }
 
@@ -79,7 +132,12 @@ export class VaultService {
    * (association) plus their own items regardless of moderation state.
    * Search is course-code-first but also matches the title.
    */
-  async search(userId: string, query?: string, type?: VaultItemType) {
+  async search(
+    userId: string,
+    query?: string,
+    type?: VaultItemType,
+    level?: string,
+  ) {
     const myAssociations = await this.myAssociationIds(userId);
 
     const where: Record<string, unknown> = {
@@ -114,6 +172,10 @@ export class VaultService {
     if (type === "past_question" || type === "material") {
       filters.push({ type });
     }
+    const levelFilter = (level ?? "").trim();
+    if (levelFilter) {
+      filters.push({ level: levelFilter });
+    }
     if (filters.length > 0) where.AND = filters;
 
     const items = await this.prisma.vaultItem.findMany({
@@ -122,6 +184,7 @@ export class VaultService {
       take: 60,
       include: {
         user: { select: { fullName: true, level: true } },
+        association: { select: { id: true, name: true, shortCode: true } },
       },
     });
 
@@ -149,23 +212,59 @@ export class VaultService {
     dto: UploadVaultDto,
     file: Express.Multer.File,
   ) {
+    return this.createItem(
+      userId,
+      ipAddress,
+      dto,
+      {
+        buffer: file?.buffer,
+        mimetype: file?.mimetype,
+        originalname: file?.originalname,
+        size: file?.size,
+      },
+      {
+        fileTooLargeMessage:
+          "That file is too large — keep uploads under 20 MB. Compress it and try again.",
+      },
+    );
+  }
+
+  /**
+   * Shared validation + create flow for both the single-part and chunked
+   * upload paths. The `file` is a plain { buffer, mimetype, originalname,
+   * size } shape so the chunked path can hand over an assembled buffer.
+   */
+  private async createItem(
+    userId: string,
+    ipAddress: string,
+    dto: UploadVaultDto,
+    file: {
+      buffer?: Buffer;
+      mimetype?: string;
+      originalname?: string;
+      size?: number;
+    },
+    opts: { fileTooLargeMessage: string },
+  ) {
     // 1. Server-side file validation (spec §13 Tier 3)
     if (!file?.buffer) {
       throw new BadRequestException(
         "Please choose a file to upload (PDF, JPG or PNG).",
       );
     }
-    if (!ALLOWED_MIME_TYPES.has(file.mimetype)) {
+    const mimeType = file.mimetype ?? "application/octet-stream";
+    if (!ALLOWED_MIME_TYPES.has(mimeType)) {
       throw new BadRequestException(
-        "That file type isn't supported — upload a PDF, JPG, PNG or WebP.",
+        file.mimetype?.startsWith("video/")
+          ? "Videos aren't accepted in the Vault yet — upload a PDF, JPG, PNG or WebP."
+          : "That file type isn't supported — upload a PDF, JPG, PNG or WebP.",
       );
     }
-    if (file.size > MAX_UPLOAD_BYTES) {
+    if ((file.size ?? 0) > MAX_UPLOAD_BYTES) {
       throw new BadRequestException({
         statusCode: 400,
         code: "FILE_TOO_LARGE",
-        message:
-          "That file is too large — keep uploads under 20 MB. Compress it and try again.",
+        message: opts.fileTooLargeMessage,
       });
     }
 
@@ -199,18 +298,24 @@ export class VaultService {
     const associationId = myAssociations[0];
 
     // 5. Store the original untouched (spec §7 smart storage)
-    const objectKey = `vault/${associationId}/${userId}/${Date.now()}-${this.safeName(file.originalname)}`;
+    const originalname = file.originalname ?? "document";
+    const objectKey = `vault/${associationId}/${userId}/${Date.now()}-${this.safeName(originalname)}`;
     const storedKey = await this.storageService.put(
       objectKey,
       file.buffer,
-      file.mimetype,
+      mimeType,
     );
     const storageRef = storedKey
       ? storedKey
-      : `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+      : `data:${mimeType};base64,${file.buffer.toString("base64")}`;
 
     // 6. Companion version (only kept when genuinely smaller)
-    const companion = await this.makeCompanion(file);
+    const companion = await this.makeCompanion({
+      buffer: file.buffer,
+      mimetype: mimeType,
+      originalname,
+      size: file.size ?? file.buffer.length,
+    });
     let companionRef: string | null = null;
     if (companion) {
       const companionKey = `${objectKey}.companion`;
@@ -239,12 +344,14 @@ export class VaultService {
         visibility,
         storageRef,
         companionRef,
-        originalName: file.originalname.slice(0, 200),
-        mimeType: file.mimetype,
-        sizeBytes: file.size,
+        originalName: originalname.slice(0, 200),
+        mimeType,
+        sizeBytes: file.size ?? file.buffer.length,
         companionSizeBytes: companion?.buffer.length ?? null,
         companionMimeType: companion?.mimeType ?? null,
         moderationStatus: visibility === "public" ? "pending" : "approved",
+        level: (dto.level ?? "").trim().slice(0, 12) || null,
+        session: (dto.session ?? "").trim().slice(0, 16) || null,
       },
     });
 
@@ -267,7 +374,7 @@ export class VaultService {
     });
 
     this.logger.log(
-      `Vault upload: user=${userId}, item=${item.id}, ${courseCode} "${title}" (${visibility}, ${file.size} bytes, companion=${companionRef ? "yes" : "no"})`,
+      `Vault upload: user=${userId}, item=${item.id}, ${courseCode} "${title}" (${visibility}, ${file.size ?? file.buffer.length} bytes, companion=${companionRef ? "yes" : "no"})`,
     );
 
     return {
@@ -279,6 +386,201 @@ export class VaultService {
           ? "Uploaded! Public items go live after a quick admin review."
           : "Uploaded — it's saved to your private Vault.",
     };
+  }
+
+  // ── Student: chunked upload (large files) ─────────────────────
+  // A 200 MB document must never be held in one multer buffer on the server
+  // (memory) or in one JS string on the phone (crash). The app splits the
+  // file into ~4 MB chunks, uploads each as its own multipart request, then
+  // calls /vault/upload/complete which assembles and validates the file.
+  // Re-uploading a chunk with the same uploadId overwrites it, so a retry
+  // naturally resumes. Requires object storage: assembling 200 MB into a
+  // data-URI fallback is impossible, so this path is honest about it.
+
+  async uploadChunk(
+    userId: string,
+    ipAddress: string,
+    uploadId: string,
+    index: number,
+    total: number,
+    file: Express.Multer.File,
+  ) {
+    if (!this.storageService.isEnabled) {
+      throw new BadRequestException(
+        "Large uploads need object storage, which isn't configured on the server yet. Try a file under 20 MB for now.",
+      );
+    }
+    if (!this.isSafeUploadId(uploadId)) {
+      throw new BadRequestException("Invalid upload id.");
+    }
+    if (
+      !Number.isInteger(index) ||
+      !Number.isInteger(total) ||
+      index < 0 ||
+      index >= total ||
+      total > MAX_CHUNK_COUNT
+    ) {
+      throw new BadRequestException("Invalid chunk range.");
+    }
+    if (!file?.buffer || file.buffer.length === 0) {
+      throw new BadRequestException("Empty chunk.");
+    }
+    if (file.buffer.length > MAX_CHUNK_BYTES) {
+      throw new BadRequestException(
+        "That chunk is too large — keep each part under 6 MB.",
+      );
+    }
+
+    const key = `${this.pendingKey(uploadId)}/${String(index).padStart(4, "0")}`;
+    const stored = await this.storageService.put(
+      key,
+      file.buffer,
+      "application/octet-stream",
+    );
+    if (!stored) {
+      throw new BadRequestException(
+        "Couldn't store that chunk right now — check your connection and try again.",
+      );
+    }
+
+    this.logger.log(
+      `Vault chunk: user=${userId}, upload=${uploadId}, part ${index + 1}/${total} (${file.buffer.length} bytes)`,
+    );
+
+    return { uploadId, received: index, total };
+  }
+
+  async completeChunkedUpload(
+    userId: string,
+    ipAddress: string,
+    dto: CompleteChunkedUploadDto,
+  ) {
+    if (!this.isSafeUploadId(dto.uploadId)) {
+      throw new BadRequestException("Invalid upload id.");
+    }
+    if (dto.mimeType.startsWith("video/")) {
+      throw new BadRequestException(
+        "Videos aren't accepted in the Vault yet — upload a PDF, JPG, PNG or WebP.",
+      );
+    }
+    if (!ALLOWED_MIME_TYPES.has(dto.mimeType)) {
+      throw new BadRequestException(
+        "That file type isn't supported — upload a PDF, JPG, PNG or WebP.",
+      );
+    }
+    if (dto.sizeBytes > MAX_TOTAL_UPLOAD_BYTES) {
+      throw new BadRequestException({
+        statusCode: 400,
+        code: "FILE_TOO_LARGE",
+        message: "That file is too large — keep uploads under 200 MB.",
+      });
+    }
+
+    // Assemble the parts in order. Each part is fetched as a streamed buffer
+    // from object storage; the running total is bounded so a malicious uploadId
+    // can't balloon memory.
+    const prefix = this.pendingKey(dto.uploadId);
+    const parts: Buffer[] = [];
+    let total = 0;
+    for (let i = 0; i < dto.totalChunks; i += 1) {
+      const part = await this.storageService.getBuffer(
+        `${prefix}/${String(i).padStart(4, "0")}`,
+      );
+      if (!part) {
+        throw new BadRequestException(
+          `Upload is incomplete (part ${i + 1} of ${dto.totalChunks} is missing) — resume and try again.`,
+        );
+      }
+      total += part.length;
+      if (total > MAX_TOTAL_UPLOAD_BYTES) {
+        throw new BadRequestException(
+          "That file is too large — keep uploads under 200 MB.",
+        );
+      }
+      parts.push(part);
+    }
+    const buffer = Buffer.concat(parts);
+
+    const item = await this.createItem(
+      userId,
+      ipAddress,
+      dto,
+      {
+        buffer,
+        mimetype: dto.mimeType,
+        originalname: dto.originalName,
+        size: buffer.length,
+      },
+      {
+        fileTooLargeMessage:
+          "That file is too large — keep uploads under 200 MB.",
+      },
+    );
+
+    // Best-effort cleanup of the pending parts — never fail the upload over it.
+    for (let i = 0; i < dto.totalChunks; i += 1) {
+      void this.storageService
+        .remove(`${prefix}/${String(i).padStart(4, "0")}`)
+        .catch(() => undefined);
+    }
+
+    return item;
+  }
+
+  private pendingKey(uploadId: string): string {
+    return `vault-pending/${uploadId}`;
+  }
+
+  private isSafeUploadId(uploadId: string): boolean {
+    return /^[A-Za-z0-9_-]{8,64}$/.test(uploadId ?? "");
+  }
+
+  // ── Student: delete (owner only, soft delete + storage cleanup) ──
+
+  /**
+   * Delete the student's own upload. The row is soft-deleted (hidden from
+   * every list, including admin moderation) and the stored objects are
+   * removed best-effort — storage cleanup must never fail the delete.
+   */
+  async deleteItem(userId: string, itemId: string, ipAddress: string) {
+    const item = await this.prisma.vaultItem.findUnique({
+      where: { id: itemId },
+    });
+    if (!item || item.deletedAt) {
+      throw new NotFoundException("That item isn't in the Vault anymore.");
+    }
+    if (item.userId !== userId) {
+      throw new ForbiddenException("You can only delete your own uploads.");
+    }
+
+    await this.prisma.vaultItem.update({
+      where: { id: itemId },
+      data: { deletedAt: new Date() },
+    });
+
+    // Best-effort object cleanup (original + companion).
+    if (!item.storageRef.startsWith("data:")) {
+      void this.storageService.remove(item.storageRef).catch(() => undefined);
+    }
+    if (item.companionRef && !item.companionRef.startsWith("data:")) {
+      void this.storageService.remove(item.companionRef).catch(() => undefined);
+    }
+
+    await this.auditService.log({
+      actorType: "student",
+      actorId: userId,
+      action: "vault.delete",
+      targetType: "vault_item",
+      targetId: itemId,
+      ipAddress,
+      metadata: { courseCode: item.courseCode, title: item.title },
+    });
+
+    this.logger.log(
+      `Vault delete: user=${userId}, item=${itemId} (${item.courseCode} "${item.title}")`,
+    );
+
+    return { id: itemId, deleted: true };
   }
 
   // ── Student: rename (owner only) ──────────────────────────────
@@ -568,7 +870,12 @@ export class VaultService {
     userId: string,
     itemId: string,
     variant: "original" | "light" = "original",
-  ): Promise<{ buffer: Buffer; mimeType: string; fileName: string; sizeBytes: number }> {
+  ): Promise<{
+    buffer: Buffer;
+    mimeType: string;
+    fileName: string;
+    sizeBytes: number;
+  }> {
     const { ref, mimeType, fileName, sizeBytes } = await this.resolveDownload(
       userId,
       itemId,
@@ -707,9 +1014,12 @@ export class VaultService {
    * a lower-quality JPEG; any other file is zipped. Returns null when the
    * companion wouldn't be smaller than the original.
    */
-  private async makeCompanion(
-    file: Express.Multer.File,
-  ): Promise<{ buffer: Buffer; mimeType: string } | null> {
+  private async makeCompanion(file: {
+    buffer: Buffer;
+    mimetype: string;
+    originalname: string;
+    size: number;
+  }): Promise<{ buffer: Buffer; mimeType: string } | null> {
     try {
       let buffer: Buffer;
       let mimeType: string;
@@ -770,7 +1080,10 @@ export class VaultService {
       rejectionReason: string | null;
       downloads: number;
       createdAt: Date;
+      level: string | null;
+      session: string | null;
       user?: { fullName: string; level: string } | null;
+      association?: { id: string; name: string; shortCode: string } | null;
     },
     includeAdmin = false,
   ) {
@@ -790,6 +1103,17 @@ export class VaultService {
       rejectionReason: item.rejectionReason,
       downloads: item.downloads,
       createdAt: item.createdAt,
+      level: item.level,
+      session: item.session,
+      // Institution (association) name so community resources are discoverable
+      // without knowing who uploaded them.
+      institution: item.association
+        ? {
+            id: item.association.id,
+            name: item.association.name,
+            shortCode: item.association.shortCode,
+          }
+        : null,
       submitter: item.user
         ? { fullName: item.user.fullName, level: item.user.level }
         : null,

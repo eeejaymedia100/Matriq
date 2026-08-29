@@ -12,7 +12,12 @@ import {
   clearTokens,
   getTokens,
   onSessionExpired,
+  saveCachedUser,
+  getCachedUser,
+  clearCachedUser,
+  isSessionDeadError,
 } from "../api/client";
+import { appendFileToFormData } from "../utils/upload";
 import type { AuthResponse, User, VerificationRequest } from "../types/api";
 
 interface AuthState {
@@ -84,24 +89,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAuthenticated: false,
   });
 
-  // Try to restore session on mount
+  // Restore the session on mount — OFFLINE-FIRST.
+  //
+  // The whole point of the offline AI is that it works with no internet, so
+  // opening the app must never require a network round-trip. The session is
+  // restored straight from the device: stored tokens + the last-known cached
+  // profile. /me is then refreshed in the background, and only a server
+  // REJECTION (a real 401) signs the user out — a network failure keeps the
+  // signed-in session untouched.
   useEffect(() => {
     (async () => {
-      try {
-        const tokens = await getTokens();
-        if (tokens?.accessToken) {
-          const user = await api.get<User>("/me");
-          setState({
-            user,
-            isLoading: false,
-            isAuthenticated: true,
-          });
-        } else {
-          setState((s) => ({ ...s, isLoading: false }));
-        }
-      } catch {
-        await clearTokens();
+      const tokens = await getTokens();
+      if (!tokens?.accessToken) {
         setState((s) => ({ ...s, isLoading: false }));
+        return;
+      }
+
+      // 1. Instant offline restore from the cached profile.
+      const cached = await getCachedUser<User>();
+      setState({
+        user: cached,
+        isLoading: false,
+        isAuthenticated: true,
+      });
+
+      // 2. Background refresh of the real profile when reachable.
+      try {
+        const user = await api.get<User>("/me");
+        await saveCachedUser(user);
+        setState((s) => ({
+          ...s,
+          user,
+          isAuthenticated: true,
+        }));
+      } catch (err) {
+        if (isSessionDeadError(err)) {
+          // The server says this session is gone — only then sign out.
+          await clearTokens();
+          await clearCachedUser();
+          setState({ user: null, isLoading: false, isAuthenticated: false });
+        }
+        // Network failure or a server hiccup: keep the restored offline
+        // session. Do nothing — the app stays signed in.
       }
     })();
   }, []);
@@ -133,8 +162,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshToken: data.refreshToken as string,
     });
 
-    // Also fetch full profile
+    // Also fetch full profile and cache it for offline boots.
     const profile = await api.get<User>("/me");
+    await saveCachedUser(profile);
     setState({
       user: profile,
       isLoading: false,
@@ -156,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       const profile = await api.get<User>("/me");
+      await saveCachedUser(profile);
       setState({
         user: profile,
         isLoading: false,
@@ -180,6 +211,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const profile = await api.get<User>("/me");
+    await saveCachedUser(profile);
     setState({
       user: profile,
       isLoading: false,
@@ -225,18 +257,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Ignore — the token clear is what matters
     }
     await clearTokens();
+    await clearCachedUser();
     setState({ user: null, isLoading: false, isAuthenticated: false });
   }, []);
 
   const refreshUser = useCallback(async () => {
     try {
       const profile = await api.get<User>("/me");
+      await saveCachedUser(profile);
       setState((s) => ({
         ...s,
         user: profile,
       }));
-    } catch {
-      // Silently fail
+    } catch (err) {
+      // A real 401 means the session is gone — let the global lifecycle
+      // handle the sign-out. Any other failure (network, 5xx) keeps the
+      // current user; the app stays usable offline.
+      if (isSessionDeadError(err)) {
+        await clearTokens();
+        await clearCachedUser();
+        setState({ user: null, isLoading: false, isAuthenticated: false });
+      }
     }
   }, []);
 
@@ -244,6 +285,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateProfile = useCallback(
     async (data: ProfileUpdate): Promise<User> => {
       const profile = await api.patch<User>("/me", data);
+      await saveCachedUser(profile);
       setState((s) => ({ ...s, user: profile }));
       return profile;
     },
@@ -257,11 +299,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const uploadProfilePhoto = useCallback(
     async (uri: string, fileName: string): Promise<User> => {
       const formData = new FormData();
-      formData.append("photo", {
+      // Runtime-valid multipart part (Expo SDK 57 WinterCG) — the legacy
+      // `{ uri, name, type }` object throws "Unsupported FormDataPart
+      // implementation". See utils/upload.
+      await appendFileToFormData(
+        formData,
+        "photo",
         uri,
-        name: fileName || "profile.jpg",
-        type: "image/jpeg",
-      } as unknown as Blob);
+        fileName || "profile.jpg",
+        "image/jpeg",
+      );
       const data = await api.upload<{ profilePhotoUrl: string | null }>(
         "/me/photo",
         formData,
@@ -292,11 +339,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Build FormData for multipart upload. Goes through the API client so
       // the global 401 interceptor (token refresh) applies here too.
       const formData = new FormData();
-      formData.append("document", {
-        uri: fileUri,
-        name: fileName || "verification.jpg",
-        type: "image/jpeg",
-      } as unknown as Blob);
+      await appendFileToFormData(
+        formData,
+        "document",
+        fileUri,
+        fileName || "verification.jpg",
+        "image/jpeg",
+      );
       formData.append("associationId", associationId);
 
       return api.upload<{ id: string; status: string }>(

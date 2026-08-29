@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, Pressable, ActivityIndicator, Platform, ScrollView } from "react-native";
+import { View, Text, Image, Pressable, ActivityIndicator, Platform, ScrollView, Alert } from "react-native";
 import { File } from "expo-file-system";
 import * as Clipboard from "expo-clipboard";
 import { useTheme } from "../../theme/ThemeContext";
@@ -8,6 +8,7 @@ import { Surface } from "../../components/Surface";
 import { Icon } from "../../components/icons";
 import { api, API_BASE, authHeaders } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
+import { newNoteId, upsertNote } from "../../utils/notes";
 import { vaultFileDestination, rememberVaultFile } from "../../utils/vaultCache";
 
 interface ReaderResult {
@@ -44,6 +45,7 @@ export function DocumentReaderScreen({
   const [result, setResult] = useState<ReaderResult | null>(null);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [savedNote, setSavedNote] = useState(false);
   const attempted = useRef(false);
 
   const isImage = mimeType.startsWith("image/");
@@ -98,6 +100,30 @@ export function DocumentReaderScreen({
     await Clipboard.setStringAsync(result.text).catch(() => {});
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
+  };
+
+  /** Save the extracted/OCR text as a real, editable Matriq note. */
+  const saveAsNote = async () => {
+    if (!result?.text) return;
+    const now = Date.now();
+    const id = newNoteId();
+    const label = `${courseCode}${title ? ` — ${title}` : ""}`;
+    await upsertNote({
+      id,
+      title: label.slice(0, 80),
+      body: result.text,
+      createdAt: now,
+      updatedAt: now,
+      meta: { source: "ocr", label },
+    });
+    setSavedNote(true);
+    Alert.alert("Saved to Notes", "The text is now a note you can edit anytime.", [
+      { text: "Not now", style: "cancel" },
+      {
+        text: "Open note",
+        onPress: () => navigation.navigate("NoteEditor", { id }),
+      },
+    ]);
   };
 
   const sourceLabel =
@@ -251,27 +277,44 @@ export function DocumentReaderScreen({
           )}
 
           {result?.text ? (
-            <Pressable
-              onPress={() => void copyText()}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-                alignSelf: "flex-start",
-                marginTop: 12,
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                borderRadius: theme.radii.pill,
-                backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
-                borderWidth: 1,
-                borderColor: copied ? colors.success + "66" : colors.border,
-              }}
-            >
-              <Icon name={copied ? "check" : "copy"} size={14} color={copied ? colors.success : colors.textSecondary} />
-              <Text style={[theme.typography.captionBold, { color: copied ? colors.success : colors.textSecondary }]}>
-                {copied ? "Copied to clipboard" : "Copy text"}
-              </Text>
-            </Pressable>
+            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
+              <Pressable
+                onPress={() => void copyText()}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingVertical: 8,
+                  paddingHorizontal: 14,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
+                  borderWidth: 1,
+                  borderColor: copied ? colors.success + "66" : colors.border,
+                }}
+              >
+                <Icon name={copied ? "check" : "copy"} size={14} color={copied ? colors.success : colors.textSecondary} />
+                <Text style={[theme.typography.captionBold, { color: copied ? colors.success : colors.textSecondary }]}>
+                  {copied ? "Copied to clipboard" : "Copy text"}
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => void saveAsNote()}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingVertical: 8,
+                  paddingHorizontal: 14,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: savedNote ? colors.success : colors.accent,
+                }}
+              >
+                <Icon name="pen" size={14} color="#170B26" />
+                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                  {savedNote ? "Saved to Notes" : "Save as note"}
+                </Text>
+              </Pressable>
+            </View>
           ) : null}
         </>
       )}

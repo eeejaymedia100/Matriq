@@ -4,6 +4,46 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-26 — Round 3 QA: dark-mode layering, keyboard, photo upload, streak+badge, Focus Mode, AI talks, web offline AI
+
+**Status:** code done + verified locally (mobile tsc clean, web export green — llama.rn stays out of the web bundle). Not deployed; needs the usual APK rebuild on the VM + web redeploy.
+
+**Did (user's list, priority order):**
+- **Dark-mode transparency/layering fixed (root cause, not a band-aid).** Glass `surface` was `rgba(255,255,255,0.06)` — a 6% white wash, so chat bubbles, menus, modals, the composer and the tab bar let the content beneath them bleed straight through (that's why dark mode looked broken and light didn't). Glass surfaces are now a translucent deep-purple pane (`rgba(38,20,64,0.92)`): content no longer ghosts through, but the ambient-blob glow + translucent `surfaceAlt` chips + hairline borders keep the frosted look. Also bumped `border`/`borderStrong` for crisper edges, `tabBarBg` 0.78→0.95 (lists no longer show through the bottom nav), modal `overlay` 0.62→0.72. No glass effect was removed.
+- **Keyboard no longer covers focused fields.** Audit found every input screen except Profile already used `KeyboardScreen` (iOS KAV + Android `softwareKeyboardLayoutMode: resize`), so the gap was Profile's edit form (plain ScrollView, no KAV) — converted to `KeyboardScreen` with the iOS header offset. Passcode/login/register were already keyboard-safe (centered + KAV).
+- **Profile-picture upload fixed at the root.** The error was real and app-wide: Expo SDK 57's WinterCG fetch rejects the legacy `{uri,name,type}` FormData parts with "Unsupported FormDataPart implementation" — which broke profile photo, verification upload, vault upload, OCR, file tools, AI-chat voice transcription and PDF/DOCX extraction on native. New `utils/upload.ts` (`appendFileToFormData`) wraps the file in expo-file-system's `File` (whose `bytes()` is exactly what the WinterCG converter calls; `name`/`type` come from the URI), copies `content://` URIs to cache first, and uses a real `File` on web. All 8 upload sites migrated. Profile screen now shows a friendly, actionable error instead of the raw message.
+- **Gamification foundation: one real badge + a study streak.** Badge: the existing "First Foundations" badge is exactly the requested single badge — earned only when all four Home "My To-Do's" (timetable / offline AI / materials / profile photo) are genuinely completed, with a confetti celebration (verified all four completion hooks + award flow). Streak: new `utils/streak.ts` — tracks consecutive days of MEANINGFUL study activity (a completed AI Q&A, a saved note, an added material — never app launches), deduped per day, persisted on-device so it survives restarts and works offline. Home shows a compact 🔥 streak pill (🌱 nudge when 0).
+- **Offline Focus Mode workspace (no online AI, no API).** New `screens/ai/FocusModeScreen.tsx` + `offline/focus.ts`: the local model is asked for *data* — a strict JSON concept map (topic + 6-12 nodes with kind/summary/detail + links) — and the app renders it deterministically as a node canvas (n8n-style): pan by drag, zoom by pinch or buttons (30–250%), color-coded kinds (lime topic, purple definition, blue components, green process, pink examples…), tap a card for the full explanation. Tolerant JSON parser + a linear-chain fallback keep the workspace working even when the 0.5B model's JSON is imperfect. "I'm lost" simplifies the selected concept (smaller parts, analogy, prerequisites) and "Explore more" goes deeper — both streamed from the offline model and pinnable back into the map. Maps auto-save (`utils/focusHistory.ts`, 20 kept) and reopen from the Focus screen. Entry: a "Focus Mode" pill in the AI chat header (prefills the current question). `buildFocusMap()` added to the offline-AI contract for both engines.
+- **The AI talks.** expo-speech added (~57.0.1); every AI answer gets a Listen/Stop button (system voice, works offline; web uses speechSynthesis).
+- **Offline AI on the web app.** New `offline/OfflineAiContext.web.tsx`: Metro swaps it in for the web build (same pattern as whisper.web.ts), so llama.rn never enters the web bundle. It runs transformers.js v3 (loaded once at runtime from jsDelivr — keeps the web bundle small) with the same model family as native (Qwen 2.5 0.5B, `onnx-community/...-ONNX` q4, ~480 MB downloaded once and cached by the browser = the same download-once-work-offline deal as the phone). Same context contract (`offline/contract.ts` now holds the shared types + prompts used by both engines), so the whole AI chat + Focus Mode work in the browser.
+
+**Next:**
+- VM: rebuild the APK (expo-speech is a new native module — needs the rebuild anyway) and redeploy the web export (`npm run web:export` → serve `dist/`).
+- Real-device checks per the request: dark-mode AI chat layering, keyboard on bottom fields, profile photo upload, streak persistence, badge award, Focus Mode on a complex topic, voice notes.
+- Web: verify the transformers.js model download + inference in Safari/Chrome (needs a browser; I could only verify the export builds).
+
+**Blockers/flags:** no browser on this box, so the web offline-AI runtime path (WASM load, IndexedDB cache, first-generation latency) needs a real browser test. Focus Mode on the 0.5B model is best-effort: JSON quality varies — the fallback chain guarantees the workspace always renders.
+
+## 2026-08-26 — Offline-first auth + file-access offline AI + voice/images + deployment cost pass
+
+**Status:** code done + verified locally (mobile tsc clean, web export green, backend tsc + lint + **150 tests green**, both Next.js dashboards build standalone AND their Docker images build+run+serve `/healthz`, both Caddyfiles `caddy validate` pass). NOT yet deployed to the VM; needs an APK rebuild on the box to link whisper.rn + expo-audio natively.
+
+**Did (user's full request, in order):**
+- **Offline-first persistent auth (no forced re-login, ever).** Three bugs removed: (1) opening the app with no internet used to hit `GET /me` at boot, fail, and **sign the user out** — now the session restores straight from disk (stored tokens + newly-cached profile) and `/me` only refreshes in the background; (2) the API client cleared tokens on ANY refresh failure including network errors — now only a server-rejected refresh (real 401) signs you out, network failures keep the session; (3) refresh tokens were 7d — now **90 days, rotating**, so a student who leaves the app for weeks stays signed in (only an explicit Sign Out ends it). Access token 15m → 1h (fewer refresh round-trips offline). Passcode gate: **every cold start now prompts for the 6-digit passcode** (stored on-device, works with zero internet); the old 3h grace still applies to quick background→foreground switches. Verified: all 150 backend tests still green (auth spec fixtures updated to 90d).
+- **Deployment cost analysis (the "VPS + Postgres + Better Auth" advice).** Verdict documented in `docs/docs/deployment-cost.md`: **we're already on that stack** — the backend + self-hosted Postgres/pgvector + Redis + Ollama all live on one GCP VM, and the custom auth already exceeds Better Auth's baseline (Argon2id, rotating refresh-token families with replay detection, TOTP MFA, per-IP+per-email rate limiting). The only Vercel exposure is the two low-traffic dashboards (Hobby = free today, but 100 GB/mo bandwidth + 1M invocations caps = the real "huge problem later" risk). Prepared the fix: **self-host the dashboards on the VM** — `dashboard/Dockerfile` + `admin/Dockerfile` (Next 16 standalone, non-root, build-tested with Docker here), `output: "standalone"` configs, `/healthz` routes, compose services (profile `dashboards`), `caddy/Caddyfile.dashboards`, and `scripts/enable-dashboards.sh` (10-minute DNS flip when Vercel costs anything). Recommendation: keep Vercel while it's free; flip when it bills.
+- **Offline AI reads the student's own files (with permission).** New `mobile/src/offline/extract.ts` (txt/md read locally; images OCR'd on-device via ML Kit; PDF/DOCX extracted once server-side via new `POST /tools/extract-text` then cached) + `mobile/src/offline/rag.ts` (on-device keyword retrieval). Materials (`utils/materials.ts`) now carry extracted text; `OfflineAiContext.ask()` pins the relevant chunks into the prompt with an untrusted-data guard. In the AI chat: a paperclip button imports documents/photos through the system picker (explicit permission, nothing uploaded), chips show attached files + read status.
+- **AI reads images + understands voice notes.** Images: attach a photo in chat → offline ML Kit OCR → the AI answers from it (fully offline). Voice: mic button in the chat records with expo-audio → transcribed offline by whisper.rn (`mobile/src/offline/whisper.ts`, downloadable ggml-tiny.en model, same download-once-over-Wi-Fi pattern as the GGUF models; web stub keeps the web bundle clean) with server fallback `POST /tools/transcribe` (Gemini audio understanding). New deps: `expo-audio ~57.0.4`, `whisper.rn ^0.7.3` (native — REQUIRES an APK rebuild to link).
+- **Website for iPhone users.** The mobile app already builds for web (`npm run web:export`, verified green); added the `web:export` script, an `app.matriq.com.ng` Caddy site block (static, SPA fallback) in both Caddyfiles, and `docs/docs/web-app.md` with the deploy steps + the honest plan to bring the offline AI to browsers (transformers.js WASM engine, tesseract.js, Web Speech API — same download-once UX, WebGPU needed for larger models).
+- **Identity** ("then an identity"): already built — the offline AI knows the student (name/level/faculty/dept via StudentContext) and the app has document-upload identity verification with executive approval; nothing new needed.
+
+**Next:**
+- On the VM: `git pull`, then rebuild the APK (`bump app.json version/versionCode → bash scripts/_build-apk.sh → RELEASE_NOTES=… bash scripts/_finalize-apk.sh`) so whisper.rn + expo-audio link in (native recompile, hours). The JS-only auth/file/chat changes ship with that same APK.
+- Deploy the backend (new `/tools/extract-text` + `/tools/transcribe` endpoints): `scripts/deploy.sh` on matriq-server (no migration needed — new routes only).
+- Decide on dashboards: keep Vercel (free) or run `bash scripts/enable-dashboards.sh` + repoint DNS (see docs/docs/deployment-cost.md).
+- Web app: `cd mobile && npm run web:export`, copy `dist/` to `/srv/matriq-web`, add `https://app.matriq.com.ng` to backend CORS_ORIGIN, add `app` DNS A record.
+
+**Blockers/flags:** whisper.rn + expo-audio need the native APK rebuild to be exercised on a device (I could not run a native build here — no Android SDK). The chat-screen voice model entry point lives in the AI chat's attach menu (not yet in OfflineModelsScreen). `docs/docs/web-app.md`'s transformers.js offline engine is the next build phase, not shipped.
+
 ## 2026-08-17 — Offline-AI chat screen + resumable downloads + no-Telegram releases (APK v0.7.6 building)
 
 **Status:** code done + verified (mobile tsc clean, web export green, backend untouched); commits `49c8b44` + `9a6fac1` pushed; APK v0.7.6 (build 14) building in tmux `matriq-build`, auto-shipped by the tmux `matriq-finalize` watcher when done (in-app only, NO Telegram).
@@ -1729,3 +1769,58 @@ safe-area migration (RN `SafeAreaView` → `react-native-safe-area-context`, ~40
 screens) + `KeyboardAvoidingView` on remaining forms; Tools "Soon" kill;
 notification system; onboarding copy; design-system refinements; quiz/facts;
 update popup; overlay bubble; branded class notifications.
+
+---
+
+## Round 3 — scope cleanup, reliable uploads, private/public Vault, OCR→notes, keyboard fix
+
+**Scope decisions (product cleanup):**
+- **Removed entirely:** Word → PDF, PDF → Word, PDF Split, PDF Merge, File
+  Compressor. Deleted the 5 screen files + the now-unused `FileToolScreen`
+  wrapper, removed their routes/types from `AppNavigator`/`types.ts` and their
+  cards from `ToolsScreen` (kept Image to PDF + CGPA tools).
+- Backend: removed `/tools/pdf/merge`, `/tools/pdf/split`, `/tools/pdf/to-word`,
+  `/tools/pdf/from-word` + the service methods; dropped `docx` dependency and
+  moved `pdf-lib` to devDependencies (test-only PDF fixture generation now).
+  `mammoth`/`pdf-parse`/`fflate` stay (text extraction + Vault companion).
+- **Image to PDF kept + hardened:** reorder arrows per page, tap-to-preview
+  modal, page size (A4/Letter) + fit (Fit/Fill) options; PDF builder extended
+  with `PdfBuildOptions`. Still 100% on-device.
+
+**Uploads & document architecture:**
+- **Chunked upload for large files:** new `POST /vault/upload/chunk` +
+  `POST /vault/upload/complete` (backend) and `utils/chunkedUpload.ts`
+  (mobile). Files >12 MB split into ~4 MB chunks read straight off disk
+  (byte-exact `readAsStringAsync` position/length on Android — verified in the
+  module source), each chunk its own multipart request; same uploadId resumes
+  naturally. 200 MB cap; assembled + validated server-side via a shared
+  `createItem` path. Honest 503 when object storage isn't configured.
+- Videos explicitly rejected (message states it); allowed types stay
+  PDF/JPG/PNG/WebP.
+- All upload sites re-verified against the WinterCG FormData fix
+  (`utils/upload.ts`) — profile photo, verification, vault (single + chunked),
+  OCR, extract, transcribe.
+
+**Vault = private + community (clear separation):**
+- UI: Community library / My uploads tabs; level filter chips; institution
+  name + level + session shown on rows; owner-only rename **and delete**
+  (new `DELETE /vault/:id` soft-delete + storage cleanup).
+- Data model: new optional `level`/`session` discovery metadata (migration
+  `20260826000000_vault_discovery_metadata`) + composite index; search now
+  filters by level and returns institution info — groundwork for future
+  grounded-AI/search over the corpus. Public = community contribution
+  (moderated, no quota); private = owner-only. No privacy blur.
+
+**OCR → Save as Note:** both the OCR screen and the document reader now have a
+"Save as note" button that writes a real editable Matriq note (with provenance
+meta) and offers to open the editor — fully offline.
+
+**AI chat keyboard (Android):** the FlatList was missing `flex: 1`, so on
+Android's window-resize the composer was pushed below the keyboard. Added the
+flex + a `keyboardDidShow` scroll-to-latest. iOS path unchanged (KAV padding +
+interactive dismiss).
+
+**Magic Plus foundation:** `utils/premium.ts` capability boundary + 
+`docs/docs/magic-plus.md` strategy — no paywall, no subscription system yet;
+documents the free-forever core, candidate premium capabilities, and
+student-friendly pricing posture.

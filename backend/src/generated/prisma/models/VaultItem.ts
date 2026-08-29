@@ -61,6 +61,8 @@ export type VaultItemMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
+  level: string | null
+  session: string | null
 }
 
 export type VaultItemMaxAggregateOutputType = {
@@ -86,6 +88,8 @@ export type VaultItemMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
+  level: string | null
+  session: string | null
 }
 
 export type VaultItemCountAggregateOutputType = {
@@ -111,6 +115,8 @@ export type VaultItemCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   deletedAt: number
+  level: number
+  session: number
   _all: number
 }
 
@@ -150,6 +156,8 @@ export type VaultItemMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  level?: true
+  session?: true
 }
 
 export type VaultItemMaxAggregateInputType = {
@@ -175,6 +183,8 @@ export type VaultItemMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  level?: true
+  session?: true
 }
 
 export type VaultItemCountAggregateInputType = {
@@ -200,6 +210,8 @@ export type VaultItemCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
+  level?: true
+  session?: true
   _all?: true
 }
 
@@ -312,6 +324,8 @@ export type VaultItemGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
+  level: string | null
+  session: string | null
   _count: VaultItemCountAggregateOutputType | null
   _avg: VaultItemAvgAggregateOutputType | null
   _sum: VaultItemSumAggregateOutputType | null
@@ -360,6 +374,8 @@ export type VaultItemWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
+  level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
 }
@@ -387,6 +403,8 @@ export type VaultItemOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  level?: Prisma.SortOrderInput | Prisma.SortOrder
+  session?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   association?: Prisma.AssociationOrderByWithRelationInput
 }
@@ -417,6 +435,8 @@ export type VaultItemWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
+  level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
 }, "id">
@@ -444,6 +464,8 @@ export type VaultItemOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  level?: Prisma.SortOrderInput | Prisma.SortOrder
+  session?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.VaultItemCountOrderByAggregateInput
   _avg?: Prisma.VaultItemAvgOrderByAggregateInput
   _max?: Prisma.VaultItemMaxOrderByAggregateInput
@@ -477,6 +499,8 @@ export type VaultItemScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"VaultItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"VaultItem"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"VaultItem"> | Date | string | null
+  level?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  session?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
 }
 
 export type VaultItemCreateInput = {
@@ -500,6 +524,8 @@ export type VaultItemCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
   user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
   association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
 }
@@ -527,6 +553,8 @@ export type VaultItemUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemUpdateInput = {
@@ -550,6 +578,8 @@ export type VaultItemUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
   association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
 }
@@ -577,6 +607,8 @@ export type VaultItemUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemCreateManyInput = {
@@ -602,6 +634,8 @@ export type VaultItemCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemUpdateManyMutationInput = {
@@ -625,6 +659,8 @@ export type VaultItemUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemUncheckedUpdateManyInput = {
@@ -650,6 +686,8 @@ export type VaultItemUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemListRelationFilter = {
@@ -685,6 +723,8 @@ export type VaultItemCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  level?: Prisma.SortOrder
+  session?: Prisma.SortOrder
 }
 
 export type VaultItemAvgOrderByAggregateInput = {
@@ -716,6 +756,8 @@ export type VaultItemMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  level?: Prisma.SortOrder
+  session?: Prisma.SortOrder
 }
 
 export type VaultItemMinOrderByAggregateInput = {
@@ -741,6 +783,8 @@ export type VaultItemMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
+  level?: Prisma.SortOrder
+  session?: Prisma.SortOrder
 }
 
 export type VaultItemSumOrderByAggregateInput = {
@@ -862,6 +906,8 @@ export type VaultItemCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
   association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
 }
 
@@ -887,6 +933,8 @@ export type VaultItemUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemCreateOrConnectWithoutUserInput = {
@@ -941,6 +989,8 @@ export type VaultItemScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VaultItem"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
+  level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
 }
 
 export type VaultItemCreateWithoutAssociationInput = {
@@ -964,6 +1014,8 @@ export type VaultItemCreateWithoutAssociationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
   user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
 }
 
@@ -989,6 +1041,8 @@ export type VaultItemUncheckedCreateWithoutAssociationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemCreateOrConnectWithoutAssociationInput = {
@@ -1039,6 +1093,8 @@ export type VaultItemCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemUpdateWithoutUserInput = {
@@ -1062,6 +1118,8 @@ export type VaultItemUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
 }
 
@@ -1087,6 +1145,8 @@ export type VaultItemUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemUncheckedUpdateManyWithoutUserInput = {
@@ -1111,6 +1171,8 @@ export type VaultItemUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemCreateManyAssociationInput = {
@@ -1135,6 +1197,8 @@ export type VaultItemCreateManyAssociationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
 }
 
 export type VaultItemUpdateWithoutAssociationInput = {
@@ -1158,6 +1222,8 @@ export type VaultItemUpdateWithoutAssociationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
 }
 
@@ -1183,6 +1249,8 @@ export type VaultItemUncheckedUpdateWithoutAssociationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type VaultItemUncheckedUpdateManyWithoutAssociationInput = {
@@ -1207,6 +1275,8 @@ export type VaultItemUncheckedUpdateManyWithoutAssociationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1234,6 +1304,8 @@ export type VaultItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  level?: boolean
+  session?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
@@ -1261,6 +1333,8 @@ export type VaultItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  level?: boolean
+  session?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
@@ -1288,6 +1362,8 @@ export type VaultItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  level?: boolean
+  session?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
@@ -1315,9 +1391,11 @@ export type VaultItemSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
+  level?: boolean
+  session?: boolean
 }
 
-export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt", ExtArgs["result"]["vaultItem"]>
+export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt" | "level" | "session", ExtArgs["result"]["vaultItem"]>
 export type VaultItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
@@ -1360,6 +1438,8 @@ export type $VaultItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
+    level: string | null
+    session: string | null
   }, ExtArgs["result"]["vaultItem"]>
   composites: {}
 }
@@ -1807,6 +1887,8 @@ export interface VaultItemFieldRefs {
   readonly createdAt: Prisma.FieldRef<"VaultItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"VaultItem", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"VaultItem", 'DateTime'>
+  readonly level: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly session: Prisma.FieldRef<"VaultItem", 'String'>
 }
     
 

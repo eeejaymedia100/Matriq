@@ -100,10 +100,18 @@ export const glassTheme: MatriqTheme = {
   colors: {
     bg: brand.purple950,
     bgDeep: "#0C0316",
-    surface: "rgba(255,255,255,0.06)",
-    surfaceAlt: "rgba(255,255,255,0.10)",
-    border: "rgba(255,255,255,0.13)",
-    borderStrong: "rgba(255,255,255,0.26)",
+    // Frosted glass, but readable: the surface is a translucent deep-purple
+    // pane (≈92% opaque) rather than a faint white wash. At 6% white, cards,
+    // menus, the chat composer and the tab bar let the content beneath them
+    // bleed straight through (round-3 QA: dark-mode layering). The residual
+    // translucency still lets the ambient blobs glow faintly through, keeping
+    // the glass feel — without text ghosting behind foreground components.
+    surface: "rgba(38,20,64,0.92)",
+    // Lighter chips/inputs sitting ON TOP of a surface — white highlight over
+    // the now-opaque pane reads as frosted glass, not as bleed-through.
+    surfaceAlt: "rgba(255,255,255,0.09)",
+    border: "rgba(255,255,255,0.16)",
+    borderStrong: "rgba(255,255,255,0.34)",
     textPrimary: "#F7F3FF",
     textSecondary: "#C9BCE6",
     textMuted: "#8F80B5",
@@ -119,8 +127,8 @@ export const glassTheme: MatriqTheme = {
     warningBg: "rgba(255,209,102,0.14)",
     info: "#8FBCFF",
     infoBg: "rgba(143,188,255,0.12)",
-    overlay: "rgba(10,4,20,0.62)",
-    tabBarBg: "rgba(20,6,31,0.78)",
+    overlay: "rgba(10,4,20,0.72)",
+    tabBarBg: "rgba(20,6,31,0.95)",
   },
   typography: typographyBase,
   radii,

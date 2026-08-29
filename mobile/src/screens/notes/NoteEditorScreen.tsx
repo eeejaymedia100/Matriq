@@ -11,6 +11,7 @@ import {
   newNoteId,
   type Note,
 } from "../../utils/notes";
+import { logStudyActivity } from "../../utils/streak";
 
 /**
  * Note editor — autosaves as the student types (debounced), flushes on
@@ -63,6 +64,11 @@ export function NoteEditorScreen({
     };
     noteRef.current = next;
     await upsertNote(next);
+    // Writing a real note counts as a study day for the streak (deduped per
+    // day, so autosaves while typing don't inflate it).
+    if (t.trim() || b.trim()) {
+      void logStudyActivity();
+    }
   }, []);
 
   // Debounced autosave while typing.

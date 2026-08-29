@@ -6,6 +6,7 @@ import {
   Image,
   ActivityIndicator,
   Platform,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Clipboard from "expo-clipboard";
@@ -18,6 +19,8 @@ import {
   MAX_UPLOAD_BYTES,
   optimizeImageForUpload,
 } from "../../utils/imageOptimize";
+import { appendFileToFormData } from "../../utils/upload";
+import { newNoteId, upsertNote } from "../../utils/notes";
 import {
   isOfflineOcrAvailable,
   recognizeImageOffline,
@@ -29,7 +32,11 @@ import {
  * detected, we say "No readable text found — try a clearer photo" instead of
  * returning garbage.
  */
-export function OcrScreen() {
+export function OcrScreen({
+  navigation,
+}: {
+  navigation?: { navigate: (s: string, p?: object) => void };
+}) {
   const { theme } = useTheme();
   const colors = theme.colors;
 
@@ -105,6 +112,32 @@ export function OcrScreen() {
     setTimeout(() => setCopied(false), 1600);
   };
 
+  /** Save the OCR text as a real, editable Matriq note (fully offline). */
+  const saveAsNote = async () => {
+    if (!result?.text) return;
+    const now = Date.now();
+    const id = newNoteId();
+    const base =
+      (image?.fileName ?? "photo").replace(/\.[^.]+$/, "") || "photo";
+    await upsertNote({
+      id,
+      title: `OCR — ${base}`,
+      body: result.text,
+      createdAt: now,
+      updatedAt: now,
+      meta: { source: "ocr", label: base },
+    });
+    // Jump straight into the editor so the note is clearly editable — and
+    // confirm so the flow never feels silent.
+    Alert.alert("Saved to Notes", "The text is now a note you can edit anytime.", [
+      { text: "Not now", style: "cancel" },
+      {
+        text: "Open note",
+        onPress: () => navigation?.navigate("NoteEditor", { id }),
+      },
+    ]);
+  };
+
   const readText = async () => {
     if (!image) return;
     setBusy(true);
@@ -146,16 +179,13 @@ export function OcrScreen() {
         return;
       }
       const formData = new FormData();
-      if (Platform.OS === "web") {
-        const blob = await (await fetch(image.uri)).blob();
-        formData.append("image", blob, image.fileName ?? "photo.jpg");
-      } else {
-        formData.append("image", {
-          uri: image.uri,
-          name: image.fileName ?? "photo.jpg",
-          type: "image/jpeg",
-        } as unknown as Blob);
-      }
+      await appendFileToFormData(
+        formData,
+        "image",
+        image.uri,
+        image.fileName ?? "photo.jpg",
+        "image/jpeg",
+      );
       const data = await api.upload<{
         text: string;
         confidence: number;
@@ -356,36 +386,53 @@ export function OcrScreen() {
                   <Text selectable style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>
                     {result.text}
                   </Text>
-                  <Pressable
-                    onPress={() => void copyText()}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      gap: 6,
-                      alignSelf: "flex-start",
-                      marginTop: 12,
-                      paddingVertical: 8,
-                      paddingHorizontal: 14,
-                      borderRadius: theme.radii.pill,
-                      backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
-                      borderWidth: 1,
-                      borderColor: copied ? colors.success + "66" : colors.border,
-                    }}
-                  >
-                    <Icon
-                      name={copied ? "check" : "copy"}
-                      size={14}
-                      color={copied ? colors.success : colors.textSecondary}
-                    />
-                    <Text
-                      style={[
-                        theme.typography.captionBold,
-                        { color: copied ? colors.success : colors.textSecondary },
-                      ]}
+                  <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
+                    <Pressable
+                      onPress={() => void copyText()}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                        paddingVertical: 8,
+                        paddingHorizontal: 14,
+                        borderRadius: theme.radii.pill,
+                        backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
+                        borderWidth: 1,
+                        borderColor: copied ? colors.success + "66" : colors.border,
+                      }}
                     >
-                      {copied ? "Copied to clipboard" : "Copy text"}
-                    </Text>
-                  </Pressable>
+                      <Icon
+                        name={copied ? "check" : "copy"}
+                        size={14}
+                        color={copied ? colors.success : colors.textSecondary}
+                      />
+                      <Text
+                        style={[
+                          theme.typography.captionBold,
+                          { color: copied ? colors.success : colors.textSecondary },
+                        ]}
+                      >
+                        {copied ? "Copied to clipboard" : "Copy text"}
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => void saveAsNote()}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 6,
+                        paddingVertical: 8,
+                        paddingHorizontal: 14,
+                        borderRadius: theme.radii.pill,
+                        backgroundColor: colors.accent,
+                      }}
+                    >
+                      <Icon name="pen" size={14} color="#170B26" />
+                      <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                        Save as note
+                      </Text>
+                    </Pressable>
+                  </View>
                 </>
               ) : (
                 <>

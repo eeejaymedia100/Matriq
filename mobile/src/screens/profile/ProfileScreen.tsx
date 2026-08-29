@@ -3,15 +3,14 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Alert,
   Pressable,
   ActivityIndicator,
+  Platform,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../../theme/ThemeContext";
-import { ThemedScreen } from "../../components/Surface";
+import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
 import { Card, Button, Input } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
@@ -79,9 +78,15 @@ export function ProfileScreen() {
       await checkTodoBadge();
       Alert.alert("Photo updated", "Your new profile picture is live.");
     } catch (err) {
+      // Friendly, actionable errors — never a raw implementation detail.
+      const raw =
+        err instanceof Error && err.message ? err.message : "";
+      const readingFailed = raw.includes("Couldn't read that file");
       Alert.alert(
         "Couldn't update photo",
-        err instanceof Error ? err.message : "Try again with a smaller image.",
+        readingFailed
+          ? "Matriq couldn't read the image you picked. Try a different photo, then upload again."
+          : "The upload didn't go through — check your connection and try again.",
       );
     } finally {
       setPhotoBusy(false);
@@ -161,9 +166,12 @@ export function ProfileScreen() {
   };
 
   return (
-    <ThemedScreen>
-      <SafeAreaView style={{ flex: 1 }} edges={["bottom", "left", "right"]}>
-        <ScrollView contentContainerStyle={styles.container}>
+    <KeyboardScreen
+      padding={0}
+      contentContainerStyle={styles.container}
+      paddingBottom={40}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
+    >
           {/* Avatar */}
           <View style={styles.avatarSection}>
             <Pressable onPress={photoBusy ? undefined : promptPhoto}>
@@ -324,11 +332,7 @@ export function ProfileScreen() {
           {/* Logout */}
           <Button title="Sign Out" onPress={logout} variant="ghost" />
           <Text style={styles.version}>Matriq v0.1.0</Text>
-
-          <View style={{ height: theme.spacing.xxl }} />
-        </ScrollView>
-      </SafeAreaView>
-    </ThemedScreen>
+    </KeyboardScreen>
   );
 }
 

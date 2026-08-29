@@ -33,6 +33,7 @@ export type MainStackParamList = {
   VerificationStatus: undefined;
   OfflineModels: undefined;
   AiChat: { conversationId?: string } | undefined;
+  AiFocus: { topic?: string; mapId?: string } | undefined;
   AiHistory: undefined;
   Notifications: undefined;
   Quiz: undefined;
@@ -54,9 +55,4 @@ export type MainStackParamList = {
   };
   Ocr: undefined;
   ImageToPdf: undefined;
-  FileCompressor: undefined;
-  PdfMerge: undefined;
-  PdfSplit: undefined;
-  PdfToWord: undefined;
-  WordToPdf: undefined;
 };

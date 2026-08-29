@@ -10,9 +10,18 @@ import {
   ActivityIndicator,
   Modal,
   Pressable,
+  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
+import * as Speech from "expo-speech";
+import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
+import {
+  useAudioRecorder,
+  RecordingPresets,
+  AudioModule,
+} from "expo-audio";
 import { useNavigation, useRoute, type RouteProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
@@ -31,6 +40,22 @@ import {
   titleFromMessages,
   type Conversation,
 } from "../../offline/history";
+import { extractFileText } from "../../offline/extract";
+import { appendFileToFormData } from "../../utils/upload";
+import {
+  getMaterials,
+  addMaterial,
+  removeMaterial,
+  setMaterialText,
+  type Material,
+} from "../../utils/materials";
+import {
+  isWhisperAvailable,
+  hasVoiceModel,
+  downloadVoiceModel,
+  transcribeOffline,
+} from "../../offline/whisper";
+import { logStudyActivity } from "../../utils/streak";
 import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 
 interface Message {
@@ -58,6 +83,17 @@ const STOP_WORDS = new Set([
   "anyone", "every", "everything", "first", "second", "think", "find",
   "know", "get", "put", "take", "work", "school", "exam", "tests",
 ]);
+
+/** Audio extension → MIME type for the transcription upload. */
+const MIME_FOR_EXT: Record<string, string> = {
+  m4a: "audio/mp4",
+  mp4: "audio/mp4",
+  aac: "audio/aac",
+  mp3: "audio/mpeg",
+  wav: "audio/wav",
+  ogg: "audio/ogg",
+  caf: "audio/x-caf",
+};
 
 /**
  * Cheap, instant follow-up suggestions built from the student's last
@@ -210,7 +246,33 @@ export function AiCompanionScreen() {
   const [systemNotice, setSystemNotice] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [speakingId, setSpeakingId] = useState<string | null>(null);
+
+  // ── The student's own files, read by the AI (file-access with permission) ──
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+
+  // ── Voice notes ──
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+
+  // Android keyboard safety: the window resizes natively (app.json
+  // `softwareKeyboardLayoutMode: "resize"`), so the composer stays above the
+  // keyboard — but the FlatList's content size doesn't change when the window
+  // resizes, so it won't scroll on its own. When the keyboard opens, nudge the
+  // list to the latest message (after the resize settles) so the newest
+  // exchange is always visible above the composer.
+  useEffect(() => {
+    const sub = Keyboard.addListener("keyboardDidShow", () => {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 60);
+    });
+    return () => sub.remove();
+  }, []);
   const streamRef = useRef<{ abort: () => void } | null>(null);
   const streamingIdRef = useRef<string | null>(null);
   const historyRef = useRef<ChatTurn[]>([]);
@@ -238,6 +300,7 @@ export function AiCompanionScreen() {
     const unsub = navigation.addListener("focus", () => {
       void warmUp();
       void ping();
+      void loadMaterials();
     });
     return () => {
       mounted = false;
@@ -245,6 +308,16 @@ export function AiCompanionScreen() {
       unsub();
     };
   }, [navigation, warmUp]);
+
+  // Load the student's own study files so the offline AI can read them.
+  const loadMaterials = useCallback(async () => {
+    const list = await getMaterials();
+    setMaterials(list);
+  }, []);
+
+  useEffect(() => {
+    void loadMaterials();
+  }, [loadMaterials]);
 
   // Load a conversation from history when navigated with a conversationId.
   useEffect(() => {
@@ -312,6 +385,8 @@ export function AiCompanionScreen() {
         prev.map((m) => (m.id === id ? { ...m, streaming: false } : m)),
       );
       streamingIdRef.current = null;
+      // A completed AI Q&A is meaningful study activity (streak §1).
+      void logStudyActivity();
     }
     setLoading(false);
     // Save the completed conversation to history.
@@ -365,6 +440,272 @@ export function AiCompanionScreen() {
     [],
   );
 
+  /** Speak an answer aloud with the system voice (works offline). */
+  const toggleSpeak = useCallback((id: string, content: string) => {
+    if (!content) return;
+    if (speakingId === id) {
+      Speech.stop();
+      setSpeakingId(null);
+      return;
+    }
+    Speech.stop();
+    const finish = () => setSpeakingId((cur) => (cur === id ? null : cur));
+    setSpeakingId(id);
+    try {
+      Speech.speak(content.replace(/[*#_`>]/g, ""), {
+        language: "en",
+        rate: 1.02,
+        onDone: finish,
+        onStopped: finish,
+        onError: finish,
+      });
+    } catch {
+      finish();
+    }
+  }, [speakingId]);
+
+  // Stop any speech when leaving the screen.
+  useEffect(() => {
+    return () => {
+      Speech.stop();
+    };
+  }, []);
+
+  // ── Import the student's own study files (explicit picker permission) ──
+
+  /** Extract text for a material and mark it ready (or failed) for the AI. */
+  const extractForMaterial = useCallback(
+    async (
+      id: string,
+      uri: string,
+      name: string,
+      mimeType: string,
+    ): Promise<void> => {
+      const result = await extractFileText(uri, name, mimeType);
+      const list = await setMaterialText(
+        id,
+        result.text,
+        result.text ? "ready" : "failed",
+      );
+      setMaterials(list);
+      if (result.text) {
+        setSystemNotice(
+          result.offline
+            ? "Read on your phone — this file is now part of your AI's knowledge, fully offline."
+            : "Extracted — this file is saved on your device and the AI can read it offline from now on.",
+        );
+      } else {
+        setSystemNotice(
+          "Couldn't read text from that file. Try a PDF, Word document, text file, or a clearer photo.",
+        );
+      }
+    },
+    [],
+  );
+
+  const importDocument = useCallback(async () => {
+    if (importing) return;
+    setImporting(true);
+    try {
+      const res = await DocumentPicker.getDocumentAsync({
+        type: [
+          "application/pdf",
+          "text/plain",
+          "text/markdown",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        ],
+        copyToCacheDirectory: true,
+        multiple: false,
+      });
+      if (res.canceled || res.assets.length === 0) return;
+      const asset = res.assets[0];
+      const name = asset.name ?? "document";
+      const mime = asset.mimeType ?? "application/octet-stream";
+      const mb =
+        asset.size !== undefined && asset.size > 0
+          ? (asset.size / 1_048_576).toFixed(1)
+          : undefined;
+      const list = await addMaterial({
+        title: name.replace(/\.[^.]+$/, "") || name,
+        kind: "document",
+        uri: asset.uri,
+        sizeLabel: mb ? `${mb} MB` : undefined,
+        textStatus: "pending",
+      });
+      setMaterials(list);
+      setAttachOpen(false);
+      await extractForMaterial(
+        list[0].id,
+        asset.uri,
+        name,
+        mime,
+      );
+    } catch {
+      setSystemNotice("Couldn't open that file — try again.");
+    } finally {
+      setImporting(false);
+    }
+  }, [importing, extractForMaterial]);
+
+  const importPhoto = useCallback(async () => {
+    if (importing) return;
+    setImporting(true);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        setSystemNotice(
+          "Matriq needs photo permission to read images — you can allow it in Settings.",
+        );
+        return;
+      }
+      const res = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        quality: 0.9,
+      });
+      if (res.canceled || res.assets.length === 0) return;
+      const asset = res.assets[0];
+      const name = asset.fileName ?? "photo.jpg";
+      const list = await addMaterial({
+        title: name.replace(/\.[^.]+$/, "") || "Photo",
+        kind: "image",
+        uri: asset.uri,
+        textStatus: "pending",
+      });
+      setMaterials(list);
+      setAttachOpen(false);
+      await extractForMaterial(
+        list[0].id,
+        asset.uri,
+        name,
+        "image/jpeg",
+      );
+    } catch {
+      setSystemNotice("Couldn't open that photo — try again.");
+    } finally {
+      setImporting(false);
+    }
+  }, [importing, extractForMaterial]);
+
+  const removeAttached = useCallback(async (id: string) => {
+    setMaterials(await removeMaterial(id));
+  }, []);
+
+  // ── Voice notes ──
+
+  const transcribeVoice = useCallback(
+    async (uri: string): Promise<string | null> => {
+      // 1) Fully offline: on-device Whisper, when the voice model is downloaded.
+      if (isWhisperAvailable()) {
+        if (await hasVoiceModel()) {
+          try {
+            const result = await transcribeOffline(uri);
+            return result.text || null;
+          } catch {
+            // Fall through to the online path.
+          }
+        }
+      }
+
+      // 2) Online: the server transcribes with Gemini audio understanding.
+      if (online !== false) {
+        try {
+          const ext = uri.split(".").pop()?.toLowerCase() ?? "m4a";
+          const mime = MIME_FOR_EXT[ext] ?? "audio/mp4";
+          const formData = new FormData();
+          await appendFileToFormData(
+            formData,
+            "audio",
+            uri,
+            `voice-note.${ext}`,
+            mime,
+          );
+          const data = await api.upload<{ text: string; readable: boolean }>(
+            "/tools/transcribe",
+            formData,
+          );
+          if (data.readable && data.text) return data.text;
+          return null;
+        } catch {
+          return null;
+        }
+      }
+
+      return null;
+    },
+    [online],
+  );
+
+  const toggleRecording = useCallback(async () => {
+    if (recording) {
+      try {
+        await recorder.stop();
+        const uri = recorder.uri;
+        setRecording(false);
+        if (uri) {
+          setTranscribing(true);
+          const text = await transcribeVoice(uri);
+          setTranscribing(false);
+          if (text) {
+            setInput(text);
+            setSystemNotice("Voice note transcribed — edit it if needed, then send.");
+          } else {
+            const offlinePath = isWhisperAvailable();
+            setSystemNotice(
+              offlinePath
+                ? "Couldn't transcribe that voice note. Download the voice model in Offline AI to transcribe without internet, or check your connection."
+                : "Couldn't transcribe that voice note right now — check your connection, or wait for the offline voice model update.",
+            );
+          }
+        }
+      } catch {
+        setRecording(false);
+        setSystemNotice("Couldn't finish that recording — try again.");
+      }
+      return;
+    }
+
+    // Start recording.
+    try {
+      const status = await AudioModule.requestRecordingPermissionsAsync();
+      if (!status.granted) {
+        setSystemNotice(
+          "Matriq needs microphone permission to record voice notes — you can allow it in Settings.",
+        );
+        return;
+      }
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      setRecording(true);
+    } catch {
+      setSystemNotice("Couldn't start recording — try again.");
+    }
+  }, [recorder, recording, transcribeVoice]);
+
+  /** Download the offline voice model (once over Wi-Fi) — mirrors the AI models. */
+  const installVoiceModel = useCallback(async () => {
+    if (!isWhisperAvailable()) {
+      setSystemNotice(
+        "Offline voice transcription needs the app update that includes the voice engine — for now, transcribe with a connection.",
+      );
+      return;
+    }
+    if (await hasVoiceModel()) {
+      setSystemNotice("The voice model is already downloaded.");
+      return;
+    }
+    setTranscribing(true);
+    try {
+      await downloadVoiceModel(() => {});
+      setSystemNotice(
+        "Voice model downloaded — voice notes now transcribe fully offline.",
+      );
+    } catch {
+      setSystemNotice("Couldn't download the voice model — check your connection and try again.");
+    } finally {
+      setTranscribing(false);
+    }
+  }, []);
+
   const fallbackToNonStreaming = useCallback(
     async (aiMsgId: string, text: string) => {
       try {
@@ -372,6 +713,8 @@ export function AiCompanionScreen() {
           query: text,
         });
         replaceStreamingContent(aiMsgId, data.response);
+        // A completed server answer counts as a study day too (streak §1).
+        void logStudyActivity();
       } catch (err) {
         const friendly = formatApiError(err);
         replaceStreamingContent(
@@ -384,7 +727,7 @@ export function AiCompanionScreen() {
   );
 
   const answerLocally = useCallback(
-    async (aiMsgId: string) => {
+    async (aiMsgId: string, query?: string) => {
       try {
         const answer = await ask(
           historyRef.current,
@@ -396,9 +739,17 @@ export function AiCompanionScreen() {
               faculty: user?.faculty,
               department: user?.department,
             },
+            // The student's own files (imported with the picker) become the
+            // offline AI's retrieval corpus — nothing leaves the phone.
+            materials: {
+              materials,
+              query: query ?? historyRef.current[historyRef.current.length - 1]?.content ?? "",
+            },
           },
         );
         replaceStreamingContent(aiMsgId, answer);
+        // A real offline answer is meaningful study activity (streak §1).
+        void logStudyActivity();
       } catch (err) {
         const friendly = formatApiError(err);
         replaceStreamingContent(
@@ -407,7 +758,7 @@ export function AiCompanionScreen() {
         );
       }
     },
-    [ask, appendToStreaming, replaceStreamingContent, user],
+    [ask, appendToStreaming, replaceStreamingContent, user, materials],
   );
 
   const sendMessage = useCallback(
@@ -461,7 +812,7 @@ export function AiCompanionScreen() {
           );
           return;
         }
-        await answerLocally(aiMsgId);
+        await answerLocally(aiMsgId, text);
         return;
       }
 
@@ -477,7 +828,7 @@ export function AiCompanionScreen() {
               setSystemNotice(
                 "No connection — switched to the offline model on your phone.",
               );
-              void answerLocally(aiMsgId);
+              void answerLocally(aiMsgId, text);
             } else {
               void fallbackToNonStreaming(aiMsgId, text);
             }
@@ -519,6 +870,7 @@ export function AiCompanionScreen() {
 
   // Follow-up chips: shown under the welcome bubble (fresh chat) and under
   // the most recent completed assistant answer.
+
   const lastUserMessage = [...messages]
     .reverse()
     .find((m) => m.role === "user")?.content;
@@ -533,32 +885,96 @@ export function AiCompanionScreen() {
       padding={0}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       footer={
-        <View style={styles.inputBar}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Ask a question..."
-            placeholderTextColor={colors.textMuted}
-            value={input}
-            onChangeText={setInput}
-            multiline
-            maxLength={500}
-            onSubmitEditing={() => void sendMessage()}
-            blurOnSubmit={false}
-          />
-          <TouchableOpacity
-            style={[
-              styles.sendBtn,
-              (!input.trim() || loading) && styles.sendBtnDisabled,
-            ]}
-            onPress={() => void sendMessage()}
-            disabled={!input.trim() || loading}
-          >
-            {loading ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+        <View>
+          {/* The student's own files — the offline AI reads these, nothing leaves the phone */}
+          {materials.length > 0 ? (
+            <View style={styles.attachedRow}>
+              {materials.map((m) => (
+                <View key={m.id} style={styles.attachedChip}>
+                  <Ionicons
+                    name={m.kind === "image" ? "image-outline" : "document-text-outline"}
+                    size={13}
+                    color={colors.brand}
+                  />
+                  <Text style={styles.attachedChipText} numberOfLines={1}>
+                    {m.title}
+                  </Text>
+                  {m.textStatus === "ready" ? (
+                    <Ionicons name="checkmark-circle" size={13} color={colors.success} />
+                  ) : (
+                    <Ionicons name="time-outline" size={13} color={colors.warning} />
+                  )}
+                  <Pressable onPress={() => void removeAttached(m.id)} hitSlop={8}>
+                    <Ionicons name="close" size={13} color={colors.textMuted} />
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          <View style={styles.inputBar}>
+            <TouchableOpacity
+              style={styles.attachBtn}
+              onPress={() => setAttachOpen(true)}
+              disabled={loading || importing}
+              hitSlop={6}
+            >
+              <Ionicons name="attach" size={21} color={colors.textSecondary} />
+            </TouchableOpacity>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Ask a question..."
+              placeholderTextColor={colors.textMuted}
+              value={input}
+              onChangeText={setInput}
+              multiline
+              maxLength={500}
+              onSubmitEditing={() => void sendMessage()}
+              blurOnSubmit={false}
+            />
+            {recording ? (
+              <TouchableOpacity
+                style={[styles.micBtn, styles.micRecording]}
+                onPress={() => void toggleRecording()}
+              >
+                <Ionicons name="stop" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
             ) : (
-              <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
+              <TouchableOpacity
+                style={styles.micBtn}
+                onPress={() => void toggleRecording()}
+                disabled={loading || transcribing}
+              >
+                {transcribing ? (
+                  <ActivityIndicator size="small" color={colors.brand} />
+                ) : (
+                  <Ionicons name="mic" size={19} color={colors.textSecondary} />
+                )}
+              </TouchableOpacity>
             )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.sendBtn,
+                (!input.trim() || loading) && styles.sendBtnDisabled,
+              ]}
+              onPress={() => void sendMessage()}
+              disabled={!input.trim() || loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
+              )}
+            </TouchableOpacity>
+          </View>
+          {recording ? (
+            <View style={styles.recordingBar}>
+              <View style={styles.recordingDot} />
+              <Text style={styles.recordingText}>
+                Recording… tap the stop button when you're done
+              </Text>
+            </View>
+          ) : null}
         </View>
       }
     >
@@ -566,10 +982,13 @@ export function AiCompanionScreen() {
             ref={flatListRef}
             data={messages}
             keyExtractor={(item) => item.id}
+            style={styles.listFill}
             contentContainerStyle={styles.list}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+            onContentSizeChange={() =>
+              flatListRef.current?.scrollToEnd({ animated: true })
+            }
             renderItem={({ item }) => {
               const showFollowUps =
                 item.id !== "welcome" &&
@@ -609,29 +1028,64 @@ export function AiCompanionScreen() {
                       {item.role === "assistant" &&
                         !item.streaming &&
                         item.content.length > 0 && (
-                          <TouchableOpacity
-                            onPress={() => void copyMessage(item.id, item.content)}
-                            hitSlop={8}
-                            style={styles.copyBtn}
-                          >
-                            <Ionicons
-                              name={copiedId === item.id ? "checkmark" : "copy-outline"}
-                              size={13}
-                              color={
-                                copiedId === item.id
-                                  ? colors.success
-                                  : colors.textMuted
+                          <>
+                            <TouchableOpacity
+                              onPress={() => toggleSpeak(item.id, item.content)}
+                              hitSlop={8}
+                              style={styles.copyBtn}
+                              accessibilityRole="button"
+                              accessibilityLabel={
+                                speakingId === item.id
+                                  ? "Stop reading"
+                                  : "Read answer aloud"
                               }
-                            />
-                            <Text
-                              style={[
-                                styles.copyText,
-                                copiedId === item.id && { color: colors.success },
-                              ]}
                             >
-                              {copiedId === item.id ? "Copied" : "Copy"}
-                            </Text>
-                          </TouchableOpacity>
+                              <Ionicons
+                                name={
+                                  speakingId === item.id
+                                    ? "volume-high"
+                                    : "volume-medium-outline"
+                                }
+                                size={13}
+                                color={
+                                  speakingId === item.id
+                                    ? colors.brand
+                                    : colors.textMuted
+                                }
+                              />
+                              <Text
+                                style={[
+                                  styles.copyText,
+                                  speakingId === item.id && { color: colors.brand },
+                                ]}
+                              >
+                                {speakingId === item.id ? "Stop" : "Listen"}
+                              </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                              onPress={() => void copyMessage(item.id, item.content)}
+                              hitSlop={8}
+                              style={styles.copyBtn}
+                            >
+                              <Ionicons
+                                name={copiedId === item.id ? "checkmark" : "copy-outline"}
+                                size={13}
+                                color={
+                                  copiedId === item.id
+                                    ? colors.success
+                                    : colors.textMuted
+                                }
+                              />
+                              <Text
+                                style={[
+                                  styles.copyText,
+                                  copiedId === item.id && { color: colors.success },
+                                ]}
+                              >
+                                {copiedId === item.id ? "Copied" : "Copy"}
+                              </Text>
+                            </TouchableOpacity>
+                          </>
                         )}
                     </View>
                   </View>
@@ -679,6 +1133,24 @@ export function AiCompanionScreen() {
                     ? "Offline mode — answers come from the model on your phone"
                     : "Answers grounded in your association's approved study materials"}
                 </Text>
+
+                {/* Focus Mode — turn a complex topic into a visual, zoomable map */}
+                <Pressable
+                  style={styles.focusPill}
+                  onPress={() =>
+                    navigation.navigate("AiFocus", {
+                      topic: input.trim() || undefined,
+                    })
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel="Focus Mode — visual concept maps"
+                >
+                  <Ionicons name="git-network" size={14} color={colors.brand} />
+                  <Text style={styles.focusPillText}>
+                    Focus Mode — map a complex topic
+                  </Text>
+                  <Ionicons name="chevron-forward" size={12} color={colors.brand} />
+                </Pressable>
 
                 {systemNotice && (
                   <View style={styles.notice}>
@@ -815,6 +1287,80 @@ export function AiCompanionScreen() {
             </Pressable>
           </Pressable>
       </Modal>
+
+      {/* Attach menu — the AI reads the student's OWN files, with explicit
+          picker permission. Everything stays on the phone. */}
+      <Modal
+        visible={attachOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAttachOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
+      >
+        <Pressable style={styles.menuBackdrop} onPress={() => setAttachOpen(false)}>
+          <Pressable style={styles.menuCard} onPress={() => {}}>
+            <Text style={styles.menuTitle}>Give the AI your study files</Text>
+            <Text style={styles.attachHint}>
+              Read on your phone only — your files are never uploaded.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => void importDocument()}
+              disabled={importing}
+            >
+              <Ionicons name="document-text-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>Import a document</Text>
+                <Text style={styles.menuItemSub}>
+                  PDF, Word or .txt — the AI reads it on your device
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => void importPhoto()}
+              disabled={importing}
+            >
+              <Ionicons name="image-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>Photo with text</Text>
+                <Text style={styles.menuItemSub}>
+                  A page, whiteboard or screenshot — read offline
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              activeOpacity={0.7}
+              onPress={() => void installVoiceModel()}
+              disabled={importing || transcribing}
+            >
+              <Ionicons name="mic-outline" size={20} color={colors.textPrimary} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuItemTitle}>Offline voice model</Text>
+                <Text style={styles.menuItemSub}>
+                  Download once (over Wi-Fi) to transcribe voice notes with no internet
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+            </TouchableOpacity>
+
+            {importing ? (
+              <View style={{ paddingVertical: 10 }}>
+                <ActivityIndicator size="small" color={colors.brand} />
+              </View>
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </KeyboardScreen>
   );
 }
@@ -823,7 +1369,21 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
   return StyleSheet.create({
     // ThemedScreen paints the background + ambient blobs; keep this transparent.
     safe: { flex: 1 },
-    list: { padding: theme.spacing.md, paddingBottom: theme.spacing.xxl },
+    // The FlatList itself must fill the available height (flex: 1) or it won't
+    // scroll — a VirtualizedList needs a bounded height to have scrollable
+    // content. It also keeps the composer above the keyboard on Android: the
+    // window resizes (softwareKeyboardLayoutMode: "resize") and this list
+    // shrinks with it — otherwise the footer gets pushed below the keyboard
+    // and the composer disappears.
+    listFill: {
+      flex: 1,
+    },
+    // Content padding lives on the content container, NOT flex — flex here
+    // would falsely claim the content fills the viewport and break scrolling.
+    list: {
+      padding: theme.spacing.md,
+      paddingBottom: theme.spacing.xxl,
+    },
     header: {
       alignItems: "center",
       gap: theme.spacing.sm,
@@ -901,6 +1461,22 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
       ...theme.typography.caption,
       color: colors.textSecondary,
       flex: 1,
+    },
+    focusPill: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: theme.radii.pill,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.sm,
+      alignSelf: "flex-start",
+    },
+    focusPillText: {
+      ...theme.typography.captionBold,
+      color: colors.textPrimary,
     },
     noModelBanner: {
       flexDirection: "row",
@@ -996,6 +1572,81 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     followChipText: {
       ...theme.typography.captionBold,
       color: colors.textPrimary,
+    },
+    attachedRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: theme.spacing.xs,
+      paddingHorizontal: theme.spacing.md,
+      paddingTop: theme.spacing.xs,
+      backgroundColor: colors.surface,
+      borderTopWidth: 1,
+      borderColor: colors.border,
+    },
+    attachedChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: theme.radii.pill,
+      borderWidth: 1,
+      borderColor: colors.border,
+      paddingVertical: 5,
+      paddingHorizontal: theme.spacing.sm,
+      maxWidth: 190,
+    },
+    attachedChipText: {
+      ...theme.typography.small,
+      color: colors.textPrimary,
+      flexShrink: 1,
+    },
+    attachHint: {
+      ...theme.typography.caption,
+      color: colors.textMuted,
+      paddingHorizontal: theme.spacing.sm,
+      paddingBottom: theme.spacing.xs,
+    },
+    attachBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: theme.radii.pill,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    micBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: theme.radii.pill,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    micRecording: {
+      backgroundColor: colors.error,
+      borderColor: colors.error,
+    },
+    recordingBar: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+      paddingHorizontal: theme.spacing.md,
+      paddingBottom: theme.spacing.sm,
+      backgroundColor: colors.surface,
+    },
+    recordingDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 999,
+      backgroundColor: colors.error,
+    },
+    recordingText: {
+      ...theme.typography.caption,
+      color: colors.textSecondary,
     },
     inputBar: {
       flexDirection: "row",

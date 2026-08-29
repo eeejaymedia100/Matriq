@@ -46,6 +46,31 @@ export async function clearTokens(): Promise<void> {
   await deleteItem(TOKEN_KEY);
 }
 
+// ── Cached user profile ───────────────────────────────────────
+// The last-known profile is stored on-device so the app can boot fully
+// offline: the session is restored from disk and the profile renders
+// immediately, then /me refreshes it in the background when a connection
+// exists. Only an explicit sign-out or a server-rejected session clears it.
+
+const CACHED_USER_KEY = "cached_user";
+
+export async function saveCachedUser<T>(user: T): Promise<void> {
+  await setItem(CACHED_USER_KEY, JSON.stringify(user));
+}
+
+export async function getCachedUser<T>(): Promise<T | null> {
+  try {
+    const raw = await getItem(CACHED_USER_KEY);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearCachedUser(): Promise<void> {
+  await deleteItem(CACHED_USER_KEY);
+}
+
 // ── Session-expiry broadcast ────────────────────────────────
 // When the refresh token can't be exchanged anymore, the API layer emits a
 // global "session expired" event instead of leaving screens stranded with an
@@ -114,16 +139,28 @@ export class ApiError extends Error {
   readonly status?: number;
   readonly code?: string;
   readonly retryAfterMs?: number;
+  /**
+   * True ONLY when the server explicitly confirmed the session is dead (a
+   * refresh token the server rejected). False when the token refresh couldn't
+   * reach the server (offline) — the session is presumed still valid.
+   */
+  readonly sessionDead?: boolean;
 
   constructor(
     message: string,
-    options: { status?: number; code?: string; retryAfterMs?: number } = {},
+    options: {
+      status?: number;
+      code?: string;
+      retryAfterMs?: number;
+      sessionDead?: boolean;
+    } = {},
   ) {
     super(message);
     this.name = "ApiError";
     this.status = options.status;
     this.code = options.code;
     this.retryAfterMs = options.retryAfterMs;
+    this.sessionDead = options.sessionDead;
   }
 }
 
@@ -159,36 +196,59 @@ function extractErrorMessage(body: unknown, status: number): string {
 // ── HTTP client ────────────────────────────────────────────────
 
 /**
+ * Result of a refresh attempt. `sessionDead` is the important part: it is
+ * ONLY true when the server explicitly rejected the refresh (invalid /
+ * expired / revoked token) — never for a network failure. A network failure
+ * keeps the stored tokens untouched so the app stays signed in offline and
+ * retries later; it must not look like a dead session.
+ */
+interface RefreshResult {
+  accessToken: string | null;
+  sessionDead: boolean;
+}
+
+/**
  * Exchange the refresh token for a fresh access token. Concurrent callers
  * share one in-flight request (the backend rotates refresh tokens, so two
- * parallel refreshes would invalidate each other). Returns the new access
- * token, or null when there's nothing to refresh or the exchange failed
- * (tokens are cleared in that case).
+ * parallel refreshes would invalidate each other).
+ *
+ * - Server rejection → tokens cleared, `{ accessToken: null, sessionDead: true }`.
+ * - Network failure → tokens KEPT (still signed in, just offline),
+ *   `{ accessToken: null, sessionDead: false }`.
+ * - No stored tokens → `{ accessToken: null, sessionDead: false }` (nothing
+ *   to clear; the caller decides).
  */
-let refreshPromise: Promise<string | null> | null = null;
+let refreshPromise: Promise<RefreshResult> | null = null;
 
-async function refreshAccessToken(): Promise<string | null> {
+async function refreshAccessToken(): Promise<RefreshResult> {
   if (refreshPromise) return refreshPromise;
 
-  refreshPromise = (async () => {
+  refreshPromise = (async (): Promise<RefreshResult> => {
     const tokens = await getTokens();
     if (!tokens?.refreshToken) {
-      await clearTokens();
-      return null;
+      return { accessToken: null, sessionDead: false };
     }
 
+    let res: Response;
     try {
-      const res = await fetch(`${API_BASE}/auth/refresh`, {
+      res = await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken: tokens.refreshToken }),
       });
+    } catch {
+      // Offline / DNS failure — the session is still valid on the server;
+      // just can't be refreshed right now. Keep everything.
+      return { accessToken: null, sessionDead: false };
+    }
 
-      if (!res.ok) {
-        await clearTokens();
-        return null;
-      }
+    if (!res.ok) {
+      // The server rejected the refresh — the session is genuinely over.
+      await clearTokens();
+      return { accessToken: null, sessionDead: true };
+    }
 
+    try {
       const data = (await res.json()) as {
         accessToken: string;
         refreshToken: string;
@@ -197,10 +257,10 @@ async function refreshAccessToken(): Promise<string | null> {
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
       });
-      return data.accessToken;
+      return { accessToken: data.accessToken, sessionDead: false };
     } catch {
-      await clearTokens();
-      return null;
+      // Malformed success body — treat as a transient failure, keep tokens.
+      return { accessToken: null, sessionDead: false };
     }
   })();
 
@@ -209,6 +269,22 @@ async function refreshAccessToken(): Promise<string | null> {
   } finally {
     refreshPromise = null;
   }
+}
+
+/**
+ * True when an API error means the session itself is over (the server
+ * explicitly confirmed it — a rejected refresh token). A plain 401 is NOT
+ * enough to sign the user out: if the token refresh hit a network failure
+ * while offline, the session may still be valid on the server, so the signed-
+ * in state must be kept (see refreshAccessToken's "network failure keeps the
+ * tokens" rule).
+ */
+export function isSessionDeadError(err: unknown): boolean {
+  return (
+    err instanceof ApiError &&
+    err.status === 401 &&
+    err.sessionDead === true
+  );
 }
 
 export async function apiRequest<T>(
@@ -234,27 +310,37 @@ export async function apiRequest<T>(
     headers,
   });
 
+  // Whether the server confirmed the session is gone. Stays false on a
+  // network failure during refresh — the session is still valid offline.
+  let confirmedDead = false;
+
   // Global 401 interceptor: exchange the refresh token in the background and
   // retry the failed request once, transparently. A failed exchange (or a
   // second 401 with the fresh token) means the session is gone for good —
   // broadcast it so the app redirects to sign-in instead of stranding the
   // screen with an inline error banner.
   if (res.status === 401) {
-    const newToken = await refreshAccessToken();
-    if (newToken) {
-      headers["Authorization"] = `Bearer ${newToken}`;
+    const { accessToken, sessionDead } = await refreshAccessToken();
+    if (accessToken) {
+      headers["Authorization"] = `Bearer ${accessToken}`;
       res = await fetch(`${API_BASE}${path}`, {
         ...options,
         headers,
       });
       if (res.status === 401) {
+        confirmedDead = true;
         await clearTokens();
         emitSessionExpired();
       }
-    } else {
+    } else if (sessionDead) {
+      confirmedDead = true;
       await clearTokens();
       emitSessionExpired();
     }
+    // else: refresh hit a network problem — the session is still valid on
+    // the server, so DON'T sign the user out (confirmedDead stays false).
+    // The original 401 error propagates to the caller, but isSessionDeadError
+    // correctly reports the session as NOT dead.
   }
 
   if (!res.ok) {
@@ -269,6 +355,7 @@ export async function apiRequest<T>(
       status: res.status,
       code,
       retryAfterMs,
+      sessionDead: confirmedDead,
     });
   }
 
@@ -311,13 +398,17 @@ export async function authHeaders(): Promise<Record<string, string> | null> {
   if (!tokens?.accessToken) return null;
 
   if (isAccessTokenStale(tokens.accessToken)) {
-    const fresh = await refreshAccessToken();
-    if (!fresh) {
-      await clearTokens();
-      emitSessionExpired();
+    const { accessToken, sessionDead } = await refreshAccessToken();
+    if (!accessToken) {
+      // Only a genuinely dead session signs the user out; being offline just
+      // means this download can't run right now.
+      if (sessionDead) {
+        await clearTokens();
+        emitSessionExpired();
+      }
       return null;
     }
-    return { Authorization: `Bearer ${fresh}` };
+    return { Authorization: `Bearer ${accessToken}` };
   }
 
   return { Authorization: `Bearer ${tokens.accessToken}` };

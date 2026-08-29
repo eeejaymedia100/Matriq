@@ -28,6 +28,23 @@ matriq.com.ng, www.matriq.com.ng {
     }
 }
 
+# ── Student web app (iPhone users) ─────────────────────────────────
+# Static export of the mobile app (`cd mobile && npm run web:export`), copied
+# to /srv/matriq-web on the VM. Gives iPhone users the full app in the
+# browser — registration, dues, Vault, and the AI companion (cloud + OCR;
+# on-device model support lands with the transformers.js engine, see
+# docs/docs/web-app.md).
+app.matriq.com.ng {
+    root * /srv/matriq-web
+    encode gzip
+    try_files {path} /index.html
+
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+    }
+}
+
 # ── API subdomain ──────────────────────────────────────────────────
 api.matriq.com.ng {
     reverse_proxy backend:3000 {
@@ -45,7 +62,7 @@ api.matriq.com.ng {
 }
 
 # ── HTTP -> HTTPS redirect (our hosts only) ────────────────────────
-http://matriq.com.ng, http://api.matriq.com.ng {
+http://matriq.com.ng, http://api.matriq.com.ng, http://app.matriq.com.ng {
     redir https://{host}{uri} permanent
 }
 

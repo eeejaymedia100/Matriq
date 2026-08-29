@@ -143,7 +143,7 @@ describe("AuthService", () => {
         sub: "uuid-1",
         email: "test@example.com",
         role: "student",
-        exp: Math.floor(Date.now() / 1000) + 604800,
+        exp: Math.floor(Date.now() / 1000) + 90 * 86400,
       }),
     };
 
@@ -151,7 +151,7 @@ describe("AuthService", () => {
       get: jest.fn((key: string) => {
         if (key === "JWT_SECRET") return "test-secret";
         if (key === "JWT_REFRESH_SECRET") return "test-refresh-secret";
-        if (key === "JWT_REFRESH_TTL") return "7d";
+        if (key === "JWT_REFRESH_TTL") return "90d";
         return undefined;
       }),
     };

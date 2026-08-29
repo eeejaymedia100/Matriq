@@ -4,12 +4,8 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  UploadedFiles,
 } from "@nestjs/common";
-import {
-  FileInterceptor,
-  FilesInterceptor,
-} from "@nestjs/platform-express";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { ToolsService } from "./tools.service";
@@ -29,48 +25,27 @@ export class ToolsController {
     return this.toolsService.ocrImage(file);
   }
 
-  // PDF merge — combine up to 10 PDFs in order (capped for memory).
-  @Post("tools/pdf/merge")
-  @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
-  @UseInterceptors(
-    FilesInterceptor("files", 10, { limits: { fileSize: 16 * 1024 * 1024 } }),
-  )
-  merge(@UploadedFiles() files: Express.Multer.File[]) {
-    return this.toolsService.mergePdfs(files ?? []);
-  }
-
-  // PDF split — every page becomes its own PDF, returned as a zip.
-  @Post("tools/pdf/split")
-  @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
-  @UseInterceptors(
-    FileInterceptor("file", { limits: { fileSize: 31 * 1024 * 1024 } }),
-  )
-  split(@UploadedFile() file: Express.Multer.File) {
-    return this.toolsService.splitPdf(file);
-  }
-
-  // PDF → Word (.docx)
-  @Post("tools/pdf/to-word")
+  // Extract plain text from a study file (PDF/DOCX/txt/photo) — used by the
+  // offline-AI material import on mobile. 10/min: extraction is CPU-bound.
+  @Post("tools/extract-text")
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60000, limit: 10 } })
   @UseInterceptors(
     FileInterceptor("file", { limits: { fileSize: 21 * 1024 * 1024 } }),
   )
-  pdfToWord(@UploadedFile() file: Express.Multer.File) {
-    return this.toolsService.pdfToWord(file);
+  extractText(@UploadedFile() file: Express.Multer.File) {
+    return this.toolsService.extractText(file);
   }
 
-  // Word (.docx) → PDF
-  @Post("tools/pdf/from-word")
+  // Transcribe a voice note (Gemini audio understanding). 6/min: audio
+  // transcription is API-bound.
+  @Post("tools/transcribe")
   @UseGuards(JwtAuthGuard)
-  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  @Throttle({ default: { ttl: 60000, limit: 6 } })
   @UseInterceptors(
-    FileInterceptor("file", { limits: { fileSize: 21 * 1024 * 1024 } }),
+    FileInterceptor("audio", { limits: { fileSize: 10 * 1024 * 1024 } }),
   )
-  wordToPdf(@UploadedFile() file: Express.Multer.File) {
-    return this.toolsService.wordToPdf(file);
+  transcribe(@UploadedFile() file: Express.Multer.File) {
+    return this.toolsService.transcribeAudio(file);
   }
-
 }

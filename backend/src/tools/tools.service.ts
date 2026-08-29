@@ -4,12 +4,9 @@ import { spawn } from "child_process";
 import { mkdtemp, writeFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import pdfParse from "pdf-parse";
 import * as mammoth from "mammoth";
-import { Document, Packer, Paragraph, TextRun } from "docx";
 import sharp from "sharp";
-import { zipSync } from "fflate";
 
 /**
  * Tools (spec §8 + round-2 QA §7) — server-side utilities so Android and the
@@ -38,50 +35,6 @@ export interface OcrResult {
   engine: "tesseract";
 }
 
-export interface GeneratedFile {
-  fileName: string;
-  mimeType: string;
-  base64: string;
-}
-
-function bytesToBase64(bytes: Uint8Array | Buffer): string {
-  return Buffer.from(bytes).toString("base64");
-}
-
-/** Paragraph-preserving word-wrap + pagination for text → PDF. */
-function paginateText(
-  text: string,
-  maxCharsPerLine: number,
-  linesPerPage: number,
-): string[][] {
-  const paragraphs = text
-    .split(/\r?\n/)
-    .map((p) => p.trim())
-    .filter(Boolean);
-  const lines: string[] = [];
-  for (const para of paragraphs) {
-    const words = para.split(/\s+/).filter(Boolean);
-    let current = "";
-    for (const word of words) {
-      if ((current + " " + word).trim().length > maxCharsPerLine) {
-        if (current) lines.push(current);
-        current = word;
-      } else {
-        current = (current + " " + word).trim();
-      }
-    }
-    if (current) lines.push(current);
-    lines.push(""); // blank line between paragraphs
-  }
-  if (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
-
-  const pages: string[][] = [];
-  for (let i = 0; i < lines.length; i += linesPerPage) {
-    pages.push(lines.slice(i, i + linesPerPage));
-  }
-  return pages.length > 0 ? pages : [[]];
-}
-
 @Injectable()
 export class ToolsService {
   private readonly logger = new Logger(ToolsService.name);
@@ -91,7 +44,9 @@ export class ToolsService {
 
   async ocrImage(file: Express.Multer.File): Promise<OcrResult> {
     if (!file?.buffer) {
-      throw new BadRequestException("Please choose an image with text to read.");
+      throw new BadRequestException(
+        "Please choose an image with text to read.",
+      );
     }
     if (!IMAGE_MIME_TYPES.has(file.mimetype)) {
       throw new BadRequestException(
@@ -149,9 +104,7 @@ export class ToolsService {
    * Run the system tesseract binary with TSV output (per-word confidence) so
    * we can report an honest confidence score, not a made-up 100%.
    */
-  private async ocrWithSystemTesseract(
-    preprocessed: Buffer,
-  ): Promise<{
+  private async ocrWithSystemTesseract(preprocessed: Buffer): Promise<{
     text: string;
     confidence: number;
     readable: boolean;
@@ -236,7 +189,10 @@ export class ToolsService {
       else lines.set(key, [word]);
       if (Number.isFinite(conf) && conf >= 0) confs.push(conf);
     }
-    const text = [...lines.values()].map((w) => w.join(" ")).join("\n").trim();
+    const text = [...lines.values()]
+      .map((w) => w.join(" "))
+      .join("\n")
+      .trim();
     const confidence = confs.length
       ? Math.round((confs.reduce((a, b) => a + b, 0) / confs.length) * 10) / 10
       : 0;
@@ -329,142 +285,167 @@ export class ToolsService {
     return this.workerPromise;
   }
 
-  // ── PDF merge ──────────────────────────────────────────────────
+  // ── Extract plain text from a study file (offline-AI material import) ──
+  // The mobile app imports the student's own files (with picker permission)
+  // and needs plain text to feed the on-device model. PDF/DOCX/photo text
+  // extraction runs here once, then the app caches the text on the device so
+  // the AI can use it forever after, fully offline.
 
-  async mergePdfs(files: Express.Multer.File[]): Promise<GeneratedFile> {
-    if (!files?.length) {
-      throw new BadRequestException("Choose at least one PDF to merge.");
+  async extractText(file: Express.Multer.File): Promise<{
+    text: string;
+    source: "pdf" | "docx" | "text" | "ocr" | "none";
+  }> {
+    if (!file?.buffer || !file.buffer.length) {
+      throw new BadRequestException("Choose a file to read first.");
     }
-    const merged = await PDFDocument.create();
-    for (const f of files) {
-      this.assertPdf(f);
-      const src = await PDFDocument.load(f.buffer);
-      const pages = await merged.copyPages(src, src.getPageIndices());
-      pages.forEach((p) => merged.addPage(p));
+    if (file.size > 21 * 1024 * 1024) {
+      throw new BadRequestException(
+        "That file is too large — keep it under 20 MB for text extraction.",
+      );
     }
-    const bytes = await merged.save();
-    return {
-      fileName: `matriq-merged-${Date.now()}.pdf`,
-      mimeType: PDF_MIME,
-      base64: bytesToBase64(bytes),
-    };
-  }
 
-  // ── PDF split (every page → its own PDF, zipped) ────────────────
+    const name = (file.originalname ?? "").toLowerCase();
 
-  async splitPdf(file: Express.Multer.File): Promise<GeneratedFile> {
-    this.assertPdf(file);
-    const src = await PDFDocument.load(file.buffer);
-    const parts: Record<string, Uint8Array> = {};
-    const indices = src.getPageIndices();
-    if (indices.length === 0) {
-      throw new BadRequestException("This PDF has no pages to split.");
+    // PDF → text layer (pdf-parse 1.1.1, Uint8Array trick — see pdfToWord).
+    if (file.mimetype === PDF_MIME || name.endsWith(".pdf")) {
+      try {
+        const data = await pdfParse(
+          new Uint8Array(file.buffer) as unknown as Buffer,
+        );
+        const text = (data.text ?? "").replace(/\s+/g, " ").trim();
+        if (text) return { text: text.slice(0, 50_000), source: "pdf" };
+      } catch {
+        // fall through to "none"
+      }
+      return { text: "", source: "none" };
     }
-    for (const i of indices) {
-      const single = await PDFDocument.create();
-      const [page] = await single.copyPages(src, [i]);
-      single.addPage(page);
-      parts[`page-${String(i + 1).padStart(2, "0")}.pdf`] = await single.save();
+
+    // DOCX → raw text (mammoth preserves paragraph breaks).
+    if (file.mimetype === DOCX_MIME || name.endsWith(".docx")) {
+      try {
+        const { value } = await mammoth.extractRawText({ buffer: file.buffer });
+        const text = value?.replace(/\s+/g, " ").trim();
+        if (text) return { text: text.slice(0, 50_000), source: "docx" };
+      } catch {
+        // fall through
+      }
+      return { text: "", source: "none" };
     }
-    const zip = zipSync(parts, { level: 6 });
-    return {
-      fileName: `matriq-pages-${Date.now()}.zip`,
-      mimeType: "application/zip",
-      base64: bytesToBase64(zip),
-    };
-  }
 
-  // ── PDF → Word (.docx) ─────────────────────────────────────────
+    // Plain text / markdown → read directly.
+    if (
+      file.mimetype.startsWith("text/") ||
+      name.endsWith(".txt") ||
+      name.endsWith(".md")
+    ) {
+      const text = file.buffer.toString("utf8").replace(/\r\n/g, "\n").trim();
+      if (text) return { text: text.slice(0, 50_000), source: "text" };
+      return { text: "", source: "none" };
+    }
 
-  async pdfToWord(file: Express.Multer.File): Promise<GeneratedFile> {
-    this.assertPdf(file);
-    // NOTE: pdf-parse is pinned to 1.1.1 (the `{ text }` contract). v2.x has a
-    // totally different structured API — don't "upgrade" it blindly.
-    // pdf.js 1.10.100 FAILS on Node Buffer instances ("Invalid PDF structure")
-    // while parsing identical bytes as a plain Uint8Array always works — the
-    // exact-size Uint8Array copy is REQUIRED. Don't "simplify" back to
-    // `pdfParse(file.buffer)`; the cast satisfies pdf-parse's Buffer types.
-    const data = await pdfParse(
-      new Uint8Array(file.buffer) as unknown as Buffer,
+    // Images → OCR (system Tesseract, open source — always works).
+    if (IMAGE_MIME_TYPES.has(file.mimetype)) {
+      const result = await this.ocrBuffer(file.buffer, file.mimetype);
+      if (result.readable && result.text) {
+        return { text: result.text, source: "ocr" };
+      }
+      return { text: "", source: "none" };
+    }
+
+    throw new BadRequestException(
+      "That file type isn't supported for reading — try a PDF, Word document, text file, or photo.",
     );
-    const text = data.text?.trim();
-    if (!text) {
-      throw new BadRequestException(
-        "No text could be extracted from this PDF — it may be scanned images. Try OCR instead.",
-      );
-    }
-    const lines = text.split(/\r?\n/);
-    const doc = new Document({
-      sections: [
-        {
-          children: lines.map(
-            (line) =>
-              new Paragraph({
-                children: [new TextRun(line || "")],
-                spacing: { after: 120 },
-              }),
-          ),
-        },
-      ],
-    });
-    const buf = await Packer.toBuffer(doc);
-    return {
-      fileName: `matriq-converted-${Date.now()}.docx`,
-      mimeType: DOCX_MIME,
-      base64: bytesToBase64(buf),
-    };
   }
 
-  // ── Word (.docx) → PDF ─────────────────────────────────────────
+  // ── Transcribe a voice note (server-side, Gemini audio understanding) ──
+  // Used by the mobile app for voice notes in the AI companion. The on-device
+  // whisper model handles this fully offline when downloaded; this endpoint
+  // is the online path (and the only path on the web build, which can't run
+  // whisper). Env-gated like the AI module: no key → 503 with a clear reason.
 
-  async wordToPdf(file: Express.Multer.File): Promise<GeneratedFile> {
-    if (file.mimetype !== DOCX_MIME && !/\.docx$/i.test(file.originalname ?? "")) {
+  async transcribeAudio(
+    file: Express.Multer.File,
+  ): Promise<{ text: string; readable: boolean }> {
+    const key = process.env.GEMINI_API_KEY?.trim();
+    if (!key) {
       throw new BadRequestException(
-        "Upload a .docx file to convert to PDF.",
+        "Voice transcription isn't configured on the server yet.",
       );
     }
-    const { value: text } = await mammoth.extractRawText({ buffer: file.buffer });
-    if (!text?.trim()) {
-      throw new BadRequestException("This document appears to be empty.");
+    if (!file?.buffer || !file.buffer.length) {
+      throw new BadRequestException("Choose a voice note to transcribe.");
     }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new BadRequestException(
+        "That voice note is too long — keep recordings under 10 MB (a few minutes).",
+      );
+    }
+    const mimeType = file.mimetype.startsWith("audio/")
+      ? file.mimetype
+      : "audio/mpeg";
 
-    const pdf = await PDFDocument.create();
-    const font = await pdf.embedFont(StandardFonts.Helvetica);
-    const fontSize = 11;
-    const lineHeight = 16;
-    const margin = 60;
-    const pageW = 612;
-    const pageH = 792;
-    const maxChars = 90;
-    const linesPerPage = Math.floor((pageH - margin * 2) / lineHeight);
+    const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.7-flash";
+    const baseUrl =
+      process.env.GEMINI_BASE_URL?.trim() ||
+      "https://generativelanguage.googleapis.com/v1beta";
+    const base64 = file.buffer.toString("base64");
 
-    const pages = paginateText(text, maxChars, linesPerPage);
-    for (const pageLines of pages) {
-      const page = pdf.addPage([pageW, pageH]);
-      let y = pageH - margin;
-      for (const line of pageLines) {
-        if (line) {
-          page.drawText(line, { x: margin, y, size: fontSize, font, color: rgb(0, 0, 0) });
+    let lastError: Error | null = null;
+    // One retry on transient failures (5xx/timeout) — same policy as OCR.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const res = await fetch(
+          `${baseUrl}/models/${model}:generateContent?key=${key}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      inline_data: { mime_type: mimeType, data: base64 },
+                    },
+                    {
+                      text: "Transcribe this voice note verbatim. Keep the student's exact words and any numbers. Return only the transcript, no commentary.",
+                    },
+                  ],
+                },
+              ],
+              generationConfig: { temperature: 0, maxOutputTokens: 4096 },
+            }),
+            signal: AbortSignal.timeout(60_000),
+          },
+        );
+        if (!res.ok) {
+          throw new Error(`Gemini HTTP ${res.status}`);
         }
-        y -= lineHeight;
+        const data = (await res.json()) as {
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
+        };
+        const text = (
+          data.candidates?.[0]?.content?.parts?.[0]?.text ?? ""
+        ).trim();
+        const readable = text.length >= 2;
+        this.logger.log(
+          `Voice note transcribed: ${text.length} chars (attempt ${attempt + 1})`,
+        );
+        return { text: readable ? text.slice(0, 5000) : "", readable };
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        // Only transient failures (network, 5xx) get the retry — a 4xx won't
+        // succeed on retry.
+        const status = (err as { status?: number })?.status;
+        if (status && status >= 400 && status < 500) break;
+        if (attempt === 0) {
+          this.logger.warn(
+            `Voice transcription attempt 1 failed (${lastError.message}) — retrying`,
+          );
+        }
       }
     }
-    const bytes = await pdf.save();
-    return {
-      fileName: `matriq-converted-${Date.now()}.pdf`,
-      mimeType: PDF_MIME,
-      base64: bytesToBase64(bytes),
-    };
-  }
-
-  // ── Helpers ────────────────────────────────────────────────────
-
-  private assertPdf(file: Express.Multer.File): void {
-    if (!file?.buffer) {
-      throw new BadRequestException("Choose a PDF file first.");
-    }
-    if (file.mimetype !== PDF_MIME && !/\.pdf$/i.test(file.originalname ?? "")) {
-      throw new BadRequestException("Upload a PDF file.");
-    }
+    throw new BadRequestException(
+      `Couldn't transcribe the voice note right now (${lastError?.message ?? "unknown error"}). Try again in a moment.`,
+    );
   }
 }

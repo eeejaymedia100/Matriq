@@ -529,12 +529,17 @@ model VaultItem {
   createdAt         DateTime        @default(now()) @map("created_at")
   updatedAt         DateTime        @updatedAt @map("updated_at")
   deletedAt         DateTime?       @map("deleted_at")
+  // Discovery metadata (optional, set by the uploader): academic level the
+  // material targets (e.g. "100") and the academic session (e.g. "2023/2024").
+  level             String?         @map("level")
+  session           String?         @map("session")
 
   // Relations
   user        User        @relation(fields: [userId], references: [id])
   association Association @relation(fields: [associationId], references: [id])
 
   @@index([associationId, courseCode])
+  @@index([associationId, courseCode, level])
   @@index([courseCode])
   @@index([moderationStatus, visibility])
   @@index([userId])

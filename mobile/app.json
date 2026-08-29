@@ -2,7 +2,7 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.7.13",
+    "version": "0.7.14",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -24,7 +24,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "app.matriq.mobile",
-      "versionCode": 21,
+      "versionCode": 22,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
@@ -49,8 +49,14 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Matriq uses your photos to upload a student ID for identity verification.",
+          "photosPermission": "Matriq uses your photos to upload a student ID for identity verification and to read study material photos in the AI companion.",
           "cameraPermission": "Matriq uses your camera to photograph your student ID for identity verification."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Matriq uses your microphone to record voice notes for the AI study companion."
         }
       ],
       [

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Param,
   Body,
   Query,
@@ -22,6 +23,7 @@ import { JwtPayload } from "../auth/auth.service";
 import {
   VaultService,
   UploadVaultDto,
+  CompleteChunkedUploadDto,
   RenameVaultItemDto,
 } from "./vault.service";
 
@@ -37,8 +39,9 @@ export class VaultController {
     @CurrentUser() user: JwtPayload,
     @Query("q") q?: string,
     @Query("type") type?: "past_question" | "material",
+    @Query("level") level?: string,
   ) {
-    return this.vaultService.search(user.sub, q, type);
+    return this.vaultService.search(user.sub, q, type, level);
   }
 
   // ── Upload (original + smart-storage companion) ───────────────
@@ -56,6 +59,45 @@ export class VaultController {
   ) {
     const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
     return this.vaultService.upload(user.sub, ip, body, file);
+  }
+
+  // ── Chunked upload (large files) — one request per ~4 MB chunk ──
+  // Re-uploading a chunk with the same uploadId overwrites it, so a retry
+  // resumes where it left off. Completion assembles + validates the file.
+
+  @Post("vault/upload/chunk")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 240 } })
+  @UseInterceptors(
+    FileInterceptor("file", { limits: { fileSize: 6 * 1024 * 1024 } }),
+  )
+  uploadChunk(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: Request,
+    @Body() body: { uploadId?: string; index?: string; total?: string },
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.vaultService.uploadChunk(
+      user.sub,
+      ip,
+      body.uploadId ?? "",
+      Number(body.index),
+      Number(body.total),
+      file,
+    );
+  }
+
+  @Post("vault/upload/complete")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 20 } })
+  completeChunkedUpload(
+    @CurrentUser() user: JwtPayload,
+    @Req() req: Request,
+    @Body() body: CompleteChunkedUploadDto,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.vaultService.completeChunkedUpload(user.sub, ip, body);
   }
 
   // ── Download (original or the light companion) ────────────────
@@ -97,8 +139,24 @@ export class VaultController {
   private safeHeaderName(name: string): string {
     // Content-Disposition filename must be ASCII-safe — strip quotes/CRLF and
     // fall back to a generic name if the result is empty.
-    const cleaned = name.replace(/[\r\n"\\]/g, "_").replace(/[^\x20-\x7e]/g, "");
+    const cleaned = name
+      .replace(/[\r\n"\\]/g, "_")
+      .replace(/[^\x20-\x7e]/g, "");
     return cleaned.trim() || "download";
+  }
+
+  // ── Delete (owner only) ───────────────────────────────────────
+
+  @Delete("vault/:id")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 30 } })
+  remove(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") id: string,
+    @Req() req: Request,
+  ) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.vaultService.deleteItem(user.sub, id, ip);
   }
 
   // ── Rename (owner only) ───────────────────────────────────────

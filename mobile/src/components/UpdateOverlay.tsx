@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Modal,
   ActivityIndicator,
+  AppState,
 } from "react-native";
 import * as IntentLauncher from "expo-intent-launcher";
 import * as FileSystem from "expo-file-system/legacy";
@@ -39,7 +40,9 @@ export function UpdateOverlay() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [installing, setInstalling] = useState(false);
   const [installBlocked, setInstallBlocked] = useState(false);
-  const ran = useRef(false);
+  // Guards against overlapping check/download runs (foreground event + timer
+  // can fire close together, and an in-flight download must not be restarted).
+  const checking = useRef(false);
 
   // ── Silent install at a natural reopen ────────────────────────
   const installReadyVersion = useCallback(async (): Promise<boolean> => {
@@ -54,30 +57,6 @@ export function UpdateOverlay() {
     // Not interrupting anything — this runs on a fresh app start.
     return installApk(info);
   }, []);
-
-  useEffect(() => {
-    if (ran.current) return;
-    ran.current = true;
-
-    const boot = async () => {
-      // 1. Apply an already-downloaded update at this natural reopen.
-      const applied = await installReadyVersion();
-      if (applied) return;
-
-      // 2. Otherwise check the manifest and download silently in the background.
-      const info = await checkForUpdate();
-      if (!info) return;
-
-      const ok = await downloadSilently(info);
-      if (ok) {
-        // A previously-deferred update re-prompts until applied (No defers,
-        // it never cancels).
-        setReady(info);
-        setShowPrompt(true);
-      }
-    };
-    void boot();
-  }, [installReadyVersion]);
 
   const downloadSilently = async (info: AppUpdateInfo): Promise<boolean> => {
     try {
@@ -99,6 +78,53 @@ export function UpdateOverlay() {
       return false;
     }
   };
+
+  /**
+   * One update pass: apply an already-downloaded update, otherwise check the
+   * manifest and download the newest silently. Safe to call repeatedly — it
+   * no-ops while a download is in flight or the prompt is already showing, and
+   * a partially-downloaded APK is resumed, never restarted.
+   */
+  const runCheck = useCallback(async () => {
+    if (checking.current || showPrompt) return;
+    checking.current = true;
+    try {
+      // 1. Apply an already-downloaded update at this natural reopen.
+      const applied = await installReadyVersion();
+      if (applied) return;
+
+      // 2. Otherwise check the manifest and download silently in the background.
+      const info = await checkForUpdate();
+      if (!info) return;
+      const ok = await downloadSilently(info);
+      if (ok) {
+        // A previously-deferred update re-prompts until applied (No defers,
+        // it never cancels).
+        setReady(info);
+        setShowPrompt(true);
+      }
+    } finally {
+      checking.current = false;
+    }
+  }, [installReadyVersion, showPrompt]);
+
+  useEffect(() => {
+    void runCheck();
+
+    // Re-check when the app returns to the foreground (the common case for
+    // "came back online") and periodically while it stays open, so a pending
+    // update is fetched as soon as connectivity returns — no manual APK
+    // re-download needed.
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") void runCheck();
+    });
+    const interval = setInterval(() => void runCheck(), 30 * 60 * 1000);
+
+    return () => {
+      sub.remove();
+      clearInterval(interval);
+    };
+  }, [runCheck]);
 
   const installApk = async (info: AppUpdateInfo): Promise<boolean> => {
     try {

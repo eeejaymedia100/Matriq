@@ -8,8 +8,21 @@ import { base64ToBytes, bytesToBase64 } from "./files";
  * media box, each image scaled to fit while keeping its aspect ratio.
  */
 
-const PAGE_W = 612; // A4-ish @72dpi (8.5in × 11in)
-const PAGE_H = 792;
+/** Page sizes in points (72dpi). */
+export const PDF_PAGE_SIZES = {
+  a4: { label: "A4", width: 595, height: 842 },
+  letter: { label: "Letter", width: 612, height: 792 },
+} as const;
+
+export type PdfPageSize = keyof typeof PDF_PAGE_SIZES;
+export type PdfImageFit = "contain" | "cover";
+
+export interface PdfBuildOptions {
+  /** Page size (defaults to A4). */
+  pageSize?: PdfPageSize;
+  /** How each image fills the page: contain keeps margins, cover fills it. */
+  fit?: PdfImageFit;
+}
 
 const encoder = new TextEncoder();
 
@@ -71,7 +84,15 @@ function escapePdfName(name: string): string {
 }
 
 /** Build a single-page PDF from one or more JPEG images (base64). */
-export function buildPdfFromJpegs(jpegBase64: string[]): string {
+export function buildPdfFromJpegs(
+  jpegBase64: string[],
+  options: PdfBuildOptions = {},
+): string {
+  const size = PDF_PAGE_SIZES[options.pageSize ?? "a4"];
+  const PAGE_W = size.width;
+  const PAGE_H = size.height;
+  const fit = options.fit ?? "contain";
+
   const pages: PageImage[] = jpegBase64.map((b64) => {
     const jpegBytes = base64ToBytes(b64);
     const dims = jpegDimensions(jpegBytes) ?? { width: PAGE_W, height: PAGE_H };
@@ -102,10 +123,14 @@ export function buildPdfFromJpegs(jpegBase64: string[]): string {
     const xobjNum = pageObjNum + 1;
     const contentNum = pageObjNum + 2;
 
-    // Scale to fit the page, keep aspect ratio, centre it.
-    const scale = Math.min(PAGE_W / img.width, PAGE_H / img.height, 1);
-    const drawW = Math.floor(img.width * scale);
-    const drawH = Math.floor(img.height * scale);
+    // contain: scale to fit inside the page, keep aspect ratio, centre it.
+    // cover: scale to fill the whole page, cropping the overflow.
+    const fitScale =
+      fit === "cover"
+        ? Math.max(PAGE_W / img.width, PAGE_H / img.height, 1)
+        : Math.min(PAGE_W / img.width, PAGE_H / img.height, 1);
+    const drawW = Math.floor(img.width * fitScale);
+    const drawH = Math.floor(img.height * fitScale);
     const x = Math.floor((PAGE_W - drawW) / 2);
     const y = Math.floor((PAGE_H - drawH) / 2);
 

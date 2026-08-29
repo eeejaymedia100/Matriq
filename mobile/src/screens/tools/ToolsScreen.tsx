@@ -16,15 +16,7 @@ import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Tools">;
 
-type ToolTarget =
-  | "CgpaCalculator"
-  | "Ocr"
-  | "ImageToPdf"
-  | "FileCompressor"
-  | "PdfMerge"
-  | "PdfSplit"
-  | "PdfToWord"
-  | "WordToPdf";
+type ToolTarget = "CgpaCalculator" | "Ocr" | "ImageToPdf";
 
 interface ToolCard {
   id: string;
@@ -52,11 +44,6 @@ const AI_TOOLS: ToolCard[] = [
 
 const DOC_TOOLS: ToolCard[] = [
   { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", target: "ImageToPdf" },
-  { id: "compress", label: "File Compressor", hint: "Shrink any file", icon: "layers", target: "FileCompressor" },
-  { id: "pdf-merge", label: "PDF merge", hint: "Combine PDFs into one", icon: "layers", target: "PdfMerge" },
-  { id: "pdf-split", label: "PDF split", hint: "Divide into pages", icon: "fileText", target: "PdfSplit" },
-  { id: "pdf-word", label: "PDF → Word", hint: "Extract text to .docx", icon: "fileText", target: "PdfToWord" },
-  { id: "word-pdf", label: "Word → PDF", hint: "Convert a .docx", icon: "pen", target: "WordToPdf" },
 ];
 
 const GRADE_TOOLS: ToolCard[] = [
@@ -244,6 +231,9 @@ export function ToolsScreen({ navigation }: Props) {
               onPress: () => stackNav?.navigate(tool.target),
             })),
           )}
+          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
+            Turn photos of notes, handouts and board work into one clean PDF — built entirely on your phone.
+          </Text>
 
           {sectionTitle("Grades")}
           {grid(

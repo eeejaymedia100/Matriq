@@ -17,6 +17,8 @@ export interface Note {
   body: string;
   createdAt: number;
   updatedAt: number;
+  /** Optional provenance — e.g. created from an OCR session. */
+  meta?: { source?: "ocr"; label?: string };
 }
 
 const NATIVE = Platform.OS !== "web";

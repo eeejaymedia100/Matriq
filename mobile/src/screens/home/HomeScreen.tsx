@@ -21,6 +21,7 @@ import { useDailyFacts } from "../../utils/dailyFacts";
 import { api } from "../../api/client";
 import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
 import { listNotes } from "../../utils/notes";
+import { getStreak, type StreakState } from "../../utils/streak";
 import { timeAgo } from "../../utils/relativeTime";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
 import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
@@ -71,6 +72,11 @@ export function HomeScreen({ navigation }: Props) {
   const [nextClassEntry, setNextClassEntry] = useState<TimetableEntry | null>(null);
   const [celebration, setCelebration] = useState<Badge | null>(null);
   const [notesCount, setNotesCount] = useState(0);
+  const [streak, setStreak] = useState<StreakState>({
+    current: 0,
+    best: 0,
+    lastActiveDay: "",
+  });
 
   useEffect(() => {
     const clock = setInterval(() => setNow(liveClock()), 30_000);
@@ -89,6 +95,7 @@ export function HomeScreen({ navigation }: Props) {
         setTodos(await getTodoState());
         setNextClassEntry(nextClass(await getTimetable()));
         setNotesCount((await listNotes()).length);
+        setStreak(await getStreak());
         void refreshUnread();
 
         try {
@@ -274,6 +281,57 @@ export function HomeScreen({ navigation }: Props) {
                 ) : null}
               </Pressable>
             </View>
+          </View>
+
+          {/* Study streak — meaningful study days only (AI Q&As, notes,
+              materials). Never counts app launches. */}
+          <View style={{ paddingHorizontal: 24, marginTop: 14 }}>
+            {streak.current > 0 ? (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                  alignSelf: "flex-start",
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: colors.surfaceAlt,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <Text style={{ fontSize: 15 }}>🔥</Text>
+                <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
+                  {streak.current}-day study streak
+                </Text>
+                {streak.best > streak.current ? (
+                  <Text style={[theme.typography.small, { color: colors.textMuted }]}>
+                    · best {streak.best}
+                  </Text>
+                ) : null}
+              </View>
+            ) : (
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 8,
+                  alignSelf: "flex-start",
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: colors.surfaceAlt,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                }}
+              >
+                <Text style={{ fontSize: 14 }}>🌱</Text>
+                <Text style={[theme.typography.caption, { color: colors.textSecondary }]}>
+                  Study today to start a streak
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* AI Study Companion — always-visible quick shortcut */}

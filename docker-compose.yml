@@ -188,6 +188,57 @@ services:
     networks:
       - matriq-net
 
+  # ── Next.js dashboards (self-hosted — removes the Vercel dependency) ──
+  # See docs/docs/deployment-cost.md. Disabled until the operator runs
+  # scripts/enable-dashboards.sh (they're `profiles: ["dashboards"]`, so a
+  # plain `docker compose up -d` ignores them). Caddy routes
+  # dashboard.matriq.com.ng → dashboard:3001 and admin.matriq.com.ng →
+  # admin:3002 from caddy/Caddyfile.dashboards.
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+      args:
+        # Same value Vercel used — the browser-side API base URL.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.matriq.com.ng/v1}
+    container_name: matriq-dashboard
+    profiles: ["dashboards"]
+    restart: unless-stopped
+    environment:
+      - PORT=3001
+    expose:
+      - "3001"
+    networks:
+      - matriq-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  admin:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.matriq.com.ng/v1}
+    container_name: matriq-admin
+    profiles: ["dashboards"]
+    restart: unless-stopped
+    environment:
+      - PORT=3002
+    expose:
+      - "3002"
+    networks:
+      - matriq-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3002/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
   # ── MinIO object storage (S3-compatible; private documents) ──
   # Only reachable on the internal network from the backend. The admin console
   # (127.0.0.1:9001) is for the operator only — never expose it publicly.

@@ -326,6 +326,31 @@ describe("VaultService", () => {
       expect(prisma.vaultItem.create).not.toHaveBeenCalled();
     });
 
+    it("rejects videos (no video infrastructure in this version)", async () => {
+      const file = {
+        buffer: Buffer.from("video"),
+        mimetype: "video/mp4",
+        size: 5,
+        originalname: "lecture.mp4",
+      } as Express.Multer.File;
+
+      await expect(
+        service.upload(
+          "user-1",
+          "1.2.3.4",
+          {
+            courseCode: "CHM 101",
+            title: "Lecture",
+            type: "material",
+            visibility: "public",
+            termsVersion: "1.0",
+          },
+          file,
+        ),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.vaultItem.create).not.toHaveBeenCalled();
+    });
+
     it("marks public uploads pending moderation and private ones approved", async () => {
       const file = {
         buffer: Buffer.from("%PDF-1.4 test"),
@@ -353,6 +378,117 @@ describe("VaultService", () => {
       expect(data.visibility).toBe("public");
       expect(storage.put).toHaveBeenCalled();
       expect(prisma.legalAcceptance.upsert).toHaveBeenCalled();
+    });
+
+    it("persists optional level/session discovery metadata", async () => {
+      const file = {
+        buffer: Buffer.from("%PDF-1.4 test"),
+        mimetype: "application/pdf",
+        size: 13,
+        originalname: "notes.pdf",
+      } as Express.Multer.File;
+
+      await service.upload(
+        "user-1",
+        "1.2.3.4",
+        {
+          courseCode: "chm 101",
+          title: "Notes",
+          type: "material",
+          visibility: "private",
+          termsVersion: "1.0",
+          level: "200",
+          session: "2023/2024",
+        },
+        file,
+      );
+
+      const data = (prisma.vaultItem.create as jest.Mock).mock.calls[0][0].data;
+      expect(data.level).toBe("200");
+      expect(data.session).toBe("2023/2024");
+    });
+  });
+
+  describe("chunked upload", () => {
+    it("rejects chunks when object storage is disabled (honest limitation)", async () => {
+      (storage as unknown as { isEnabled: boolean }).isEnabled = false;
+      try {
+        await expect(
+          service.uploadChunk(
+            "user-1",
+            "1.2.3.4",
+            "abc-123-upload-id",
+            0,
+            2,
+            {
+              buffer: Buffer.from("part"),
+              mimetype: "application/octet-stream",
+              size: 4,
+              originalname: "part",
+            } as Express.Multer.File,
+          ),
+        ).rejects.toThrow(BadRequestException);
+      } finally {
+        (storage as unknown as { isEnabled: boolean }).isEnabled = true;
+      }
+    });
+
+    it("rejects an unsafe upload id", async () => {
+      await expect(
+        service.uploadChunk(
+          "user-1",
+          "1.2.3.4",
+          "../../etc/passwd",
+          0,
+          2,
+          {
+            buffer: Buffer.from("part"),
+            mimetype: "application/octet-stream",
+            size: 4,
+            originalname: "part",
+          } as Express.Multer.File,
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("stores a valid chunk under the pending key", async () => {
+      const result = await service.uploadChunk(
+        "user-1",
+        "1.2.3.4",
+        "abc-123-upload-id",
+        0,
+        2,
+        {
+          buffer: Buffer.from("part"),
+          mimetype: "application/octet-stream",
+          size: 4,
+          originalname: "part",
+        } as Express.Multer.File,
+      );
+      expect(result).toEqual({ uploadId: "abc-123-upload-id", received: 0, total: 2 });
+      expect(storage.put).toHaveBeenCalledWith(
+        "vault-pending/abc-123-upload-id/0000",
+        expect.any(Buffer),
+        "application/octet-stream",
+      );
+    });
+
+    it("complete rejects video mime types", async () => {
+      await expect(
+        service.completeChunkedUpload("user-1", "1.2.3.4", {
+          uploadId: "abc-123-upload-id",
+          originalName: "lecture.mp4",
+          mimeType: "video/mp4",
+          totalChunks: 2,
+          sizeBytes: 100,
+          courseCode: "CHM 101",
+          title: "Lecture",
+          type: "material",
+          visibility: "public",
+          termsVersion: "1.0",
+        }),
+      ).rejects.toThrow(BadRequestException);
+      expect(prisma.vaultItem.create).not.toHaveBeenCalled();
     });
   });
 });

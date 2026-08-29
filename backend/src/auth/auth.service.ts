@@ -581,8 +581,10 @@ export class AuthService {
 
     // 7. Build response — the new refresh token is the raw one,
     //    not the hash
+    // Long-lived access token (1h) so the app keeps working offline for a
+    // long stretch without needing a refresh round-trip.
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: "15m",
+      expiresIn: "1h",
       secret: this.configService.get<string>("JWT_SECRET"),
     });
 
@@ -1055,7 +1057,7 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: "15m",
+      expiresIn: "1h",
       secret: this.configService.get<string>("JWT_SECRET"),
     });
 
@@ -1091,8 +1093,13 @@ export class AuthService {
   }> {
     const refreshSecret = this.configService.get<string>("JWT_REFRESH_SECRET");
 
+    // Refresh tokens live 90 days and rotate on every use. As long as the
+    // student opens the app at least once per quarter, the session never
+    // dies — they stay signed in for "days" (or weeks) away, exactly as the
+    // product requires. Only an explicit sign-out (or 90 days of total
+    // inactivity) ends the session.
     const rawToken = this.jwtService.sign(payload, {
-      expiresIn: "7d",
+      expiresIn: "90d",
       secret: refreshSecret,
     });
 
@@ -1101,7 +1108,7 @@ export class AuthService {
     // Decode to get the actual expiry date set by jwtService
     const decoded = this.jwtService.decode(rawToken) as { exp: number } | null;
     const expiresAt = new Date(
-      (decoded?.exp ?? Math.floor(Date.now() / 1000) + 604800) * 1000,
+      (decoded?.exp ?? Math.floor(Date.now() / 1000) + 90 * 86400) * 1000,
     );
 
     const tokenRecord = await this.prisma.refreshToken.create({

@@ -18,17 +18,28 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { bytesLabel } from "../../utils/files";
 import { optimizeImageForUpload } from "../../utils/imageOptimize";
+import { appendFileToFormData } from "../../utils/upload";
+import {
+  uploadInChunks,
+  CHUNKED_UPLOAD_THRESHOLD,
+} from "../../utils/chunkedUpload";
 import { TERMS_URL } from "../../constants/legal";
 import type { VaultItemDto } from "./VaultScreen";
 
 const TERMS_VERSION = "1.0";
+const MAX_SINGLE_UPLOAD_BYTES = 20 * 1024 * 1024;
+const MAX_TOTAL_UPLOAD_BYTES = 200 * 1024 * 1024;
 
 /**
- * Upload flow (spec §7 + §14). Every upload is Public (scoped to your school,
- * after a quick admin review) or Private (yours only). Smart storage: the
- * original is kept untouched and a lightweight companion is generated
- * automatically. First upload specifically surfaces the Terms of Use — a
- * separate trigger point from the registration checkbox.
+ * Upload flow (spec §7 + §14). Every upload is a deliberate choice:
+ *  - PUBLIC — a community contribution: visible to your school after a quick
+ *    admin review, discoverable by other students, and (per the Terms) usable
+ *    to improve Matriq. Public resources are part of the shared academic
+ *    library — no quota, because their value grows with every contributor.
+ *  - PRIVATE — yours only: only you can see or download it.
+ * Smart storage: the original is kept untouched and a lightweight companion is
+ * generated automatically. Large files (>12 MB) upload in ~4 MB chunks so a
+ * 200 MB document never crashes the phone or the server.
  */
 export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => void } }) {
   const { theme } = useTheme();
@@ -45,9 +56,12 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   const [title, setTitle] = useState("");
   const [type, setType] = useState<"past_question" | "material">("past_question");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [level, setLevel] = useState("");
+  const [session, setSession] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [firstUpload, setFirstUpload] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [done, setDone] = useState<string | null>(null);
 
@@ -76,8 +90,8 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
     const isImage = (a.mimeType ?? "").startsWith("image/");
     if (isImage) {
       // Large photos are resized to ≤1200px + JPEG 0.7 before upload so they
-      // never hit the 20 MB cap or crash low-end devices. Small images are
-      // left untouched — the Vault keeps the original pristine by design.
+      // never hit the cap or crash low-end devices. Small images are left
+      // untouched — the Vault keeps the original pristine by design.
       const optimized = await optimizeImageForUpload(a.uri, a.name ?? "photo.jpg", {
         skipUnderBytes: 1.5 * 1024 * 1024,
       });
@@ -97,11 +111,16 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
         file: a.file,
       });
     }
+    setProgress(0);
     setError(null);
   };
 
+  const largeFile = !!asset?.size && asset.size > CHUNKED_UPLOAD_THRESHOLD;
+  const overLimit = !!asset?.size && asset.size > MAX_TOTAL_UPLOAD_BYTES;
+
   const canSubmit =
     !!asset &&
+    !overLimit &&
     courseCode.trim().length >= 2 &&
     title.trim().length > 0 &&
     (firstUpload ? termsAccepted : true) &&
@@ -110,34 +129,66 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   const submit = async () => {
     if (!asset) return;
     setUploading(true);
+    setProgress(0);
     setError(null);
     try {
-      const formData = new FormData();
-      if (Platform.OS === "web" && asset.file) {
-        formData.append("file", asset.file, asset.name);
-      } else if (Platform.OS === "web") {
-        const blob = await (await fetch(asset.uri)).blob();
-        formData.append("file", blob, asset.name);
-      } else {
-        formData.append("file", {
+      const meta = {
+        courseCode: courseCode.trim().toUpperCase(),
+        title: title.trim(),
+        type,
+        visibility,
+        termsVersion: TERMS_VERSION,
+        ...(level.trim() ? { level: level.trim().toUpperCase() } : {}),
+        ...(session.trim() ? { session: session.trim() } : {}),
+      };
+
+      if (largeFile && asset.size) {
+        // Large document → chunked path (never load the whole file in memory).
+        const { uploadId, totalChunks } = await uploadInChunks({
           uri: asset.uri,
-          name: asset.name,
-          type: asset.mimeType,
-        } as unknown as Blob);
+          fileName: asset.name,
+          mimeType: asset.mimeType,
+          totalBytes: asset.size,
+          onProgress: setProgress,
+        });
+        const result = await api.post<{ message: string }>("/vault/upload/complete", {
+          ...meta,
+          uploadId,
+          originalName: asset.name,
+          mimeType: asset.mimeType,
+          totalChunks,
+          sizeBytes: asset.size,
+        });
+        setDone(result.message);
+      } else {
+        const formData = new FormData();
+        if (Platform.OS === "web" && asset.file) {
+          formData.append("file", asset.file, asset.name);
+        } else {
+          await appendFileToFormData(
+            formData,
+            "file",
+            asset.uri,
+            asset.name,
+            asset.mimeType,
+          );
+        }
+        formData.append("courseCode", meta.courseCode);
+        formData.append("title", meta.title);
+        formData.append("type", meta.type);
+        formData.append("visibility", meta.visibility);
+        formData.append("termsVersion", meta.termsVersion);
+        if (meta.level) formData.append("level", meta.level);
+        if (meta.session) formData.append("session", meta.session);
+
+        const result = await api.upload<{
+          id: string;
+          moderationStatus: string;
+          message: string;
+        }>("/vault/upload", formData);
+
+        setDone(result.message);
       }
-      formData.append("courseCode", courseCode.trim().toUpperCase());
-      formData.append("title", title.trim());
-      formData.append("type", type);
-      formData.append("visibility", visibility);
-      formData.append("termsVersion", TERMS_VERSION);
-
-      const result = await api.upload<{
-        id: string;
-        moderationStatus: string;
-        message: string;
-      }>("/vault/upload", formData);
-
-      setDone(result.message);
     } catch (err) {
       setError(formatApiError(err));
     } finally {
@@ -174,7 +225,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
                 Choose a file
               </Text>
               <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
-                PDF, JPG or PNG · up to 20 MB
+                PDF, JPG or PNG · up to 200 MB (large files upload in parts)
               </Text>
             </Pressable>
           ) : (
@@ -188,7 +239,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
                 borderRadius: theme.radii.lg,
                 backgroundColor: colors.surface,
                 borderWidth: 1.5,
-                borderColor: colors.accent + "66",
+                borderColor: overLimit ? colors.error : colors.accent + "66",
               }}
             >
               <View
@@ -209,6 +260,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
                 </Text>
                 <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
                   {asset.size ? bytesLabel(asset.size) : "Ready"}
+                  {largeFile ? " · will upload in parts" : ""}
                 </Text>
               </View>
               <Pressable onPress={() => setAsset(null)} hitSlop={10}>
@@ -216,6 +268,27 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               </Pressable>
             </View>
           )}
+
+          {overLimit ? (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-start",
+                gap: 8,
+                marginTop: 12,
+                backgroundColor: colors.errorBg,
+                borderRadius: 12,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: colors.error + "44",
+              }}
+            >
+              <Icon name="alert" size={16} color={colors.error} />
+              <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1, lineHeight: 18 }]}>
+                That file is over the 200 MB limit. Try a smaller file.
+              </Text>
+            </View>
+          ) : null}
 
           {/* Course code + title */}
           <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 20, marginBottom: 6 }]}>
@@ -244,6 +317,32 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             placeholderTextColor={colors.textMuted}
             style={inputStyle(colors, theme.radii.md)}
           />
+
+          {/* Discovery metadata (optional) */}
+          <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 18, marginBottom: 6 }]}>
+            Level (optional)
+          </Text>
+          <TextInput
+            value={level}
+            onChangeText={(t) => setLevel(t.toUpperCase().slice(0, 12))}
+            placeholder="e.g. 200 — who is this for?"
+            placeholderTextColor={colors.textMuted}
+            autoCapitalize="characters"
+            style={inputStyle(colors, theme.radii.md)}
+          />
+          <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 18, marginBottom: 6 }]}>
+            Session (optional)
+          </Text>
+          <TextInput
+            value={session}
+            onChangeText={setSession}
+            placeholder="e.g. 2023/2024"
+            placeholderTextColor={colors.textMuted}
+            style={inputStyle(colors, theme.radii.md)}
+          />
+          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 6 }]}>
+            These help other students find exactly the right material.
+          </Text>
 
           {/* Type */}
           <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 18, marginBottom: 8 }]}>
@@ -282,7 +381,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             ))}
           </View>
 
-          {/* Visibility */}
+          {/* Visibility — explicit, understandable privacy choice */}
           <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 18, marginBottom: 8 }]}>
             Who can see it?
           </Text>
@@ -302,9 +401,12 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             >
               <Icon name="globe" size={18} color={visibility === "public" ? colors.accent : colors.textMuted} />
               <View style={{ flex: 1 }}>
-                <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>Public</Text>
-                <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
-                  Visible to your school after a quick admin review
+                <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                  Public — a community contribution
+                </Text>
+                <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1, lineHeight: 18 }]}>
+                  Visible to your school after a quick admin review. It helps other students find
+                  past questions and materials — and (per the Terms) may be used to improve Matriq.
                 </Text>
               </View>
               {visibility === "public" ? <Icon name="check" size={17} color={colors.accent} /> : null}
@@ -324,9 +426,9 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             >
               <Icon name="lock" size={18} color={visibility === "private" ? colors.accent : colors.textMuted} />
               <View style={{ flex: 1 }}>
-                <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>Private</Text>
-                <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
-                  Only you can see and download it
+                <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>Private — only you</Text>
+                <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1, lineHeight: 18 }]}>
+                  Only you can see and download it. Nothing is shared, uploaded publicly or used for anything else.
                 </Text>
               </View>
               {visibility === "private" ? <Icon name="check" size={17} color={colors.accent} /> : null}
@@ -348,9 +450,8 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
           >
             <Icon name="layers" size={17} color={colors.textMuted} />
             <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1, lineHeight: 19 }]}>
-              Your original file is kept untouched — a lightweight companion is made
-              automatically, so students with bad data can grab the light copy.
-              Contributions may help train a Matriq model for your school.
+              Your original file is kept untouched — a lightweight companion is made automatically,
+              so students with bad data can grab the light copy. Videos aren't accepted in the Vault.
             </Text>
           </View>
 
@@ -440,7 +541,14 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             }}
           >
             {uploading ? (
-              <ActivityIndicator size="small" color="#170B26" />
+              <View style={{ alignItems: "center" }}>
+                <ActivityIndicator size="small" color="#170B26" />
+                {largeFile ? (
+                  <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 11, color: "#170B26", marginTop: 6 }}>
+                    Uploading {Math.round(progress * 100)}%
+                  </Text>
+                ) : null}
+              </View>
             ) : (
               <Text
                 style={{
@@ -453,6 +561,25 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               </Text>
             )}
           </Pressable>
+
+          {uploading && largeFile ? (
+            <View style={{ marginTop: 10, height: 6, borderRadius: 3, backgroundColor: colors.surfaceAlt, overflow: "hidden" }}>
+              <View
+                style={{
+                  height: 6,
+                  width: `${Math.max(4, Math.round(progress * 100))}%`,
+                  borderRadius: 3,
+                  backgroundColor: colors.accent,
+                }}
+              />
+            </View>
+          ) : null}
+
+          {uploading && largeFile ? (
+            <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 8, textAlign: "center" }]}>
+              Uploading in ~4 MB parts — if your connection drops, just tap upload again to resume.
+            </Text>
+          ) : null}
       <ConfirmSheet
         visible={!!done}
         title="Uploaded"

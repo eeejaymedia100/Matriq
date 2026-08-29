@@ -41,6 +41,7 @@ import { EventsScreen } from "../screens/events/EventsScreen";
 import { OfflineModelsScreen } from "../screens/ai/OfflineModelsScreen";
 import { AiCompanionScreen } from "../screens/ai/AiCompanionScreen";
 import { AiHistoryScreen } from "../screens/ai/AiHistoryScreen";
+import { FocusModeScreen } from "../screens/ai/FocusModeScreen";
 import { NotificationFeedScreen } from "../screens/notifications/NotificationFeedScreen";
 import { QuizScreen } from "../screens/study/QuizScreen";
 import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
@@ -53,11 +54,6 @@ import { NotesScreen } from "../screens/notes/NotesScreen";
 import { NoteEditorScreen } from "../screens/notes/NoteEditorScreen";
 import { DocumentReaderScreen } from "../screens/vault/DocumentReaderScreen";
 import { ImageToPdfScreen } from "../screens/tools/ImageToPdfScreen";
-import { FileCompressorScreen } from "../screens/tools/FileCompressorScreen";
-import { PdfMergeScreen } from "../screens/tools/PdfMergeScreen";
-import { PdfSplitScreen } from "../screens/tools/PdfSplitScreen";
-import { PdfToWordScreen } from "../screens/tools/PdfToWordScreen";
-import { WordToPdfScreen } from "../screens/tools/WordToPdfScreen";
 import { VaultUploadScreen } from "../screens/vault/VaultUploadScreen";
 import { TimetableScreen } from "../screens/study/TimetableScreen";
 import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
@@ -163,6 +159,7 @@ function MainNavigator() {
       <MainStack.Screen name="VerificationStatus" component={VerificationStatusScreen} options={{ title: "Verification" }} />
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
       <MainStack.Screen name="AiChat" component={AiCompanionScreen} options={{ title: "AI Study Companion" }} />
+      <MainStack.Screen name="AiFocus" component={FocusModeScreen} options={{ title: "Focus Mode" }} />
       <MainStack.Screen name="AiHistory" component={AiHistoryScreen} options={{ title: "Chat history" }} />
       <MainStack.Screen name="Notifications" component={NotificationFeedScreen} options={{ title: "Notifications" }} />
       <MainStack.Screen name="Quiz" component={QuizScreen} options={{ title: "Quiz" }} />
@@ -172,11 +169,6 @@ function MainNavigator() {
       <MainStack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ title: "Note" }} />
       <MainStack.Screen name="DocumentReader" component={DocumentReaderScreen} options={{ title: "Read" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
-      <MainStack.Screen name="FileCompressor" component={FileCompressorScreen} options={{ title: "File Compressor" }} />
-      <MainStack.Screen name="PdfMerge" component={PdfMergeScreen} options={{ title: "PDF Merge" }} />
-      <MainStack.Screen name="PdfSplit" component={PdfSplitScreen} options={{ title: "PDF Split" }} />
-      <MainStack.Screen name="PdfToWord" component={PdfToWordScreen} options={{ title: "PDF → Word" }} />
-      <MainStack.Screen name="WordToPdf" component={WordToPdfScreen} options={{ title: "Word → PDF" }} />
       <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Vault" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
@@ -187,22 +179,35 @@ function MainNavigator() {
 }
 
 // ── Session gate (spec §5) ─────────────────────────────────────
-// Authenticated users never see the sign-in screen again. Instead:
+// Authenticated users never see the sign-in screen again — the passcode IS
+// the only re-authentication, and it never needs the internet (it's stored
+// on the device). Instead:
 //  - no passcode yet → mandatory PasscodeSetup (spec §4)
-//  - passcode set but 3h+ since the app was last in the foreground →
-//    "Welcome back" PasscodeUnlock
+//  - every cold start (app launched from scratch) → "Welcome back"
+//    PasscodeUnlock, regardless of how long ago — no sign-in screen, no
+//    network required
+//  - only a quick background → foreground switch within the 3h grace period
+//    skips the prompt (see shouldRequirePasscode)
 //  - otherwise → straight to the main app
 function SessionGate({ children }: { children: React.ReactNode }) {
   const [phase, setPhase] = useState<"loading" | "setup" | "locked" | "open">(
     "loading",
   );
+  // The very first evaluate is a cold start → always lock (if a passcode
+  // exists). Only later foreground returns get the 3h grace.
+  const coldStartRef = useRef(true);
 
   const evaluate = useCallback(async () => {
+    const coldStart = coldStartRef.current;
+    coldStartRef.current = false;
+
     if (!(await hasPasscode())) {
       setPhase("setup");
       return;
     }
-    if (await shouldRequirePasscode()) {
+    // Cold start: always require the passcode. Foreground return: only after
+    // the grace period (shouldRequirePasscode checks the 3h window).
+    if (coldStart || (await shouldRequirePasscode())) {
       setPhase("locked");
       return;
     }
