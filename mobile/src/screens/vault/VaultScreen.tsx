@@ -6,7 +6,6 @@ import {
   Pressable,
   TextInput,
   ActivityIndicator,
-  Platform,
 } from "react-native";
 import type { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { useFocusEffect } from "@react-navigation/native";
@@ -14,18 +13,13 @@ import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
 import { ConfirmSheet } from "../../components/ConfirmSheet";
-import { File } from "expo-file-system";
-import * as Sharing from "expo-sharing";
-import { api, API_BASE, authHeaders } from "../../api/client";
+import { api } from "../../api/client";
 import { useAuth } from "../../contexts/AuthContext";
 import { formatApiError } from "../../utils/errors";
-import { bytesLabel, extensionForMime, saveGeneratedFile } from "../../utils/files";
+import { bytesLabel } from "../../utils/files";
 import {
   cacheVaultSearch,
-  cachedVaultFile,
   readCachedVaultSearch,
-  rememberVaultFile,
-  vaultFileDestination,
 } from "../../utils/vaultCache";
 import type { MainTabParamList } from "../../navigation/types";
 
@@ -88,7 +82,6 @@ export function VaultScreen({ navigation }: Props) {
   /** True when the list is showing a saved copy because the network failed. */
   const [offline, setOffline] = useState(false);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [renameTarget, setRenameTarget] = useState<VaultItemDto | null>(null);
   const [renameValue, setRenameValue] = useState("");
@@ -179,103 +172,6 @@ export function VaultScreen({ navigation }: Props) {
       if (searchTimer.current) clearTimeout(searchTimer.current);
     };
   }, [query, filter, levelFilter, runSearch]);
-
-  const download = async (item: VaultItemDto, variant: "original" | "light") => {
-    if (downloadingId) return;
-    setDownloadingId(item.id);
-    setNote(null);
-    try {
-      const fileName =
-        variant === "light"
-          ? `${item.courseCode.replace(/\s+/g, "-")}-light${extensionForMime(item.companionMimeType ?? "")}`
-          : item.originalName;
-      const mimeType =
-        variant === "light"
-          ? (item.companionMimeType ?? item.mimeType)
-          : item.mimeType;
-
-      const headers = await authHeaders();
-      // authHeaders() already broadcasts session expiry on a failed refresh;
-      // the global auth lifecycle redirects — just stop here, no banner.
-      if (!headers) return;
-
-      if (Platform.OS === "web") {
-        // Web: the new File.downloadFileAsync isn't implemented there — keep
-        // the JSON endpoint (small files, browser handles the save natively).
-        const data = await api.get<{
-          fileName: string;
-          mimeType: string;
-          dataUri: string;
-        }>(`/vault/${item.id}/download?variant=${variant}`);
-        const base64 = data.dataUri.includes(",")
-          ? data.dataUri.split(",")[1]
-          : data.dataUri;
-        await saveGeneratedFile(data.fileName, base64, data.mimeType);
-        setNote(
-          variant === "light"
-            ? "Light copy saved — original stays safe on the Vault."
-            : "Downloaded — the original file.",
-        );
-        return;
-      }
-
-      // Offline reopen: if a copy was downloaded before, share it straight
-      // from disk — no network, no re-download.
-      const cached = await cachedVaultFile(item.id, variant);
-      if (cached) {
-        const local = new File(cached.uri);
-        if (local.exists) {
-          const available = await Sharing.isAvailableAsync();
-          if (available) {
-            await Sharing.shareAsync(local.uri, {
-              mimeType: cached.mimeType,
-              dialogTitle: cached.fileName,
-            });
-            setNote("Opened your saved copy — no internet needed.");
-          } else {
-            setNote("Saved copy found on this device.");
-          }
-          return;
-        }
-      }
-
-      // Fresh streaming download into the persistent vault folder, so it
-      // stays available offline (document dir, not the purgeable cache).
-      const destination = vaultFileDestination(item.id, variant, fileName);
-      if (!destination) return;
-      const downloaded = await File.downloadFileAsync(
-        `${API_BASE}/vault/${item.id}/file?variant=${variant}`,
-        destination,
-        { idempotent: true, headers },
-      );
-      void rememberVaultFile(item.id, variant, {
-        uri: downloaded.uri,
-        fileName,
-        mimeType,
-        sizeBytes: item.sizeBytes,
-        cachedAt: Date.now(),
-      });
-
-      const available = await Sharing.isAvailableAsync();
-      if (available) {
-        await Sharing.shareAsync(downloaded.uri, {
-          mimeType,
-          dialogTitle: fileName,
-        });
-        setNote(
-          variant === "light"
-            ? "Light copy saved — original stays safe on the Vault."
-            : "Downloaded — saved on your device for offline access.",
-        );
-      } else {
-        setNote("Saved on your device — reopen it anytime, even offline.");
-      }
-    } catch (err) {
-      setError(formatApiError(err));
-    } finally {
-      setDownloadingId(null);
-    }
-  };
 
   const doRename = async () => {
     if (!renameTarget) return;
@@ -446,7 +342,6 @@ export function VaultScreen({ navigation }: Props) {
                 {uploadDate} · {bytesLabel(item.sizeBytes)}
                 {item.level ? ` · L${item.level}` : ""}
                 {item.session ? ` · ${item.session}` : ""}
-                {item.downloads > 0 ? ` · ${item.downloads} dl` : ""}
                 {own && item.submitter ? ` · ${item.submitter.fullName}` : ""}
               </Text>
             </View>
@@ -491,27 +386,6 @@ export function VaultScreen({ navigation }: Props) {
               >
                 <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>Read</Text>
               </Pressable>
-              <Pressable
-                onPress={() => void download(item, "original")}
-                disabled={downloadingId === item.id}
-                style={{
-                  flex: 1,
-                  alignItems: "center",
-                  paddingVertical: 10,
-                  borderRadius: theme.radii.md,
-                  backgroundColor: colors.accent,
-                  borderWidth: theme.mode === "pop" ? 2 : 0,
-                  borderColor: colors.borderStrong,
-                }}
-              >
-                {downloadingId === item.id ? (
-                  <ActivityIndicator size="small" color="#170B26" />
-                ) : (
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
-                    Download
-                  </Text>
-                )}
-              </Pressable>
               {own ? (
                 <>
                   <Pressable
@@ -543,24 +417,6 @@ export function VaultScreen({ navigation }: Props) {
                     <Icon name="trash" size={16} color={colors.error} />
                   </Pressable>
                 </>
-              ) : null}
-              {item.hasCompanion ? (
-                <Pressable
-                  onPress={() => void download(item, "light")}
-                  disabled={downloadingId === item.id}
-                  style={{
-                    flex: 1,
-                    alignItems: "center",
-                    paddingVertical: 10,
-                    borderRadius: theme.radii.md,
-                    borderWidth: 1.5,
-                    borderColor: colors.borderStrong,
-                  }}
-                >
-                  <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
-                    Light{item.companionSizeBytes ? ` (${bytesLabel(item.companionSizeBytes)})` : ""}
-                  </Text>
-                </Pressable>
               ) : null}
             </View>
           </View>

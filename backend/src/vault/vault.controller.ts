@@ -100,24 +100,15 @@ export class VaultController {
     return this.vaultService.completeChunkedUpload(user.sub, ip, body);
   }
 
-  // ── Download (original or the light companion) ────────────────
-
-  @Get("vault/:id/download")
-  @UseGuards(JwtAuthGuard)
-  download(
-    @CurrentUser() user: JwtPayload,
-    @Param("id") id: string,
-    @Query("variant") variant?: "original" | "light",
-  ) {
-    return this.vaultService.download(user.sub, id, variant ?? "original");
-  }
-
-  // Streaming download (raw bytes, no base64 JSON) — the mobile app uses this
-  // for large files so it can save them straight to disk without the ~33%
-  // base64 inflation and a full-string JSON roundtrip.
+  // ── View (in-app only — no download/save-to-device) ───────────
+  // Vault documents are view-only: they must be read inside the app, never
+  // saved to the student's own storage. The data-URI /download endpoint was
+  // removed; this raw-byte endpoint exists solely to render files in the
+  // in-app reader (image previews). It streams inline — never as an
+  // attachment — so the OS never offers "save this file".
   @Get("vault/:id/file")
   @UseGuards(JwtAuthGuard)
-  async downloadFile(
+  async viewFile(
     @CurrentUser() user: JwtPayload,
     @Param("id") id: string,
     @Query("variant") variant?: "original" | "light",
@@ -130,7 +121,9 @@ export class VaultController {
     );
     res?.set({
       "Content-Type": mimeType,
-      "Content-Disposition": `attachment; filename="${this.safeHeaderName(fileName)}"`,
+      // inline, NOT attachment — the browser/app renders it; it never prompts
+      // to save the file to local storage.
+      "Content-Disposition": `inline; filename="${this.safeHeaderName(fileName)}"`,
       "Cache-Control": "private, max-age=300",
     });
     return new StreamableFile(buffer);

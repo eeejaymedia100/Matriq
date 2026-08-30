@@ -36,7 +36,8 @@ const MAX_TOTAL_UPLOAD_BYTES = 200 * 1024 * 1024;
  *    admin review, discoverable by other students, and (per the Terms) usable
  *    to improve Matriq. Public resources are part of the shared academic
  *    library — no quota, because their value grows with every contributor.
- *  - PRIVATE — yours only: only you can see or download it.
+ *  - PRIVATE — yours only: only you can see it (documents stay in the Vault
+ *    and are read inside the app — there's no download/save-to-device).
  * Smart storage: the original is kept untouched and a lightweight companion is
  * generated automatically. Large files (>12 MB) upload in ~4 MB chunks so a
  * 200 MB document never crashes the phone or the server.
@@ -428,7 +429,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               <View style={{ flex: 1 }}>
                 <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>Private — only you</Text>
                 <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1, lineHeight: 18 }]}>
-                  Only you can see and download it. Nothing is shared, uploaded publicly or used for anything else.
+                  Only you can see it. Documents stay in the Vault — you read them inside the app, and nothing is shared, uploaded publicly or used for anything else.
                 </Text>
               </View>
               {visibility === "private" ? <Icon name="check" size={17} color={colors.accent} /> : null}

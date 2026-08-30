@@ -826,45 +826,10 @@ export class VaultService {
     };
   }
 
-  /** Resolve an item's file (original or the smart-storage light copy). */
-  async download(
-    userId: string,
-    itemId: string,
-    variant: "original" | "light" = "original",
-  ) {
-    const { item, useCompanion, ref, mimeType, fileName, sizeBytes } =
-      await this.resolveDownload(userId, itemId, variant);
-
-    let dataUri = ref;
-    if (!dataUri.startsWith("data:")) {
-      const fetched = await this.storageService.getDataUri(ref, mimeType);
-      if (fetched) {
-        dataUri = fetched;
-      } else {
-        throw new NotFoundException(
-          "The file couldn't be retrieved from storage right now.",
-        );
-      }
-    }
-
-    // Count every (successful) download — feeds popularity later.
-    await this.bumpDownloads(itemId);
-
-    return {
-      itemId: item.id,
-      courseCode: item.courseCode,
-      title: item.title,
-      variant: useCompanion ? "light" : "original",
-      fileName,
-      mimeType,
-      dataUri,
-      sizeBytes,
-    };
-  }
-
   /**
-   * Streaming download: return the raw bytes (no base64 JSON roundtrip) so the
-   * app can save large files directly. Same auth checks as `download`.
+   * Stream raw bytes for the in-app reader (image previews). Same auth checks
+   * as the reader's text path. Counts as a view, not a download — vault
+   * documents are view-only; there is no download/save endpoint anymore.
    */
   async downloadRaw(
     userId: string,
