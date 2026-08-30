@@ -217,4 +217,49 @@ describe("AiService", () => {
       }),
     );
   });
+
+  it("should serve repeated identical questions from the cache without calling the model again", async () => {
+    mockPrisma.aiDocument.findMany.mockResolvedValue([]);
+    mockPrisma.aiQueryLog.create.mockResolvedValue({ id: "log1" });
+    mockFetch.mockResolvedValue(ollamaOkResponse("Cached answer text."));
+
+    const first = await service.query("u1", { query: "Repeat me" });
+    expect(first.response).toBe("Cached answer text.");
+
+    const second = await service.query("u1", { query: "Repeat me" });
+    expect(second.response).toBe("Cached answer text.");
+    expect(mockPrisma.aiQueryLog.create).toHaveBeenCalledTimes(2);
+
+    // Exactly one model call for two identical questions — the second answer
+    // came from the in-memory/Redis cache, not the model.
+    const chatCalls = mockFetch.mock.calls.filter(([url]) =>
+      String(url).endsWith("/api/chat"),
+    );
+    expect(chatCalls).toHaveLength(1);
+  });
+
+  it("should fall back to NVIDIA NIM when Ollama is unreachable and NVIDIA_API_KEY is set", async () => {
+    process.env.NVIDIA_API_KEY = "nvapi-test-key";
+    mockPrisma.aiDocument.findMany.mockResolvedValue([]);
+    mockPrisma.aiQueryLog.create.mockResolvedValue({ id: "log1" });
+    // Call order per query: embed (vector search), chat (Ollama), then NVIDIA.
+    mockFetch
+      .mockRejectedValueOnce(new Error("ECONNREFUSED"))
+      .mockRejectedValueOnce(new Error("ECONNREFUSED"))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          choices: [{ message: { content: "Answer from NVIDIA." } }],
+        }),
+      });
+
+    const result = await service.query("u1", { query: "What is AI?" });
+
+    expect(result.response).toBe("Answer from NVIDIA.");
+    const nvidiaCall = mockFetch.mock.calls.find(([url]) =>
+      String(url).includes("integrate.api.nvidia.com"),
+    );
+    expect(nvidiaCall).toBeDefined();
+    delete process.env.NVIDIA_API_KEY;
+  });
 });

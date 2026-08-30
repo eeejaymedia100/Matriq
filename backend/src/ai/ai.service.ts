@@ -5,7 +5,9 @@ import {
   ServiceUnavailableException,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { createHash } from "crypto";
 import { Response } from "express";
+import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
 import { Semaphore } from "./semaphore";
 
@@ -42,6 +44,10 @@ const DEFAULT_MAX_CHAT_CONCURRENCY = 2;
 const DEFAULT_MAX_EMBED_CONCURRENCY = 2;
 const DEFAULT_QUEUE_TIMEOUT_MS = 30_000;
 const MAX_RESPONSE_LENGTH = 4000;
+// NVIDIA NIM hosted chat API — the free cloud fallback between self-hosted
+// Ollama and Gemini. OpenAI-compatible chat completions endpoint.
+const DEFAULT_NVIDIA_MODEL = "meta/llama-3.2-11b-vision-instruct";
+const NVIDIA_BASE_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 // The ai_documents.embedding column is vector(1536). nomic-embed-text emits
 // 768-dim vectors; we pad to 1536 with zeros — both query and document vectors
 // are padded identically, so cosine similarity is unchanged.
@@ -106,6 +112,19 @@ export class AiService {
   private readonly chatSemaphore: Semaphore;
   private readonly embedSemaphore: Semaphore;
 
+  // ── Redis answer cache ───────────────────────────────────────────
+  // Shared across cluster workers when REDIS_URL is set; in-memory fallback
+  // per process otherwise. The cache must never take the API down with it,
+  // so every Redis call is wrapped and degrades to the local map.
+  private readonly redis?: Redis;
+  private redisHealthy = false;
+  private redisRetryAfter = 0;
+  private readonly memoryCache = new Map<
+    string,
+    { value: string; expiresAt: number }
+  >();
+  private static readonly REDIS_RETRY_COOLDOWN_MS = 5_000;
+
   /** Parse an env var as a positive int, falling back to `fallback` on NaN/≤0. */
   private clampPositiveInt(raw: string | undefined, fallback: number): number {
     const parsed = Number(raw);
@@ -151,6 +170,43 @@ export class AiService {
       maxEmbed,
       Math.min(queueTimeoutMs, 10_000),
     );
+
+    // Answer cache backend: Redis when configured, in-memory otherwise.
+    const redisUrl = this.configService.get<string>("REDIS_URL");
+    if (redisUrl) {
+      try {
+        const client = new Redis(redisUrl, {
+          // Fail fast so a down Redis never hangs an AI request.
+          lazyConnect: true,
+          maxRetriesPerRequest: 1,
+          enableOfflineQueue: false,
+          // Keep reconnecting in the background so the cache recovers the
+          // moment Redis is back, without a process restart.
+          retryStrategy: (times) => Math.min(times * 500, 5_000),
+        });
+        client.on("error", () => {
+          this.redisHealthy = false;
+          this.redisRetryAfter =
+            Date.now() + AiService.REDIS_RETRY_COOLDOWN_MS;
+        });
+        client.on("ready", () => {
+          if (!this.redisHealthy) {
+            this.logger.log("AI answer cache: Redis connected");
+          }
+          this.redisHealthy = true;
+        });
+        this.redis = client;
+        this.logger.log("AI answer cache: Redis (shared across workers)");
+      } catch (err) {
+        this.logger.warn(
+          `AI cache Redis init failed — in-memory only: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    } else {
+      this.logger.warn(
+        "REDIS_URL not set — AI answer cache is in-memory only (per-process)",
+      );
+    }
   }
 
   /**
@@ -179,6 +235,25 @@ export class AiService {
     const relevantDocs = await this.retrieveHybrid(dto.query);
     const sources = relevantDocs.map((d) => d.id);
 
+    // Answer cache: an identical question over the same retrieved material is
+    // served straight from Redis — at 1000 students this absorbs most of the
+    // peak (whole classes ask the same past questions), turning a multi-second
+    // model call into a <10ms cache hit.
+    const cacheKey = this.cacheKey(dto.query, relevantDocs);
+    const cached = await this.getCachedAnswer(cacheKey);
+    if (cached !== null) {
+      this.logger.log(`AI query from user ${userId}: cache hit`);
+      await this.prisma.aiQueryLog.create({
+        data: {
+          userId,
+          queryText: dto.query,
+          responseText: cached,
+          retrievedDocumentIds: sources,
+        },
+      });
+      return { response: cached, sources };
+    }
+
     // Generate the response — real LLM first, placeholder as fallback.
     let response: string;
     try {
@@ -194,21 +269,33 @@ export class AiService {
       }
       const reason = err instanceof Error ? err.message : "unknown error";
       this.logger.warn(`Ollama call failed: ${reason}`);
-      // Free cloud fallback: the Gemini tier answers when the self-hosted
-      // Ollama is down or has no model pulled. Still fails softly to the
-      // grounded placeholder if Gemini is also unavailable.
+      // Free cloud fallbacks, in order: NVIDIA NIM (hosted, OpenAI-compatible)
+      // → Gemini. Still fails softly to the grounded placeholder if both
+      // hosted APIs are also unavailable.
       try {
-        response = await this.generateFromGemini(dto.query, relevantDocs);
-        this.logger.log(`AI query from user ${userId}: answered via Gemini`);
-      } catch (geminiErr) {
-        const geminiReason =
-          geminiErr instanceof Error ? geminiErr.message : "unknown error";
+        response = await this.generateFromNvidia(dto.query, relevantDocs);
+        this.logger.log(`AI query from user ${userId}: answered via NVIDIA NIM`);
+      } catch (nvidiaErr) {
         this.logger.warn(
-          `Gemini fallback failed, using placeholder: ${geminiReason}`,
+          `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
         );
-        response = this.buildFallbackResponse(dto.query, relevantDocs);
+        try {
+          response = await this.generateFromGemini(dto.query, relevantDocs);
+          this.logger.log(`AI query from user ${userId}: answered via Gemini`);
+        } catch (geminiErr) {
+          const geminiReason =
+            geminiErr instanceof Error ? geminiErr.message : "unknown error";
+          this.logger.warn(
+            `Gemini fallback failed, using placeholder: ${geminiReason}`,
+          );
+          response = this.buildFallbackResponse(dto.query, relevantDocs);
+        }
       }
     }
+
+    // Store the fresh answer so the next identical question skips the model.
+    // Best-effort — a cache write failure must never fail the request.
+    await this.setCachedAnswer(cacheKey, response);
 
     // Log the query
     await this.prisma.aiQueryLog.create({
@@ -243,6 +330,38 @@ export class AiService {
     const relevantDocs = await this.retrieveHybrid(dto.query);
     const sources = relevantDocs.map((d) => d.id);
 
+    // Cache hit: emit the full answer as one content event and close — no
+    // model call at all. Same semantics as a streamed response to the client.
+    const cacheKey = this.cacheKey(dto.query, relevantDocs);
+    const cached = await this.getCachedAnswer(cacheKey);
+    if (cached !== null) {
+      this.logger.log(`AI stream query from user ${userId}: cache hit`);
+      this.writeSse(
+        res,
+        `data: ${JSON.stringify({ type: "content", text: cached })}\n\n`,
+      );
+      this.writeSse(
+        res,
+        `data: ${JSON.stringify({ type: "sources", sources })}\n\n`,
+      );
+      this.writeSse(res, `data: ${JSON.stringify({ type: "done" })}\n\n`);
+      try {
+        await this.prisma.aiQueryLog.create({
+          data: {
+            userId,
+            queryText: dto.query,
+            responseText: cached,
+            retrievedDocumentIds: sources,
+          },
+        });
+      } catch (err) {
+        this.logger.warn(
+          `Failed to log AI query: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+      return;
+    }
+
     let response: string;
     try {
       const streamed = await this.streamFromOllama(
@@ -267,10 +386,18 @@ export class AiService {
         if (fallbackErr instanceof ServiceUnavailableException) {
           throw fallbackErr;
         }
+        // NVIDIA NIM (hosted) → Gemini → grounded placeholder.
         try {
-          response = await this.generateFromGemini(dto.query, relevantDocs);
-        } catch {
-          response = this.buildFallbackResponse(dto.query, relevantDocs);
+          response = await this.generateFromNvidia(dto.query, relevantDocs);
+        } catch (nvidiaErr) {
+          this.logger.warn(
+            `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
+          );
+          try {
+            response = await this.generateFromGemini(dto.query, relevantDocs);
+          } catch {
+            response = this.buildFallbackResponse(dto.query, relevantDocs);
+          }
         }
       }
       this.writeSse(
@@ -278,6 +405,9 @@ export class AiService {
         `data: ${JSON.stringify({ type: "content", text: response })}\n\n`,
       );
     }
+
+    // Store the fresh answer so the next identical question skips the model.
+    await this.setCachedAnswer(cacheKey, response);
 
     this.writeSse(
       res,
@@ -571,6 +701,49 @@ Make sure answerIndex points at the correct option and options are plausible.
     return this.sanitize(text);
   }
 
+  /**
+   * Chat fallback via NVIDIA NIM (hosted, OpenAI-compatible) — used when the
+   * self-hosted Ollama server is down or has no model pulled. Same grounded
+   * prompt as the Ollama path. Throws on any failure so the caller can fall
+   * back to Gemini and then the placeholder.
+   */
+  private async generateFromNvidia(
+    query: string,
+    relevantDocs: RelevantDoc[],
+  ): Promise<string> {
+    const key = process.env.NVIDIA_API_KEY?.trim();
+    if (!key) throw new Error("NVIDIA NIM not configured");
+
+    const { systemPrompt, userPrompt } = this.buildPrompts(query, relevantDocs);
+
+    const res = await fetch(NVIDIA_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model:
+          process.env.NVIDIA_MODEL?.trim() || DEFAULT_NVIDIA_MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.6,
+        max_tokens: 1024,
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!res.ok) throw new Error(`NVIDIA NIM HTTP ${res.status}`);
+
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const text = data.choices?.[0]?.message?.content ?? "";
+    if (!text.trim()) throw new Error("NVIDIA NIM returned an empty response");
+    return this.sanitize(text);
+  }
+
   /** One Gemini JSON round-trip with a 30s timeout. Throws on failure. */
   private async geminiJson(prompt: string): Promise<string> {
     const res = await fetch(
@@ -642,6 +815,84 @@ Make sure answerIndex points at the correct option and options are plausible.
       this.logger.warn(
         `Failed to store embedding for ${docId}: ${err instanceof Error ? err.message : String(err)}`,
       );
+    }
+  }
+
+  // ── Private: answer cache ────────────────────────────────────
+
+  /** TTL for cached answers, from AI_CACHE_TTL_HOURS (default 24h). */
+  private get aiCacheTtlSeconds(): number {
+    return (
+      this.clampPositiveInt(process.env.AI_CACHE_TTL_HOURS, 24) * 3600
+    );
+  }
+
+  /**
+   * Cache key: sha1 of (normalized query + retrieved doc ids). Identical
+   * question over the same material → same key, regardless of who asks.
+   */
+  private cacheKey(query: string, relevantDocs: RelevantDoc[]): string {
+    const material = `${query.trim().toLowerCase()}|${relevantDocs
+      .map((d) => d.id)
+      .join(",")}`;
+    return `ai:ans:v1:${createHash("sha1").update(material).digest("hex")}`;
+  }
+
+  /** Read a cached answer (Redis first, in-memory fallback). Never throws. */
+  private async getCachedAnswer(key: string): Promise<string | null> {
+    if (
+      this.redis &&
+      (this.redisHealthy || Date.now() >= this.redisRetryAfter)
+    ) {
+      try {
+        const value = await this.redis.get(key);
+        this.redisHealthy = true;
+        if (value !== null && value !== undefined) return value;
+      } catch (err) {
+        this.redisHealthy = false;
+        this.redisRetryAfter =
+          Date.now() + AiService.REDIS_RETRY_COOLDOWN_MS;
+        this.logger.warn(
+          `AI cache GET failed — in-memory fallback: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+    const entry = this.memoryCache.get(key);
+    if (entry && entry.expiresAt > Date.now()) return entry.value;
+    return null;
+  }
+
+  /** Store an answer (Redis + in-memory). Best-effort, never throws. */
+  private async setCachedAnswer(key: string, value: string): Promise<void> {
+    const ttlSeconds = this.aiCacheTtlSeconds;
+    this.memoryCache.set(key, {
+      value,
+      expiresAt: Date.now() + ttlSeconds * 1000,
+    });
+
+    // Opportunistic sweep so the in-memory map can't grow unbounded.
+    if (this.memoryCache.size > 5_000) {
+      const now = Date.now();
+      for (const [k, v] of this.memoryCache) {
+        if (v.expiresAt <= now) this.memoryCache.delete(k);
+      }
+    }
+
+    if (
+      this.redis &&
+      (this.redisHealthy || Date.now() >= this.redisRetryAfter)
+    ) {
+      try {
+        await this.redis.set(key, value, "EX", ttlSeconds);
+        this.redisHealthy = true;
+      } catch (err) {
+        this.redisHealthy = false;
+        this.redisRetryAfter =
+          Date.now() + AiService.REDIS_RETRY_COOLDOWN_MS;
+        this.logger.warn(
+          `AI cache SET failed: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     }
   }
 

@@ -77,6 +77,10 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.7-flash}
       - GEMINI_BASE_URL=${GEMINI_BASE_URL:-https://generativelanguage.googleapis.com/v1beta}
+      # NVIDIA NIM (hosted LLM fallback when Ollama is down) + answer cache
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - NVIDIA_MODEL=${NVIDIA_MODEL:-meta/llama-3.2-11b-vision-instruct}
+      - AI_CACHE_TTL_HOURS=${AI_CACHE_TTL_HOURS:-24}
     expose:
       - "3000" # internal only — caddy routes via Docker network
     networks:
