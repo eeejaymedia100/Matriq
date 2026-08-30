@@ -259,12 +259,11 @@ export function AiCompanionScreen() {
   const [transcribing, setTranscribing] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  // Android keyboard safety: the window resizes natively (app.json
-  // `softwareKeyboardLayoutMode: "resize"`), so the composer stays above the
-  // keyboard — but the FlatList's content size doesn't change when the window
-  // resizes, so it won't scroll on its own. When the keyboard opens, nudge the
-  // list to the latest message (after the resize settles) so the newest
-  // exchange is always visible above the composer.
+  // Keyboard safety: KeyboardScreen lifts the composer above the keyboard
+  // (edge-to-edge Android pads by the measured keyboard height), so the input
+  // is always visible. The FlatList doesn't resize with it, so when the
+  // keyboard opens we nudge the list to the latest message to keep the newest
+  // exchange visible right above the composer.
   useEffect(() => {
     const sub = Keyboard.addListener("keyboardDidShow", () => {
       setTimeout(() => {
@@ -1404,10 +1403,9 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     safe: { flex: 1 },
     // The FlatList itself must fill the available height (flex: 1) or it won't
     // scroll — a VirtualizedList needs a bounded height to have scrollable
-    // content. It also keeps the composer above the keyboard on Android: the
-    // window resizes (softwareKeyboardLayoutMode: "resize") and this list
-    // shrinks with it — otherwise the footer gets pushed below the keyboard
-    // and the composer disappears.
+    // content. KeyboardScreen pads the parent by the keyboard height on
+    // Android (edge-to-edge), shrinking this list so the composer stays above
+    // the keyboard.
     listFill: {
       flex: 1,
     },

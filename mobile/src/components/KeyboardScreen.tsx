@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   View,
+  type KeyboardEvent,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
@@ -14,22 +16,52 @@ import { ThemedScreen } from "./Surface";
 /**
  * Reusable keyboard-safe screen wrapper.
  *
- * Combines the three pieces every input screen needs so none of them have to
+ * Combines the pieces every input screen needs so none of them have to
  * hand-roll it:
  *   - SafeAreaView (react-native-safe-area-context) for notch/home-bar insets
- *   - KeyboardAvoidingView — `padding` on both platforms. app.json sets
- *     `softwareKeyboardLayoutMode: "pan"` on Android (the OS never resizes the
- *     window), so the KAV pads the content by the measured keyboard height.
- *     This is deterministic across Android versions — including Android 15+
- *     edge-to-edge, where `adjustResize` stops resizing and the keyboard
- *     would otherwise cover inputs/composers.
+ *   - KeyboardAvoidingView — `padding` on iOS (reliable there). On Android we
+ *     use Expo's edge-to-edge layout (app.json softwareKeyboardLayoutMode:
+ *     "pan"), where the window is NEVER natively resized or panned, so the
+ *     keyboard would simply cover the footer/composer. Instead we track the
+ *     real keyboard height from the `Keyboard` events and pad the content by
+ *     that exact amount (`useKeyboardHeight`) — deterministic across all
+ *     Android versions including 15+ / edge-to-edge.
  *   - ScrollView with `flexGrow: 1` + `keyboardShouldPersistTaps="handled"` so
  *     inputs scroll above the keyboard and taps on buttons dismiss it
  *
  * `themed={false}` renders the plain themed background (no ambient blobs) —
  * used by the auth screens, which are deliberately flat. `footer` pins content
  * below the scroll area and above the keyboard (the chat composer).
+ *
+ * Because the composer/footer is lifted by exactly the keyboard height, the
+ * field you're typing in always stays visible right above the keyboard.
  */
+
+/** Measured on-screen keyboard height. Non-zero only while visible (Android). */
+function useKeyboardHeight(): number {
+  const [height, setHeight] = useState(0);
+
+  useEffect(() => {
+    const show = (e: KeyboardEvent) => setHeight(e.endCoordinates?.height ?? 0);
+    const hide = () => setHeight(0);
+
+    const subs = [
+      // iOS is handled by the KAV; we only measure on Android.
+      Platform.OS === "android" &&
+        Keyboard.addListener("keyboardDidShow", show),
+      Platform.OS === "android" && Keyboard.addListener("keyboardDidHide", hide),
+      // Smooth updates while the keyboard animates up/down (Android API 30+);
+      // on hide it reports 0, which clears the pad.
+      Platform.OS === "android" &&
+        Keyboard.addListener("keyboardDidChangeFrame", show),
+    ].filter(Boolean) as { remove: () => void }[];
+
+    return () => subs.forEach((s) => s.remove());
+  }, []);
+
+  return Platform.OS === "android" ? height : 0;
+}
+
 interface KeyboardScreenProps {
   children: React.ReactNode;
   /** Wrap in ThemedScreen (bg + ambient blobs). false = flat themed bg (auth). */
@@ -75,6 +107,7 @@ export function KeyboardScreen({
   keyboardDismissMode,
 }: KeyboardScreenProps) {
   const { theme } = useTheme();
+  const androidKbHeight = useKeyboardHeight();
 
   const contentStyle: StyleProp<ViewStyle> = [
     scroll ? { flexGrow: 1 } : { flex: 1 },
@@ -88,8 +121,11 @@ export function KeyboardScreen({
   const body = (
     <SafeAreaView style={{ flex: 1 }} edges={edges}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior="padding"
+        style={[
+          { flex: 1 },
+          Platform.OS === "android" && { paddingBottom: androidKbHeight },
+        ]}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={keyboardVerticalOffset}
       >
         {scroll ? (
