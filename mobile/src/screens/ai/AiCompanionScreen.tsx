@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   Modal,
   Pressable,
-  Keyboard,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Clipboard from "expo-clipboard";
@@ -259,19 +258,11 @@ export function AiCompanionScreen() {
   const [transcribing, setTranscribing] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  // Keyboard safety: KeyboardScreen lifts the composer above the keyboard
-  // (edge-to-edge Android pads by the measured keyboard height), so the input
-  // is always visible. The FlatList doesn't resize with it, so when the
-  // keyboard opens we nudge the list to the latest message to keep the newest
-  // exchange visible right above the composer.
-  useEffect(() => {
-    const sub = Keyboard.addListener("keyboardDidShow", () => {
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 60);
-    });
-    return () => sub.remove();
-  }, []);
+  // Keyboard behavior is handled entirely by KeyboardScreen (single strategy,
+  // both platforms): the window resizes for the IME, the message viewport
+  // shrinks to the space above the keyboard and the composer stays in the
+  // normal layout flow right above it. `onContentSizeChange` below keeps the
+  // newest messages in view as they arrive.
   const streamRef = useRef<{ abort: () => void } | null>(null);
   const streamingIdRef = useRef<string | null>(null);
   const historyRef = useRef<ChatTurn[]>([]);
@@ -915,7 +906,6 @@ export function AiCompanionScreen() {
     <KeyboardScreen
       scroll={false}
       padding={0}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       footer={
         <View>
           {/* The student's own files — the offline AI reads these, nothing leaves the phone */}
@@ -1403,9 +1393,9 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     safe: { flex: 1 },
     // The FlatList itself must fill the available height (flex: 1) or it won't
     // scroll — a VirtualizedList needs a bounded height to have scrollable
-    // content. KeyboardScreen pads the parent by the keyboard height on
-    // Android (edge-to-edge), shrinking this list so the composer stays above
-    // the keyboard.
+    // content. KeyboardScreen's KeyboardAvoidingView shrinks this viewport to
+    // the space above the keyboard while the composer stays above it, so the
+    // list keeps scrolling inside the reduced area.
     listFill: {
       flex: 1,
     },

@@ -1,67 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext } from "react";
 import {
-  Keyboard,
   KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
-  type KeyboardEvent,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
 import { SafeAreaView, type Edge } from "react-native-safe-area-context";
+import { HeaderHeightContext } from "@react-navigation/elements";
 import { useTheme } from "../theme/ThemeContext";
 import { ThemedScreen } from "./Surface";
 
 /**
- * Reusable keyboard-safe screen wrapper.
+ * Reusable keyboard-safe screen wrapper — one keyboard strategy for the whole
+ * app, on both platforms.
  *
- * Combines the pieces every input screen needs so none of them have to
- * hand-roll it:
  *   - SafeAreaView (react-native-safe-area-context) for notch/home-bar insets
- *   - KeyboardAvoidingView — `padding` on iOS (reliable there). On Android we
- *     use Expo's edge-to-edge layout (app.json softwareKeyboardLayoutMode:
- *     "pan"), where the window is NEVER natively resized or panned, so the
- *     keyboard would simply cover the footer/composer. Instead we track the
- *     real keyboard height from the `Keyboard` events and pad the content by
- *     that exact amount (`useKeyboardHeight`) — deterministic across all
- *     Android versions including 15+ / edge-to-edge.
- *   - ScrollView with `flexGrow: 1` + `keyboardShouldPersistTaps="handled"` so
- *     inputs scroll above the keyboard and taps on buttons dismiss it
+ *   - KeyboardAvoidingView with `behavior="padding"`. On iOS the keyboard
+ *     overlays the window, so the KAV pads the bottom of its content by the
+ *     keyboard height. On Android the app is edge-to-edge (Expo SDK 53+,
+ *     gradle `edgeToEdgeEnabled=true`, manifest `adjustResize` via
+ *     android.softwareKeyboardLayoutMode), so the OS never resizes the
+ *     window — the IME is delivered as an inset and React Native reports it
+ *     through the keyboard events. The KAV measures the exact overlap against
+ *     its own frame, so the padding it applies is exactly the space the
+ *     keyboard covers: flex:1 children (chat lists, forms) re-layout into the
+ *     remaining viewport and the `footer` (chat composer) stays in the normal
+ *     layout flow, directly above the keyboard. When the keyboard hides the
+ *     padding returns to zero, so the screen snaps back to full height.
+ *   - keyboardVerticalOffset = the native header height (from
+ *     react-navigation's HeaderHeightContext). The header sits above the KAV's
+ *     frame but inside the window, so without this offset the computed padding
+ *     would be short by exactly the header height on both platforms. Screens
+ *     without a header get 0 automatically.
+ *   - ScrollView with flexGrow:1 + keyboardShouldPersistTaps="handled" so
+ *     inputs scroll above the keyboard and taps on buttons dismiss it.
  *
  * `themed={false}` renders the plain themed background (no ambient blobs) —
  * used by the auth screens, which are deliberately flat. `footer` pins content
  * below the scroll area and above the keyboard (the chat composer).
- *
- * Because the composer/footer is lifted by exactly the keyboard height, the
- * field you're typing in always stays visible right above the keyboard.
  */
-
-/** Measured on-screen keyboard height. Non-zero only while visible (Android). */
-function useKeyboardHeight(): number {
-  const [height, setHeight] = useState(0);
-
-  useEffect(() => {
-    const show = (e: KeyboardEvent) => setHeight(e.endCoordinates?.height ?? 0);
-    const hide = () => setHeight(0);
-
-    const subs = [
-      // iOS is handled by the KAV; we only measure on Android.
-      Platform.OS === "android" &&
-        Keyboard.addListener("keyboardDidShow", show),
-      Platform.OS === "android" && Keyboard.addListener("keyboardDidHide", hide),
-      // Smooth updates while the keyboard animates up/down (Android API 30+);
-      // on hide it reports 0, which clears the pad.
-      Platform.OS === "android" &&
-        Keyboard.addListener("keyboardDidChangeFrame", show),
-    ].filter(Boolean) as { remove: () => void }[];
-
-    return () => subs.forEach((s) => s.remove());
-  }, []);
-
-  return Platform.OS === "android" ? height : 0;
-}
-
 interface KeyboardScreenProps {
   children: React.ReactNode;
   /** Wrap in ThemedScreen (bg + ambient blobs). false = flat themed bg (auth). */
@@ -76,7 +54,11 @@ interface KeyboardScreenProps {
   paddingBottom?: number;
   /** Safe-area edges. Defaults to bottom/left/right (headers handle top). */
   edges?: Edge[];
-  /** iOS-only: offset for headers/translucent bars above the keyboard. */
+  /**
+   * Extra offset added to the automatically-derived header height. Only needed
+   * for unusual setups (e.g. a translucent bar that floats above the screen
+   * content but below the navigator header).
+   */
   keyboardVerticalOffset?: number;
   /** Rendered below the scroll area, above the keyboard (chat composer). */
   footer?: React.ReactNode;
@@ -107,7 +89,12 @@ export function KeyboardScreen({
   keyboardDismissMode,
 }: KeyboardScreenProps) {
   const { theme } = useTheme();
-  const androidKbHeight = useKeyboardHeight();
+
+  // Height of the navigator's native header (incl. status bar). 0 when the
+  // screen has no header (headerShown: false, or a screen rendered outside a
+  // navigator, e.g. the passcode gates). The header is above the KAV's frame,
+  // so it must be subtracted from the keyboard frame to compute the overlap.
+  const headerHeight = useContext(HeaderHeightContext) ?? 0;
 
   const contentStyle: StyleProp<ViewStyle> = [
     scroll ? { flexGrow: 1 } : { flex: 1 },
@@ -121,12 +108,9 @@ export function KeyboardScreen({
   const body = (
     <SafeAreaView style={{ flex: 1 }} edges={edges}>
       <KeyboardAvoidingView
-        style={[
-          { flex: 1 },
-          Platform.OS === "android" && { paddingBottom: androidKbHeight },
-        ]}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
+        style={{ flex: 1 }}
+        behavior="padding"
+        keyboardVerticalOffset={headerHeight + keyboardVerticalOffset}
       >
         {scroll ? (
           <ScrollView

@@ -6,7 +6,6 @@ import {
   Alert,
   Pressable,
   ActivityIndicator,
-  Platform,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useTheme } from "../../theme/ThemeContext";
@@ -170,7 +169,6 @@ export function ProfileScreen() {
       padding={0}
       contentContainerStyle={styles.container}
       paddingBottom={40}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
     >
           {/* Avatar */}
           <View style={styles.avatarSection}>
