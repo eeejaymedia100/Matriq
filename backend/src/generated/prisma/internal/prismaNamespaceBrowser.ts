@@ -73,10 +73,16 @@ export const ModelName = {
   AiDocument: 'AiDocument',
   AiQueryLog: 'AiQueryLog',
   VaultItem: 'VaultItem',
+  LibrarySave: 'LibrarySave',
+  LibraryView: 'LibraryView',
+  LibraryReport: 'LibraryReport',
   Notification: 'Notification',
   TimetableUpdate: 'TimetableUpdate',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
+  MagicPlusEntitlement: 'MagicPlusEntitlement',
+  FocusModeSession: 'FocusModeSession',
+  FocusModeUsage: 'FocusModeUsage',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
 } as const
@@ -413,10 +419,57 @@ export const VaultItemScalarFieldEnum = {
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',
   level: 'level',
-  session: 'session'
+  session: 'session',
+  institutionId: 'institutionId',
+  faculty: 'faculty',
+  department: 'department',
+  courseTitle: 'courseTitle',
+  description: 'description',
+  opens: 'opens',
+  savesCount: 'savesCount',
+  hidden: 'hidden'
 } as const
 
 export type VaultItemScalarFieldEnum = (typeof VaultItemScalarFieldEnum)[keyof typeof VaultItemScalarFieldEnum]
+
+
+export const LibrarySaveScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  vaultItemId: 'vaultItemId',
+  savedAt: 'savedAt'
+} as const
+
+export type LibrarySaveScalarFieldEnum = (typeof LibrarySaveScalarFieldEnum)[keyof typeof LibrarySaveScalarFieldEnum]
+
+
+export const LibraryViewScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  vaultItemId: 'vaultItemId',
+  lastViewedAt: 'lastViewedAt',
+  position: 'position',
+  progress: 'progress',
+  opens: 'opens',
+  lastOpenDay: 'lastOpenDay'
+} as const
+
+export type LibraryViewScalarFieldEnum = (typeof LibraryViewScalarFieldEnum)[keyof typeof LibraryViewScalarFieldEnum]
+
+
+export const LibraryReportScalarFieldEnum = {
+  id: 'id',
+  vaultItemId: 'vaultItemId',
+  reporterUserId: 'reporterUserId',
+  reason: 'reason',
+  details: 'details',
+  status: 'status',
+  resolvedAt: 'resolvedAt',
+  resolvedByAdmin: 'resolvedByAdmin',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryReportScalarFieldEnum = (typeof LibraryReportScalarFieldEnum)[keyof typeof LibraryReportScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {
@@ -478,6 +531,61 @@ export const WaitlistEntryScalarFieldEnum = {
 export type WaitlistEntryScalarFieldEnum = (typeof WaitlistEntryScalarFieldEnum)[keyof typeof WaitlistEntryScalarFieldEnum]
 
 
+export const MagicPlusEntitlementScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  plan: 'plan',
+  status: 'status',
+  source: 'source',
+  freeGenerationLimit: 'freeGenerationLimit',
+  freeGenerationsUsed: 'freeGenerationsUsed',
+  startedAt: 'startedAt',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MagicPlusEntitlementScalarFieldEnum = (typeof MagicPlusEntitlementScalarFieldEnum)[keyof typeof MagicPlusEntitlementScalarFieldEnum]
+
+
+export const FocusModeSessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  topicHash: 'topicHash',
+  conceptMap: 'conceptMap',
+  promptVersion: 'promptVersion',
+  provider: 'provider',
+  model: 'model',
+  fromCache: 'fromCache',
+  createdAt: 'createdAt'
+} as const
+
+export type FocusModeSessionScalarFieldEnum = (typeof FocusModeSessionScalarFieldEnum)[keyof typeof FocusModeSessionScalarFieldEnum]
+
+
+export const FocusModeUsageScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  sessionId: 'sessionId',
+  operation: 'operation',
+  provider: 'provider',
+  model: 'model',
+  promptVersion: 'promptVersion',
+  promptTokens: 'promptTokens',
+  completionTokens: 'completionTokens',
+  totalTokens: 'totalTokens',
+  latencyMs: 'latencyMs',
+  estimatedCostMicros: 'estimatedCostMicros',
+  cached: 'cached',
+  error: 'error',
+  errorKind: 'errorKind',
+  createdAt: 'createdAt'
+} as const
+
+export type FocusModeUsageScalarFieldEnum = (typeof FocusModeUsageScalarFieldEnum)[keyof typeof FocusModeUsageScalarFieldEnum]
+
+
 export const RefreshTokenFamilyScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -514,6 +622,13 @@ export const NullableJsonNullValueInput = {
 } as const
 
 export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {

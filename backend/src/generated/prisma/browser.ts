@@ -128,6 +128,21 @@ export type AiQueryLog = Prisma.AiQueryLogModel
  */
 export type VaultItem = Prisma.VaultItemModel
 /**
+ * Model LibrarySave
+ * 
+ */
+export type LibrarySave = Prisma.LibrarySaveModel
+/**
+ * Model LibraryView
+ * 
+ */
+export type LibraryView = Prisma.LibraryViewModel
+/**
+ * Model LibraryReport
+ * 
+ */
+export type LibraryReport = Prisma.LibraryReportModel
+/**
  * Model Notification
  * 
  */
@@ -147,6 +162,21 @@ export type LegalAcceptance = Prisma.LegalAcceptanceModel
  * 
  */
 export type WaitlistEntry = Prisma.WaitlistEntryModel
+/**
+ * Model MagicPlusEntitlement
+ * 
+ */
+export type MagicPlusEntitlement = Prisma.MagicPlusEntitlementModel
+/**
+ * Model FocusModeSession
+ * 
+ */
+export type FocusModeSession = Prisma.FocusModeSessionModel
+/**
+ * Model FocusModeUsage
+ * 
+ */
+export type FocusModeUsage = Prisma.FocusModeUsageModel
 /**
  * Model RefreshTokenFamily
  * 

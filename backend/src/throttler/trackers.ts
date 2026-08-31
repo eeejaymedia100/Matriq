@@ -29,3 +29,22 @@ export const ipAndEmailTracker: ThrottlerGetTrackerFunction = (req) => {
   const route = typeof req.path === "string" ? req.path : "unknown";
   return `${route}|${ip}|${email}`;
 };
+
+/**
+ * Rate-limit keyed by the authenticated user id. Used on premium, cost-
+ * incurring endpoints (e.g. cloud Focus Mode) so each student gets their own
+ * per-minute bucket and an attacker rotating IPs can't bypass it. Falls back
+ * to the IP when the request isn't authenticated.
+ */
+export const userTracker: ThrottlerGetTrackerFunction = (req) => {
+  const userId =
+    typeof req.user?.sub === "string" ? req.user.sub : (req.user?.id as string | undefined);
+  if (userId) return `user|${userId}`;
+  const ip =
+    typeof req.ip === "string"
+      ? req.ip
+      : typeof req.socket?.remoteAddress === "string"
+        ? req.socket.remoteAddress
+        : "unknown";
+  return `ip|${ip}`;
+};

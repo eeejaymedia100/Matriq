@@ -214,6 +214,102 @@ export function fallbackFocusMap(raw: string, topic: string): FocusMap {
   };
 }
 
+// ── Cloud backend types + adapter ──────────────────────────────
+// Focus Mode is now a cloud-powered Magic Plus feature: the mobile app asks
+// the Matriq backend (which securely calls DeepSeek) for a structured JSON
+// concept map, then renders it deterministically here. These types mirror the
+// backend schema and are converted into the client FocusMap shape below so the
+// existing layout/workspace logic is reused unchanged.
+
+export interface BackendFocusConcept {
+  id: string;
+  label: string;
+  kind:
+    | "topic"
+    | "definition"
+    | "component"
+    | "process"
+    | "type"
+    | "example"
+    | "application"
+    | "importance"
+    | "prerequisite";
+  summary: string;
+  detail: string;
+  importance?: string;
+  examples?: string[];
+  prerequisites?: string[];
+  parents?: string[];
+}
+
+export interface BackendFocusMap {
+  version: "1.0";
+  topic: string;
+  overview: string;
+  concepts: BackendFocusConcept[];
+}
+
+export interface BackendEntitlement {
+  entitled: boolean;
+  isPremium: boolean;
+  plan: string | null;
+  source: string | null;
+  freeRemaining: number | null;
+  freeUsed: number;
+  freeLimit: number;
+  expiresAt: string | null;
+}
+
+/** Convert the backend's structured map into the client render model. */
+export function backendFocusMapToClient(b: BackendFocusMap): FocusMap {
+  const concepts = b.concepts ?? [];
+  const nodes: FocusNode[] = concepts.map((c) => ({
+    id: c.id,
+    label: c.label || c.id,
+    kind: clientKind(c.kind),
+    summary: c.summary || c.label || "",
+    detail:
+      c.kind === "topic"
+        ? c.detail || b.overview || ""
+        : c.detail || (c.importance ? `${c.importance}` : ""),
+  }));
+
+  // Build links from parent + prerequisite relationships (dedup, drop dangling).
+  const links: FocusLink[] = [];
+  const seen = new Set<string>();
+  const ids = new Set(concepts.map((c) => c.id));
+  for (const c of concepts) {
+    const prereqs = c.prerequisites ?? [];
+    const parents = c.parents ?? [];
+    for (const p of [...parents, ...prereqs]) {
+      if (!p || p === c.id || !ids.has(p)) continue;
+      const key = `${p}->${c.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      links.push({
+        from: p,
+        to: c.id,
+        label: prereqs.includes(p) ? "needs" : "part of",
+      });
+    }
+  }
+
+  return {
+    id: `focus-${Date.now()}`,
+    topic: b.topic || b.overview || "Concept map",
+    createdAt: Date.now(),
+    nodes,
+    links,
+  };
+}
+
+function clientKind(
+  k: BackendFocusConcept["kind"],
+): FocusNodeKind {
+  if ((FOCUS_KINDS as string[]).includes(k)) return k as FocusNodeKind;
+  return "note";
+}
+
 // ── Deterministic layout ───────────────────────────────────────
 // Levels come from a BFS from the root(s); each level becomes a column. This
 // is stable across re-renders (positions depend only on the map), which is

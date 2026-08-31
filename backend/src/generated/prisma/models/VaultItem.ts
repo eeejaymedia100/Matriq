@@ -30,12 +30,16 @@ export type VaultItemAvgAggregateOutputType = {
   sizeBytes: number | null
   companionSizeBytes: number | null
   downloads: number | null
+  opens: number | null
+  savesCount: number | null
 }
 
 export type VaultItemSumAggregateOutputType = {
   sizeBytes: number | null
   companionSizeBytes: number | null
   downloads: number | null
+  opens: number | null
+  savesCount: number | null
 }
 
 export type VaultItemMinAggregateOutputType = {
@@ -63,6 +67,14 @@ export type VaultItemMinAggregateOutputType = {
   deletedAt: Date | null
   level: string | null
   session: string | null
+  institutionId: string | null
+  faculty: string | null
+  department: string | null
+  courseTitle: string | null
+  description: string | null
+  opens: number | null
+  savesCount: number | null
+  hidden: boolean | null
 }
 
 export type VaultItemMaxAggregateOutputType = {
@@ -90,6 +102,14 @@ export type VaultItemMaxAggregateOutputType = {
   deletedAt: Date | null
   level: string | null
   session: string | null
+  institutionId: string | null
+  faculty: string | null
+  department: string | null
+  courseTitle: string | null
+  description: string | null
+  opens: number | null
+  savesCount: number | null
+  hidden: boolean | null
 }
 
 export type VaultItemCountAggregateOutputType = {
@@ -117,6 +137,14 @@ export type VaultItemCountAggregateOutputType = {
   deletedAt: number
   level: number
   session: number
+  institutionId: number
+  faculty: number
+  department: number
+  courseTitle: number
+  description: number
+  opens: number
+  savesCount: number
+  hidden: number
   _all: number
 }
 
@@ -125,12 +153,16 @@ export type VaultItemAvgAggregateInputType = {
   sizeBytes?: true
   companionSizeBytes?: true
   downloads?: true
+  opens?: true
+  savesCount?: true
 }
 
 export type VaultItemSumAggregateInputType = {
   sizeBytes?: true
   companionSizeBytes?: true
   downloads?: true
+  opens?: true
+  savesCount?: true
 }
 
 export type VaultItemMinAggregateInputType = {
@@ -158,6 +190,14 @@ export type VaultItemMinAggregateInputType = {
   deletedAt?: true
   level?: true
   session?: true
+  institutionId?: true
+  faculty?: true
+  department?: true
+  courseTitle?: true
+  description?: true
+  opens?: true
+  savesCount?: true
+  hidden?: true
 }
 
 export type VaultItemMaxAggregateInputType = {
@@ -185,6 +225,14 @@ export type VaultItemMaxAggregateInputType = {
   deletedAt?: true
   level?: true
   session?: true
+  institutionId?: true
+  faculty?: true
+  department?: true
+  courseTitle?: true
+  description?: true
+  opens?: true
+  savesCount?: true
+  hidden?: true
 }
 
 export type VaultItemCountAggregateInputType = {
@@ -212,6 +260,14 @@ export type VaultItemCountAggregateInputType = {
   deletedAt?: true
   level?: true
   session?: true
+  institutionId?: true
+  faculty?: true
+  department?: true
+  courseTitle?: true
+  description?: true
+  opens?: true
+  savesCount?: true
+  hidden?: true
   _all?: true
 }
 
@@ -326,6 +382,14 @@ export type VaultItemGroupByOutputType = {
   deletedAt: Date | null
   level: string | null
   session: string | null
+  institutionId: string | null
+  faculty: string | null
+  department: string | null
+  courseTitle: string | null
+  description: string | null
+  opens: number
+  savesCount: number
+  hidden: boolean
   _count: VaultItemCountAggregateOutputType | null
   _avg: VaultItemAvgAggregateOutputType | null
   _sum: VaultItemSumAggregateOutputType | null
@@ -376,8 +440,20 @@ export type VaultItemWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
   level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  institutionId?: Prisma.UuidNullableFilter<"VaultItem"> | string | null
+  faculty?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  department?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  courseTitle?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  description?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  opens?: Prisma.IntFilter<"VaultItem"> | number
+  savesCount?: Prisma.IntFilter<"VaultItem"> | number
+  hidden?: Prisma.BoolFilter<"VaultItem"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
+  libraryViews?: Prisma.LibraryViewListRelationFilter
+  librarySaves?: Prisma.LibrarySaveListRelationFilter
+  libraryReports?: Prisma.LibraryReportListRelationFilter
 }
 
 export type VaultItemOrderByWithRelationInput = {
@@ -405,8 +481,20 @@ export type VaultItemOrderByWithRelationInput = {
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   level?: Prisma.SortOrderInput | Prisma.SortOrder
   session?: Prisma.SortOrderInput | Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  faculty?: Prisma.SortOrderInput | Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
+  courseTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+  hidden?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   association?: Prisma.AssociationOrderByWithRelationInput
+  institution?: Prisma.InstitutionOrderByWithRelationInput
+  libraryViews?: Prisma.LibraryViewOrderByRelationAggregateInput
+  librarySaves?: Prisma.LibrarySaveOrderByRelationAggregateInput
+  libraryReports?: Prisma.LibraryReportOrderByRelationAggregateInput
 }
 
 export type VaultItemWhereUniqueInput = Prisma.AtLeast<{
@@ -437,8 +525,20 @@ export type VaultItemWhereUniqueInput = Prisma.AtLeast<{
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
   level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  institutionId?: Prisma.UuidNullableFilter<"VaultItem"> | string | null
+  faculty?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  department?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  courseTitle?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  description?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  opens?: Prisma.IntFilter<"VaultItem"> | number
+  savesCount?: Prisma.IntFilter<"VaultItem"> | number
+  hidden?: Prisma.BoolFilter<"VaultItem"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   association?: Prisma.XOR<Prisma.AssociationScalarRelationFilter, Prisma.AssociationWhereInput>
+  institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
+  libraryViews?: Prisma.LibraryViewListRelationFilter
+  librarySaves?: Prisma.LibrarySaveListRelationFilter
+  libraryReports?: Prisma.LibraryReportListRelationFilter
 }, "id">
 
 export type VaultItemOrderByWithAggregationInput = {
@@ -466,6 +566,14 @@ export type VaultItemOrderByWithAggregationInput = {
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   level?: Prisma.SortOrderInput | Prisma.SortOrder
   session?: Prisma.SortOrderInput | Prisma.SortOrder
+  institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  faculty?: Prisma.SortOrderInput | Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
+  courseTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+  hidden?: Prisma.SortOrder
   _count?: Prisma.VaultItemCountOrderByAggregateInput
   _avg?: Prisma.VaultItemAvgOrderByAggregateInput
   _max?: Prisma.VaultItemMaxOrderByAggregateInput
@@ -501,6 +609,14 @@ export type VaultItemScalarWhereWithAggregatesInput = {
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"VaultItem"> | Date | string | null
   level?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
   session?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  institutionId?: Prisma.UuidNullableWithAggregatesFilter<"VaultItem"> | string | null
+  faculty?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  department?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  courseTitle?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  description?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
+  opens?: Prisma.IntWithAggregatesFilter<"VaultItem"> | number
+  savesCount?: Prisma.IntWithAggregatesFilter<"VaultItem"> | number
+  hidden?: Prisma.BoolWithAggregatesFilter<"VaultItem"> | boolean
 }
 
 export type VaultItemCreateInput = {
@@ -526,8 +642,19 @@ export type VaultItemCreateInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
   user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
   association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
 }
 
 export type VaultItemUncheckedCreateInput = {
@@ -555,6 +682,17 @@ export type VaultItemUncheckedCreateInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
 }
 
 export type VaultItemUpdateInput = {
@@ -580,8 +718,19 @@ export type VaultItemUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
   association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemUncheckedUpdateInput = {
@@ -609,6 +758,17 @@ export type VaultItemUncheckedUpdateInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemCreateManyInput = {
@@ -636,6 +796,14 @@ export type VaultItemCreateManyInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
 }
 
 export type VaultItemUpdateManyMutationInput = {
@@ -661,6 +829,13 @@ export type VaultItemUpdateManyMutationInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type VaultItemUncheckedUpdateManyInput = {
@@ -688,6 +863,14 @@ export type VaultItemUncheckedUpdateManyInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type VaultItemListRelationFilter = {
@@ -725,12 +908,22 @@ export type VaultItemCountOrderByAggregateInput = {
   deletedAt?: Prisma.SortOrder
   level?: Prisma.SortOrder
   session?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
+  courseTitle?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+  hidden?: Prisma.SortOrder
 }
 
 export type VaultItemAvgOrderByAggregateInput = {
   sizeBytes?: Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrder
   downloads?: Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
 }
 
 export type VaultItemMaxOrderByAggregateInput = {
@@ -758,6 +951,14 @@ export type VaultItemMaxOrderByAggregateInput = {
   deletedAt?: Prisma.SortOrder
   level?: Prisma.SortOrder
   session?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
+  courseTitle?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+  hidden?: Prisma.SortOrder
 }
 
 export type VaultItemMinOrderByAggregateInput = {
@@ -785,12 +986,69 @@ export type VaultItemMinOrderByAggregateInput = {
   deletedAt?: Prisma.SortOrder
   level?: Prisma.SortOrder
   session?: Prisma.SortOrder
+  institutionId?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
+  courseTitle?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+  hidden?: Prisma.SortOrder
 }
 
 export type VaultItemSumOrderByAggregateInput = {
   sizeBytes?: Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrder
   downloads?: Prisma.SortOrder
+  opens?: Prisma.SortOrder
+  savesCount?: Prisma.SortOrder
+}
+
+export type VaultItemScalarRelationFilter = {
+  is?: Prisma.VaultItemWhereInput
+  isNot?: Prisma.VaultItemWhereInput
+}
+
+export type VaultItemCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput> | Prisma.VaultItemCreateWithoutInstitutionInput[] | Prisma.VaultItemUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutInstitutionInput | Prisma.VaultItemCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.VaultItemCreateManyInstitutionInputEnvelope
+  connect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+}
+
+export type VaultItemUncheckedCreateNestedManyWithoutInstitutionInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput> | Prisma.VaultItemCreateWithoutInstitutionInput[] | Prisma.VaultItemUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutInstitutionInput | Prisma.VaultItemCreateOrConnectWithoutInstitutionInput[]
+  createMany?: Prisma.VaultItemCreateManyInstitutionInputEnvelope
+  connect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+}
+
+export type VaultItemUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput> | Prisma.VaultItemCreateWithoutInstitutionInput[] | Prisma.VaultItemUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutInstitutionInput | Prisma.VaultItemCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.VaultItemUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.VaultItemUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.VaultItemCreateManyInstitutionInputEnvelope
+  set?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  disconnect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  delete?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  connect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  update?: Prisma.VaultItemUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.VaultItemUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.VaultItemUpdateManyWithWhereWithoutInstitutionInput | Prisma.VaultItemUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.VaultItemScalarWhereInput | Prisma.VaultItemScalarWhereInput[]
+}
+
+export type VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput> | Prisma.VaultItemCreateWithoutInstitutionInput[] | Prisma.VaultItemUncheckedCreateWithoutInstitutionInput[]
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutInstitutionInput | Prisma.VaultItemCreateOrConnectWithoutInstitutionInput[]
+  upsert?: Prisma.VaultItemUpsertWithWhereUniqueWithoutInstitutionInput | Prisma.VaultItemUpsertWithWhereUniqueWithoutInstitutionInput[]
+  createMany?: Prisma.VaultItemCreateManyInstitutionInputEnvelope
+  set?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  disconnect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  delete?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  connect?: Prisma.VaultItemWhereUniqueInput | Prisma.VaultItemWhereUniqueInput[]
+  update?: Prisma.VaultItemUpdateWithWhereUniqueWithoutInstitutionInput | Prisma.VaultItemUpdateWithWhereUniqueWithoutInstitutionInput[]
+  updateMany?: Prisma.VaultItemUpdateManyWithWhereWithoutInstitutionInput | Prisma.VaultItemUpdateManyWithWhereWithoutInstitutionInput[]
+  deleteMany?: Prisma.VaultItemScalarWhereInput | Prisma.VaultItemScalarWhereInput[]
 }
 
 export type VaultItemCreateNestedManyWithoutUserInput = {
@@ -885,7 +1143,49 @@ export type EnumVaultVisibilityFieldUpdateOperationsInput = {
   set?: $Enums.VaultVisibility
 }
 
-export type VaultItemCreateWithoutUserInput = {
+export type VaultItemCreateNestedOneWithoutLibrarySavesInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedCreateWithoutLibrarySavesInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibrarySavesInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+}
+
+export type VaultItemUpdateOneRequiredWithoutLibrarySavesNestedInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedCreateWithoutLibrarySavesInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibrarySavesInput
+  upsert?: Prisma.VaultItemUpsertWithoutLibrarySavesInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VaultItemUpdateToOneWithWhereWithoutLibrarySavesInput, Prisma.VaultItemUpdateWithoutLibrarySavesInput>, Prisma.VaultItemUncheckedUpdateWithoutLibrarySavesInput>
+}
+
+export type VaultItemCreateNestedOneWithoutLibraryViewsInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryViewsInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibraryViewsInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+}
+
+export type VaultItemUpdateOneRequiredWithoutLibraryViewsNestedInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryViewsInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibraryViewsInput
+  upsert?: Prisma.VaultItemUpsertWithoutLibraryViewsInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VaultItemUpdateToOneWithWhereWithoutLibraryViewsInput, Prisma.VaultItemUpdateWithoutLibraryViewsInput>, Prisma.VaultItemUncheckedUpdateWithoutLibraryViewsInput>
+}
+
+export type VaultItemCreateNestedOneWithoutLibraryReportsInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryReportsInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibraryReportsInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+}
+
+export type VaultItemUpdateOneRequiredWithoutLibraryReportsNestedInput = {
+  create?: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryReportsInput>
+  connectOrCreate?: Prisma.VaultItemCreateOrConnectWithoutLibraryReportsInput
+  upsert?: Prisma.VaultItemUpsertWithoutLibraryReportsInput
+  connect?: Prisma.VaultItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.VaultItemUpdateToOneWithWhereWithoutLibraryReportsInput, Prisma.VaultItemUpdateWithoutLibraryReportsInput>, Prisma.VaultItemUncheckedUpdateWithoutLibraryReportsInput>
+}
+
+export type VaultItemCreateWithoutInstitutionInput = {
   id?: string
   courseCode: string
   title: string
@@ -908,11 +1208,23 @@ export type VaultItemCreateWithoutUserInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
   association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
 }
 
-export type VaultItemUncheckedCreateWithoutUserInput = {
+export type VaultItemUncheckedCreateWithoutInstitutionInput = {
   id?: string
+  userId: string
   associationId: string
   courseCode: string
   title: string
@@ -935,32 +1247,42 @@ export type VaultItemUncheckedCreateWithoutUserInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
 }
 
-export type VaultItemCreateOrConnectWithoutUserInput = {
+export type VaultItemCreateOrConnectWithoutInstitutionInput = {
   where: Prisma.VaultItemWhereUniqueInput
-  create: Prisma.XOR<Prisma.VaultItemCreateWithoutUserInput, Prisma.VaultItemUncheckedCreateWithoutUserInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput>
 }
 
-export type VaultItemCreateManyUserInputEnvelope = {
-  data: Prisma.VaultItemCreateManyUserInput | Prisma.VaultItemCreateManyUserInput[]
+export type VaultItemCreateManyInstitutionInputEnvelope = {
+  data: Prisma.VaultItemCreateManyInstitutionInput | Prisma.VaultItemCreateManyInstitutionInput[]
   skipDuplicates?: boolean
 }
 
-export type VaultItemUpsertWithWhereUniqueWithoutUserInput = {
+export type VaultItemUpsertWithWhereUniqueWithoutInstitutionInput = {
   where: Prisma.VaultItemWhereUniqueInput
-  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutUserInput, Prisma.VaultItemUncheckedUpdateWithoutUserInput>
-  create: Prisma.XOR<Prisma.VaultItemCreateWithoutUserInput, Prisma.VaultItemUncheckedCreateWithoutUserInput>
+  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutInstitutionInput, Prisma.VaultItemUncheckedUpdateWithoutInstitutionInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutInstitutionInput, Prisma.VaultItemUncheckedCreateWithoutInstitutionInput>
 }
 
-export type VaultItemUpdateWithWhereUniqueWithoutUserInput = {
+export type VaultItemUpdateWithWhereUniqueWithoutInstitutionInput = {
   where: Prisma.VaultItemWhereUniqueInput
-  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutUserInput, Prisma.VaultItemUncheckedUpdateWithoutUserInput>
+  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutInstitutionInput, Prisma.VaultItemUncheckedUpdateWithoutInstitutionInput>
 }
 
-export type VaultItemUpdateManyWithWhereWithoutUserInput = {
+export type VaultItemUpdateManyWithWhereWithoutInstitutionInput = {
   where: Prisma.VaultItemScalarWhereInput
-  data: Prisma.XOR<Prisma.VaultItemUpdateManyMutationInput, Prisma.VaultItemUncheckedUpdateManyWithoutUserInput>
+  data: Prisma.XOR<Prisma.VaultItemUpdateManyMutationInput, Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionInput>
 }
 
 export type VaultItemScalarWhereInput = {
@@ -991,6 +1313,114 @@ export type VaultItemScalarWhereInput = {
   deletedAt?: Prisma.DateTimeNullableFilter<"VaultItem"> | Date | string | null
   level?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   session?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  institutionId?: Prisma.UuidNullableFilter<"VaultItem"> | string | null
+  faculty?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  department?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  courseTitle?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  description?: Prisma.StringNullableFilter<"VaultItem"> | string | null
+  opens?: Prisma.IntFilter<"VaultItem"> | number
+  savesCount?: Prisma.IntFilter<"VaultItem"> | number
+  hidden?: Prisma.BoolFilter<"VaultItem"> | boolean
+}
+
+export type VaultItemCreateWithoutUserInput = {
+  id?: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemUncheckedCreateWithoutUserInput = {
+  id?: string
+  associationId: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemCreateOrConnectWithoutUserInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutUserInput, Prisma.VaultItemUncheckedCreateWithoutUserInput>
+}
+
+export type VaultItemCreateManyUserInputEnvelope = {
+  data: Prisma.VaultItemCreateManyUserInput | Prisma.VaultItemCreateManyUserInput[]
+  skipDuplicates?: boolean
+}
+
+export type VaultItemUpsertWithWhereUniqueWithoutUserInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutUserInput, Prisma.VaultItemUncheckedUpdateWithoutUserInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutUserInput, Prisma.VaultItemUncheckedCreateWithoutUserInput>
+}
+
+export type VaultItemUpdateWithWhereUniqueWithoutUserInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutUserInput, Prisma.VaultItemUncheckedUpdateWithoutUserInput>
+}
+
+export type VaultItemUpdateManyWithWhereWithoutUserInput = {
+  where: Prisma.VaultItemScalarWhereInput
+  data: Prisma.XOR<Prisma.VaultItemUpdateManyMutationInput, Prisma.VaultItemUncheckedUpdateManyWithoutUserInput>
 }
 
 export type VaultItemCreateWithoutAssociationInput = {
@@ -1016,7 +1446,18 @@ export type VaultItemCreateWithoutAssociationInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
   user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
 }
 
 export type VaultItemUncheckedCreateWithoutAssociationInput = {
@@ -1043,6 +1484,17 @@ export type VaultItemUncheckedCreateWithoutAssociationInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
 }
 
 export type VaultItemCreateOrConnectWithoutAssociationInput = {
@@ -1071,6 +1523,640 @@ export type VaultItemUpdateManyWithWhereWithoutAssociationInput = {
   data: Prisma.XOR<Prisma.VaultItemUpdateManyMutationInput, Prisma.VaultItemUncheckedUpdateManyWithoutAssociationInput>
 }
 
+export type VaultItemCreateWithoutLibrarySavesInput = {
+  id?: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
+  association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemUncheckedCreateWithoutLibrarySavesInput = {
+  id?: string
+  userId: string
+  associationId: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemCreateOrConnectWithoutLibrarySavesInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedCreateWithoutLibrarySavesInput>
+}
+
+export type VaultItemUpsertWithoutLibrarySavesInput = {
+  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedUpdateWithoutLibrarySavesInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedCreateWithoutLibrarySavesInput>
+  where?: Prisma.VaultItemWhereInput
+}
+
+export type VaultItemUpdateToOneWithWhereWithoutLibrarySavesInput = {
+  where?: Prisma.VaultItemWhereInput
+  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibrarySavesInput, Prisma.VaultItemUncheckedUpdateWithoutLibrarySavesInput>
+}
+
+export type VaultItemUpdateWithoutLibrarySavesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
+  association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemUncheckedUpdateWithoutLibrarySavesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemCreateWithoutLibraryViewsInput = {
+  id?: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
+  association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemUncheckedCreateWithoutLibraryViewsInput = {
+  id?: string
+  userId: string
+  associationId: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemCreateOrConnectWithoutLibraryViewsInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryViewsInput>
+}
+
+export type VaultItemUpsertWithoutLibraryViewsInput = {
+  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedUpdateWithoutLibraryViewsInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryViewsInput>
+  where?: Prisma.VaultItemWhereInput
+}
+
+export type VaultItemUpdateToOneWithWhereWithoutLibraryViewsInput = {
+  where?: Prisma.VaultItemWhereInput
+  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibraryViewsInput, Prisma.VaultItemUncheckedUpdateWithoutLibraryViewsInput>
+}
+
+export type VaultItemUpdateWithoutLibraryViewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
+  association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemUncheckedUpdateWithoutLibraryViewsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemCreateWithoutLibraryReportsInput = {
+  id?: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  user: Prisma.UserCreateNestedOneWithoutVaultItemsInput
+  association: Prisma.AssociationCreateNestedOneWithoutVaultItemsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutVaultItemsInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemUncheckedCreateWithoutLibraryReportsInput = {
+  id?: string
+  userId: string
+  associationId: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutVaultItemInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutVaultItemInput
+}
+
+export type VaultItemCreateOrConnectWithoutLibraryReportsInput = {
+  where: Prisma.VaultItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryReportsInput>
+}
+
+export type VaultItemUpsertWithoutLibraryReportsInput = {
+  update: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedUpdateWithoutLibraryReportsInput>
+  create: Prisma.XOR<Prisma.VaultItemCreateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedCreateWithoutLibraryReportsInput>
+  where?: Prisma.VaultItemWhereInput
+}
+
+export type VaultItemUpdateToOneWithWhereWithoutLibraryReportsInput = {
+  where?: Prisma.VaultItemWhereInput
+  data: Prisma.XOR<Prisma.VaultItemUpdateWithoutLibraryReportsInput, Prisma.VaultItemUncheckedUpdateWithoutLibraryReportsInput>
+}
+
+export type VaultItemUpdateWithoutLibraryReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
+  association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemUncheckedUpdateWithoutLibraryReportsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemCreateManyInstitutionInput = {
+  id?: string
+  userId: string
+  associationId: string
+  courseCode: string
+  title: string
+  type?: $Enums.VaultItemType
+  visibility?: $Enums.VaultVisibility
+  storageRef: string
+  companionRef?: string | null
+  originalName: string
+  mimeType: string
+  sizeBytes: number
+  companionSizeBytes?: number | null
+  companionMimeType?: string | null
+  moderationStatus?: $Enums.ModerationStatus
+  rejectionReason?: string | null
+  reviewedByAdmin?: string | null
+  reviewedAt?: Date | string | null
+  downloads?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  level?: string | null
+  session?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
+}
+
+export type VaultItemUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
+  association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemUncheckedUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
+}
+
+export type VaultItemUncheckedUpdateManyWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  associationId?: Prisma.StringFieldUpdateOperationsInput | string
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumVaultItemTypeFieldUpdateOperationsInput | $Enums.VaultItemType
+  visibility?: Prisma.EnumVaultVisibilityFieldUpdateOperationsInput | $Enums.VaultVisibility
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  companionRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalName?: Prisma.StringFieldUpdateOperationsInput | string
+  mimeType?: Prisma.StringFieldUpdateOperationsInput | string
+  sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  rejectionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedByAdmin?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  downloads?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
 export type VaultItemCreateManyUserInput = {
   id?: string
   associationId: string
@@ -1095,6 +2181,14 @@ export type VaultItemCreateManyUserInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
 }
 
 export type VaultItemUpdateWithoutUserInput = {
@@ -1120,7 +2214,18 @@ export type VaultItemUpdateWithoutUserInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   association?: Prisma.AssociationUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemUncheckedUpdateWithoutUserInput = {
@@ -1147,6 +2252,17 @@ export type VaultItemUncheckedUpdateWithoutUserInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemUncheckedUpdateManyWithoutUserInput = {
@@ -1173,6 +2289,14 @@ export type VaultItemUncheckedUpdateManyWithoutUserInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type VaultItemCreateManyAssociationInput = {
@@ -1199,6 +2323,14 @@ export type VaultItemCreateManyAssociationInput = {
   deletedAt?: Date | string | null
   level?: string | null
   session?: string | null
+  institutionId?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseTitle?: string | null
+  description?: string | null
+  opens?: number
+  savesCount?: number
+  hidden?: boolean
 }
 
 export type VaultItemUpdateWithoutAssociationInput = {
@@ -1224,7 +2356,18 @@ export type VaultItemUpdateWithoutAssociationInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutVaultItemsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutVaultItemsNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemUncheckedUpdateWithoutAssociationInput = {
@@ -1251,6 +2394,17 @@ export type VaultItemUncheckedUpdateWithoutAssociationInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutVaultItemNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutVaultItemNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutVaultItemNestedInput
 }
 
 export type VaultItemUncheckedUpdateManyWithoutAssociationInput = {
@@ -1277,8 +2431,63 @@ export type VaultItemUncheckedUpdateManyWithoutAssociationInput = {
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   session?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  opens?: Prisma.IntFieldUpdateOperationsInput | number
+  savesCount?: Prisma.IntFieldUpdateOperationsInput | number
+  hidden?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
+
+/**
+ * Count Type VaultItemCountOutputType
+ */
+
+export type VaultItemCountOutputType = {
+  libraryViews: number
+  librarySaves: number
+  libraryReports: number
+}
+
+export type VaultItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  libraryViews?: boolean | VaultItemCountOutputTypeCountLibraryViewsArgs
+  librarySaves?: boolean | VaultItemCountOutputTypeCountLibrarySavesArgs
+  libraryReports?: boolean | VaultItemCountOutputTypeCountLibraryReportsArgs
+}
+
+/**
+ * VaultItemCountOutputType without action
+ */
+export type VaultItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VaultItemCountOutputType
+   */
+  select?: Prisma.VaultItemCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * VaultItemCountOutputType without action
+ */
+export type VaultItemCountOutputTypeCountLibraryViewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryViewWhereInput
+}
+
+/**
+ * VaultItemCountOutputType without action
+ */
+export type VaultItemCountOutputTypeCountLibrarySavesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibrarySaveWhereInput
+}
+
+/**
+ * VaultItemCountOutputType without action
+ */
+export type VaultItemCountOutputTypeCountLibraryReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryReportWhereInput
+}
 
 
 export type VaultItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1306,8 +2515,21 @@ export type VaultItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   deletedAt?: boolean
   level?: boolean
   session?: boolean
+  institutionId?: boolean
+  faculty?: boolean
+  department?: boolean
+  courseTitle?: boolean
+  description?: boolean
+  opens?: boolean
+  savesCount?: boolean
+  hidden?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
+  libraryViews?: boolean | Prisma.VaultItem$libraryViewsArgs<ExtArgs>
+  librarySaves?: boolean | Prisma.VaultItem$librarySavesArgs<ExtArgs>
+  libraryReports?: boolean | Prisma.VaultItem$libraryReportsArgs<ExtArgs>
+  _count?: boolean | Prisma.VaultItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
 
 export type VaultItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1335,8 +2557,17 @@ export type VaultItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   deletedAt?: boolean
   level?: boolean
   session?: boolean
+  institutionId?: boolean
+  faculty?: boolean
+  department?: boolean
+  courseTitle?: boolean
+  description?: boolean
+  opens?: boolean
+  savesCount?: boolean
+  hidden?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
 
 export type VaultItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1364,8 +2595,17 @@ export type VaultItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   deletedAt?: boolean
   level?: boolean
   session?: boolean
+  institutionId?: boolean
+  faculty?: boolean
+  department?: boolean
+  courseTitle?: boolean
+  description?: boolean
+  opens?: boolean
+  savesCount?: boolean
+  hidden?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["vaultItem"]>
 
 export type VaultItemSelectScalar = {
@@ -1393,20 +2633,35 @@ export type VaultItemSelectScalar = {
   deletedAt?: boolean
   level?: boolean
   session?: boolean
+  institutionId?: boolean
+  faculty?: boolean
+  department?: boolean
+  courseTitle?: boolean
+  description?: boolean
+  opens?: boolean
+  savesCount?: boolean
+  hidden?: boolean
 }
 
-export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt" | "level" | "session", ExtArgs["result"]["vaultItem"]>
+export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt" | "level" | "session" | "institutionId" | "faculty" | "department" | "courseTitle" | "description" | "opens" | "savesCount" | "hidden", ExtArgs["result"]["vaultItem"]>
 export type VaultItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
+  libraryViews?: boolean | Prisma.VaultItem$libraryViewsArgs<ExtArgs>
+  librarySaves?: boolean | Prisma.VaultItem$librarySavesArgs<ExtArgs>
+  libraryReports?: boolean | Prisma.VaultItem$libraryReportsArgs<ExtArgs>
+  _count?: boolean | Prisma.VaultItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VaultItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
 }
 export type VaultItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
+  institution?: boolean | Prisma.VaultItem$institutionArgs<ExtArgs>
 }
 
 export type $VaultItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1414,6 +2669,10 @@ export type $VaultItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     association: Prisma.$AssociationPayload<ExtArgs>
+    institution: Prisma.$InstitutionPayload<ExtArgs> | null
+    libraryViews: Prisma.$LibraryViewPayload<ExtArgs>[]
+    librarySaves: Prisma.$LibrarySavePayload<ExtArgs>[]
+    libraryReports: Prisma.$LibraryReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1440,6 +2699,14 @@ export type $VaultItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     deletedAt: Date | null
     level: string | null
     session: string | null
+    institutionId: string | null
+    faculty: string | null
+    department: string | null
+    courseTitle: string | null
+    description: string | null
+    opens: number
+    savesCount: number
+    hidden: boolean
   }, ExtArgs["result"]["vaultItem"]>
   composites: {}
 }
@@ -1836,6 +3103,10 @@ export interface Prisma__VaultItemClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   association<T extends Prisma.AssociationDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AssociationDefaultArgs<ExtArgs>>): Prisma.Prisma__AssociationClient<runtime.Types.Result.GetResult<Prisma.$AssociationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  institution<T extends Prisma.VaultItem$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VaultItem$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  libraryViews<T extends Prisma.VaultItem$libraryViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VaultItem$libraryViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  librarySaves<T extends Prisma.VaultItem$librarySavesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VaultItem$librarySavesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibrarySavePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  libraryReports<T extends Prisma.VaultItem$libraryReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VaultItem$libraryReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1889,6 +3160,14 @@ export interface VaultItemFieldRefs {
   readonly deletedAt: Prisma.FieldRef<"VaultItem", 'DateTime'>
   readonly level: Prisma.FieldRef<"VaultItem", 'String'>
   readonly session: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly institutionId: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly faculty: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly department: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly courseTitle: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly description: Prisma.FieldRef<"VaultItem", 'String'>
+  readonly opens: Prisma.FieldRef<"VaultItem", 'Int'>
+  readonly savesCount: Prisma.FieldRef<"VaultItem", 'Int'>
+  readonly hidden: Prisma.FieldRef<"VaultItem", 'Boolean'>
 }
     
 
@@ -2287,6 +3566,97 @@ export type VaultItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Limit how many VaultItems to delete.
    */
   limit?: number
+}
+
+/**
+ * VaultItem.institution
+ */
+export type VaultItem$institutionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Institution
+   */
+  select?: Prisma.InstitutionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Institution
+   */
+  omit?: Prisma.InstitutionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InstitutionInclude<ExtArgs> | null
+  where?: Prisma.InstitutionWhereInput
+}
+
+/**
+ * VaultItem.libraryViews
+ */
+export type VaultItem$libraryViewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryView
+   */
+  select?: Prisma.LibraryViewSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryView
+   */
+  omit?: Prisma.LibraryViewOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryViewInclude<ExtArgs> | null
+  where?: Prisma.LibraryViewWhereInput
+  orderBy?: Prisma.LibraryViewOrderByWithRelationInput | Prisma.LibraryViewOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryViewWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryViewScalarFieldEnum | Prisma.LibraryViewScalarFieldEnum[]
+}
+
+/**
+ * VaultItem.librarySaves
+ */
+export type VaultItem$librarySavesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySave
+   */
+  select?: Prisma.LibrarySaveSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibrarySave
+   */
+  omit?: Prisma.LibrarySaveOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibrarySaveInclude<ExtArgs> | null
+  where?: Prisma.LibrarySaveWhereInput
+  orderBy?: Prisma.LibrarySaveOrderByWithRelationInput | Prisma.LibrarySaveOrderByWithRelationInput[]
+  cursor?: Prisma.LibrarySaveWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibrarySaveScalarFieldEnum | Prisma.LibrarySaveScalarFieldEnum[]
+}
+
+/**
+ * VaultItem.libraryReports
+ */
+export type VaultItem$libraryReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryReport
+   */
+  select?: Prisma.LibraryReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryReport
+   */
+  omit?: Prisma.LibraryReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryReportInclude<ExtArgs> | null
+  where?: Prisma.LibraryReportWhereInput
+  orderBy?: Prisma.LibraryReportOrderByWithRelationInput | Prisma.LibraryReportOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryReportScalarFieldEnum | Prisma.LibraryReportScalarFieldEnum[]
 }
 
 /**

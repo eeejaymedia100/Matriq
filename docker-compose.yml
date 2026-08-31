@@ -81,6 +81,19 @@ services:
       - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
       - NVIDIA_MODEL=${NVIDIA_MODEL:-meta/llama-3.2-11b-vision-instruct}
       - AI_CACHE_TTL_HOURS=${AI_CACHE_TTL_HOURS:-24}
+      # DeepSeek — PRIMARY cloud AI (Premium Focus Mode + general-chat fallback).
+      # Server-side secret only; never shipped to the mobile app.
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
+      - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
+      - DEEPSEEK_TIMEOUT_MS=${DEEPSEEK_TIMEOUT_MS:-45000}
+      - DEEPSEEK_INPUT_PRICE_USD_PER_M=${DEEPSEEK_INPUT_PRICE_USD_PER_M:-0.27}
+      - DEEPSEEK_OUTPUT_PRICE_USD_PER_M=${DEEPSEEK_OUTPUT_PRICE_USD_PER_M:-1.10}
+      # Cloud Focus Mode (Magic Plus) limits
+      - FOCUS_FREE_ALLOWANCE=${FOCUS_FREE_ALLOWANCE:-10}
+      - FOCUS_DAILY_LIMIT=${FOCUS_DAILY_LIMIT:-25}
+      - FOCUS_CACHE_TTL_HOURS=${FOCUS_CACHE_TTL_HOURS:-48}
+      - FOCUS_FALLBACK_TIMEOUT_MS=${FOCUS_FALLBACK_TIMEOUT_MS:-45000}
     expose:
       - "3000" # internal only — caddy routes via Docker network
     networks:

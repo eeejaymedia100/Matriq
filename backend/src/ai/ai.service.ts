@@ -269,26 +269,34 @@ export class AiService {
       }
       const reason = err instanceof Error ? err.message : "unknown error";
       this.logger.warn(`Ollama call failed: ${reason}`);
-      // Free cloud fallbacks, in order: NVIDIA NIM (hosted, OpenAI-compatible)
-      // → Gemini. Still fails softly to the grounded placeholder if both
-      // hosted APIs are also unavailable.
+      // Cloud fallbacks, in order: DeepSeek (primary) → NVIDIA NIM → Gemini.
+      // Still fails softly to the grounded placeholder only if all three are
+      // unavailable.
       try {
-        response = await this.generateFromNvidia(dto.query, relevantDocs);
-        this.logger.log(`AI query from user ${userId}: answered via NVIDIA NIM`);
-      } catch (nvidiaErr) {
+        response = await this.generateFromDeepSeek(dto.query, relevantDocs);
+        this.logger.log(`AI query from user ${userId}: answered via DeepSeek`);
+      } catch (deepseekErr) {
         this.logger.warn(
-          `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
+          `DeepSeek fallback failed: ${deepseekErr instanceof Error ? deepseekErr.message : String(deepseekErr)}`,
         );
         try {
-          response = await this.generateFromGemini(dto.query, relevantDocs);
-          this.logger.log(`AI query from user ${userId}: answered via Gemini`);
-        } catch (geminiErr) {
-          const geminiReason =
-            geminiErr instanceof Error ? geminiErr.message : "unknown error";
+          response = await this.generateFromNvidia(dto.query, relevantDocs);
+          this.logger.log(`AI query from user ${userId}: answered via NVIDIA NIM`);
+        } catch (nvidiaErr) {
           this.logger.warn(
-            `Gemini fallback failed, using placeholder: ${geminiReason}`,
+            `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
           );
-          response = this.buildFallbackResponse(dto.query, relevantDocs);
+          try {
+            response = await this.generateFromGemini(dto.query, relevantDocs);
+            this.logger.log(`AI query from user ${userId}: answered via Gemini`);
+          } catch (geminiErr) {
+            const geminiReason =
+              geminiErr instanceof Error ? geminiErr.message : "unknown error";
+            this.logger.warn(
+              `Gemini fallback failed, using placeholder: ${geminiReason}`,
+            );
+            response = this.buildFallbackResponse(dto.query, relevantDocs);
+          }
         }
       }
     }
@@ -386,17 +394,24 @@ export class AiService {
         if (fallbackErr instanceof ServiceUnavailableException) {
           throw fallbackErr;
         }
-        // NVIDIA NIM (hosted) → Gemini → grounded placeholder.
+        // Cloud fallbacks: DeepSeek (primary) → NVIDIA NIM → Gemini → placeholder.
         try {
-          response = await this.generateFromNvidia(dto.query, relevantDocs);
-        } catch (nvidiaErr) {
+          response = await this.generateFromDeepSeek(dto.query, relevantDocs);
+        } catch (deepseekErr) {
           this.logger.warn(
-            `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
+            `DeepSeek stream fallback failed: ${deepseekErr instanceof Error ? deepseekErr.message : String(deepseekErr)}`,
           );
           try {
-            response = await this.generateFromGemini(dto.query, relevantDocs);
-          } catch {
-            response = this.buildFallbackResponse(dto.query, relevantDocs);
+            response = await this.generateFromNvidia(dto.query, relevantDocs);
+          } catch (nvidiaErr) {
+            this.logger.warn(
+              `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
+            );
+            try {
+              response = await this.generateFromGemini(dto.query, relevantDocs);
+            } catch {
+              response = this.buildFallbackResponse(dto.query, relevantDocs);
+            }
           }
         }
       }
@@ -741,6 +756,60 @@ Make sure answerIndex points at the correct option and options are plausible.
     };
     const text = data.choices?.[0]?.message?.content ?? "";
     if (!text.trim()) throw new Error("NVIDIA NIM returned an empty response");
+    return this.sanitize(text);
+  }
+
+  private get deepseekKey(): string | undefined {
+    return process.env.DEEPSEEK_API_KEY?.trim() || undefined;
+  }
+  private get deepseekModel(): string {
+    return process.env.DEEPSEEK_MODEL?.trim() || "deepseek-chat";
+  }
+  private get deepseekBaseUrl(): string {
+    return (
+      process.env.DEEPSEEK_BASE_URL?.trim() || "https://api.deepseek.com"
+    ).replace(/\/+$/, "");
+  }
+
+  /**
+   * Chat fallback via DeepSeek — the PRIMARY cloud provider. OpenAI-
+   * compatible chat completions, server-side key only. Throws on any failure
+   * so the caller can fall back to NVIDIA NIM, then Gemini, then the
+   * placeholder.
+   */
+  private async generateFromDeepSeek(
+    query: string,
+    relevantDocs: RelevantDoc[],
+  ): Promise<string> {
+    const key = this.deepseekKey;
+    if (!key) throw new Error("DeepSeek not configured");
+
+    const { systemPrompt, userPrompt } = this.buildPrompts(query, relevantDocs);
+
+    const res = await fetch(`${this.deepseekBaseUrl}/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        model: this.deepseekModel,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.6,
+        max_tokens: 1024,
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    if (!res.ok) throw new Error(`DeepSeek HTTP ${res.status}`);
+
+    const data = (await res.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const text = data.choices?.[0]?.message?.content ?? "";
+    if (!text.trim()) throw new Error("DeepSeek returned an empty response");
     return this.sanitize(text);
   }
 

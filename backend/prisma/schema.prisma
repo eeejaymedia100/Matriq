@@ -85,6 +85,21 @@ enum VaultVisibility {
   private
 }
 
+// Lifecycle of a student report against a public library document.
+enum ReportStatus {
+  open
+  resolved
+  dismissed
+}
+
+// Which report categories a student can choose when flagging a resource.
+enum ReportReason {
+  inappropriate
+  irrelevant
+  duplicate
+  incorrectly_categorized
+}
+
 enum InstitutionType {
   university
   polytechnic
@@ -105,9 +120,10 @@ model Institution {
   state      String?         // e.g. "Lagos", "Oyo"
   createdAt  DateTime        @default(now()) @map("created_at")
 
-  faculties  Faculty[]
-  users      User[]
+  faculties    Faculty[]
+  users        User[]
   associations Association[]
+  vaultItems   VaultItem[]
 
   @@map("institutions")
 }
@@ -193,6 +209,12 @@ model User {
   vaultItems            VaultItem[]
   notifications         Notification[]
   institution   Institution?           @relation(fields: [institutionId], references: [id])
+  entitlements          MagicPlusEntitlement?
+  focusSessions         FocusModeSession[]
+  focusUsage            FocusModeUsage[]
+  librarySaves          LibrarySave[]
+  libraryViews          LibraryView[]
+  libraryReports        LibraryReport[]
 
   @@map("users")
 }
@@ -533,17 +555,115 @@ model VaultItem {
   // material targets (e.g. "100") and the academic session (e.g. "2023/2024").
   level             String?         @map("level")
   session           String?         @map("session")
+  // ── Netflix-style library metadata ─────────────────────────────
+  // Cross-institution discovery fields (mirror the uploader's profile so the
+  // resource can be surfaced by institution/faculty/department regardless of
+  // which association it was uploaded under). courseTitle lets search match
+  // the human course name, not just the code.
+  institutionId     String?         @map("institution_id") @db.Uuid
+  faculty           String?         @map("faculty")
+  department        String?         @map("department")
+  courseTitle       String?         @map("course_title")
+  description       String?         @map("description")
+  // Public interactions (deduped, see LibraryView/LibrarySave) — kept on the
+  // row as denormalised counters for cheap ordering in the popular/trending
+  // queries without a GROUP BY every time.
+  opens             Int             @default(0) // cumulative (view tracked once/day per user)
+  savesCount        Int             @default(0) @map("saves_count")
+  // Moderation states beyond the shared enum: active (approved), hidden
+  // (removed from discovery after a report/flag), removed (soft-deleted).
+  hidden            Boolean         @default(false) @map("hidden")
 
   // Relations
   user        User        @relation(fields: [userId], references: [id])
   association Association @relation(fields: [associationId], references: [id])
+  institution Institution? @relation(fields: [institutionId], references: [id])
+  libraryViews    LibraryView[]
+  librarySaves    LibrarySave[]
+  libraryReports  LibraryReport[]
 
   @@index([associationId, courseCode])
   @@index([associationId, courseCode, level])
   @@index([courseCode])
   @@index([moderationStatus, visibility])
   @@index([userId])
+  // Discovery indexes: public/active filters + cross-institution browse rows.
+  @@index([moderationStatus, visibility, hidden, opens])
+  @@index([visibility, moderationStatus, createdAt])
+  @@index([institutionId, moderationStatus, visibility])
+  @@index([faculty, department])
   @@map("vault_items")
+}
+
+// ── Academic library ("Netflix for Students") ──────────────────
+// Discovery / activity layers on top of the shared VaultItem document store.
+// Files stay in object storage with metadata + permissions in the DB; these
+// tables track per-student activity (all private to the student): recent
+// reading with resume position, saved/bookmarked documents, and public-
+// resource reports feed into moderation.
+
+// Saved/bookmarked public document (never duplicates the original file — it's
+// a reference so the student can find it again quickly). Private to the user.
+model LibrarySave {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  vaultItemId String  @map("vault_item_id") @db.Uuid
+  savedAt    DateTime @default(now()) @map("saved_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vaultItemId])
+  @@index([userId])
+  @@index([vaultItemId])
+  @@map("library_saves")
+}
+
+// Per-student reading activity: a resume position (where in the doc they
+// stopped) + cumulative opens. Used for "Continue Reading" and lightweight-
+// but-genuine popularity (one open counted per user per day keeps the counters
+// from being inflated by a single student re-opening a file repeatedly).
+model LibraryView {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  vaultItemId String   @map("vault_item_id") @db.Uuid
+  lastViewedAt DateTime @default(now()) @map("last_viewed_at")
+  // Opaque resume marker the client persists per document (e.g. scroll offset
+  // or last-visible text anchor) so Continue Reading can jump back.
+  position    String?  @map("position")
+  progress    Float?   @default(0) // 0..1 fraction of the doc considered read
+  opens       Int      @default(1) // daily-deduplicated open counter
+  lastOpenDay String?  @map("last_open_day") // YYYY-MM-DD utc, for dedup
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, vaultItemId])
+  @@index([userId, lastViewedAt])
+  @@index([vaultItemId])
+  @@map("library_views")
+}
+
+// A student's flagged report against a public resource. Opens a moderation
+// row; admins resolve (content action) or dismiss (bad report). Reported
+// documents can be hidden from discovery while under review if serious.
+model LibraryReport {
+  id            String       @id @default(uuid()) @db.Uuid
+  vaultItemId   String       @map("vault_item_id") @db.Uuid
+  reporterUserId String      @map("reporter_user_id") @db.Uuid
+  reason        ReportReason @map("reason")
+  details       String?      @map("details") // free-text context, optional
+  status        ReportStatus @default(open) @map("status")
+  resolvedAt    DateTime?    @map("resolved_at")
+  resolvedByAdmin String?    @map("resolved_by_admin") @db.Uuid
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
+  reporter  User      @relation(fields: [reporterUserId], references: [id], onDelete: Cascade)
+
+  @@index([vaultItemId, status])
+  @@index([reporterUserId])
+  @@map("library_reports")
 }
 
 // ── In-app notification feed (round-2 QA §9) ─────────────────────
@@ -631,6 +751,91 @@ model WaitlistEntry {
   @@index([status])
   @@index([createdAt])
   @@map("waitlist_entries")
+}
+
+// ── Magic Plus entitlements ────────────────────────────────────
+// The backend is the AUTHORITY for premium access. A client-side flag is never
+// trusted as proof of paid cloud usage; every premium (cloud-AI) request is
+// authorised here. One row per user. `source` records how the entitlement was
+// granted (free_allowance / subscription / pass / grant) so it can be revoked
+// or migrated when real payment providers ship. Extended later with per-plan
+// quotas / fair-use policies without changing callers.
+model MagicPlusEntitlement {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @unique @map("user_id") @db.Uuid
+  plan       String   @default("magic_plus")
+  status     String   @default("active") // active | suspended | expired | cancelled
+  source     String   @default("free_allowance") // free_allowance | subscription | pass | grant
+  // Every new user gets a starter allowance of free cloud Focus Mode
+  // generations before Magic Plus is required. Both fields are configurable
+  // (the default mirrors FOCUS_FREE_ALLOWANCE; a subscription sets an
+  // unlimited/very large number for the paid path).
+  freeGenerationLimit Int  @default(10) @map("free_generation_limit")
+  freeGenerationsUsed Int  @default(0) @map("free_generations_used")
+  startedAt           DateTime @default(now()) @map("started_at")
+  expiresAt           DateTime? @map("expires_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("magic_plus_entitlements")
+}
+
+// ── Cloud Focus Mode ───────────────────────────────────────────
+// A validated, structured, academic concept map generated by a cloud LLM
+// (DeepSeek primary with NVIDIA/Gemini fallbacks — all server-side secrets).
+// Only safe, reusable academic content is cached; the map is stored once per
+// (user, normalized-topic, prompt/model version) and identical topics hit the
+// cache rather than re-paying for a second model call.
+model FocusModeSession {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  topic         String
+  topicHash     String   @map("topic_hash")
+  conceptMap    Json     @map("concept_map") // validated Focus Map v1
+  promptVersion Int      @default(1) @map("prompt_version")
+  provider      String   @default("deepseek")
+  model         String
+  fromCache     Boolean  @default(false) @map("from_cache")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([topicHash])
+  @@map("focus_mode_sessions")
+}
+
+// ── Cloud Focus Mode usage / economics ─────────────────────────
+// One row per cloud Focus Mode request so Matriq can measure the real cost of
+// the feature before scaling: tokens, latency, provider, model and an
+// estimated cost in micro-dollars. Populated for both generation and
+// per-concept expansion so per-user abuse limits and unit economics are
+// auditable.
+model FocusModeUsage {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  sessionId        String?  @map("session_id") @db.Uuid
+  operation        String   @default("generate") // generate | expand
+  provider         String   @default("deepseek")
+  model            String
+  promptVersion    Int      @default(1) @map("prompt_version")
+  promptTokens     Int      @default(0) @map("prompt_tokens")
+  completionTokens Int      @default(0) @map("completion_tokens")
+  totalTokens      Int      @default(0) @map("total_tokens")
+  latencyMs        Int      @default(0) @map("latency_ms")
+  estimatedCostMicros Int  @default(0) @map("estimated_cost_micros")
+  cached           Boolean  @default(false)
+  error            Boolean  @default(false)
+  errorKind        String?  @map("error_kind") // timeout | provider | schema | malformed_json | empty
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("focus_mode_usage")
 }
 
 // ── Refresh token rotation ──────────────────────────────────────

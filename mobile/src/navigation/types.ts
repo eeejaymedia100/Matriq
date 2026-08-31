@@ -55,4 +55,15 @@ export type MainStackParamList = {
   };
   Ocr: undefined;
   ImageToPdf: undefined;
+  /** Academic Library (Netflix-for-Students discovery). */
+  Library: undefined;
+  LibrarySearch: undefined;
+  LibrarySaved: undefined;
+  LibraryDetail: {
+    itemId: string;
+    title: string;
+    courseCode: string;
+    continuePosition?: string | null;
+    continueProgress?: number | null;
+  };
 };

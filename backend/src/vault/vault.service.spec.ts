@@ -48,6 +48,13 @@ describe("VaultService", () => {
           { associationId: "assoc-2" },
         ]),
     },
+    user: {
+      findUnique: jest.fn().mockResolvedValue({
+        institutionId: "inst-1",
+        faculty: "Science",
+        department: "Chemistry",
+      }),
+    },
     vaultItem: {
       findMany: jest.fn().mockResolvedValue([mockItem]),
       findUnique: jest.fn().mockResolvedValue(mockItem),

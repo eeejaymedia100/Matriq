@@ -63,6 +63,12 @@ import { PasscodeSetupScreen } from "../screens/auth/PasscodeSetupScreen";
 import { PasscodeUnlockScreen } from "../screens/auth/PasscodeUnlockScreen";
 import { hasPasscode, shouldRequirePasscode, markLastExit, markUnlocked, watchSessionExit } from "../utils/passcode";
 
+// Academic Library (Netflix-for-Students discovery)
+import { LibraryScreen } from "../screens/library/LibraryScreen";
+import { LibrarySearchScreen } from "../screens/library/LibrarySearchScreen";
+import { LibrarySavedScreen } from "../screens/library/LibrarySavedScreen";
+import { LibraryDetailScreen } from "../screens/library/LibraryDetailScreen";
+
 import { LiquidTabBar } from "./LiquidTabBar";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
@@ -174,6 +180,10 @@ function MainNavigator() {
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
       <MainStack.Screen name="FocusTimer" component={FocusTimerScreen} options={{ title: "Focus Timer" }} />
       <MainStack.Screen name="DeadlineTracker" component={DeadlineTrackerScreen} options={{ title: "Deadlines" }} />
+      <MainStack.Screen name="Library" component={LibraryScreen} options={{ title: "Academic Library" }} />
+      <MainStack.Screen name="LibrarySearch" component={LibrarySearchScreen} options={{ title: "Search the Library" }} />
+      <MainStack.Screen name="LibrarySaved" component={LibrarySavedScreen} options={{ title: "Saved" }} />
+      <MainStack.Screen name="LibraryDetail" component={LibraryDetailScreen} options={{ title: "Document" }} />
     </MainStack.Navigator>
   );
 }

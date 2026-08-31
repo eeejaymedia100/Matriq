@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -71,23 +71,28 @@ export function InstitutionCascadePicker({
 
   const [data, setData] = useState<CascadeData | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [target, setTarget] = useState<PickerTarget | null>(null);
   const [customInput, setCustomInput] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = useCallback(() => {
+    setLoading(true);
+    setLoadError(false);
     api
       .get<CascadeData>("/institutions/cascade")
       .then((d) => {
-        if (!cancelled) setData(d);
+        setData(d);
+        setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setLoadError(true);
+        setLoadError(true);
+        setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const selectedInstitution = useMemo(
     () => data?.institutions.find((i) => i.id === institutionId) ?? null,
@@ -426,9 +431,21 @@ export function InstitutionCascadePicker({
       <Text style={[styles.label, { color: colors.textSecondary }]}>School (Institution)</Text>
 
       {loadError ? (
-        <Text style={[theme.typography.bodySmall, { color: colors.error, marginBottom: 8 }]}>
-          Couldn't load the school list — you can still type your faculty and department below.
-        </Text>
+        <>
+          <Text style={[theme.typography.bodySmall, { color: colors.error, marginBottom: 8 }]}>
+            Couldn't load the school list — you can still type your faculty and department below.
+          </Text>
+          <Pressable onPress={load} style={{ alignSelf: "flex-start", marginBottom: 8 }} hitSlop={6}>
+            <Text
+              style={[
+                theme.typography.captionBold,
+                { color: colors.accent, textDecorationLine: "underline" },
+              ]}
+            >
+              Retry
+            </Text>
+          </Pressable>
+        </>
       ) : null}
 
       {row("institution")}
@@ -439,11 +456,29 @@ export function InstitutionCascadePicker({
         <Text style={[styles.hint, { color: colors.textMuted }]}>{hint}</Text>
       ) : null}
 
-      {!data && !loadError ? (
+      {loading && !data ? (
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 4 }}>
           <ActivityIndicator size="small" color={colors.textMuted} />
           <Text style={[theme.typography.bodySmall, { color: colors.textMuted }]}>
             Loading Nigerian institutions…
+          </Text>
+        </View>
+      ) : null}
+
+      {!loading && data && data.institutions.length === 0 ? (
+        <View
+          style={{
+            marginTop: 4,
+            padding: 10,
+            borderRadius: theme.radii.md,
+            backgroundColor: colors.surfaceAlt,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Text style={[theme.typography.bodySmall, { color: colors.textSecondary }]}>
+            No schools are loaded yet. You can still type your faculty and department below —
+            select any school or use the free-text boxes.
           </Text>
         </View>
       ) : null}

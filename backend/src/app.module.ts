@@ -15,6 +15,9 @@ import { DashboardModule } from "./dashboard/dashboard.module";
 import { AdminModule } from "./admin/admin.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { AiModule } from "./ai/ai.module";
+import { FocusModule } from "./focus/focus.module";
+import { LibraryModule } from "./library/library.module";
+import { EntitlementModule } from "./entitlement/entitlement.module";
 import { VerificationModule } from "./verification/verification.module";
 import { FeesModule } from "./fees/fees.module";
 import { VaultModule } from "./vault/vault.module";
@@ -57,6 +60,9 @@ import { EmailModule } from "./email/email.module";
     AdminModule,
     PaymentsModule,
     AiModule,
+    EntitlementModule,
+    FocusModule,
+    LibraryModule,
     VerificationModule,
     FeesModule,
     VaultModule,

@@ -4,6 +4,59 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-08-31 — Academic Library: Netflix-for-Students discovery layer (backend + mobile, shipped this round)
+
+**Status:** backend + mobile code DONE + verified (backend tsc clean, **189 tests green** (20 suites), mobile tsc clean). Shipped: committed, pushed, backend deployed on the VM (both new migrations applied), and the APK rebuilt + finalized so installed apps self-update in the background. See Next for the on-device pass.
+
+**Did (the "Netflix for Students" library, layered on the existing Vault/object-storage stack):**
+- **Backend `library/` module** — discovery that queries the DB, never downloads the catalog to the phone:
+  - `GET /v1/library/discovery` → only renders sections with real data: Popular Materials, Recently Added, From Your University, From Your Faculty/Department, Past Questions, Lecture Notes, Recommended For You, Continue Reading (personalized from views; private to the student).
+  - `GET /v1/library/search?q=&type=&universityId=&faculty=&department=&level=&semester=&page=` — paginated SQL search by title/course code/course title + filters (course-code-first, like the Vault).
+  - `GET /v1/library/:id` (details + description + related materials), `POST /v1/library/:id/save` + `DELETE` (bookmark without duplicating the file), `POST /v1/library/:id/view` (Continue Reading / last position + progress, private per student), `POST /v1/library/:id/report` (inappropriate/irrelevant/duplicate/miscategorized) → admin moderation queue (`active`/`hidden`/`removed`; hidden/removed never appear in search or discovery).
+  - **Popular/trending use genuine interactions** (views/saves weighted, per-user dedup) — **no DeepSeek, no AI** in recommendations; ranking is academic-metadata + real activity.
+  - **Signed MinIO URLs** (`StorageService.presignGet`/`presignPut`): large files transfer directly between the phone and object storage; the app server only authorizes + records metadata. Private items are unreachable by other users (ownership + visibility gates); cross-institution students can now read APPROVED public items (fixed the reader's school-scoped access check).
+  - **Uploads** (`POST /v1/vault` extended): explicit Private/Public choice (Public requires confirmation + Terms acceptance), metadata = title, document type, university (prefilled from profile, correctable), faculty, department, course code, course title, level, semester, description. Videos rejected; PDFs/images only; Image-to-PDF kept; Word/PDF-split/merge/compressor stay removed. Chunked upload already handled large files without loading them into JS memory.
+  - Migration `20260831000000_academic_library` (+ 3 discovery tables: LibrarySave/LibraryView/LibraryReport, all with indexes + FKs) + admin moderation endpoints (`GET/POST /v1/admin/library/reports`).
+- **Mobile `screens/library/`** — `LibraryScreen` (discovery sections as horizontal rows of document cards, entry from the Vault header "Discover" button), `LibrarySearchScreen` (search + filters + pagination + error/empty states), `LibrarySavedScreen` (bookmarked collection), `LibraryDetailScreen` (metadata, description, related, save/report, Continue Reading resume), `DocumentCard` (title, doc type, course code, institution context, size/level chips, thumbnail via type-aware preview — no generic icon for every doc). All routes registered in the navigator.
+- **Entitlement/security:** unchanged from the Focus round — Library endpoints are JWT-authenticated, reports are per-user rate-limited, and moderation status gates every public query.
+
+**Next (honest):**
+- On-device pass on the rebuilt APK: upload private → confirm it stays private; upload public with metadata → confirm it appears in discovery + search; search/filter; details; read + Continue Reading; save/bookmark; recommendations; report; pagination; dark mode; unauthorized access to private docs.
+- Seed the live library with real approved public materials (the corpus only grows as students publish; admin moderation queue is the funnel).
+- Watch the new tables grow — views/saves/reports are the popularity signals; no AI cost involved.
+
+## 2026-08-30 — Focus Mode is now cloud DeepSeek (Magic Plus) + entitlement foundation + institution seeding fix
+
+**Status:** backend code done + verified (typecheck clean, **174 tests green**, production build clean). Mobile integration done + typechecks clean. NOT deployed — needs the usual backend deploy (with the new migration) + APK rebuild on the VM. See Next for the honest gaps.
+
+**Did (the two big cross-cutting goals):**
+- **DeepSeek is now the AI provider powering Focus Mode** (`POST /v1/focus/*`), with NVIDIA NIM and Gemini as fallback. The DeepSeek key lives ONLY in backend env (`DEEPSEEK_API_KEY` in `backend/.env`, documented in `.env.example` + `docker-compose.yml`) — it never appears in the RN app, is not logged, and is not returned in any response. The app talks only to the Matriq backend.
+- **Structured, validated concept maps.** `focus.schema.ts` defines a stable schema (topic, overview, concepts with id/kind, parent links, summaries, details, importance, examples, prerequisites). The model must emit valid JSON; the backend validates, sanitizes, and falls back gracefully (JSON-tolerance + a linear-chain fallback so the workspace always renders). Staged architecture = initial request generates the overall map + core concepts; expanding an individual concept fetches details on demand (cheaper than giant essays).
+- **Magic Plus entitlement foundation** (`backend/src/entitlement/`): `EntitlementService` is the single backend authority for premium access. Every account gets **10 free Focus Mode uses** (`FocusModeUsage` tracks consumed uses); after that, Magic Plus only, returned as a clean retryable paywall error. Plans come from the DB (`MagicPlan`, seeded `PLUS`), so a future payment provider just grants a plan.
+- **Abuse protection + cost control:** per-user throttler + configurable daily cap (never one hot client draining the DeepSeek balance), server-side request validation, and a careful **cache of safe reusable topics** (normalized keys keyed with prompt+model version). Usage/cost tracking (tokens, latency, provider, est. cost) so the real economics are visible before scaling.
+- **Backend → mobile wiring:** `mobile/src/offline/focus.ts` gains a backend-map adapter; new `useEntitlement` hook; `FocusModeScreen` rewritten to call the backend, show top-up/paywall messaging when out of free uses, and render deterministically (no pixel positions from the model).
+- **Institution data root cause fixed:** the picker was correct but the 331-institution seed was only run manually — never imported into a fresh DB (compose only ran `prisma migrate deploy`). `prisma db seed` is now wired to `seed-institutions.ts` (idempotent upserts) in `backend/package.json`, so institutions/faculties/departments populate reproducibly. Picker also got offline/empty/retry UX.
+- **Audited (no change needed):** OCR → "Save as note" already persists via `upsertNote`; notes persistence solid.
+
+**Next (honest):**
+- Backend deploy on the VM: `scripts/deploy.sh` (runs the new migration `...0000_magic_plus_focus_mode`) + set `DEEPSEEK_API_KEY` + `DEEPSEEK_MODEL` in `docker-compose`. Seed institutions if the live DB predates this.
+- APK rebuild to ship `FocusModeScreen`.
+- **Real-device/provider verification I could NOT do here** (no API key wired, no device, no live DB): live end-to-end Focus Mode through DeepSeek (JSON quality on a real complex topic), the free-allowance counter (10), paywall gating for non-PLUS after 10 uses, provider-fallback on a DeepSeek outage, and the Android keyboard pass for the chat already opened separately above.
+
+## 2026-08-30 — Android keyboard: real window-resize for the AI chat (one strategy, no more pan hack)
+
+**Status:** code done + verified as far as this box allows (mobile tsc clean; native project regenerated with `adjustResize` in the manifest; debug APK builds). Still needs the usual on-device pass after the APK rebuild on the VM — see Next.
+
+**Did:**
+- **Root cause (confirmed in the generated manifest + RN 0.86 source):** Android was on `softwareKeyboardLayoutMode: "pan"` (→ `adjustPan`), so the OS pans the window when the IME shows instead of resizing it — the app layout keeps believing the full screen height is available and chat content sits underneath the keyboard. Worse, three competing systems were stacked on top of each other: the OS pan, a hand-rolled `useKeyboardHeight` padding hook inside `KeyboardScreen`, and a `keyboardDidShow → scrollToEnd` band-aid in the AI chat (whose own comment admitted the FlatList never resized).
+- **One strategy now, both platforms:** `app.json → android.softwareKeyboardLayoutMode: "resize"` (manifest `adjustResize` — applied through the managed Expo config, not a hand-edited manifest), and `KeyboardScreen` uses RN's `KeyboardAvoidingView` with `behavior="padding"`. The app is edge-to-edge (`edgeToEdgeEnabled=true`, Expo SDK 53+), where the OS never natively resizes the window and the IME arrives as an inset; the KAV pads its content by exactly that overlap, so the chat viewport genuinely shrinks to the space above the keyboard, the composer stays in the normal layout flow directly above it, the FlatList keeps scrolling inside the reduced area, and everything returns to full height when the keyboard hides. No absolute positioning, no per-screen hacks, no manual padding.
+- **Header offset automated:** `keyboardVerticalOffset` now comes from react-navigation's `HeaderHeightContext` (`@react-navigation/elements`, now a declared direct dependency), so screens with native headers get the exact offset on both platforms (a header sits above the KAV's frame, so without it the padding is short by exactly the header height) and headerless/passcode screens get 0. Dropped the hand-tuned iOS `90` offsets from the chat + Profile screens.
+- **Removed the scroll band-aid** from the AI chat — with a real resize it's unnecessary and it fought the user's scroll position while reading history. New/streaming messages still auto-scroll via `onContentSizeChange`.
+- **`ConfirmSheet`** (type-to-confirm inputs) now gets the same `padding` behavior on Android — it previously had no keyboard handling at all.
+
+**Next:**
+- VM: rebuild the APK (native change — `adjustResize` is baked into the manifest at build time) and do the on-device pass: AI chat with keyboard closed/opened, short + long multiline input, scrolling a long conversation with the keyboard open, long streaming AI answers, sending while the keyboard is open, dismissing/reopening the keyboard, then the regression screens (login, register, passcode setup/unlock, profile edit, vault upload, notes, other forms).
+
 ## 2026-08-26 — Round 3 QA: dark-mode layering, keyboard, photo upload, streak+badge, Focus Mode, AI talks, web offline AI
 
 **Status:** code done + verified locally (mobile tsc clean, web export green — llama.rn stays out of the web bundle). Not deployed; needs the usual APK rebuild on the VM + web redeploy.

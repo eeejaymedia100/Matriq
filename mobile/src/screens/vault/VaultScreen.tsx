@@ -440,25 +440,46 @@ export function VaultScreen({ navigation }: Props) {
                 Your private files &amp; your school's public library.
               </Text>
             </View>
-            <Pressable
-              onPress={() => stackNav?.navigate("VaultUpload")}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 6,
-                paddingVertical: 10,
-                paddingHorizontal: 14,
-                borderRadius: theme.radii.pill,
-                backgroundColor: colors.accent,
-                borderWidth: theme.mode === "pop" ? 2 : 0,
-                borderColor: colors.borderStrong,
-              }}
-            >
-              <Icon name="plus" size={15} color="#170B26" />
-              <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
-                Upload
-              </Text>
-            </Pressable>
+            <View style={{ flexDirection: "row", gap: 8 }}>
+              <Pressable
+                onPress={() => stackNav?.navigate("Library")}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingVertical: 10,
+                  paddingHorizontal: 14,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: colors.surface,
+                  borderWidth: 1.5,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                <Icon name="book" size={15} color={colors.textPrimary} />
+                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: colors.textPrimary }}>
+                  Discover
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => stackNav?.navigate("VaultUpload")}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: 6,
+                  paddingVertical: 10,
+                  paddingHorizontal: 14,
+                  borderRadius: theme.radii.pill,
+                  backgroundColor: colors.accent,
+                  borderWidth: theme.mode === "pop" ? 2 : 0,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                <Icon name="plus" size={15} color="#170B26" />
+                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                  Upload
+                </Text>
+              </Pressable>
+            </View>
           </View>
 
           {/* Community / My uploads tabs */}

@@ -193,6 +193,7 @@ export type InstitutionWhereInput = {
   faculties?: Prisma.FacultyListRelationFilter
   users?: Prisma.UserListRelationFilter
   associations?: Prisma.AssociationListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }
 
 export type InstitutionOrderByWithRelationInput = {
@@ -205,6 +206,7 @@ export type InstitutionOrderByWithRelationInput = {
   faculties?: Prisma.FacultyOrderByRelationAggregateInput
   users?: Prisma.UserOrderByRelationAggregateInput
   associations?: Prisma.AssociationOrderByRelationAggregateInput
+  vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
 }
 
 export type InstitutionWhereUniqueInput = Prisma.AtLeast<{
@@ -220,6 +222,7 @@ export type InstitutionWhereUniqueInput = Prisma.AtLeast<{
   faculties?: Prisma.FacultyListRelationFilter
   users?: Prisma.UserListRelationFilter
   associations?: Prisma.AssociationListRelationFilter
+  vaultItems?: Prisma.VaultItemListRelationFilter
 }, "id" | "name">
 
 export type InstitutionOrderByWithAggregationInput = {
@@ -256,6 +259,7 @@ export type InstitutionCreateInput = {
   faculties?: Prisma.FacultyCreateNestedManyWithoutInstitutionInput
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateInput = {
@@ -268,6 +272,7 @@ export type InstitutionUncheckedCreateInput = {
   faculties?: Prisma.FacultyUncheckedCreateNestedManyWithoutInstitutionInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUpdateInput = {
@@ -280,6 +285,7 @@ export type InstitutionUpdateInput = {
   faculties?: Prisma.FacultyUpdateManyWithoutInstitutionNestedInput
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateInput = {
@@ -292,6 +298,7 @@ export type InstitutionUncheckedUpdateInput = {
   faculties?: Prisma.FacultyUncheckedUpdateManyWithoutInstitutionNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateManyInput = {
@@ -420,6 +427,22 @@ export type InstitutionUpdateOneWithoutAssociationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstitutionUpdateToOneWithWhereWithoutAssociationsInput, Prisma.InstitutionUpdateWithoutAssociationsInput>, Prisma.InstitutionUncheckedUpdateWithoutAssociationsInput>
 }
 
+export type InstitutionCreateNestedOneWithoutVaultItemsInput = {
+  create?: Prisma.XOR<Prisma.InstitutionCreateWithoutVaultItemsInput, Prisma.InstitutionUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.InstitutionCreateOrConnectWithoutVaultItemsInput
+  connect?: Prisma.InstitutionWhereUniqueInput
+}
+
+export type InstitutionUpdateOneWithoutVaultItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstitutionCreateWithoutVaultItemsInput, Prisma.InstitutionUncheckedCreateWithoutVaultItemsInput>
+  connectOrCreate?: Prisma.InstitutionCreateOrConnectWithoutVaultItemsInput
+  upsert?: Prisma.InstitutionUpsertWithoutVaultItemsInput
+  disconnect?: Prisma.InstitutionWhereInput | boolean
+  delete?: Prisma.InstitutionWhereInput | boolean
+  connect?: Prisma.InstitutionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstitutionUpdateToOneWithWhereWithoutVaultItemsInput, Prisma.InstitutionUpdateWithoutVaultItemsInput>, Prisma.InstitutionUncheckedUpdateWithoutVaultItemsInput>
+}
+
 export type InstitutionCreateWithoutFacultiesInput = {
   id?: string
   name: string
@@ -429,6 +452,7 @@ export type InstitutionCreateWithoutFacultiesInput = {
   createdAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutFacultiesInput = {
@@ -440,6 +464,7 @@ export type InstitutionUncheckedCreateWithoutFacultiesInput = {
   createdAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutFacultiesInput = {
@@ -467,6 +492,7 @@ export type InstitutionUpdateWithoutFacultiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutFacultiesInput = {
@@ -478,6 +504,7 @@ export type InstitutionUncheckedUpdateWithoutFacultiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutUsersInput = {
@@ -489,6 +516,7 @@ export type InstitutionCreateWithoutUsersInput = {
   createdAt?: Date | string
   faculties?: Prisma.FacultyCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutUsersInput = {
@@ -500,6 +528,7 @@ export type InstitutionUncheckedCreateWithoutUsersInput = {
   createdAt?: Date | string
   faculties?: Prisma.FacultyUncheckedCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutUsersInput = {
@@ -527,6 +556,7 @@ export type InstitutionUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   faculties?: Prisma.FacultyUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutUsersInput = {
@@ -538,6 +568,7 @@ export type InstitutionUncheckedUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   faculties?: Prisma.FacultyUncheckedUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutAssociationsInput = {
@@ -549,6 +580,7 @@ export type InstitutionCreateWithoutAssociationsInput = {
   createdAt?: Date | string
   faculties?: Prisma.FacultyCreateNestedManyWithoutInstitutionInput
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutAssociationsInput = {
@@ -560,6 +592,7 @@ export type InstitutionUncheckedCreateWithoutAssociationsInput = {
   createdAt?: Date | string
   faculties?: Prisma.FacultyUncheckedCreateNestedManyWithoutInstitutionInput
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutAssociationsInput = {
@@ -587,6 +620,7 @@ export type InstitutionUpdateWithoutAssociationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   faculties?: Prisma.FacultyUpdateManyWithoutInstitutionNestedInput
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutAssociationsInput = {
@@ -598,6 +632,71 @@ export type InstitutionUncheckedUpdateWithoutAssociationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   faculties?: Prisma.FacultyUncheckedUpdateManyWithoutInstitutionNestedInput
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
+}
+
+export type InstitutionCreateWithoutVaultItemsInput = {
+  id?: string
+  name: string
+  shortName?: string | null
+  type?: $Enums.InstitutionType
+  state?: string | null
+  createdAt?: Date | string
+  faculties?: Prisma.FacultyCreateNestedManyWithoutInstitutionInput
+  users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
+  associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
+}
+
+export type InstitutionUncheckedCreateWithoutVaultItemsInput = {
+  id?: string
+  name: string
+  shortName?: string | null
+  type?: $Enums.InstitutionType
+  state?: string | null
+  createdAt?: Date | string
+  faculties?: Prisma.FacultyUncheckedCreateNestedManyWithoutInstitutionInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
+  associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
+}
+
+export type InstitutionCreateOrConnectWithoutVaultItemsInput = {
+  where: Prisma.InstitutionWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstitutionCreateWithoutVaultItemsInput, Prisma.InstitutionUncheckedCreateWithoutVaultItemsInput>
+}
+
+export type InstitutionUpsertWithoutVaultItemsInput = {
+  update: Prisma.XOR<Prisma.InstitutionUpdateWithoutVaultItemsInput, Prisma.InstitutionUncheckedUpdateWithoutVaultItemsInput>
+  create: Prisma.XOR<Prisma.InstitutionCreateWithoutVaultItemsInput, Prisma.InstitutionUncheckedCreateWithoutVaultItemsInput>
+  where?: Prisma.InstitutionWhereInput
+}
+
+export type InstitutionUpdateToOneWithWhereWithoutVaultItemsInput = {
+  where?: Prisma.InstitutionWhereInput
+  data: Prisma.XOR<Prisma.InstitutionUpdateWithoutVaultItemsInput, Prisma.InstitutionUncheckedUpdateWithoutVaultItemsInput>
+}
+
+export type InstitutionUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumInstitutionTypeFieldUpdateOperationsInput | $Enums.InstitutionType
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  faculties?: Prisma.FacultyUpdateManyWithoutInstitutionNestedInput
+  users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
+  associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
+}
+
+export type InstitutionUncheckedUpdateWithoutVaultItemsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumInstitutionTypeFieldUpdateOperationsInput | $Enums.InstitutionType
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  faculties?: Prisma.FacultyUncheckedUpdateManyWithoutInstitutionNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
+  associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 
@@ -609,12 +708,14 @@ export type InstitutionCountOutputType = {
   faculties: number
   users: number
   associations: number
+  vaultItems: number
 }
 
 export type InstitutionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   faculties?: boolean | InstitutionCountOutputTypeCountFacultiesArgs
   users?: boolean | InstitutionCountOutputTypeCountUsersArgs
   associations?: boolean | InstitutionCountOutputTypeCountAssociationsArgs
+  vaultItems?: boolean | InstitutionCountOutputTypeCountVaultItemsArgs
 }
 
 /**
@@ -648,6 +749,13 @@ export type InstitutionCountOutputTypeCountAssociationsArgs<ExtArgs extends runt
   where?: Prisma.AssociationWhereInput
 }
 
+/**
+ * InstitutionCountOutputType without action
+ */
+export type InstitutionCountOutputTypeCountVaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.VaultItemWhereInput
+}
+
 
 export type InstitutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -659,6 +767,7 @@ export type InstitutionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   faculties?: boolean | Prisma.Institution$facultiesArgs<ExtArgs>
   users?: boolean | Prisma.Institution$usersArgs<ExtArgs>
   associations?: boolean | Prisma.Institution$associationsArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.Institution$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.InstitutionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["institution"]>
 
@@ -694,6 +803,7 @@ export type InstitutionInclude<ExtArgs extends runtime.Types.Extensions.Internal
   faculties?: boolean | Prisma.Institution$facultiesArgs<ExtArgs>
   users?: boolean | Prisma.Institution$usersArgs<ExtArgs>
   associations?: boolean | Prisma.Institution$associationsArgs<ExtArgs>
+  vaultItems?: boolean | Prisma.Institution$vaultItemsArgs<ExtArgs>
   _count?: boolean | Prisma.InstitutionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InstitutionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -705,6 +815,7 @@ export type $InstitutionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     faculties: Prisma.$FacultyPayload<ExtArgs>[]
     users: Prisma.$UserPayload<ExtArgs>[]
     associations: Prisma.$AssociationPayload<ExtArgs>[]
+    vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1110,6 +1221,7 @@ export interface Prisma__InstitutionClient<T, Null = never, ExtArgs extends runt
   faculties<T extends Prisma.Institution$facultiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$facultiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FacultyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   users<T extends Prisma.Institution$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   associations<T extends Prisma.Institution$associationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$associationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssociationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vaultItems<T extends Prisma.Institution$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1607,6 +1719,30 @@ export type Institution$associationsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.AssociationScalarFieldEnum | Prisma.AssociationScalarFieldEnum[]
+}
+
+/**
+ * Institution.vaultItems
+ */
+export type Institution$vaultItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the VaultItem
+   */
+  select?: Prisma.VaultItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the VaultItem
+   */
+  omit?: Prisma.VaultItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.VaultItemInclude<ExtArgs> | null
+  where?: Prisma.VaultItemWhereInput
+  orderBy?: Prisma.VaultItemOrderByWithRelationInput | Prisma.VaultItemOrderByWithRelationInput[]
+  cursor?: Prisma.VaultItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.VaultItemScalarFieldEnum | Prisma.VaultItemScalarFieldEnum[]
 }
 
 /**

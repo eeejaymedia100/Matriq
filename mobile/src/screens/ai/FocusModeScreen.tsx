@@ -21,21 +21,21 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import Svg, { Line, Circle } from "react-native-svg";
+import Svg, { Line } from "react-native-svg";
 import { useRoute, type RouteProp } from "@react-navigation/native";
 import type { MainStackParamList } from "../../navigation/types";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
-import { useOfflineAi } from "../../offline/OfflineAiContext";
-import { api } from "../../api/client";
+import { api, ApiError } from "../../api/client";
+import { useEntitlement } from "../../hooks/useEntitlement";
 import {
   KIND_META,
   layoutFocusMap,
   NODE_W,
   NODE_H,
-  parseFocusMap,
-  fallbackFocusMap,
+  backendFocusMapToClient,
+  type BackendFocusMap,
   type FocusMap,
   type FocusNode,
   type FocusNodeKind,
@@ -56,12 +56,19 @@ function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
 
+/** Whether a stored map is a cloud (server-synced) map. */
+function serverSessionIdOf(map: FocusMap | null): string | null {
+  if (!map) return null;
+  const m = /^remote-(.+)$/.exec(map.id);
+  return m ? m[1] : null;
+}
+
 export function FocusModeScreen() {
   const { theme } = useTheme();
   const colors = theme.colors;
   const route = useRoute<RouteProp<MainStackParamList, "AiFocus">>();
-  const { buildFocusMap, ask } = useOfflineAi();
   const { width: winW, height: winH } = useWindowDimensions();
+  const { status: ent, loading: entLoading, refresh: refreshEnt } = useEntitlement();
 
   const [phase, setPhase] = useState<Phase>("entry");
   const [topicInput, setTopicInput] = useState(route.params?.topic ?? "");
@@ -72,6 +79,7 @@ export function FocusModeScreen() {
   const [selected, setSelected] = useState<FocusNode | null>(null);
   const [help, setHelp] = useState<{ mode: "lost" | "more"; text: string } | null>(null);
   const [helping, setHelping] = useState(false);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   // Pan / zoom state.
   const scale = useSharedValue(1);
@@ -94,16 +102,20 @@ export function FocusModeScreen() {
       if (!mounted || !m) return;
       setMap(m);
       setPhase("ready");
+      setTimeout(() => fitToView(m), 60);
     });
     return () => {
       mounted = false;
     };
   }, [route.params?.mapId]);
 
-  // Refresh the saved list on entry.
+  // Refresh the saved list + entitlement on entry.
   useEffect(() => {
-    if (phase === "entry") void loadSaved();
-  }, [phase, loadSaved]);
+    if (phase === "entry") {
+      void loadSaved();
+      void refreshEnt();
+    }
+  }, [phase, loadSaved, refreshEnt]);
 
   const fitToView = useCallback(
     (m: FocusMap) => {
@@ -124,22 +136,10 @@ export function FocusModeScreen() {
   );
 
   /**
-   * Server-side Focus Map builder (online fallback). Asks the cloud AI for a
-   * strict JSON concept map and rescues imperfect output with the same
-   * tolerant parser the offline path uses, so the workspace never stays empty.
+   * Cloud Focus Mode — DeepSeek powers the map through the BACKEND. The app
+   * only ever talks to Matriq; the API key never leaves the server. Free
+   * users get a starter allowance before Magic Plus is required.
    */
-  const buildFocusMapOnline = useCallback(async (topic: string): Promise<FocusMap> => {
-    const prompt =
-      `Produce a concept map of this academic topic as ONE JSON object only (no markdown). ` +
-      `Schema: {"nodes":[{"id":"n1","label":"short name","kind":"definition|type|component|process|example|application|importance|note","summary":"short phrase","detail":"2-3 sentences"}],"links":[{"from":"n1","to":"n2","label":"relationship"}]}. ` +
-      `Include the topic itself with kind "topic"; use 6-10 nodes; unique ids n1..nN; links reference existing ids; keep the JSON under 3000 characters. Topic: ${topic}`;
-    const data = await api.post<{ response: string }>("/ai/query", {
-      query: prompt,
-    });
-    const parsed = parseFocusMap(data.response, topic);
-    return parsed ?? fallbackFocusMap(data.response, topic);
-  }, []);
-
   const generate = useCallback(
     async (topic: string) => {
       const t = topic.trim();
@@ -147,30 +147,43 @@ export function FocusModeScreen() {
       setPhase("generating");
       setError(null);
       try {
-        // Offline-first: use the model on this phone. If it isn't downloaded /
-        // ready (buildFocusMap throws), fall back to a server build so Focus
-        // Mode still works with an internet connection.
-        let m: FocusMap;
-        try {
-          m = await buildFocusMap(t);
-        } catch {
-          m = await buildFocusMapOnline(t);
-        }
+        const res = await api.post<{
+          map: BackendFocusMap;
+          sessionId: string;
+          cached: boolean;
+        }>("/focus/generate", { topic: t });
+        const m = backendFocusMapToClient(res.map);
+        // Tag with the server session id so expansion can reach the same map.
+        m.id = `remote-${res.sessionId}`;
         setMap(m);
         await saveFocusMap(m);
         setPhase("ready");
-        // Fit after the layout is measured (next frame).
+        void refreshEnt();
         setTimeout(() => fitToView(m), 60);
       } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : "The model couldn't build this map — try again in a moment.",
-        );
         setPhase("entry");
+        if (err instanceof ApiError) {
+          if (err.code === "MAGIC_PLUS_REQUIRED") {
+            setError(
+              "You've used your free Focus Mode generations. Focus Mode is a Magic Plus feature — get Magic Plus to keep mapping complex topics with cloud AI.",
+            );
+            return;
+          }
+          if (err.code === "FOCUS_RATE_LIMITED") {
+            setError(err.message);
+            return;
+          }
+          if (err.status === 429) {
+            setError("You're moving too fast — please wait a moment and try again.");
+            return;
+          }
+        }
+        setError(
+          "Focus Mode couldn't build a map right now. Check your connection and try again in a moment.",
+        );
       }
     },
-    [buildFocusMap, buildFocusMapOnline, fitToView],
+    [fitToView, refreshEnt],
   );
 
   const openSaved = useCallback(
@@ -293,36 +306,94 @@ export function FocusModeScreen() {
     if (map) fitToView(map);
   }, [map, fitToView]);
 
-  // ── Node actions ──────────────────────────────────────────────
+  // ── Node actions (staged cloud detail) ─────────────────────────
 
-  const runHelp = useCallback(
+  /**
+   * Expand a concept into a fuller explanation. This is stage 2 of the staged
+   * architecture: detailed explanations are only generated when the student
+   * opens a concept, not up front for every map. Goes through the backend
+   * (payload = just the one concept id — no history/documents sent up).
+   */
+  const expandConcept = useCallback(
     async (mode: "lost" | "more") => {
       if (!selected || !map || helping) return;
-      setHelping(true);
-      setHelp({ mode, text: "" });
-      const prompt =
-        mode === "lost"
-          ? `I'm lost. Simplify the concept "${selected.label}" from the topic "${map.topic}". Break it into smaller parts, give a simple analogy, and explain any prerequisite concept I need first. Keep it clear and friendly.`
-          : `Explore the concept "${selected.label}" from the topic "${map.topic}" further. Go deeper: explain how it works in detail, with a concrete example and how it connects to the rest of the topic.`;
-      try {
-        const answer = await ask(
-          [{ role: "user", content: prompt }],
-          (chunk) => setHelp((h) => (h ? { ...h, text: h.text + chunk } : h)),
-        );
-        setHelp({ mode, text: answer });
-      } catch (err) {
+      const sessionId = serverSessionIdOf(map);
+      if (!sessionId) {
         setHelp({
           mode,
-          text: "The model couldn't answer right now — check that the offline model is ready, then try again.",
+          text: "This older local map can't be expanded — generate a new cloud map to use AI explanations.",
         });
+        return;
+      }
+      setHelping(true);
+      setHelp({ mode, text: "" });
+      try {
+        const res = await api.post<{
+          concept: {
+            detail: string;
+            importance?: string;
+            examples?: string[];
+          };
+        }>(`/focus/maps/${sessionId}/expand`, { conceptId: selected.id });
+        const c = res.concept;
+        const parts =
+          mode === "lost"
+            ? [
+                c.importance?.trim()
+                  ? `Why it matters: ${c.importance.trim()}`
+                  : "",
+                c.detail?.trim(),
+                (c.examples?.length ?? 0) > 0
+                  ? `Examples:\n• ${c.examples!.join("\n• ")}`
+                  : "",
+              ].filter(Boolean)
+            : [
+                c.detail?.trim(),
+                c.importance?.trim()
+                  ? `Why it matters: ${c.importance.trim()}`
+                  : "",
+                (c.examples?.length ?? 0) > 0
+                  ? `Examples:\n• ${c.examples!.join("\n• ")}`
+                  : "",
+              ].filter(Boolean);
+
+        setHelp({ mode, text: parts.length ? parts.join("\n\n") : c.detail });
+
+        // Persist the expanded detail into the node so reopening shows it.
+        if (map && c.detail?.trim()) {
+          const next: FocusMap = {
+            ...map,
+            nodes: map.nodes.map((n) =>
+              n.id === selected.id
+                ? { ...n, detail: c.detail! }
+                : n,
+            ),
+          };
+          setExpandedIds((s) => new Set(s).add(selected.id));
+          persistCurrent(next);
+        }
+      } catch (err) {
+        if (err instanceof ApiError && err.code === "MAGIC_PLUS_REQUIRED") {
+          setHelp({
+            mode,
+            text: "Expanding concepts uses cloud AI, which is part of Magic Plus. You've used your free allowance — upgrade to keep going.",
+          });
+        } else if (err instanceof ApiError && err.code === "FOCUS_RATE_LIMITED") {
+          setHelp({ mode, text: err.message });
+        } else {
+          setHelp({
+            mode,
+            text: "The AI couldn't expand this right now. Check your connection and try again in a moment.",
+          });
+        }
       } finally {
         setHelping(false);
       }
     },
-    [selected, map, ask, helping],
+    [selected, map, helping, persistCurrent],
   );
 
-  /** Pin the generated help text into the map as a new card linked to the node. */
+  /** Pin the expanded text into the map as a new card linked to the node. */
   const pinToMap = useCallback(() => {
     if (!selected || !map || !help?.text) return;
     const label =
@@ -352,6 +423,59 @@ export function FocusModeScreen() {
 
   // ── Render ────────────────────────────────────────────────────
 
+  const renderEntitlementNote = () => {
+    if (ent == null) return null;
+    if (ent.isPremium) {
+      return (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 14,
+            backgroundColor: colors.brand + "1A",
+            borderRadius: 12,
+            padding: 10,
+          }}
+        >
+          <Icon name="sparkle" size={15} color={colors.brand} />
+          <Text style={[theme.typography.caption, { color: colors.textPrimary, flex: 1 }]}>
+            You have Magic Plus — unlimited cloud Focus Mode.
+          </Text>
+        </View>
+      );
+    }
+    if (ent.freeRemaining != null) {
+      return (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 14,
+            backgroundColor: colors.surfaceAlt,
+            borderRadius: 12,
+            padding: 10,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        >
+          <Icon name="sparkle" size={15} color={colors.accent} />
+          <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1 }]}>
+            Feature powered by cloud AI. You have{" "}
+            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", color: colors.textPrimary }}>
+              {ent.freeRemaining}
+            </Text>{" "}
+            free{" "}
+            {ent.freeRemaining === 1 ? "map" : "maps"} left — then it becomes a Magic Plus
+            feature.
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
   const renderEntry = () => (
     <KeyboardScreen paddingBottom={40}>
       <Text style={[theme.typography.display, { color: colors.textPrimary }]}>
@@ -364,8 +488,12 @@ export function FocusModeScreen() {
         ]}
       >
         Turn a complex topic into a visual map — definitions, parts, processes
-        and examples as connected cards you can zoom and explore. Fully offline.
+        and examples as connected cards you can zoom and explore. Powered by cloud
+        AI (a Magic Plus feature).
       </Text>
+
+      {/* Premium / free-allowance messaging */}
+      {entLoading ? null : renderEntitlementNote()}
 
       <TextInput
         value={topicInput}
@@ -502,11 +630,11 @@ export function FocusModeScreen() {
       <Text
         style={[
           theme.typography.caption,
-          { color: colors.textMuted, marginTop: 6, textAlign: "center", maxWidth: 260 },
+          { color: colors.textMuted, marginTop: 6, textAlign: "center", maxWidth: 280 },
         ]}
       >
-        The model on your phone is working out the structure — definitions,
-        parts, processes and examples. It can take a minute.
+        Cloud AI is working out the structure — definitions, parts, processes
+        and examples. Just a few seconds.
       </Text>
     </View>
   );
@@ -537,10 +665,7 @@ export function FocusModeScreen() {
           </Pressable>
           <Text
             numberOfLines={1}
-            style={[
-              theme.typography.bodyBold,
-              { color: colors.textPrimary, flex: 1 },
-            ]}
+            style={[theme.typography.bodyBold, { color: colors.textPrimary, flex: 1 }]}
           >
             {map.topic}
           </Text>
@@ -550,10 +675,7 @@ export function FocusModeScreen() {
         </View>
 
         {/* Canvas */}
-        <View
-          style={{ flex: 1, overflow: "hidden" }}
-          {...panResponder.panHandlers}
-        >
+        <View style={{ flex: 1, overflow: "hidden" }} {...panResponder.panHandlers}>
           <Animated.View
             style={[
               {
@@ -673,13 +795,7 @@ export function FocusModeScreen() {
 
           {/* Zoom controls */}
           <View
-            style={{
-              position: "absolute",
-              right: 14,
-              bottom: 18,
-              alignItems: "center",
-              gap: 8,
-            }}
+            style={{ position: "absolute", right: 14, bottom: 18, alignItems: "center", gap: 8 }}
           >
             <ZoomBtn label="+" onPress={() => zoomBy(1.25)} />
             <ZoomBtn label="−" onPress={() => zoomBy(0.8)} />
@@ -687,10 +803,7 @@ export function FocusModeScreen() {
           </View>
 
           {/* Hint */}
-          <View
-            pointerEvents="none"
-            style={{ position: "absolute", left: 14, bottom: 18 }}
-          >
+          <View pointerEvents="none" style={{ position: "absolute", left: 14, bottom: 18 }}>
             <Text style={[theme.typography.small, { color: colors.textMuted }]}>
               Drag to pan · pinch or buttons to zoom · tap a card to open it
             </Text>
@@ -771,12 +884,22 @@ export function FocusModeScreen() {
                         selected.summary ||
                         "No detail available for this card yet."}
                     </Text>
+                    {expandedIds.has(selected.id) ? (
+                      <Text
+                        style={[
+                          theme.typography.caption,
+                          { color: colors.textMuted, marginTop: 8 },
+                        ]}
+                      >
+                        Expanded with AI ✓
+                      </Text>
+                    ) : null}
                   </ScrollView>
 
                   {/* Actions */}
                   <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
                     <Pressable
-                      onPress={() => void runHelp("lost")}
+                      onPress={() => void expandConcept("lost")}
                       disabled={helping}
                       style={{
                         flex: 1,
@@ -789,11 +912,11 @@ export function FocusModeScreen() {
                       }}
                     >
                       <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
-                        I'm lost
+                        In simpler terms
                       </Text>
                     </Pressable>
                     <Pressable
-                      onPress={() => void runHelp("more")}
+                      onPress={() => void expandConcept("more")}
                       disabled={helping}
                       style={{
                         flex: 1,
@@ -827,8 +950,8 @@ export function FocusModeScreen() {
                           <ActivityIndicator size="small" color={colors.brand} />
                           <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
                             {help?.mode === "lost"
-                              ? "Simplifying on your phone…"
-                              : "Going deeper…"}
+                              ? "Simplifying…"
+                              : "Going deeper with AI…"}
                           </Text>
                         </View>
                       ) : null}
@@ -838,7 +961,11 @@ export function FocusModeScreen() {
                             selectable
                             style={[
                               theme.typography.caption,
-                              { color: colors.textSecondary, lineHeight: 20, marginTop: helping ? 10 : 0 },
+                              {
+                                color: colors.textSecondary,
+                                lineHeight: 20,
+                                marginTop: helping ? 10 : 0,
+                              },
                             ]}
                           >
                             {help.text}

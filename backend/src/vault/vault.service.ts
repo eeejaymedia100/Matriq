@@ -66,6 +66,10 @@ export interface UploadVaultDto {
   level?: string;
   /** Optional discovery metadata (academic session, e.g. "2023/2024"). */
   session?: string;
+  /** Course full title, e.g. "General Chemistry I" (for course-title search). */
+  courseTitle?: string;
+  /** Free-text description shown on the library detail page. */
+  description?: string;
 }
 
 /** Body of the chunked-upload completion call. */
@@ -288,7 +292,9 @@ export class VaultService {
       );
     }
 
-    // 4. Scope by the uploader's school (association membership)
+    // 4. Scope by the uploader's school (association membership) + capture
+    //    their academic profile so the resource is discoverable by
+    //    institution/faculty/department — not just by school.
     const myAssociations = await this.myAssociationIds(userId);
     if (myAssociations.length === 0) {
       throw new BadRequestException(
@@ -296,6 +302,11 @@ export class VaultService {
       );
     }
     const associationId = myAssociations[0];
+
+    const profile = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { institutionId: true, faculty: true, department: true },
+    });
 
     // 5. Store the original untouched (spec §7 smart storage)
     const originalname = file.originalname ?? "document";
@@ -352,6 +363,13 @@ export class VaultService {
         moderationStatus: visibility === "public" ? "pending" : "approved",
         level: (dto.level ?? "").trim().slice(0, 12) || null,
         session: (dto.session ?? "").trim().slice(0, 16) || null,
+        // Academic library metadata: prefilled from the uploader's profile so
+        // discovery can personalise by institution/faculty/department/course.
+        institutionId: profile?.institutionId ?? null,
+        faculty: (profile?.faculty ?? "").trim().slice(0, 120) || null,
+        department: (profile?.department ?? "").trim().slice(0, 120) || null,
+        courseTitle: (dto.courseTitle ?? "").trim().slice(0, 200) || null,
+        description: (dto.description ?? "").trim().slice(0, 1000) || null,
       },
     });
 
@@ -792,15 +810,17 @@ export class VaultService {
       throw new NotFoundException("That item isn't in the Vault anymore.");
     }
 
-    const myAssociations = await this.myAssociationIds(userId);
     const canSeeOwn = item.userId === userId;
+    // Approved public items are visible to ANY signed-in student (the cross-
+    // institution academic library), not just the uploader's school. The
+    // library hides/soft-deletes items so a hidden/removed doc never resolves.
     const canSeeShared =
       item.visibility === "public" &&
       item.moderationStatus === "approved" &&
-      myAssociations.includes(item.associationId);
+      !item.hidden;
     if (!canSeeOwn && !canSeeShared) {
       throw new ForbiddenException(
-        "You can only download items shared with your school or your own uploads.",
+        "You can only download public library items or your own uploads.",
       );
     }
 

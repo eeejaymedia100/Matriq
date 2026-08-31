@@ -114,6 +114,25 @@ export const VaultVisibility = {
 export type VaultVisibility = (typeof VaultVisibility)[keyof typeof VaultVisibility]
 
 
+export const ReportStatus = {
+  open: 'open',
+  resolved: 'resolved',
+  dismissed: 'dismissed'
+} as const
+
+export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus]
+
+
+export const ReportReason = {
+  inappropriate: 'inappropriate',
+  irrelevant: 'irrelevant',
+  duplicate: 'duplicate',
+  incorrectly_categorized: 'incorrectly_categorized'
+} as const
+
+export type ReportReason = (typeof ReportReason)[keyof typeof ReportReason]
+
+
 export const InstitutionType = {
   university: 'university',
   polytechnic: 'polytechnic',

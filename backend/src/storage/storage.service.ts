@@ -123,6 +123,54 @@ export class StorageService {
   }
 
   /**
+   * A short-lived presigned GET URL so large public files can be read by the
+   * client directly from object storage instead of streaming through the API
+   * server. The URL is short-lived and scoped to one object — the backend
+   * authorizes access first, then hands back this URL. Returns null when
+   * object storage is disabled or the key isn't an object key.
+   */
+  async presignedGetUrl(
+    key: string,
+    expiresSeconds = 900,
+  ): Promise<string | null> {
+    if (!this.enabled || !this.client) return null;
+    if (key.startsWith("data:")) return null; // data-URI fallback, no object
+    try {
+      return await this.client.presignedGetObject(
+        this.bucket,
+        key,
+        expiresSeconds,
+      );
+    } catch (err) {
+      this.logger.warn(
+        `presignedGet failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * A short-lived presigned PUT URL so a client can upload a large file
+   * directly to object storage (resumable/multipart when the provider allows),
+   * bypassing the API server for the heavy bytes. Returns null when storage is
+   * disabled. The caller is responsible for the storageRef it issued.
+   */
+  async presignedPutUrl(
+    key: string,
+    expiresSeconds = 900,
+  ): Promise<string | null> {
+    if (!this.enabled || !this.client) return null;
+    try {
+      return await this.client.presignedPutObject(this.bucket, key, expiresSeconds);
+    } catch (err) {
+      this.logger.warn(
+        `presignedPut failed for ${key}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * Delete an object. Returns true when removed (or already gone), false on
    * failure. Best-effort — callers replace stale avatars and should never
    * fail because cleanup hiccuped.

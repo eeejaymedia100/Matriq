@@ -26,13 +26,35 @@ product can grow into them cleanly.
 
 | Area | Free (always) |
 | --- | --- |
-| Offline AI (Qwen 2.5 0.5B) + Focus Mode | Full |
+| Offline AI (Qwen 2.5 0.5B) + offline chat | Full |
+| Focus Mode (cloud, DeepSeek) | **Free allowance: 10 uses** — then Magic Plus only |
 | Notes (private, on-device) | Full |
 | OCR → Save as note | Full |
 | Image to PDF | Full |
 | CGPA Calculator / Predictor | Full |
 | Community library (browse, search, download, contribute) | Full, no quota |
 | Private Vault uploads | Up to a sensible allowance (see below) |
+
+## Entitlement foundation (shipped)
+
+Focus Mode is the first real Magic Plus feature: it calls DeepSeek (via the
+backend, never from the app), so every request has a real cloud cost. The
+entitlement layer lives in `backend/src/entitlement/` and is the single source
+of truth for premium access:
+
+- **Backend authority.** The backend gates every Focus Mode request — the app
+  never decides entitlement, and a client-side premium flag is never trusted.
+- **Free allowance.** Every account starts with **10 free Focus Mode uses**
+  (`FocusModeUsage` counts consumed uses per user). After the 10 free uses, the
+  endpoint returns a paywall (Magic Plus required) error; the app shows the
+  upgrade prompt.
+- **Pluggable plans.** `MagicPlan` (seed: `PLUS` = unlimited + free tier) reads
+  from the DB, so future subscription/pass providers (Stripe, a term pass) just
+  grant a plan. Quotas are config constants, not hardcoded all over the code.
+- **Abuse protection.** Per-user rate limiting (throttler) + a configurable
+  daily cap, so one automated client can't drain the DeepSeek balance.
+- **Offline-first is preserved.** Offline AI stays entirely free and local; only
+  the *cloud* Focus Mode is gated.
 
 ## What Magic Plus can eventually offer
 
@@ -70,13 +92,18 @@ so the boundary stays explicit and reviewable in one place. None are built yet.
 
 ## Architecture notes
 
-- **Capability gate:** `isPremiumCapability(capability)` in
-  `mobile/src/utils/premium.ts`. All off today. When subscriptions ship, the
-  gate reads the user's plan from the backend (`/me/plan`) with a local cache
-  so the offline-first principle is preserved (no network = free capabilities,
-  never a broken app).
-- **No UI yet:** nothing in the app references premium state. The module is
-  the placeholder so future work has a single, reviewable boundary.
+- **Capability gate:** `mobile/src/utils/premium.ts` (`PremiumCapability`) plus
+  the new `mobile/src/hooks/useEntitlement.ts` hook. The hook fetches
+  entitlement state from the backend and caches it locally so the offline-first
+  principle holds (no network → the app degrades gracefully, never breaks).
+- **Provider chain (backend, never the app):** Focus Mode uses **DeepSeek as
+  primary** (`DEEPSEEK_API_KEY` server-side only), then fails over to NVIDIA
+  NIM and then Gemini. The key never leaves the backend; the app only talks to
+  `POST /v1/focus/*` on the Matriq backend.
+- **Staged + cached to control cost:** the initial request generates the overall
+  concept map + core concepts; expanding an individual concept fetches details
+  on demand. Common topics are cached server-side (normalized keys, keyed with
+  prompt/model version) so identical topics don't re-bill.
 - **Privacy boundary (unchanged):** private documents are never used for model
   training, never surfaced publicly, and never shared with the community.
   Public resources are community contributions under the Terms of Use.
