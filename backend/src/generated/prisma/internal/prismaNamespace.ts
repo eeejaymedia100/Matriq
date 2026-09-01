@@ -423,6 +423,7 @@ export const ModelName = {
   LibraryView: 'LibraryView',
   LibraryReport: 'LibraryReport',
   Notification: 'Notification',
+  PushDevice: 'PushDevice',
   TimetableUpdate: 'TimetableUpdate',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
@@ -446,7 +447,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusModeUsage" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusModeUsage" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2374,6 +2375,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PushDevice: {
+      payload: Prisma.$PushDevicePayload<ExtArgs>
+      fields: Prisma.PushDeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PushDeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PushDeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        findFirst: {
+          args: Prisma.PushDeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PushDeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        findMany: {
+          args: Prisma.PushDeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+        }
+        create: {
+          args: Prisma.PushDeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        createMany: {
+          args: Prisma.PushDeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PushDeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+        }
+        delete: {
+          args: Prisma.PushDeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        update: {
+          args: Prisma.PushDeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.PushDeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PushDeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PushDeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.PushDeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PushDevicePayload>
+        }
+        aggregate: {
+          args: Prisma.PushDeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePushDevice>
+        }
+        groupBy: {
+          args: Prisma.PushDeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushDeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PushDeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PushDeviceCountAggregateOutputType> | number
+        }
+      }
+    }
     TimetableUpdate: {
       payload: Prisma.$TimetableUpdatePayload<ExtArgs>
       fields: Prisma.TimetableUpdateFieldRefs
@@ -3388,6 +3463,18 @@ export const NotificationScalarFieldEnum = {
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
 
 
+export const PushDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  createdAt: 'createdAt',
+  lastSeenAt: 'lastSeenAt'
+} as const
+
+export type PushDeviceScalarFieldEnum = (typeof PushDeviceScalarFieldEnum)[keyof typeof PushDeviceScalarFieldEnum]
+
+
 export const TimetableUpdateScalarFieldEnum = {
   id: 'id',
   associationId: 'associationId',
@@ -4027,6 +4114,7 @@ export type GlobalOmitConfig = {
   libraryView?: Prisma.LibraryViewOmit
   libraryReport?: Prisma.LibraryReportOmit
   notification?: Prisma.NotificationOmit
+  pushDevice?: Prisma.PushDeviceOmit
   timetableUpdate?: Prisma.TimetableUpdateOmit
   legalAcceptance?: Prisma.LegalAcceptanceOmit
   waitlistEntry?: Prisma.WaitlistEntryOmit

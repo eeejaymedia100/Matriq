@@ -170,6 +170,11 @@ export type LibraryReport = Prisma.LibraryReportModel
  */
 export type Notification = Prisma.NotificationModel
 /**
+ * Model PushDevice
+ * 
+ */
+export type PushDevice = Prisma.PushDeviceModel
+/**
  * Model TimetableUpdate
  * 
  */

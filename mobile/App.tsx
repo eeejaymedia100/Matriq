@@ -15,7 +15,9 @@ import { AuthProvider } from "./src/contexts/AuthContext";
 import { NotificationsProvider } from "./src/contexts/NotificationsContext";
 import { OfflineAiProvider } from "./src/offline/OfflineAiContext";
 import { AppNavigator } from "./src/navigation/AppNavigator";
+import { navigationRef } from "./src/navigation/navigationRef";
 import { UpdateOverlay } from "./src/components/UpdateOverlay";
+import { PushNotificationsGate } from "./src/components/PushNotificationsGate";
 import { AnimatedSplashScreen } from "./src/components/AnimatedSplashScreen";
 
 // Keep the native launch screen up until the JS splash overlay is on screen —
@@ -107,9 +109,10 @@ function AppInner() {
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <AuthProvider>
+        <PushNotificationsGate />
         <OfflineAiProvider>
           <NotificationsProvider>
-            <NavigationContainer theme={navTheme}>
+            <NavigationContainer ref={navigationRef} theme={navTheme}>
               {/* Splash overlay is dark, so force light status-bar icons over it. */}
               <StatusBar
                 style={splashVisible ? "light" : isGlass ? "light" : "dark"}

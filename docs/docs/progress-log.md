@@ -4,6 +4,31 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-09-01 — Real device push (FCM) committed + Firebase integration runbook; OCR improvement planned
+
+**Status:** FCM round **committed as `61aa632`** (29 files; verified: backend tsc clean, 14 notification tests green, mobile tsc clean). **NOT deployed** — Firebase project + credentials + migration + APK rebuild still needed on the VM (see runbook below). OCR improvement: plan produced (see bottom), not yet implemented.
+
+**Did:**
+- Committed the full FCM round built 08-31 (FcmService + device registration + mobile permission/banner/deep-link stack — see that entry for the design). Re-verified before committing: `tsc --noEmit` clean on backend + mobile, `jest notifications` 14/14 green.
+- **Firebase integration runbook (exact steps for the VM + console — user actions needed):**
+  1. **Create the Firebase project** (console.firebase.google.com → Add project → same Google account as the GCP VM). Firebase CLI is NOT needed — only the console + the two artifacts below. FCM is free: no per-message charge, no subscriber cap, on both Spark and Blaze plans.
+  2. **Android app entry:** console → Project settings → Your apps → Add app → Android → package name **`app.matriq.mobile`** → download **`google-services.json`** → drop it at **`mobile/google-services.json`** AND add to `mobile/app.json` under `expo.android`:
+     `"googleServicesFile": "./google-services.json"` (the build runs `expo prebuild` every release, so this must be in the repo).
+  3. **Service account (server-side sender):** Project settings → Service accounts → **Generate new private key** (downloads a JSON) → on the VM: `base64 -w0 <file> | tr -d '\n'` into `FCM_SERVICE_ACCOUNT_B64` in `backend/.env`, then `FCM_ENABLED=true` (+ optional `FCM_PROJECT_ID=matriq-XXXXX`). No value yet → everything no-ops and ntfy stays the channel.
+  4. **Deploy backend:** `git pull` on the VM → `scripts/deploy.sh` (applies the `20260831010000_push_devices` migration + rebuilds).
+  5. **Rebuild APK** (native change — expo-notifications plugin): bump `version`/`versionCode` in `mobile/app.json` → `bash scripts/_build-apk.sh` → `RELEASE_NOTES=… bash scripts/_finalize-apk.sh`. Installed apps self-update.
+  6. **On-device pass:** first-open permission dialog → banner over any screen → notification while app is closed → tap → deep link → logout → token removed. Verify `POST /v1/me/push/register` rows appear in `push_devices`.
+
+**OCR improvement plan (agreed direction, this round's research):**
+- Reality check: committed OCR is **Tesseract-first** since `f63c17d` (system tesseract 5 binary → tesseract.js worker fallback, sharp preprocessing: EXIF rotate / grayscale / normalize / ×2 upscale under 1200px, honest word-level TSV confidence, 60s timeout, 10MB cap). The Gemini-first OCR described in the 08-16 progress entries was **reverted** — it was the source of the "OCR not working" complaints (Gemini 503 under load + ~14s latency + garbled tesseract fallback). The Gemini key is still wired for voice transcription.
+- Proposed priorities (draft — implement in a follow-up round):
+  1. **Quality gate + Gemini rescue path (biggest perceived-quality win):** keep Tesseract free+fast as the baseline; when confidence < ~60% (or no text), retry with Gemini once (env-gated, bounded timeout) so only the ~10–15% of mangled photos hit the paid API. Turns the old Gemini-first flow upside down: cheap normally, accurate on demand.
+  2. **Concurrency + latency:** tesseract spawns a subprocess per request with a 60s budget — concurrent scans pile up on the one VM. Add a small semaphore (~2–3 concurrent tesseract processes) + a Redis/in-memory result cache keyed by image hash for repeat scans (common: scanning the same page twice).
+  3. **Better preprocessing for photos:** upscale small text harder (×2→×3 under ~2000px), Otsu adaptive threshold + median denoise before the LSTM pass, and let tesseract 5.x do `--psm 6` (uniform block) with `--psm 3` fallback instead of a fixed `--psm 3`.
+  4. **Mobile-side:** Tools OCR already reaches this endpoint; the offline-AI photo path keeps its on-device ML Kit OCR. Optional: client-side downscale/compress before upload to cut latency.
+
+**Next (honest):** the runbook above is blocked on the user (Firebase project + the two credentials). OCR improvements 1–3 are the next code round once the user picks the scope.
+
 ## 2026-08-31 — Academic Library: Netflix-for-Students discovery layer (backend + mobile, shipped this round)
 
 **Status:** backend + mobile code DONE + verified (backend tsc clean, **189 tests green** (20 suites), mobile tsc clean). Shipped: committed, pushed, backend deployed on the VM (both new migrations applied), and the APK rebuilt + finalized so installed apps self-update in the background. See Next for the on-device pass.
@@ -42,6 +67,21 @@ understand "what happened since I last looked" in under a minute.
 - Backend deploy on the VM: `scripts/deploy.sh` (runs the new migration `...0000_magic_plus_focus_mode`) + set `DEEPSEEK_API_KEY` + `DEEPSEEK_MODEL` in `docker-compose`. Seed institutions if the live DB predates this.
 - APK rebuild to ship `FocusModeScreen`.
 - **Real-device/provider verification I could NOT do here** (no API key wired, no device, no live DB): live end-to-end Focus Mode through DeepSeek (JSON quality on a real complex topic), the free-allowance counter (10), paywall gating for non-PLUS after 10 uses, provider-fallback on a DeepSeek outage, and the Android keyboard pass for the chat already opened separately above.
+
+## 2026-08-31 — Real device push notifications (FCM): custom branded notifications above every screen, permission asked at launch
+
+**Status:** code done + verified as far as this box allows (backend typecheck + build clean, **203 tests green** across 22 suites, mobile tsc clean, expo config plugin resolves). **NOT deployed** — needs the migration applied on the VM, Firebase credentials, and an APK rebuild. See Next.
+
+**Did:**
+- **The gap from the last round is closed:** the in-app feed was real but push was a wired-up ntfy server with zero subscribers — nothing could ever reach a device. Now the app registers an FCM device token with the backend and notifications arrive as **native Android notifications** — branded (Matriq purple `#7B4BC4` + a white bell small icon), heads-up priority, shown over every screen **and when the app is closed**.
+- **Permission at launch:** `PushNotificationsGate` (mounted once at the app root) requests the system notification permission the moment the app opens, creates the branded `matriq` channel, and shows foreground notifications as banners over any screen.
+- **Backend (`notifications` module):** new `FcmService` — mints a Google OAuth2 token from the Firebase service account (RS256 JWT exchange, cached) and sends via the FCM HTTP v1 API, fully env-gated (`FCM_ENABLED` / `FCM_PROJECT_ID` / `FCM_SERVICE_ACCOUNT_B64` — all server-side, never in the app). `NotificationsService` now routes `notifyUser`/`notifyAssociation` to the user's **registered devices** (bounded concurrency, dead tokens pruned on UNREGISTERED) with the legacy ntfy topic push as fallback; ops `securityAlert` stays ntfy-only.
+- **New endpoints:** `POST /v1/me/push/register` (idempotent upsert by token; the app calls it at launch) and `DELETE /v1/me/push/register` (logout). New `push_devices` table + migration. Per-user throttled + JWT-guarded.
+- **Mobile:** `expo-notifications` (~57.0.15) + config plugin (icon/color) + generated white-bell drawable (`notification_icon`, verified the plugin writes the exact resource name the backend references), `services/pushNotifications.ts` (permission, channel, token lifecycle, response handling incl. cold-start taps), shared `navigationRef` + `deepLinks` helper so taps deep-link to the same whitelisted screens as the feed rows.
+
+**Next (needs the real world):**
+- **Firebase credentials are the hard dependency** — real delivery needs (1) a Firebase project's `google-services.json` dropped at `mobile/google-services.json` with `"android.googleServicesFile"` set in `app.json` (the build runs `expo prebuild` every release, so this must be in the repo), and (2) the service-account JSON base64'd into `FCM_SERVICE_ACCOUNT_B64` + `FCM_ENABLED=true`/`FCM_PROJECT_ID` on the VM. Everything degrades gracefully without them (permission + channel + banner behavior still work; registration silently no-ops).
+- Deploy: apply the `20260831010000_push_devices` migration on the VM, rebuild the APK (native change), then the on-device pass — first-open permission dialog, banner over a screen, notification while the app is closed, tap → deep link, logout → token removed.
 
 ## 2026-08-30 — Android keyboard: real window-resize for the AI chat (one strategy, no more pan hack)
 

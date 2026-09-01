@@ -16,6 +16,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { timeAgo } from "../../utils/relativeTime";
 import { useNotifications } from "../../contexts/NotificationsContext";
+import { navigateByLink, VALID_LINKS } from "../../navigation/deepLinks";
 import type { AppNotification } from "../../types/api";
 import type { MainStackParamList } from "../../navigation/types";
 
@@ -32,17 +33,6 @@ const TYPE_ICON: Record<AppNotification["type"], IconName> = {
   update: "download",
   general: "bell",
 };
-
-/** Only these deep links exist in the main stack — guard unknown targets. */
-const VALID_LINKS = new Set([
-  "VerificationStatus",
-  "Fees",
-  "Explore",
-  "Vault",
-  "Receipt",
-  "Home",
-  "Timetable",
-]);
 
 
 /**
@@ -116,9 +106,7 @@ export function NotificationFeedScreen({ navigation }: Props) {
       );
       setUnread(Math.max(0, unreadCount - 1));
     }
-    if (item.link && VALID_LINKS.has(item.link)) {
-      navigation.navigate(item.link as never);
-    }
+    navigateByLink(item.link);
   };
 
   return (

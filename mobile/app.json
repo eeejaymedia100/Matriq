@@ -76,7 +76,15 @@
         }
       ],
       "expo-font",
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification_icon.png",
+          "color": "#7B4BC4",
+          "sounds": []
+        }
+      ]
     ],
     "extra": {
       "apiUrl": "http://34.91.191.164/v1"

@@ -63,6 +63,13 @@ services:
       # Push notifications (self-hosted ntfy). Disabled unless NTFY_ENABLED=true.
       - NTFY_ENABLED=${NTFY_ENABLED:-false}
       - NTFY_URL=${NTFY_URL:-http://ntfy:80}
+      # Real device push (Firebase Cloud Messaging). Disabled unless
+      # FCM_ENABLED=true + a service account is configured; ntfy remains the
+      # legacy/fallback channel. FCM_SERVICE_ACCOUNT_B64 is the base64 of the
+      # Firebase service-account JSON (server-side secret only).
+      - FCM_ENABLED=${FCM_ENABLED:-false}
+      - FCM_PROJECT_ID=${FCM_PROJECT_ID:-}
+      - FCM_SERVICE_ACCOUNT_B64=${FCM_SERVICE_ACCOUNT_B64:-}
       # Object storage (MinIO/S3). Disabled unless S3_ENDPOINT is set.
       - S3_ENDPOINT=${S3_ENDPOINT:-}
       - S3_PORT=${S3_PORT:-9000}

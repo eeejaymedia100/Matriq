@@ -77,6 +77,7 @@ export const ModelName = {
   LibraryView: 'LibraryView',
   LibraryReport: 'LibraryReport',
   Notification: 'Notification',
+  PushDevice: 'PushDevice',
   TimetableUpdate: 'TimetableUpdate',
   LegalAcceptance: 'LegalAcceptance',
   WaitlistEntry: 'WaitlistEntry',
@@ -484,6 +485,18 @@ export const NotificationScalarFieldEnum = {
 } as const
 
 export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const PushDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  platform: 'platform',
+  createdAt: 'createdAt',
+  lastSeenAt: 'lastSeenAt'
+} as const
+
+export type PushDeviceScalarFieldEnum = (typeof PushDeviceScalarFieldEnum)[keyof typeof PushDeviceScalarFieldEnum]
 
 
 export const TimetableUpdateScalarFieldEnum = {

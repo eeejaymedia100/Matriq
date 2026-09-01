@@ -391,6 +391,7 @@ export type UserWhereInput = {
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  pushDevices?: Prisma.PushDeviceListRelationFilter
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
   entitlements?: Prisma.XOR<Prisma.MagicPlusEntitlementNullableScalarRelationFilter, Prisma.MagicPlusEntitlementWhereInput> | null
   focusSessions?: Prisma.FocusModeSessionListRelationFilter
@@ -441,6 +442,7 @@ export type UserOrderByWithRelationInput = {
   eventAttendance?: Prisma.EventAttendanceOrderByRelationAggregateInput
   vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  pushDevices?: Prisma.PushDeviceOrderByRelationAggregateInput
   institution?: Prisma.InstitutionOrderByWithRelationInput
   entitlements?: Prisma.MagicPlusEntitlementOrderByWithRelationInput
   focusSessions?: Prisma.FocusModeSessionOrderByRelationAggregateInput
@@ -494,6 +496,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   eventAttendance?: Prisma.EventAttendanceListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  pushDevices?: Prisma.PushDeviceListRelationFilter
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
   entitlements?: Prisma.XOR<Prisma.MagicPlusEntitlementNullableScalarRelationFilter, Prisma.MagicPlusEntitlementWhereInput> | null
   focusSessions?: Prisma.FocusModeSessionListRelationFilter
@@ -607,6 +610,7 @@ export type UserCreateInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -657,6 +661,7 @@ export type UserUncheckedCreateInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -705,6 +710,7 @@ export type UserUpdateInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -755,6 +761,7 @@ export type UserUncheckedUpdateInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -1256,6 +1263,20 @@ export type UserUpdateOneRequiredWithoutNotificationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutNotificationsInput, Prisma.UserUpdateWithoutNotificationsInput>, Prisma.UserUncheckedUpdateWithoutNotificationsInput>
 }
 
+export type UserCreateNestedOneWithoutPushDevicesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushDevicesInput, Prisma.UserUncheckedCreateWithoutPushDevicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushDevicesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPushDevicesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushDevicesInput, Prisma.UserUncheckedCreateWithoutPushDevicesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushDevicesInput
+  upsert?: Prisma.UserUpsertWithoutPushDevicesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPushDevicesInput, Prisma.UserUpdateWithoutPushDevicesInput>, Prisma.UserUncheckedUpdateWithoutPushDevicesInput>
+}
+
 export type UserCreateNestedOneWithoutLegalAcceptancesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutLegalAcceptancesInput, Prisma.UserUncheckedCreateWithoutLegalAcceptancesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutLegalAcceptancesInput
@@ -1366,6 +1387,7 @@ export type UserCreateWithoutInstitutionInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
@@ -1414,6 +1436,7 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -1518,6 +1541,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -1567,6 +1591,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -1630,6 +1655,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -1679,6 +1705,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -1726,6 +1753,7 @@ export type UserCreateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -1775,6 +1803,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -1838,6 +1867,7 @@ export type UserUpdateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -1887,6 +1917,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -1934,6 +1965,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -1983,6 +2015,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -2046,6 +2079,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -2095,6 +2129,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -2142,6 +2177,7 @@ export type UserCreateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -2191,6 +2227,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -2254,6 +2291,7 @@ export type UserUpdateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -2303,6 +2341,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -2350,6 +2389,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -2399,6 +2439,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -2462,6 +2503,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -2511,6 +2553,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -2558,6 +2601,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -2607,6 +2651,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -2670,6 +2715,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -2719,6 +2765,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -2766,6 +2813,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -2815,6 +2863,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -2878,6 +2927,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -2927,6 +2977,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -2974,6 +3025,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -3023,6 +3075,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -3075,6 +3128,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -3124,6 +3178,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -3187,6 +3242,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -3236,6 +3292,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -3294,6 +3351,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -3343,6 +3401,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -3390,6 +3449,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -3439,6 +3499,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -3502,6 +3563,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -3551,6 +3613,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -3598,6 +3661,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -3647,6 +3711,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -3710,6 +3775,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -3759,6 +3825,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -3806,6 +3873,7 @@ export type UserCreateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -3855,6 +3923,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -3918,6 +3987,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -3967,6 +4037,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -4015,6 +4086,7 @@ export type UserCreateWithoutLibrarySavesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -4064,6 +4136,7 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -4127,6 +4200,7 @@ export type UserUpdateWithoutLibrarySavesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -4176,6 +4250,7 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -4223,6 +4298,7 @@ export type UserCreateWithoutLibraryViewsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -4272,6 +4348,7 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -4335,6 +4412,7 @@ export type UserUpdateWithoutLibraryViewsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -4384,6 +4462,7 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -4431,6 +4510,7 @@ export type UserCreateWithoutLibraryReportsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -4480,6 +4560,7 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -4543,6 +4624,7 @@ export type UserUpdateWithoutLibraryReportsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -4592,6 +4674,7 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -4638,6 +4721,7 @@ export type UserCreateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -4687,6 +4771,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -4750,6 +4835,7 @@ export type UserUpdateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -4799,6 +4885,219 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+}
+
+export type UserCreateWithoutPushDevicesInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
+  entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+}
+
+export type UserUncheckedCreateWithoutPushDevicesInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+}
+
+export type UserCreateOrConnectWithoutPushDevicesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushDevicesInput, Prisma.UserUncheckedCreateWithoutPushDevicesInput>
+}
+
+export type UserUpsertWithoutPushDevicesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPushDevicesInput, Prisma.UserUncheckedUpdateWithoutPushDevicesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushDevicesInput, Prisma.UserUncheckedCreateWithoutPushDevicesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPushDevicesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPushDevicesInput, Prisma.UserUncheckedUpdateWithoutPushDevicesInput>
+}
+
+export type UserUpdateWithoutPushDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPushDevicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -4846,6 +5145,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -4895,6 +5195,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -4958,6 +5259,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -5007,6 +5309,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -5055,6 +5358,7 @@ export type UserCreateWithoutEntitlementsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
@@ -5104,6 +5408,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
@@ -5167,6 +5472,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
@@ -5216,6 +5522,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
@@ -5263,6 +5570,7 @@ export type UserCreateWithoutFocusSessionsInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
@@ -5312,6 +5620,7 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
@@ -5375,6 +5684,7 @@ export type UserUpdateWithoutFocusSessionsInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
@@ -5424,6 +5734,7 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
@@ -5471,6 +5782,7 @@ export type UserCreateWithoutFocusUsageInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -5520,6 +5832,7 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
@@ -5583,6 +5896,7 @@ export type UserUpdateWithoutFocusUsageInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -5632,6 +5946,7 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
@@ -5678,6 +5993,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
   entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
@@ -5727,6 +6043,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
   focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
@@ -5790,6 +6107,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
@@ -5839,6 +6157,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -5914,6 +6233,7 @@ export type UserUpdateWithoutInstitutionInput = {
   eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
@@ -5962,6 +6282,7 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
@@ -6018,6 +6339,7 @@ export type UserCountOutputType = {
   eventAttendance: number
   vaultItems: number
   notifications: number
+  pushDevices: number
   focusSessions: number
   focusUsage: number
   librarySaves: number
@@ -6041,6 +6363,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   eventAttendance?: boolean | UserCountOutputTypeCountEventAttendanceArgs
   vaultItems?: boolean | UserCountOutputTypeCountVaultItemsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
+  pushDevices?: boolean | UserCountOutputTypeCountPushDevicesArgs
   focusSessions?: boolean | UserCountOutputTypeCountFocusSessionsArgs
   focusUsage?: boolean | UserCountOutputTypeCountFocusUsageArgs
   librarySaves?: boolean | UserCountOutputTypeCountLibrarySavesArgs
@@ -6166,6 +6489,13 @@ export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Ty
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountPushDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushDeviceWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountFocusSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FocusModeSessionWhereInput
 }
@@ -6240,6 +6570,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  pushDevices?: boolean | Prisma.User$pushDevicesArgs<ExtArgs>
   institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
   entitlements?: boolean | Prisma.User$entitlementsArgs<ExtArgs>
   focusSessions?: boolean | Prisma.User$focusSessionsArgs<ExtArgs>
@@ -6353,6 +6684,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   eventAttendance?: boolean | Prisma.User$eventAttendanceArgs<ExtArgs>
   vaultItems?: boolean | Prisma.User$vaultItemsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  pushDevices?: boolean | Prisma.User$pushDevicesArgs<ExtArgs>
   institution?: boolean | Prisma.User$institutionArgs<ExtArgs>
   entitlements?: boolean | Prisma.User$entitlementsArgs<ExtArgs>
   focusSessions?: boolean | Prisma.User$focusSessionsArgs<ExtArgs>
@@ -6387,6 +6719,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     eventAttendance: Prisma.$EventAttendancePayload<ExtArgs>[]
     vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    pushDevices: Prisma.$PushDevicePayload<ExtArgs>[]
     institution: Prisma.$InstitutionPayload<ExtArgs> | null
     entitlements: Prisma.$MagicPlusEntitlementPayload<ExtArgs> | null
     focusSessions: Prisma.$FocusModeSessionPayload<ExtArgs>[]
@@ -6830,6 +7163,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   eventAttendance<T extends Prisma.User$eventAttendanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventAttendanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventAttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vaultItems<T extends Prisma.User$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushDevices<T extends Prisma.User$pushDevicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pushDevicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushDevicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   institution<T extends Prisma.User$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   entitlements<T extends Prisma.User$entitlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$entitlementsArgs<ExtArgs>>): Prisma.Prisma__MagicPlusEntitlementClient<runtime.Types.Result.GetResult<Prisma.$MagicPlusEntitlementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   focusSessions<T extends Prisma.User$focusSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$focusSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FocusModeSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7649,6 +7983,30 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.pushDevices
+ */
+export type User$pushDevicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushDevice
+   */
+  select?: Prisma.PushDeviceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushDevice
+   */
+  omit?: Prisma.PushDeviceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushDeviceInclude<ExtArgs> | null
+  where?: Prisma.PushDeviceWhereInput
+  orderBy?: Prisma.PushDeviceOrderByWithRelationInput | Prisma.PushDeviceOrderByWithRelationInput[]
+  cursor?: Prisma.PushDeviceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushDeviceScalarFieldEnum | Prisma.PushDeviceScalarFieldEnum[]
 }
 
 /**

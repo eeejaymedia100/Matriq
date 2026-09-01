@@ -208,6 +208,7 @@ model User {
   eventAttendance       EventAttendance[]
   vaultItems            VaultItem[]
   notifications         Notification[]
+  pushDevices           PushDevice[]
   institution   Institution?           @relation(fields: [institutionId], references: [id])
   entitlements          MagicPlusEntitlement?
   focusSessions         FocusModeSession[]
@@ -690,6 +691,26 @@ model Notification {
 
   @@index([userId, readAt])
   @@map("notifications")
+}
+
+// ── Push notification device registrations ─────────────────────
+// One row per device (FCM registration token) a student's app registered
+// after the user granted notification permission. Tokens are server-side
+// secrets — never exposed through any API — and the backend is the only
+// sender. Rows are removed when the token dies (FCM says unregistered) or the
+// student logs out, so one account can own several devices at once.
+model PushDevice {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  token      String   @unique // FCM registration token (hex on Android)
+  platform   String   @default("android") // android | web
+  createdAt  DateTime @default(now()) @map("created_at")
+  lastSeenAt DateTime @updatedAt @map("last_seen_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_devices")
 }
 
 // ── Real-time class/timetable updates (round-2 QA §2) ─────────────
