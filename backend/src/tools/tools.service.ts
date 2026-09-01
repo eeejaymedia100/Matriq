@@ -12,10 +12,13 @@ import sharp from "sharp";
  * Tools (spec §8 + round-2 QA §7) — server-side utilities so Android and the
  * web build behave identically.
  *
- * OCR is fully open source: the system Tesseract 5 engine (LSTM) does the
- * actual recognition with sharp image preprocessing — no API key, no network,
- * so it always works. A bundled tesseract.js worker is the fallback for
- * environments without the tesseract binary (e.g. local dev).
+ * OCR is a two-tier pipeline: Tesseract (open source, free, fast) handles the
+ * easy case — clean printed text — and a Gemini vision pass rescues everything
+ * Tesseract can't read confidently (handwriting, low light, messy photos).
+ * The Gemini pass is env-gated and only runs when Tesseract's confidence is
+ * below the rescue threshold, so the cheap/open path stays the default and the
+ * paid API only touches the scans that actually need it. Without a GEMINI key
+ * the behaviour is exactly the old Tesseract-only pipeline.
  */
 
 const IMAGE_MIME_TYPES = new Set([
@@ -32,8 +35,34 @@ export interface OcrResult {
   text: string;
   confidence: number;
   readable: boolean;
-  engine: "tesseract";
+  engine: "tesseract" | "gemini";
 }
+
+/**
+ * Below this Tesseract confidence we stop trusting it and escalate to the
+ * Gemini vision pass. Printed text usually scores 80+, handwriting usually
+ * scores < 30 — 55 is a clean split that rescues the genuinely bad scans
+ * without paying for the good ones.
+ */
+const TESSERACT_RESCUE_CONFIDENCE = 55;
+
+/** Longest image side we send to Gemini (photos arrive at 3000×4000; the
+ *  downscale is the single biggest latency lever for a vision call). */
+const GEMINI_MAX_SIDE = 2048;
+
+/**
+ * Gemini OCR prompt — verbatim transcription engineered for handwriting:
+ * keep every word / abbreviation / course code / number exactly as written,
+ * preserve line breaks, never correct or summarize. NO_TEXT is the
+ * machine-readable "there is nothing to read" answer the caller checks for.
+ */
+const OCR_PROMPT = [
+  "Extract every piece of text from this image exactly as written.",
+  "The text may be printed or handwritten — read handwriting carefully, including abbreviations, course codes (e.g. CHM 101), numbers and symbols.",
+  "Transcribe verbatim: do not correct spelling, expand abbreviations, or summarize.",
+  "Preserve line breaks and paragraph structure.",
+  "If the image contains no legible text at all, reply with exactly: NO_TEXT",
+].join(" ");
 
 @Injectable()
 export class ToolsService {
@@ -63,27 +92,76 @@ export class ToolsService {
   }
 
   /**
-   * Run OCR on an in-memory image buffer — shared by /tools/ocr and the Vault
-   * document reader (scanned image uploads are read the same way).
+   * Run OCR on an in-memory image buffer — shared by /tools/ocr, the Vault
+   * document reader and offline-AI file import. Two tiers:
+   *
+   *   1. Tesseract first (open source, free, fast on printed text).
+   *   2. If Tesseract's confidence is below the rescue threshold — the classic
+   *      handwriting / low-light / noisy-photo failure — escalate to a Gemini
+   *      vision pass (env-gated; without a key this round-trips straight back
+   *      to Tesseract's best effort, exactly like the old pipeline).
    */
-  async ocrBuffer(buffer: Buffer, _mimeType: string): Promise<OcrResult> {
+  async ocrBuffer(buffer: Buffer, mimeType: string): Promise<OcrResult> {
     // Sharpen the input once (EXIF rotation, grayscale, contrast stretch,
     // upscale small text) — this is what makes Tesseract accurate on photos.
     const preprocessed = await this.preprocessForOcr(buffer);
 
-    // Primary: the system `tesseract` binary (installed in the Docker image).
+    // Tier 1: the system `tesseract` binary (installed in the Docker image),
+    // falling back to the bundled tesseract.js worker when it's unavailable
+    // or exits nonzero (local dev, minimal images).
+    let tesseractResult: OcrResult | null = null;
     if (await this.tesseractAvailable()) {
       try {
-        return await this.ocrWithSystemTesseract(preprocessed);
+        tesseractResult = await this.ocrWithSystemTesseract(preprocessed);
       } catch (err) {
         this.logger.warn(
           `System tesseract OCR failed (${err instanceof Error ? err.message : String(err)}) — falling back to the tesseract.js worker`,
         );
       }
     }
+    if (!tesseractResult) {
+      try {
+        tesseractResult = await this.ocrWithTesseract(preprocessed);
+      } catch (err) {
+        this.logger.warn(
+          `tesseract.js OCR failed (${err instanceof Error ? err.message : String(err)}) — trying Gemini`,
+        );
+      }
+    }
 
-    // Fallback: bundled tesseract.js worker (local dev, no binary installed).
-    return this.ocrWithTesseract(buffer);
+    // Tier 2: the quality gate. Tesseract nailed it → ship it, no paid API.
+    if (tesseractResult && this.isTesseractConfident(tesseractResult)) {
+      return tesseractResult;
+    }
+
+    // Handwriting / low-quality scans: escalate to the Gemini vision pass.
+    if (await this.isGeminiOcrEnabled()) {
+      const rescued = await this.ocrWithGemini(preprocessed, mimeType);
+      if (rescued && rescued.readable && rescued.text) {
+        this.logger.log(
+          `OCR (gemini rescue) succeeded — ${rescued.text.length} chars (tesseract was ${tesseractResult ? `${tesseractResult.confidence}% conf` : "unavailable"})`,
+        );
+        return rescued;
+      }
+      this.logger.warn(
+        `Gemini rescue found no readable text either — keeping tesseract's best effort`,
+      );
+    }
+
+    // Best effort: whatever Tesseract managed (honest low-confidence result),
+    // or an explicit empty result when no engine produced anything.
+    return (
+      tesseractResult ?? { text: "", confidence: 0, readable: false, engine: "tesseract" }
+    );
+  }
+
+  /** Tesseract's confidence is trustworthy enough to skip the Gemini pass. */
+  private isTesseractConfident(result: OcrResult): boolean {
+    return result.readable && result.confidence >= TESSERACT_RESCUE_CONFIDENCE;
+  }
+
+  private async isGeminiOcrEnabled(): Promise<boolean> {
+    return !!process.env.GEMINI_API_KEY?.trim();
   }
 
   /** Lazily probe for the system `tesseract` binary (installed in the Docker image). */
@@ -283,6 +361,121 @@ export class ToolsService {
       this.logger.log("Tesseract worker warming up…");
     }
     return this.workerPromise;
+  }
+
+  /**
+   * Gemini vision pass — the handwriting / low-light rescue. The image is
+   * downscaled to ≤GEMINI_MAX_SIDE on the longest side and re-encoded as
+   * JPEG before upload (photos arrive at 3000×4000; the downscale is the
+   * biggest latency lever for a vision call). One retry on transient failures
+   * (5xx/timeout) — same policy as voice transcription. Never throws; returns
+   * null only when Gemini is unreachable after the retry, so the caller keeps
+   * Tesseract's result instead of failing the request.
+   */
+  private async ocrWithGemini(
+    buffer: Buffer,
+    mimeType: string,
+  ): Promise<OcrResult | null> {
+    const key = process.env.GEMINI_API_KEY?.trim();
+    if (!key) return null;
+    const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.7-flash";
+    const baseUrl =
+      process.env.GEMINI_BASE_URL?.trim() ||
+      "https://generativelanguage.googleapis.com/v1beta";
+
+    // Downscale + JPEG re-encode so the vision call stays fast and small.
+    let image = buffer;
+    let imageMime = mimeType || "image/jpeg";
+    try {
+      const resized = await sharp(buffer)
+        .rotate()
+        .resize({
+          width: GEMINI_MAX_SIDE,
+          height: GEMINI_MAX_SIDE,
+          fit: "inside",
+          withoutEnlargement: true,
+        })
+        .jpeg({ quality: 88 })
+        .toBuffer();
+      image = resized;
+      imageMime = "image/jpeg";
+    } catch {
+      // Keep the original — sharp can still fail on corrupt headers.
+    }
+
+    const base64 = image.toString("base64");
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const res = await fetch(
+          `${baseUrl}/models/${model}:generateContent?key=${key}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    { inline_data: { mime_type: imageMime, data: base64 } },
+                    { text: OCR_PROMPT },
+                  ],
+                },
+              ],
+              generationConfig: { temperature: 0, maxOutputTokens: 8192 },
+            }),
+            signal: AbortSignal.timeout(60_000),
+          },
+        );
+        if (!res.ok) {
+          throw Object.assign(new Error(`Gemini HTTP ${res.status}`), {
+            status: res.status,
+          });
+        }
+        const data = (await res.json()) as {
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
+        };
+        const raw = (data.candidates?.[0]?.content?.parts?.[0]?.text ?? "")
+          .trim();
+        const text = this.stripNoTextMarker(raw);
+        const readable = text.length >= 4;
+        this.logger.log(
+          `OCR (gemini rescue) attempt ${attempt + 1}: ${text.length} chars — ${readable ? "readable" : "not readable"}`,
+        );
+        return {
+          // Gemini has no per-word confidence; a readable answer means the
+          // model genuinely read text off the image, which is the strongest
+          // signal we have — the honest marker is the readable flag, not a
+          // made-up per-word score.
+          text: readable ? text.slice(0, 5000) : "",
+          confidence: readable ? 100 : 0,
+          readable,
+          engine: "gemini",
+        };
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        // Transient (network / 5xx / timeout) gets one retry; a 4xx won't
+        // succeed on retry.
+        const status = (err as { status?: number })?.status;
+        if (status && status >= 400 && status < 500) break;
+        if (attempt === 0) {
+          this.logger.warn(
+            `Gemini OCR attempt 1 failed (${lastError.message}) — retrying`,
+          );
+        }
+      }
+    }
+    this.logger.warn(
+      `Gemini OCR unavailable (${lastError?.message ?? "unknown"}) — keeping the tesseract result`,
+    );
+    return null;
+  }
+
+  /** Drop the model's explicit "no text" marker so it can never leak into results. */
+  private stripNoTextMarker(raw: string): string {
+    const trimmed = raw.trim();
+    if (/^NO_TEXT$/i.test(trimmed)) return "";
+    // The model can also wrap the marker in quotes or pad it with whitespace.
+    return trimmed.replace(/^["'\s]*NO_TEXT["'\s]*$/i, "");
   }
 
   // ── Extract plain text from a study file (offline-AI material import) ──

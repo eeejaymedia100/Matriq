@@ -77,3 +77,138 @@ describe("ToolsService — OCR input validation", () => {
     );
   });
 });
+
+/**
+ * OCR hybrid pipeline — the quality gate that decides when a scan escalates
+ * to the Gemini rescue pass. Tesseract helpers are stubbed so no binary,
+ * worker or network call ever runs; Gemini is stubbed so no API is hit.
+ */
+describe("ToolsService — OCR hybrid pipeline", () => {
+  // `!` — jest's beforeEach always assigns before any test (or helper) runs.
+  let service!: ToolsService;
+  const fakeJpeg = Buffer.from([0xff, 0xd8, 0xff, 0xe0]);
+
+  beforeEach(() => {
+    service = new ToolsService();
+  });
+
+  const stubTesseract = (
+    overrides: Partial<{
+      text: string;
+      confidence: number;
+      readable: boolean;
+    }> = {},
+  ) => {
+    const result = {
+      text: overrides.text ?? "",
+      confidence: overrides.confidence ?? 0,
+      readable: overrides.readable ?? false,
+      engine: "tesseract" as const,
+    };
+    const avail = jest
+      .spyOn(
+        service as unknown as { tesseractAvailable: () => Promise<boolean> },
+        "tesseractAvailable",
+      )
+      .mockResolvedValue(true);
+    const pre = jest
+      .spyOn(
+        service as unknown as { preprocessForOcr: (b: Buffer) => Promise<Buffer> },
+        "preprocessForOcr",
+      )
+      .mockResolvedValue(fakeJpeg);
+    const sys = jest
+      .spyOn(
+        service as unknown as {
+          ocrWithSystemTesseract: (b: Buffer) => Promise<object>;
+        },
+        "ocrWithSystemTesseract",
+      )
+      .mockResolvedValue(result);
+    return { avail, pre, sys, result };
+  };
+
+  const stubGeminiEnabled = (enabled: boolean) =>
+    jest
+      .spyOn(
+        service as unknown as { isGeminiOcrEnabled: () => Promise<boolean> },
+        "isGeminiOcrEnabled",
+      )
+      .mockResolvedValue(enabled);
+
+  const stubGemini = (result: object | null) =>
+    jest
+      .spyOn(
+        service as unknown as {
+          ocrWithGemini: (b: Buffer, m: string) => Promise<object | null>;
+        },
+        "ocrWithGemini",
+      )
+      .mockResolvedValue(result);
+
+  it("trusts Tesseract when confidence is high — no Gemini call, no API cost", async () => {
+    const { sys } = stubTesseract({
+      text: "printed lecture slide",
+      confidence: 91,
+      readable: true,
+    });
+    const gemini = stubGemini({});
+    const gEnabled = stubGeminiEnabled(false);
+
+    const result = await service.ocrBuffer(fakeJpeg, "image/jpeg");
+
+    expect(sys).toHaveBeenCalledTimes(1);
+    expect(gemini).not.toHaveBeenCalled();
+    expect(gEnabled).not.toHaveBeenCalled();
+    expect(result).toMatchObject({
+      text: "printed lecture slide",
+      confidence: 91,
+      engine: "tesseract",
+    });
+  });
+
+  it("rescues with Gemini when Tesseract isn't confident (the handwriting case)", async () => {
+    stubTesseract({ text: "", confidence: 12, readable: false });
+    stubGeminiEnabled(true);
+    const gemini = stubGemini({
+      text: "handwritten lecture note",
+      confidence: 100,
+      readable: true,
+      engine: "gemini",
+    });
+
+    const result = await service.ocrBuffer(fakeJpeg, "image/jpeg");
+
+    expect(gemini).toHaveBeenCalledWith(fakeJpeg, "image/jpeg");
+    expect(result).toMatchObject({
+      text: "handwritten lecture note",
+      readable: true,
+      engine: "gemini",
+    });
+  });
+
+  it("returns Tesseract's best effort when Gemini is not configured (old behaviour)", async () => {
+    stubTesseract({ text: "", confidence: 20, readable: false });
+    stubGeminiEnabled(false);
+    const gemini = stubGemini(null);
+
+    const result = await service.ocrBuffer(fakeJpeg, "image/jpeg");
+
+    expect(gemini).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ confidence: 20, readable: false, engine: "tesseract" });
+  });
+
+  it("keeps Tesseract's effort when Gemini finds no readable text either", async () => {
+    const { result: lowConf } = stubTesseract({
+      text: "co",
+      confidence: 30,
+      readable: false,
+    });
+    stubGeminiEnabled(true);
+    stubGemini({ text: "", confidence: 0, readable: false, engine: "gemini" });
+
+    const result = await service.ocrBuffer(fakeJpeg, "image/jpeg");
+
+    expect(result).toBe(lowConf);
+  });
+});
