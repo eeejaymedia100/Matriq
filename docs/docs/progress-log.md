@@ -4,6 +4,13 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-09-02 (deployed) — v0.7.17 (build 25) SHIPPED to production
+
+- APK built locally (`./gradlew assembleRelease`, 23 min incremental), verified versionCode 25 / 0.7.17 with the SAME signing cert as the served build (in-place upgrades work), shipped by `scripts/_finalize-apk.sh` → `https://matriq.com.ng/download/matriq.apk` + manifest regenerated from the APK (25/0.7.17).
+- Backend + Caddy deployed via `deploy.sh` on the VM (git pull e106d0d → docker rebuild). New image healthy; applied `20260831010000_push_devices` migration; Caddy restarted with the hardened config (CSP/HSTS/Permissions-Policy/404 verified live).
+- **CORS fixed live**: added `https://app.matriq.com.ng` + `https://www.matriq.com.ng` to `CORS_ORIGIN` in the VM `.env`; backend recreated; preflights verified (both origins now get `access-control-allow-origin`).
+- Live verification: homepage 200 + security headers, robots/sitemap 200, custom 404, APK 206, manifest 25, `/v1/health` ok.
+
 ## 2026-09-02 (night) — Release pass: Focus Mode for everything, chat scroll fix, updater fix, build 25 (committed; APK building)
 
 - **Focus Mode is now general-purpose, not exam-only.** Backend prompts (focus.schema.ts + focus.prompt.ts) no longer assume a university course: coding topics get builder framing (how it works under the hood, pitfalls, real-project use), course codes still expand (CHM 101 → Chemistry), and everything else gets deep-understanding framing. Mobile copy updated (FocusModeScreen entry + the AiCompanion Focus pill). Tests updated + 4 new.
