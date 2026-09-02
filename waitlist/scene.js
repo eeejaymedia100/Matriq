@@ -18,7 +18,12 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var conn = navigator.connection || { saveData: false, effectiveType: "4g" };
-  var lite = conn.saveData === true || conn.effectiveType === "2g" || conn.effectiveType === "3g";
+  // Lite mode: skip the HDR environment, post-processing and high pixel
+  // ratios on data-constrained, slow or small-screen devices. The CSS orbs
+  // already cover ultra-fast omission via app.js; this keeps the scene cheap
+  // for everyone it does run on.
+  var isSmallScreen = window.innerWidth < 760;
+  var lite = conn.saveData === true || conn.effectiveType === "2g" || conn.effectiveType === "3g" || conn.effectiveType === "slow-2g" || isSmallScreen;
 
   var renderer;
   try {

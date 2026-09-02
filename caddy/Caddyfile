@@ -1,14 +1,59 @@
 # Matriq — Caddy reverse proxy (TLS termination, HTTPS only per security.md).
 # The ONLY service binding to public ports.
 #
-# matriq.com.ng       → waitlist landing page (static) + /v1 proxied to backend
+# matriq.com.ng       → waitlist landing page (static)
+# app.matriq.com.ng   → student web app (static React Native web export)
 # api.matriq.com.ng   → backend API
+#
 # Certificates: Caddy auto-issues Let's Encrypt certs once DNS resolves here.
+#
+# Production notes:
+# - The temporary raw-IP / ngrok catch-all blocks were removed at launch; the
+#   whole stack is reached only through the real domains. If a dev tunnel is
+#   ever needed again, see caddy/Caddyfile.tunnels.
+# - The request bodies are compressed transparently with zstd+gzip via the
+#   `encode` directive; two-byte-encoded responses negotiate zstd first and
+#   fall back to gzip, which hurts nobody (all modern browsers send
+#   Accept-Encoding).
+
+# ── Shared security headers ──────────────────────────────────────────
+(security_headers) {
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+}
 
 # ── Public waitlist landing page (UI only — API lives at api.*) ────
 matriq.com.ng, www.matriq.com.ng {
     root * /srv/waitlist
-    encode gzip
+    encode zstd gzip
+    import security_headers
+
+    header {
+        # Marketing site: nothing here needs camera/mic/geolocation/payment/UA data.
+        Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), browsing-topics=()"
+        # CSP: the only third-party code is Google Fonts (style/font) and the
+        # three.js scene loaded from jsDelivr (script). The waitlist form posts
+        # via fetch to api.matriq.com.ng (connect-src). 'unsafe-inline' style
+        # covers the inline <style> blocks on the terms/privacy pages.
+        Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' https://api.matriq.com.ng; upgrade-insecure-requests"
+        # HTML and everything else: always revalidate.
+        Cache-Control "no-cache"
+    }
+
+    # Assets (3D scene, og-image, icons): stable names, 1-day mutable cache.
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=86400, stale-while-revalidate=86400"
+
+    @shortlived path /favicon.svg /apple-touch-icon.png /robots.txt /sitemap.xml /404.html
+    header @shortlived Cache-Control "public, max-age=3600"
+
+    # The in-app updater polls app-version.json on every launch — never cache.
+    @version path /app-version.json
+    header @version Cache-Control "no-store"
 
     # Waitlist UI only — the page's form calls api.matriq.com.ng directly
     # (cross-origin, CORS-enabled). No API surface on the website domain.
@@ -21,114 +66,78 @@ matriq.com.ng, www.matriq.com.ng {
         file_server
     }
 
-    header {
-        X-Content-Type-Options nosniff
-        X-Frame-Options DENY
-        Referrer-Policy strict-origin-when-cross-origin
+    # Branded 404 (waitlist/404.html) instead of Caddy's default error page.
+    handle_errors {
+        @not_found expression {err.status_code} == 404
+        handle @not_found {
+            rewrite * /404.html
+            file_server
+        }
+        handle {
+            respond "{err.status_code} {err.status_text}" 500
+        }
     }
 }
 
 # ── Student web app (iPhone users) ─────────────────────────────────
 # Static export of the mobile app (`cd mobile && npm run web:export`), copied
-# to /srv/matriq-web on the VM. Gives iPhone users the full app in the
-# browser — registration, dues, Vault, and the AI companion (cloud + OCR;
-# on-device model support lands with the transformers.js engine, see
-# docs/docs/web-app.md).
+# to /srv/matriq-web on the VM. Login-gated client-side app — kept out of the
+# search index on purpose (X-Robots-Tag on every response, plus an explicit
+# disallow in /robots.txt).
 app.matriq.com.ng {
     root * /srv/matriq-web
-    encode gzip
-    try_files {path} /index.html
+    encode zstd gzip
+    import security_headers
 
     header {
-        X-Content-Type-Options nosniff
-        Referrer-Policy strict-origin-when-cross-origin
+        X-Robots-Tag "noindex, nofollow"
+        Cache-Control "no-cache"
     }
+
+    # Hashed Expo bundles: genuinely immutable.
+    @expo path /_expo/*
+    header @expo Cache-Control "public, max-age=31536000, immutable"
+
+    @assets path /assets/*
+    header @assets Cache-Control "public, max-age=86400, stale-while-revalidate=86400"
+
+    # No public content on this host — tell crawlers explicitly.
+    handle /robots.txt {
+        respond "User-agent: *\nDisallow: /\n" 200
+    }
+
+    handle_errors {
+        @not_found expression {err.status_code} == 404
+        handle @not_found {
+            respond "Not Found" 404
+        }
+        handle {
+            respond "{err.status_code} {err.status_text}" 500
+        }
+    }
+
+    try_files {path} /index.html
 }
 
 # ── API subdomain ──────────────────────────────────────────────────
 api.matriq.com.ng {
+    import security_headers
+
+    header {
+        Cache-Control "no-store"
+        Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+    }
+
     reverse_proxy backend:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote_host}
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
     }
-
-    header {
-        X-Content-Type-Options nosniff
-        X-Frame-Options DENY
-        Referrer-Policy strict-origin-when-cross-origin
-    }
 }
 
 # ── HTTP -> HTTPS redirect (our hosts only) ────────────────────────
-http://matriq.com.ng, http://api.matriq.com.ng, http://app.matriq.com.ng {
+http://matriq.com.ng, http://www.matriq.com.ng,
+http://api.matriq.com.ng, http://app.matriq.com.ng {
     redir https://{host}{uri} permanent
-}
-
-# ── Temporary: raw VM IP API endpoint ───────────────────────────────
-# Lets the mobile student app be tested TODAY while the .ng nameserver
-# change propagates (up to 24h). Once DNS is live, clients switch to
-# https://api.matriq.com.ng/v1 and this block can be removed.
-http://34.91.191.164 {
-    handle /v1/* {
-        reverse_proxy backend:3000 {
-            header_up Host api.matriq.com.ng
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto http
-        }
-    }
-    # /health is proxied to the backend so external monitors and load tests
-    # measure the API, not this static respond block.
-    handle /health {
-        reverse_proxy backend:3000 {
-            header_up Host api.matriq.com.ng
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto http
-        }
-    }
-    # Student APK download (mirrors the catch-all block below).
-    handle_path /download/* {
-        root * /srv/waitlist
-        file_server
-    }
-    handle {
-        respond "Matriq API — use /v1/*" 200
-    }
-}
-
-# ── Catch-all (ngrok/dev tunnel): any host → API + APK download ─────
-# Lets phones reach the API TODAY via an OUTBOUND ngrok tunnel (no
-# inbound firewall needed). The tunnel forwards with a random *.ngrok
-# Host header, so this block matches any unknown host on :80.
-# Once the GCP firewall is open and DNS propagates, clients switch to
-# https://api.matriq.com.ng/v1 and this block can be removed.
-http:// {
-    handle /v1/* {
-        reverse_proxy backend:3000 {
-            header_up Host api.matriq.com.ng
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
-        }
-    }
-    # /health is proxied to the backend so external monitors and load tests
-    # measure the API, not this static respond block.
-    handle /health {
-        reverse_proxy backend:3000 {
-            header_up Host api.matriq.com.ng
-            header_up X-Real-IP {remote_host}
-            header_up X-Forwarded-For {remote_host}
-            header_up X-Forwarded-Proto https
-        }
-    }
-    handle_path /download/* {
-        root * /srv/waitlist
-        file_server
-    }
-    handle {
-        respond "Matriq API — use /v1/*" 200
-    }
 }

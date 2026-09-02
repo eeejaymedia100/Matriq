@@ -97,3 +97,46 @@ voice.
 `claude-skills/matriq-brand-identity/SKILL.md` is what the agent actually reaches for while
 writing UI code — this document is the fuller reference it's built from. If the two ever drift
 apart, update both in the same change.
+
+## Round-4 locked decisions (design pass)
+
+Decisions from the round-4 design pass. These are locked until someone explicitly reopens them;
+new screens follow them. (Serif is a planned addition — it is NOT yet installed in the app; the
+usage rules below are the contract for when it lands.)
+
+### Typography — serif + sans, one voice at a time
+
+- **Sans (workhorse):** Plus Jakarta Sans (already bundled) owns *everything*: body, buttons,
+  labels, chips, tab bar, h3+, tags. Never made "displayy".
+- **Serif (display only):** Fraunces (planned, via `@expo-google-fonts/fraunces`) appears **only**
+  at display/h1/h2 and on big numerals — CGPA result, focus-timer readout, streak count,
+  passcode screen.
+- **The rule:** never both voices at once in a way that splits attention. If a screen has a serif
+  headline, everything beneath it is sans and quieter — exactly one serif moment per screen.
+  Serif is never used for body, buttons, labels, or anything below 18pt-sized text.
+
+### Scale floors (a11y + consistency)
+
+- Display 30 / h1 26 (down from 34/28 — less shout, more presence); existing screens migrate
+  gradually, every new screen starts here.
+- Touch targets ≥44pt; caption/minimum text ≥12. Radii stay canonical: 8 / 14 / 20 / 28.
+
+### Layout language
+
+- **Home:** the three stacked 42px-tile rows collapse into one compact "Quick access" list; the
+  AI Companion keeps its hero slot; the streak chip is a game-style `StreakBadge`.
+- **Vault & Library discovery:** big outlined cards become hairline list rows (Spotify-style) —
+  one canonical row component, no hand-rolled cards in new lists.
+- **Tools screen:** all tools live in ONE unified, equal-height grid — no category headers
+  (AI utilities / Documents / Grades are gone). Every grid box is the same height with the
+  hint pinned to the bottom, so text length never makes boxes differ. School-portal WhatsApp
+  services are a quiet list at the very bottom of the screen.
+- **Streak badge:** game-style arrival — reanimated spring entrance with overshoot, count-up
+  numeral, single lime flame tile. No streak levels/tiers/labels (round-3 gamification §1 keeps
+  one streak, one badge), and it fully respects `prefers-reduced-motion`.
+
+### Contrast of UI
+
+- Emotional color (lime, glowing borders, shimmer) stays the exception: the lime accent is spent
+  in exactly one place per screen — the primary CTA, a live status dot, or the streak flame.
+  Everything else on that screen is quiet by comparison.

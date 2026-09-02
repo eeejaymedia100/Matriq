@@ -2,14 +2,19 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.7.16",
+    "version": "0.7.17",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "web": {
       "bundler": "metro",
       "output": "single",
-      "name": "Matriq"
+      "name": "Matriq — The Smart Way to Get Through Semester",
+      "shortName": "Matriq",
+      "description": "Past questions, offline AI and study tools for how Nigerian students actually study. Works on bad data.",
+      "lang": "en",
+      "themeColor": "#14061F",
+      "backgroundColor": "#0d0620"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -24,7 +29,8 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "app.matriq.mobile",
-      "versionCode": 24,
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 25,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
@@ -87,7 +93,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "http://34.91.191.164/v1"
+      "apiUrl": "https://api.matriq.com.ng/v1"
     }
   }
 }

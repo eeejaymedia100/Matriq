@@ -21,6 +21,7 @@ import {
   extractJson,
   PROMPT_VERSION,
 } from "./focus.schema";
+import { enhanceTopic, EnhancedTopic } from "./focus.prompt";
 
 /**
  * Cloud Focus Mode — DeepSeek powered, server-side only.
@@ -236,11 +237,21 @@ export class FocusService {
       };
     }
 
-    // 4. Call the model chain: DeepSeek → NVIDIA → Gemini.
-    const result = await this.generateMapWithFallbacks(topic);
+    // 4. Enhance the topic deterministically (course codes, level framing) —
+    //    a better prompt costs nothing extra and produces better maps. The
+    //    cache key above stays on the RAW topic, so equivalent inputs still
+    //    share a map.
+    const profile = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { level: true, department: true, faculty: true },
+    });
+    const enhanced = enhanceTopic(topic, profile ?? undefined);
 
-    // 5. Validate (already done in fallback loop, but guard the empty case).
-    const map = validateFocusMap(result.json, topic);
+    // 5. Call the model chain: DeepSeek → NVIDIA → Gemini.
+    const result = await this.generateMapWithFallbacks(enhanced);
+
+    // 6. Validate (already done in fallback loop, but guard the empty case).
+    const map = validateFocusMap(result.json, enhanced.title);
     if (!map) {
       await this.recordError(userId, null, "generate", result.provider, "schema");
       throw new ServiceUnavailableException(
@@ -399,17 +410,14 @@ export class FocusService {
   // ── Provider chain ─────────────────────────────────────────
 
   /**
-   * Generate a raw map JSON, trying DeepSeek → NVIDIA → Gemini. Returns the
-   * first *validated* map. Throws ServiceUnavailableException only when every
-   * provider failed or produced unusable JSON — with a safe client message.
-   */
-  /**
    * Generate a map, trying DeepSeek → NVIDIA → Gemini. Returns the first
    * *validated* map. Throws ServiceUnavailableException only once every provider
    * failed or produced unusable JSON — with a safe client message.
    */
-  private async generateMapWithFallbacks(topic: string): Promise<ProviderResult> {
-    const prompt = buildMapPrompt(topic);
+  private async generateMapWithFallbacks(
+    enhanced: EnhancedTopic,
+  ): Promise<ProviderResult> {
+    const prompt = buildMapPrompt(enhanced.title, enhanced.prompt);
     const attempts: Array<"deepseek" | "nvidia" | "gemini"> = [
       "deepseek",
       "nvidia",
@@ -426,7 +434,7 @@ export class FocusService {
         latencyMs: Date.now() - started,
       };
 
-      const map = validateFocusMap(result.json, topic);
+      const map = validateFocusMap(result.json, enhanced.title);
       if (!map) {
         this.logger.warn(`Focus: ${provider} returned invalid map JSON`);
         await this.recordError(null, null, "generate", provider, "schema");

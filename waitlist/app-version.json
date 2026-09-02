@@ -1,7 +1,7 @@
 {
-  "versionCode": 16,
-  "versionName": "0.7.8",
+  "versionCode": 25,
+  "versionName": "0.7.17",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "Update: the on-screen keyboard no longer covers what you type (inputs lift above it) and the offline AI chat no longer repeats words mid-answer.",
-  "publishedAt": "2026-08-20T13:51:16.522Z"
+  "notes": "Session fixes (no more surprise logouts), general-purpose Focus Mode (courses, coding, skills), chat scrolling fix, and a more reliable updater.",
+  "publishedAt": "2026-09-02T00:00:00.000Z"
 }

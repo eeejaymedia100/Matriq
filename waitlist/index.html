@@ -3,17 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matriq — The Smart Way to Get Through Semester</title>
-  <meta name="description" content="Past questions, offline AI, and the tools you actually reach for daily — one app, built for how Nigerian students actually study. Join the waitlist." />
-  <meta property="og:title" content="Matriq — The Smart Way to Get Through Semester" />
-  <meta property="og:description" content="Past questions, offline AI, and the study tools you actually reach for daily. Built for Nigerian campuses, works on bad data. Join the waitlist." />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236C3BAA'/%3E%3Ctext x='16' y='22' font-size='18' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'%3EM%3C/text%3E%3C/svg%3E" />
+
+  <!-- Primary metadata -->
+  <title>Matriq — Students, this is the smart way to get through semester</title>
+  <meta name="description" content="Matriq is the student app for past questions, offline AI and study tools built for Nigerian campuses — searchable past questions by course code, an offline AI that works with zero data, and a CGPA calculator for the Nigerian grading scale. Join the waitlist for early access." />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="theme-color" content="#0d0620" />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://matriq.com.ng/" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+  <!-- Open Graph (WhatsApp, Facebook, LinkedIn, Telegram) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Matriq" />
+  <meta property="og:url" content="https://matriq.com.ng/" />
+  <meta property="og:title" content="Matriq — Students, this is the smart way to get through semester" />
+  <meta property="og:description" content="Past questions, offline AI and study tools built for how Nigerian students actually study. Works on bad data. Join the waitlist for early access." />
+  <meta property="og:image" content="https://matriq.com.ng/assets/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Matriq — The Smart Way to Get Through Semester" />
+  <meta property="og:locale" content="en_NG" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Matriq — Students, this is the smart way to get through semester" />
+  <meta name="twitter:description" content="Past questions, offline AI and study tools for how Nigerian students actually study. Works on bad data. Join the waitlist." />
+  <meta name="twitter:image" content="https://matriq.com.ng/assets/og-image.png" />
+  <meta name="twitter:image:alt" content="Matriq — The Smart Way to Get Through Semester" />
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Structured data: Organization + WebSite + SoftwareApplication.
+       Deliberately NOT LocalBusiness — Matriq is not a local business. -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://matriq.com.ng/#organization",
+        "name": "Matriq",
+        "url": "https://matriq.com.ng/",
+        "logo": "https://matriq.com.ng/favicon.svg",
+        "description": "Matriq is a study app for Nigerian university students — past questions, offline AI and daily study tools, built for how Nigerian students actually study.",
+        "sameAs": [
+          "https://t.me/+Bk-Wbby2_Cc3Njk0"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://matriq.com.ng/#website",
+        "url": "https://matriq.com.ng/",
+        "name": "Matriq — The Smart Way to Get Through Semester",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://matriq.com.ng/#organization" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://matriq.com.ng/#software",
+        "name": "Matriq",
+        "applicationCategory": "EducationApplication",
+        "operatingSystem": "Android",
+        "description": "Matriq is the app for Nigerian students — searchable past questions by course code, an offline AI that answers with zero data, and study tools like a Nigerian-scale CGPA calculator and OCR.",
+        "url": "https://matriq.com.ng/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "NGN"
+        },
+        "publisher": { "@id": "https://matriq.com.ng/#organization" }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
+  <script>document.documentElement.classList.add("js");</script>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <!-- 3D scene (lantern + fireflies), rendered behind everything -->
   <canvas id="scene-canvas" aria-hidden="true"></canvas>
 
@@ -34,8 +112,8 @@
   <!-- Nav -->
   <header class="nav" id="nav">
     <div class="nav-inner">
-      <a href="#join" class="logo">
-        <span class="logo-mark">M</span>
+      <a href="#join" class="logo" aria-label="Matriq — home">
+        <span class="logo-mark" aria-hidden="true">M</span>
         <span class="logo-text">Matriq</span>
       </a>
       <nav class="nav-links" aria-label="Primary">
@@ -44,17 +122,30 @@
         <a href="#how" data-scrollspy="how">How it works</a>
       </nav>
       <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener" class="nav-cta">Join the waitlist</a>
+
+      <details class="mobile-menu">
+        <!-- <details>/<summary> exposes the expanded state to assistive tech natively. -->
+        <summary aria-label="Open menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </summary>
+        <div class="mobile-menu-panel">
+          <a href="#problem">Why Matriq</a>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#join" class="mobile-menu-cta">Join the waitlist</a>
+        </div>
+      </details>
     </div>
   </header>
 
-  <main>
+  <main id="main">
     <!-- Hero -->
-    <section class="hero" id="join">
+    <section class="hero" id="join" aria-labelledby="hero-title">
       <div class="hero-inner">
-        <div class="badge fade-up">🚀 Early access — opening soon</div>
-        <h1 class="fade-up delay-1">
+        <div class="badge fade-up"><span class="dot" aria-hidden="true"></span> Early access — opening soon</div>
+        <h1 id="hero-title" class="fade-up delay-1">
           The Smart Way to<br />
-          <span class="grad">Get Through Semester.</span>
+          <span class="lead-line">Get Through Semester.</span>
         </h1>
         <p class="hero-sub fade-up delay-2">
           Past questions, offline AI, and the tools you actually reach for
@@ -97,6 +188,7 @@
                   autocomplete="email"
                   required
                   aria-label="Email address"
+                  aria-describedby="form-msg"
                 />
               </div>
             </div>
@@ -150,7 +242,7 @@
               <span class="btn-label">Email me at launch instead</span>
               <span class="btn-spinner" aria-hidden="true"></span>
             </button>
-            <p class="form-msg" id="form-msg" role="status"></p>
+            <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
           </form>
 
           <p class="join-note">
@@ -160,9 +252,9 @@
         </div>
 
         <div class="hero-points fade-up delay-4">
-          <span>🇳🇬 Built for Nigerian campuses</span>
-          <span>📶 Works on bad data</span>
-          <span>🤖 Offline AI, zero data cost</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/><path d="M9 21v-3h6v3"/></svg> Built for Nigerian campuses</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a12 12 0 0 1 20 0"/><path d="M5.5 12.5a7.5 7.5 0 0 1 13 0"/><path d="M9 16a3.5 3.5 0 0 1 6 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg> Works on bad data</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="13" rx="2"/><path d="M10 4h4"/><path d="M12 12v3"/></svg> Offline AI, zero data cost</span>
         </div>
       </div>
 
@@ -172,8 +264,9 @@
     </section>
 
     <!-- The problem -->
-    <section class="problem" id="problem">
-      <h2 class="section-title reveal">The old way is exhausting</h2>
+    <section class="problem" id="problem" aria-labelledby="problem-title">
+      <p class="eyebrow reveal">Why Matriq</p>
+      <h2 id="problem-title" class="section-title reveal">The old way is exhausting</h2>
       <p class="section-sub reveal">If any of these sound familiar, you're in the right place.</p>
       <div class="pain-list">
         <article class="pain-item reveal">
@@ -195,32 +288,33 @@
     </section>
 
     <!-- Features -->
-    <section class="features" id="features">
-      <h2 class="section-title reveal">Everything you need</h2>
+    <section class="features" id="features" aria-labelledby="features-title">
+      <p class="eyebrow reveal">Features</p>
+      <h2 id="features-title" class="section-title reveal">Everything you need</h2>
       <p class="section-sub reveal">The tools you actually reach for, every single day.</p>
       <div class="feature-grid">
-        <article class="feature-card reveal" data-tilt>
+        <article class="feature-card reveal">
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l1.8 2h7.6a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z"/><path d="M3.5 9.5h17"/></svg>
           </div>
           <h3>The Vault</h3>
           <p>Past questions and materials from students who came before you — searchable by course code.</p>
         </article>
-        <article class="feature-card reveal" data-tilt>
+        <article class="feature-card reveal">
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.8 5.9 4.5 9.6 10.4 10.4-5.9.8-9.6 4.5-10.4 10.4C11.2 16.9 7.5 13.2 1.6 12.4 7.5 11.6 11.2 7.9 12 2z"/></svg>
           </div>
           <h3>Offline AI</h3>
           <p>Download once, ask anything after. Zero data, zero signal required.</p>
         </article>
-        <article class="feature-card reveal" data-tilt>
+        <article class="feature-card reveal">
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11.5h.01M12 11.5h.01M15 11.5h.01M9 15h.01M12 15h.01M15 15h.01M9 18.5h.01M12 18.5h.01M15 18.5h.01"/></svg>
           </div>
           <h3>Tools</h3>
           <p>A CGPA calculator built for the Nigerian grading scale, a predictor that tells you exactly what you need to hit your target, OCR, document conversion — straight to your school portal.</p>
         </article>
-        <article class="feature-card reveal" data-tilt>
+        <article class="feature-card reveal">
           <div class="feature-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
           </div>
@@ -236,21 +330,22 @@
     </section>
 
     <!-- How it works -->
-    <section class="how" id="how">
-      <h2 class="section-title reveal">How it works</h2>
+    <section class="how" id="how" aria-labelledby="how-title">
+      <p class="eyebrow reveal">How it works</p>
+      <h2 id="how-title" class="section-title reveal">How it works</h2>
       <div class="steps">
-        <div class="step reveal" data-tilt>
-          <span class="step-num">1</span>
+        <div class="step reveal">
+          <span class="step-num" aria-hidden="true">1</span>
           <h3>Join the waitlist</h3>
           <p>Enter your email above. You'll get early access the moment we open.</p>
         </div>
-        <div class="step reveal" data-tilt>
-          <span class="step-num">2</span>
+        <div class="step reveal">
+          <span class="step-num" aria-hidden="true">2</span>
           <h3>Get invited as we roll out</h3>
           <p>We open in waves — you'll be first in line when it's your turn.</p>
         </div>
-        <div class="step reveal" data-tilt>
-          <span class="step-num">3</span>
+        <div class="step reveal">
+          <span class="step-num" aria-hidden="true">3</span>
           <h3>Download, verify, and you're in</h3>
           <p>Install the app, verify once, and everything's waiting for you.</p>
         </div>
@@ -258,27 +353,41 @@
     </section>
 
     <!-- CTA -->
-    <section class="cta reveal">
-      <h2>Be first in line.</h2>
+    <section class="cta reveal" aria-labelledby="cta-title">
+      <h2 id="cta-title">Be first in line.</h2>
       <p>Join the Telegram channel — the waitlist is the only way in before launch.</p>
       <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener" class="cta-btn cta-btn-form">Join the waitlist</a>
       <div class="cta-or">or leave your email and we'll email you at launch</div>
       <form id="waitlist-form-cta" class="cta-form" novalidate>
         <div class="field">
           <label for="cta-email" class="visually-hidden">Email address</label>
-          <input type="email" id="cta-email" name="email" placeholder="Your email address" autocomplete="email" required aria-label="Email address" />
+          <input type="email" id="cta-email" name="email" placeholder="Your email address" autocomplete="email" required aria-label="Email address" aria-describedby="cta-form-msg" />
         </div>
         <button type="submit" class="secondary-cta">Email me</button>
       </form>
-      <p class="form-msg cta-msg" id="cta-form-msg" role="status"></p>
+      <p class="form-msg cta-msg" id="cta-form-msg" role="status" aria-live="polite"></p>
     </section>
   </main>
 
   <footer class="footer">
+    <nav class="footer-links" aria-label="Legal and contact">
+      <a href="/terms.html">Terms &amp; Conditions</a>
+      <a href="/privacy.html">Privacy Policy</a>
+      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Telegram community</a>
+      <a href="/download.html">Download Android app</a>
+    </nav>
     <p>© <span id="year">2026</span> Matriq · The Smart Way</p>
     <p class="footer-credit">Lantern model · Khronos glTF Samples (CC0)</p>
   </footer>
 
-  <script src="app.js"></script>
+  <noscript>
+    <div class="noscript-banner" role="note">
+      <strong>JavaScript is off.</strong> The email form needs JavaScript — join the
+      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Matriq Telegram</a>
+      instead and you'll still be first in line.
+    </div>
+  </noscript>
+
+  <script src="app.js" defer></script>
 </body>
 </html>

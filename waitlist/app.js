@@ -9,6 +9,28 @@
 
   document.getElementById("year").textContent = new Date().getFullYear();
 
+  // Keep the email field's error state in sync as the user types.
+  function clearInvalid(el) {
+    if (el) {
+      el.removeAttribute("aria-invalid");
+      el.classList.remove("invalid");
+    }
+  }
+  ["email", "cta-email"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", function () { clearInvalid(el); });
+      el.addEventListener("blur", function () {
+        if (el.value.trim() && !EMAIL_RE.test(el.value.trim())) {
+          el.setAttribute("aria-invalid", "true");
+          el.classList.add("invalid");
+          var msg = id === "cta-email" ? document.getElementById("cta-form-msg") : document.getElementById("form-msg");
+          show(msg, "err", "Please enter a valid email address.");
+        }
+      });
+    }
+  });
+
   function show(msgEl, type, text) {
     msgEl.classList.remove("ok", "err");
     if (type) msgEl.classList.add(type);
@@ -71,10 +93,17 @@
     var email = readVal(opts.emailId || "email");
     var fullName = readVal(opts.nameId || "fullName");
 
-    if (!EMAIL_RE.test(email)) {
+    var emailEl = document.getElementById(opts.emailId || "email");
+    if (!email || !EMAIL_RE.test(email)) {
       show(msgEl, "err", "Please enter a valid email address.");
+      if (emailEl) {
+        emailEl.setAttribute("aria-invalid", "true");
+        emailEl.classList.add("invalid");
+        emailEl.focus();
+      }
       return;
     }
+    clearInvalid(emailEl);
 
     btnEl.disabled = true;
     btnEl.classList.add("loading");
@@ -119,7 +148,10 @@
       .then(function (data) {
         if (data && data.position && typeof data.position === "number") {
           var name = fullName ? fullName.split(" ")[0] + ", you're" : "You're";
-          show(msgEl, "ok", name + " on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
+            // A duplicate submit is still reported as “already on the list” with the
+      // same line number — never reveals that the email existed before (the
+      // backend treats duplicates identically on purpose).
+      show(msgEl, "ok", name + " on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
           formEl.reset();
           resetExecToggle();
           if (countEl) {
@@ -285,11 +317,30 @@
       HTMLScriptElement.supports("importmap");
   }
 
+  // Skip the 3D scene entirely on slow / data-constrained / low-end mobile
+  // connections: it pulls ~2.5MB of three.js + the lantern model from the
+  // CDN, which is the single biggest cost on this page. The CSS ambient
+  // background keeps the look for everyone else.
+  function shouldSkipScene() {
+    var conn = (typeof navigator !== "undefined" && navigator.connection) || null;
+    if (conn) {
+      if (conn.saveData === true) return true;
+      var et = (conn.effectiveType || "4g").toLowerCase();
+      if (et === "2g" || et === "3g") return true;
+    }
+    // Low-end phones: small screen + touch + (unknown recent throughput).
+    if (window.matchMedia("(max-width: 480px) and (pointer: coarse)").matches) {
+      if (!conn || conn.rtt === undefined || conn.rtt > 300) return true;
+    }
+    return false;
+  }
+
   function initScene() {
     if (!supportsImportMap()) return; // old browser → CSS orbs carry the look
     try {
       if (!(window.WebGL2RenderingContext || window.WebGLRenderingContext)) return;
     } catch (e) { return; }
+    if (shouldSkipScene()) return;
 
     var map = document.createElement("script");
     map.type = "importmap";

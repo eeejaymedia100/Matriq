@@ -2,6 +2,8 @@
 .env
 .env.*
 !.env.example
+# Firebase Android config (contains client keys; generated per-project)
+google-services.json
 *.pem
 *.key
 *.p12

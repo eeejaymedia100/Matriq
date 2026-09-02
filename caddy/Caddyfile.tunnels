@@ -1,0 +1,62 @@
+# Matriq — DEV-ONLY tunnel blocks (NOT in production Caddyfile).
+#
+# These were removed at launch: serving the API to arbitrary Host headers is
+# a liability (any domain pointed at the VM's IP got a live API endpoint).
+# Restore by pasting into caddy/Caddyfile and `docker compose up -d caddy`
+# ONLY if a raw-IP / ngrok tunnel is ever genuinely needed for development.
+#
+# ⚠ This is a temporary development aid, not part of the production surface.
+
+# ── Raw VM IP API endpoint ───────────────────────────────────────────
+http://35.204.163.157 {
+    handle /v1/* {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto http
+        }
+    }
+    handle /health {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto http
+        }
+    }
+    handle_path /download/* {
+        root * /srv/waitlist
+        file_server
+    }
+    handle {
+        respond "Matriq API — use /v1/*" 200
+    }
+}
+
+# ── Catch-all (ngrok/dev tunnel): any host → API + APK download ─────
+http:// {
+    handle /v1/* {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+    handle /health {
+        reverse_proxy backend:3000 {
+            header_up Host api.matriq.com.ng
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto https
+        }
+    }
+    handle_path /download/* {
+        root * /srv/waitlist
+        file_server
+    }
+    handle {
+        respond "Matriq API — use /v1/*" 200
+    }
+}

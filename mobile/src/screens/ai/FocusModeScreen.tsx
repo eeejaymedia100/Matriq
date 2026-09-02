@@ -487,9 +487,9 @@ export function FocusModeScreen() {
           { color: colors.textSecondary, marginTop: 4, lineHeight: 23 },
         ]}
       >
-        Turn a complex topic into a visual map — definitions, parts, processes
-        and examples as connected cards you can zoom and explore. Powered by cloud
-        AI (a Magic Plus feature).
+        Turn any complex thing — a course topic, a coding concept, a skill, a
+        hard problem — into a visual map of connected cards you can zoom and
+        explore. Powered by cloud AI (a Magic Plus feature).
       </Text>
 
       {/* Premium / free-allowance messaging */}

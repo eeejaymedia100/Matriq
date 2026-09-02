@@ -13,8 +13,11 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-DOMAIN="${DOMAIN:-matriq.app}"
-CORS_DEFAULT="https://admin.${DOMAIN},https://dashboard.${DOMAIN},http://localhost:8081"
+# Live domain is matriq.com.ng (the .app plan was superseded — see
+# docs/docs/cloudflare-vercel.md). CORS whitelist = the marketing site, the
+# student web app, and the two Next.js dashboards (+ localhost dev).
+DOMAIN="${DOMAIN:-matriq.com.ng}"
+CORS_DEFAULT="https://matriq.com.ng,https://www.matriq.com.ng,https://app.matriq.com.ng,https://admin.${DOMAIN},https://dashboard.${DOMAIN},http://localhost:8081"
 MODE="${1:-enable}"
 
 case "$MODE" in

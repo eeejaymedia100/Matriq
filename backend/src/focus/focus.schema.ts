@@ -181,13 +181,22 @@ export function validateFocusMap(raw: unknown, topic: string): FocusMap | null {
 
 /**
  * The prompt template used to generate a map. Asks the model for *data* only,
- * in the exact schema, with strict size caps so cost stays bounded.
+ * in the exact schema, with strict size caps so cost stays bounded. `context`
+ * (optional) carries the deterministic enhancement from focus.prompt.ts —
+ * course-code expansion, level framing — injected as an extra Context block.
  */
-export function buildMapPrompt(topic: string): string {
-  return `You are Matriq's Focus Mode, an academic tutor that turns one complex topic into a
-structured concept map as strict JSON. This is an educational tool for university students.
+export function buildMapPrompt(topic: string, context = ""): string {
+  const contextBlock = context
+    ? `
 
-Topic: "${topic}"
+Context (student + topic enrichment — obey this):
+${context}`
+    : "";
+  return `You are Matriq's Focus Mode, a tutor that turns ONE complex thing — a course topic, a
+coding concept, a skill, a difficult task — into a structured concept map as strict JSON. The
+person using this is a student or self-learner working through something hard.
+
+Topic: "${topic}"${contextBlock}
 
 Produce ONE JSON object only (no markdown, no prose outside the JSON) matching EXACTLY this shape:
 {
@@ -223,7 +232,7 @@ Return valid JSON with the exact key names above.`;
  * fuller, exam-useful explanation (staged detail).
  */
 export function buildExpandPrompt(topic: string, concept: FocusConcept): string {
-  return `You are Matriq's Focus Mode, an academic tutor helping a university student understand one concept deeply.
+  return `You are Matriq's Focus Mode, a tutor helping someone master one concept deeply.
 Topic: "${topic}"
 Concept: "${concept.label}"
 

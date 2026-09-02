@@ -26,30 +26,27 @@ interface ToolCard {
   target: ToolTarget;
 }
 
-/** Generic 2-column grid card item (tools + portal services). */
 interface GridCardItem {
   id: string;
   label: string;
   hint: string;
   icon: IconName;
-  /** Optional per-card icon + glow color (e.g. WhatsApp green). */
   iconColor?: string;
   glow?: string;
   onPress: () => void;
 }
 
-const AI_TOOLS: ToolCard[] = [
+/** One unified tools grid — deliberately no category titles (round-4 pass:
+ *  tools sit together, equal-height boxes, WhatsApp services moved to the
+ *  very bottom of the screen). */
+const ALL_TOOLS: ToolCard[] = [
   { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", target: "Ocr" },
-];
-
-const DOC_TOOLS: ToolCard[] = [
   { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", target: "ImageToPdf" },
-];
-
-const GRADE_TOOLS: ToolCard[] = [
   { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", target: "CgpaCalculator" },
   { id: "predictor", label: "CGPA Predictor", hint: "What's possible next semester", icon: "trendingUp", target: "CgpaCalculator" },
 ];
+
+const GRID_CARD_HEIGHT = 118;
 
 export function ToolsScreen({ navigation }: Props) {
   const { theme } = useTheme();
@@ -57,22 +54,23 @@ export function ToolsScreen({ navigation }: Props) {
 
   const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
 
-  /** Generic 2-column grid card — icon top-left in a glowing square, title +
-   *  subtitle stacked beneath. Blends with the theme: frosted dark card in
-   *  Glass, clay sticker card in Pop. */
+  /** 2-column grid card — every box is the SAME height with the icon on top,
+   *  the label pinned above a flex spacer and the hint pinned to the bottom,
+   *  so short and long text never make boxes differ in size. */
   const renderGridCard = (item: GridCardItem) => (
     <Pressable
       key={item.id}
       onPress={item.onPress}
       style={{ width: "48%", marginBottom: 12 }}
       accessibilityRole="button"
+      accessibilityLabel={`${item.label}, ${item.hint}`}
     >
       <View
         style={[
           {
             padding: 14,
             borderRadius: theme.radii.lg,
-            minHeight: 112,
+            height: GRID_CARD_HEIGHT,
           },
           theme.mode === "glass"
             ? {
@@ -103,19 +101,20 @@ export function ToolsScreen({ navigation }: Props) {
           <Icon name={item.icon} size={18} color={item.iconColor ?? colors.brand} />
         </View>
         <Text
-          numberOfLines={2}
+          numberOfLines={1}
           style={[
             theme.typography.bodyBold,
-            { color: colors.textPrimary, fontSize: 14, lineHeight: 19, marginTop: 12 },
+            { color: colors.textPrimary, fontSize: 14, lineHeight: 19, marginTop: 10 },
           ]}
         >
           {item.label}
         </Text>
+        <View style={{ flex: 1 }} />
         <Text
-          numberOfLines={2}
+          numberOfLines={1}
           style={[
             theme.typography.caption,
-            { color: colors.textMuted, fontSize: 12, lineHeight: 16, marginTop: 3 },
+            { color: colors.textMuted, fontSize: 12, lineHeight: 16 },
           ]}
         >
           {item.hint}
@@ -124,17 +123,10 @@ export function ToolsScreen({ navigation }: Props) {
     </Pressable>
   );
 
-  /** Rows grid items into the 2-column table arrangement. */
   const grid = (items: GridCardItem[]) => (
     <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" }}>
       {items.map(renderGridCard)}
     </View>
-  );
-
-  const sectionTitle = (label: string) => (
-    <Text style={[theme.typography.h3, { color: colors.textPrimary, marginTop: 24, marginBottom: 12 }]}>
-      {label}
-    </Text>
   );
 
   return (
@@ -149,9 +141,8 @@ export function ToolsScreen({ navigation }: Props) {
             Fast utilities, no hype.
           </Text>
 
-          {/* Portal — first, per round-2 QA §7 */}
-          {sectionTitle("Portal")}
-          <Pressable onPress={() => Linking.openURL(PORTAL_URL).catch(() => {})}>
+          {/* School Portal — distinct action, opens in the browser */}
+          <Pressable onPress={() => Linking.openURL(PORTAL_URL).catch(() => {})} style={{ marginTop: 20 }}>
             <View
               style={{
                 flexDirection: "row",
@@ -162,7 +153,6 @@ export function ToolsScreen({ navigation }: Props) {
                 backgroundColor: colors.surface,
                 borderWidth: 1,
                 borderColor: colors.border,
-                marginBottom: 10,
               }}
             >
               <View
@@ -189,62 +179,88 @@ export function ToolsScreen({ navigation }: Props) {
             </View>
           </Pressable>
 
-          <Text style={[theme.typography.captionBold, { color: colors.textSecondary, marginTop: 6, marginBottom: 10 }]}>
-            Portal Services → WhatsApp
-          </Text>
-          {grid(
-            PORTAL_SERVICE_ACTIONS.map((action) => ({
-              id: action.id,
-              label: action.label,
-              hint: "Via WhatsApp",
-              icon: "phone",
-              iconColor: colors.success,
-              glow:
-                theme.mode === "glass"
-                  ? "rgba(142,240,172,0.4)"
-                  : "rgba(31,122,51,0.4)",
-              onPress: () => Linking.openURL(whatsappLinkFor(action)).catch(() => {}),
-            })),
-          )}
-          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
-            Each action opens WhatsApp with a ready message — no form-filling.
+          {/* All tools, one unified grid — no category titles, equal boxes */}
+          <View style={{ marginTop: 20 }}>
+            {grid(
+              ALL_TOOLS.map((tool) => ({
+                id: tool.id,
+                label: tool.label,
+                hint: tool.hint,
+                icon: tool.icon,
+                onPress: () => stackNav?.navigate(tool.target),
+              })),
+            )}
+          </View>
+          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 0 }]}>
+            Turn photos of notes, handouts and board work into one clean PDF — built on your phone.
           </Text>
 
-          {sectionTitle("AI utilities")}
-          {grid(
-            AI_TOOLS.map((tool) => ({
-              id: tool.id,
-              label: tool.label,
-              hint: tool.hint,
-              icon: tool.icon,
-              onPress: () => stackNav?.navigate(tool.target),
-            })),
-          )}
-
-          {sectionTitle("Documents")}
-          {grid(
-            DOC_TOOLS.map((tool) => ({
-              id: tool.id,
-              label: tool.label,
-              hint: tool.hint,
-              icon: tool.icon,
-              onPress: () => stackNav?.navigate(tool.target),
-            })),
-          )}
-          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
-            Turn photos of notes, handouts and board work into one clean PDF — built entirely on your phone.
-          </Text>
-
-          {sectionTitle("Grades")}
-          {grid(
-            GRADE_TOOLS.map((tool) => ({
-              id: tool.id,
-              label: tool.label,
-              hint: tool.hint,
-              icon: tool.icon,
-              onPress: () => stackNav?.navigate(tool.target),
-            })),
-          )}
+          {/* Portal services — WhatsApp, at the very bottom (round-4 pass) */}
+          <View
+            style={{
+              marginTop: 26,
+              borderTopWidth: 1,
+              borderTopColor: colors.border,
+              paddingTop: 18,
+            }}
+          >
+            <Text
+              style={[
+                theme.typography.captionBold,
+                {
+                  color: colors.textMuted,
+                  textTransform: "uppercase",
+                  letterSpacing: 1,
+                  marginBottom: 8,
+                },
+              ]}
+            >
+              School portal services
+            </Text>
+            <Text style={[theme.typography.caption, { color: colors.textSecondary, marginBottom: 10 }]}>
+              Need something from your portal? Each action opens WhatsApp with a ready message.
+            </Text>
+            <View style={{ gap: 10 }}>
+              {PORTAL_SERVICE_ACTIONS.map((action) => (
+                <Pressable
+                  key={action.id}
+                  onPress={() => Linking.openURL(whatsappLinkFor(action)).catch(() => {})}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${action.label}, via WhatsApp`}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 12,
+                    paddingVertical: 12,
+                    paddingHorizontal: 4,
+                    borderBottomWidth: 1,
+                    borderBottomColor: colors.border,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 12,
+                      backgroundColor: colors.surfaceAlt,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Icon name="phone" size={17} color={colors.success} />
+                  </View>
+                  <Text
+                    style={[theme.typography.bodyBold, { color: colors.textPrimary, flex: 1, fontSize: 14 }]}
+                    numberOfLines={1}
+                  >
+                    {action.label}
+                  </Text>
+                  <Text style={[theme.typography.small, { color: colors.textMuted }]}>WhatsApp</Text>
+                  <Icon name="chevronRight" size={16} color={colors.textMuted} />
+                </Pressable>
+              ))}
+            </View>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </ThemedScreen>

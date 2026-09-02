@@ -28,13 +28,16 @@ const TYPES = [
  */
 export function LibrarySearchScreen({
   navigation,
+  route,
 }: {
   navigation: { navigate: (s: string, p?: object) => void };
+  // Optional seed query, e.g. a course code tapped from a breadcrumb trail.
+  route: { params?: { q?: string } };
 }) {
   const { theme } = useTheme();
   const colors = theme.colors;
 
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(route?.params?.q ?? "");
   const [type, setType] = useState<"past_question" | "material" | "">("");
   const [level, setLevel] = useState("");
   const [session, setSession] = useState("");

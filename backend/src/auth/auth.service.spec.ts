@@ -126,6 +126,7 @@ describe("AuthService", () => {
       },
       refreshToken: {
         findFirst: jest.fn(),
+        findUnique: jest.fn(),
         create: jest.fn().mockResolvedValue(tokenRecord),
         update: jest.fn(),
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -373,6 +374,8 @@ describe("AuthService", () => {
         createdAt: new Date(),
         family: { tokens: [] },
       });
+      // The replacement lookup returns null (old/cleaned reuse) — NOT benign.
+      (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue(null);
 
       await expect(service.refresh("replayed-token")).rejects.toThrow(
         UnauthorizedException,
@@ -383,6 +386,112 @@ describe("AuthService", () => {
         where: { familyId: "family-uuid-1", used: false },
         data: { used: true },
       });
+    });
+
+    it("should absorb a benign reuse (replacement issued within grace) instead of revoking", async () => {
+      // The client lost the rotated response (Android killed the process) and
+      // retried the already-used token. Its replacement exists, is unused and
+      // was just issued — this is a lost-response retry, NOT a compromise.
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue({
+        id: "used-token-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed",
+        used: true,
+        replacedBy: "replacement-id",
+        expiresAt: new Date(Date.now() + 7 * 86400000),
+        createdAt: new Date(Date.now() - 5_000), // 5s ago
+        family: { tokens: [] },
+      });
+      (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+        id: "replacement-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed-replacement",
+        used: false,
+        replacedBy: null,
+        expiresAt: new Date(Date.now() + 90 * 86400000),
+        createdAt: new Date(Date.now() - 5_000),
+      });
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(verifiedUser);
+      (prisma.refreshToken.create as jest.Mock).mockResolvedValue({
+        ...tokenRecord,
+        id: "next-token-id",
+      });
+
+      const result = await service.refresh("retried-token");
+
+      // The client gets a working session back — no logout.
+      expect(result).toHaveProperty("accessToken");
+      expect(result).toHaveProperty("refreshToken");
+      // The replacement is marked used (rotation continues from it)…
+      expect(prisma.refreshToken.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "replacement-id" },
+          data: expect.objectContaining({ used: true }),
+        }),
+      );
+      // …and the family is NOT revoked.
+      expect(prisma.refreshToken.updateMany).not.toHaveBeenCalled();
+    });
+
+    it("should revoke the family when reuse falls outside the grace window", async () => {
+      // Replacement was issued 10 minutes ago — too old to be a lost-response
+      // retry; this is a genuine replay.
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue({
+        id: "used-token-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed",
+        used: true,
+        replacedBy: "replacement-id",
+        expiresAt: new Date(Date.now() + 7 * 86400000),
+        createdAt: new Date(Date.now() - 10 * 60000),
+        family: { tokens: [] },
+      });
+      (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+        id: "replacement-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed-replacement",
+        used: false,
+        replacedBy: null,
+        expiresAt: new Date(Date.now() + 90 * 86400000),
+        createdAt: new Date(Date.now() - 10 * 60000),
+      });
+
+      await expect(service.refresh("old-reuse-token")).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { familyId: "family-uuid-1", used: false },
+        data: { used: true },
+      });
+    });
+
+    it("should revoke the family when the replacement itself is already used", async () => {
+      // The replacement is spent too — the token chain was used twice, which
+      // is a real compromise signal (thief + victim both presented).
+      (prisma.refreshToken.findFirst as jest.Mock).mockResolvedValue({
+        id: "used-token-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed",
+        used: true,
+        replacedBy: "replacement-id",
+        expiresAt: new Date(Date.now() + 7 * 86400000),
+        createdAt: new Date(Date.now() - 5_000),
+        family: { tokens: [] },
+      });
+      (prisma.refreshToken.findUnique as jest.Mock).mockResolvedValue({
+        id: "replacement-id",
+        familyId: "family-uuid-1",
+        tokenHash: "hashed-replacement",
+        used: true, // ← replacement also used
+        replacedBy: null,
+        expiresAt: new Date(Date.now() + 90 * 86400000),
+        createdAt: new Date(Date.now() - 5_000),
+      });
+
+      await expect(service.refresh("spent-chain-token")).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
     });
   });
 

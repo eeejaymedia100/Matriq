@@ -22,10 +22,12 @@ import { api } from "../../api/client";
 import { getTodoState, markTodoDone, type TodoState } from "../../utils/todos";
 import { listNotes } from "../../utils/notes";
 import { getStreak, type StreakState } from "../../utils/streak";
+import { syncStreakReminder } from "../../utils/streakReminder";
 import { timeAgo } from "../../utils/relativeTime";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
 import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
 import { CelebrationOverlay } from "../../components/CelebrationOverlay";
+import { StreakBadge } from "../../components/StreakBadge";
 import type { MainTabParamList } from "../../navigation/types";
 import type { Announcement, Association } from "../../types/api";
 
@@ -95,7 +97,11 @@ export function HomeScreen({ navigation }: Props) {
         setTodos(await getTodoState());
         setNextClassEntry(nextClass(await getTimetable()));
         setNotesCount((await listNotes()).length);
-        setStreak(await getStreak());
+        const streakState = await getStreak();
+        setStreak(streakState);
+        // Keep the evening streak nudge pointing at the next day that matters
+        // (reschedules only when the streak or the target day changed).
+        void syncStreakReminder(streakState);
         void refreshUnread();
 
         try {
@@ -284,54 +290,10 @@ export function HomeScreen({ navigation }: Props) {
           </View>
 
           {/* Study streak — meaningful study days only (AI Q&As, notes,
-              materials). Never counts app launches. */}
+              materials). Never counts app launches. Game-style badge with a
+              spring entrance, count-up and flame flicker (round-4 pass). */}
           <View style={{ paddingHorizontal: 24, marginTop: 14 }}>
-            {streak.current > 0 ? (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                  alignSelf: "flex-start",
-                  paddingVertical: 6,
-                  paddingHorizontal: 12,
-                  borderRadius: theme.radii.pill,
-                  backgroundColor: colors.surfaceAlt,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-              >
-                <Text style={{ fontSize: 15 }}>🔥</Text>
-                <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
-                  {streak.current}-day study streak
-                </Text>
-                {streak.best > streak.current ? (
-                  <Text style={[theme.typography.small, { color: colors.textMuted }]}>
-                    · best {streak.best}
-                  </Text>
-                ) : null}
-              </View>
-            ) : (
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 8,
-                  alignSelf: "flex-start",
-                  paddingVertical: 6,
-                  paddingHorizontal: 12,
-                  borderRadius: theme.radii.pill,
-                  backgroundColor: colors.surfaceAlt,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                }}
-              >
-                <Text style={{ fontSize: 14 }}>🌱</Text>
-                <Text style={[theme.typography.caption, { color: colors.textSecondary }]}>
-                  Study today to start a streak
-                </Text>
-              </View>
-            )}
+            <StreakBadge streak={streak} />
           </View>
 
           {/* AI Study Companion — always-visible quick shortcut */}

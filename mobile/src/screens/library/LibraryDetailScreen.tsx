@@ -166,6 +166,38 @@ export function LibraryDetailScreen({
 
   return (
     <KeyboardScreen paddingBottom={40}>
+      {/* Breadcrumb trail: Discover › Course code › Title — only on the
+          discovery hierarchy, where it genuinely helps students retrace
+          their path to a document. */}
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 5,
+          marginBottom: 10,
+        }}
+      >
+        <Pressable onPress={() => navigation.navigate("Library", {})} hitSlop={8}>
+          <Text style={[theme.typography.captionBold, { color: colors.brand }]}>Discover</Text>
+        </Pressable>
+        <Text style={[theme.typography.caption, { color: colors.textMuted }]} aria-hidden>
+          ›
+        </Text>
+        <Pressable onPress={() => navigation.navigate("LibrarySearch", { q: doc.courseCode })} hitSlop={8}>
+          <Text style={[theme.typography.captionBold, { color: colors.brand }]}>{doc.courseCode}</Text>
+        </Pressable>
+        <Text style={[theme.typography.caption, { color: colors.textMuted }]} aria-hidden>
+          ›
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[theme.typography.caption, { color: colors.textSecondary, flexShrink: 1 }]}
+        >
+          {doc.title}
+        </Text>
+      </View>
+
       {/* Read CTA — prominent */}
       <View
         style={{

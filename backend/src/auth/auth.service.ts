@@ -66,6 +66,13 @@ export class AuthService {
   private static readonly VERIFICATION_EMAIL_WINDOW_MS = 60 * 60 * 1000;
   private static readonly VERIFICATION_EMAIL_MAX = 5;
 
+  // When a `used` refresh token is presented with a replacement issued within
+  // this window, it's treated as a benign lost-response retry (Android kills
+  // processes constantly) and rotated forward instead of revoking the family.
+  // A real token thief must act within seconds of the only rotation to slip
+  // through — an acceptable trade for never logging students out by accident.
+  private static readonly REFRESH_REUSE_GRACE_MS = 60_000;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -521,7 +528,9 @@ export class AuthService {
     // 2. Hash the raw token to look it up in the DB
     const tokenHash = this.hashToken(rawToken);
 
-    const stored = await this.prisma.refreshToken.findFirst({
+    // `let`: a benign reuse path reassigns this to the replacement record so
+    // rotation continues from it (see step 4).
+    let stored = await this.prisma.refreshToken.findFirst({
       where: { tokenHash },
     });
 
@@ -530,19 +539,47 @@ export class AuthService {
       throw new UnauthorizedException("Invalid or expired refresh token");
     }
 
-    // 4. Replay-attack detection: if this token was already used,
-    //    the entire family is compromised — revoke everything
+    // 4. Reuse detection. A `used` token can mean two very different things:
+    //    - Benign: the app rotated, lost the response, and is retrying the
+    //      old token (Android kills background processes constantly, so the
+    //      client never got the rotated token saved). Rotate forward from
+    //      the replacement — the student stays signed in.
+    //    - Genuine replay: reuse of an OLD token or a spent replacement — the
+    //      family is compromised, revoke everything (original behavior).
     if (stored.used) {
-      // Revoke every unused token in the family
-      await this.prisma.refreshToken.updateMany({
-        where: { familyId: stored.familyId, used: false },
-        data: { used: true },
-      });
-      this.logger.warn(
-        `Replay attack detected! Revoked token family ${stored.familyId} ` +
-          `for user ${payload.sub}`,
+      const replacement = stored.replacedBy
+        ? await this.prisma.refreshToken.findUnique({
+            where: { id: stored.replacedBy },
+          })
+        : null;
+      const benignReuse =
+        !!replacement &&
+        !replacement.used &&
+        replacement.familyId === stored.familyId &&
+        Date.now() - replacement.createdAt.getTime() <=
+          AuthService.REFRESH_REUSE_GRACE_MS;
+
+      if (!benignReuse) {
+        // Revoke every unused token in the family
+        await this.prisma.refreshToken.updateMany({
+          where: { familyId: stored.familyId, used: false },
+          data: { used: true },
+        });
+        this.logger.warn(
+          `Replay attack detected! Revoked token family ${stored.familyId} ` +
+            `for user ${payload.sub}`,
+        );
+        throw new UnauthorizedException("Invalid or expired refresh token");
+      }
+
+      // Lost-response retry: continue rotation from the replacement record so
+      // this request issues its successor. The family survives and the client
+      // ends up with a fresh token it actually saves.
+      this.logger.log(
+        `Benign refresh-token reuse absorbed for user ${payload.sub} ` +
+          `(family ${stored.familyId})`,
       );
-      throw new UnauthorizedException("Invalid or expired refresh token");
+      stored = replacement!;
     }
 
     // 5. Verify user still exists

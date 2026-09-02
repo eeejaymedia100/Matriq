@@ -245,9 +245,16 @@ async function refreshAccessToken(): Promise<RefreshResult> {
     }
 
     if (!res.ok) {
-      // The server rejected the refresh — the session is genuinely over.
-      await clearTokens();
-      return { accessToken: null, sessionDead: true };
+      // ONLY a 401 means the server explicitly rejected this refresh token —
+      // the session is genuinely over. Any other status (500, 429, 400, …)
+      // is a transient server problem: the session is still valid on the
+      // server, so the tokens are KEPT and the app stays signed in. Treating
+      // a 500/429 as a dead session used to log students out at random.
+      if (res.status === 401) {
+        await clearTokens();
+        return { accessToken: null, sessionDead: true };
+      }
+      return { accessToken: null, sessionDead: false };
     }
 
     try {

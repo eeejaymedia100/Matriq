@@ -257,6 +257,11 @@ export function AiCompanionScreen() {
   const [recording, setRecording] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const flatListRef = useRef<FlatList>(null);
+  // Whether the user is currently pinned to the newest message. When they
+  // scroll UP to read earlier answers (long offline sessions), auto-scroll
+  // must leave them alone — otherwise every streamed chunk or layout change
+  // yanks the list back to the bottom and it feels like it "can't scroll".
+  const atBottomRef = useRef(true);
 
   // Keyboard behavior is handled entirely by KeyboardScreen (single strategy,
   // both platforms): the window resizes for the IME, the message viewport
@@ -335,6 +340,12 @@ export function AiCompanionScreen() {
           timestamp: new Date(),
         })),
       ]);
+      // A freshly-opened conversation starts at the newest message.
+      atBottomRef.current = true;
+      setTimeout(
+        () => flatListRef.current?.scrollToEnd({ animated: false }),
+        0,
+      );
     });
     return () => {
       mounted = false;
@@ -783,6 +794,9 @@ export function AiCompanionScreen() {
       setMessages((prev) => [...prev, userMsg, aiMsg]);
       setInput("");
       setLoading(true);
+      // The user just sent something — follow the conversation to the new
+      // messages (they are, by definition, at the bottom).
+      atBottomRef.current = true;
       streamingIdRef.current = aiMsgId;
       setSystemNotice(null);
 
@@ -1008,9 +1022,26 @@ export function AiCompanionScreen() {
             contentContainerStyle={styles.list}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
-            onContentSizeChange={() =>
-              flatListRef.current?.scrollToEnd({ animated: true })
-            }
+            scrollEventThrottle={100}
+            onScroll={(e) => {
+              const { contentOffset, contentSize, layoutMeasurement } =
+                e.nativeEvent;
+              const distanceFromBottom =
+                contentSize.height - layoutMeasurement.height - contentOffset.y;
+              atBottomRef.current = distanceFromBottom < 80;
+            }}
+            onContentSizeChange={() => {
+              // Only follow the stream when the user is already at the bottom;
+              // if they've scrolled up to read, leave them there.
+              if (atBottomRef.current) {
+                flatListRef.current?.scrollToEnd({ animated: true });
+              }
+            }}
+            onLayout={() => {
+              if (atBottomRef.current) {
+                flatListRef.current?.scrollToEnd({ animated: false });
+              }
+            }}
             renderItem={({ item }) => {
               const showFollowUps =
                 item.id !== "welcome" &&
@@ -1169,7 +1200,7 @@ export function AiCompanionScreen() {
                 >
                   <Ionicons name="git-network" size={14} color={colors.brand} />
                   <Text style={styles.focusPillText}>
-                    Focus Mode — map a complex topic
+                    Focus Mode — map any complex topic
                   </Text>
                   <Ionicons name="chevron-forward" size={12} color={colors.brand} />
                 </Pressable>

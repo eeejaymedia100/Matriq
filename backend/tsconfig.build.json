@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // Production builds must not ship .js.map files — they leak implementation
+    // detail and bloat the image. Dev (`nest start --watch`) still gets source
+    // maps because it compiles with tsconfig.json.
+    "sourceMap": false
+  },
+  "exclude": ["node_modules", "test", "dist", "**/*.spec.ts"]
+}

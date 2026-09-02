@@ -22,6 +22,14 @@ import {
 
 const READY_KEY = "update_ready_version";
 
+// APKs are tens of megabytes — anything smaller is a truncated partial.
+const MIN_PLAUSIBLE_APK_BYTES = 5_000_000;
+
+/** Base64 of the ZIP local-file-header magic "PK\x03\x04". */
+const ZIP_HEAD_MAGIC = "UEsDBA==";
+/** Base64 of the ZIP end-of-central-directory magic "PK\x05\x06". */
+const ZIP_EOCD_MAGIC = "UEsFBg==";
+
 /**
  * Silent background updater (round-2 QA §12).
  *
@@ -31,7 +39,50 @@ const READY_KEY = "update_ready_version";
  *  - No  → defers, does NOT cancel: the update still applies the next time
  *          the app restarts on its own (fresh app start), and the popup
  *          returns on the next launch until applied.
+ *
+ * Robustness (why installs used to fail):
+ *  - The cached APK is validated before install (ZIP magic at the head AND
+ *    the end-of-central-directory marker at the tail + a plausible size), so
+ *    a partial download from a killed process is never trusted — it's deleted
+ *    and re-downloaded instead of failing with "can't parse package".
+ *  - If the system blocks the install (unknown-sources permission), the popup
+ *    offers BOTH "Open install settings" and "Download in browser" — the
+ *    browser path is the bootstrap that works even when the in-app installer
+ *    is blocked, because the system browser has its own install permission.
  */
+
+/** Result of trying to hand the APK to the system installer. */
+type InstallResult = { ok: true } | { ok: false; reason: "invalid" | "blocked" };
+
+/** True when the cached file looks like a complete, installable APK. */
+async function looksLikeValidApk(fileUri: string): Promise<boolean> {
+  try {
+    const info = await FileSystem.getInfoAsync(fileUri);
+    if (!info?.exists) return false;
+    if ((info.size ?? 0) < MIN_PLAUSIBLE_APK_BYTES) return false;
+    // ZIP local-file header at the start…
+    const head = await FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64,
+      position: 0,
+      length: 4,
+    });
+    if (head !== ZIP_HEAD_MAGIC) return false;
+    // …and the end-of-central-directory marker near the tail. A truncated
+    // partial download has the head but not the EOCD — this catches it.
+    const tailLen = Math.min((info.size ?? 0) - 4, 22);
+    if (tailLen < 18) return false;
+    const tail = await FileSystem.readAsStringAsync(fileUri, {
+      encoding: FileSystem.EncodingType.Base64,
+      position: (info.size ?? 0) - tailLen,
+      length: tailLen,
+    });
+    if (!tail.includes(ZIP_EOCD_MAGIC)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function UpdateOverlay() {
   const { theme } = useTheme();
   const colors = theme.colors;
@@ -44,34 +95,63 @@ export function UpdateOverlay() {
   // can fire close together, and an in-flight download must not be restarted).
   const checking = useRef(false);
 
+  const fileUriFor = (info: AppUpdateInfo): string | null => {
+    const cacheDir = FileSystem.cacheDirectory;
+    return cacheDir ? `${cacheDir}matriq-${info.versionCode}.apk` : null;
+  };
+
   // ── Silent install at a natural reopen ────────────────────────
   const installReadyVersion = useCallback(async (): Promise<boolean> => {
     const raw = await getItem(READY_KEY).catch(() => null);
     if (!raw) return false;
-    const info = JSON.parse(raw) as AppUpdateInfo;
+    let info: AppUpdateInfo;
+    try {
+      info = JSON.parse(raw) as AppUpdateInfo;
+    } catch {
+      return false;
+    }
     const current = await getCurrentVersionCode();
     if (current !== null && info.versionCode <= current) {
       await setItem(READY_KEY, "").catch(() => {});
       return false;
     }
     // Not interrupting anything — this runs on a fresh app start.
-    return installApk(info);
+    const result = await installApk(info);
+    if (result.ok) return true;
+    if (result.reason === "invalid") {
+      // Corrupt cached copy — clear the ready flag so runCheck re-downloads.
+      await setItem(READY_KEY, "").catch(() => {});
+    }
+    return false;
   }, []);
 
   const downloadSilently = async (info: AppUpdateInfo): Promise<boolean> => {
     try {
-      const cacheDir = FileSystem.cacheDirectory;
-      if (!cacheDir) return false;
-      const fileUri = `${cacheDir}matriq-${info.versionCode}.apk`;
+      const fileUri = fileUriFor(info);
+      if (!fileUri) return false;
       const existing = await FileSystem.getInfoAsync(fileUri).catch(() => null);
-      if (existing?.exists) {
-        // Already downloaded — just mark it ready.
+      if (existing?.exists && (await looksLikeValidApk(fileUri))) {
+        // A complete, valid copy is already on disk — just mark it ready.
         await setItem(READY_KEY, JSON.stringify(info)).catch(() => {});
         return true;
+      }
+      if (existing?.exists) {
+        // Partial/corrupt file from a crashed download — remove it so the
+        // resumable download starts clean instead of trusting a broken file.
+        await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(
+          () => {},
+        );
       }
       const resumable = FileSystem.createDownloadResumable(info.url, fileUri);
       const result = await resumable.downloadAsync();
       if (!result?.uri) return false;
+      if (!(await looksLikeValidApk(fileUri))) {
+        // Download "completed" but the file is unusable — never mark it ready.
+        await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(
+          () => {},
+        );
+        return false;
+      }
       await setItem(READY_KEY, JSON.stringify(info)).catch(() => {});
       return true;
     } catch {
@@ -126,40 +206,62 @@ export function UpdateOverlay() {
     };
   }, [runCheck]);
 
-  const installApk = async (info: AppUpdateInfo): Promise<boolean> => {
+  const installApk = async (info: AppUpdateInfo): Promise<InstallResult> => {
     try {
-      const cacheDir = FileSystem.cacheDirectory;
-      if (!cacheDir) return false;
-      const fileUri = `${cacheDir}matriq-${info.versionCode}.apk`;
-      const existing = await FileSystem.getInfoAsync(fileUri).catch(() => null);
-      if (!existing?.exists) return false;
-
+      const fileUri = fileUriFor(info);
+      if (!fileUri) return { ok: false, reason: "invalid" };
+      if (!(await looksLikeValidApk(fileUri))) {
+        return { ok: false, reason: "invalid" };
+      }
       const contentUri = await FileSystem.getContentUriAsync(fileUri);
       await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
         data: contentUri,
         type: "application/vnd.android.package-archive",
         flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
       });
-      return true;
+      return { ok: true };
     } catch {
-      return false;
+      return { ok: false, reason: "blocked" };
     }
   };
 
-  const handleYes = useCallback(async () => {
+  const handleYes = async () => {
     if (!ready || installing) return;
     setInstalling(true);
     setInstallBlocked(false);
-    const ok = await installApk(ready);
-    if (ok) {
+
+    const first = await installApk(ready);
+    if (first.ok) {
       setShowPrompt(false);
-    } else {
-      // Installer didn't open — likely blocked by the "install unknown apps"
-      // permission. Keep the prompt and offer the settings shortcut.
       setInstalling(false);
-      setInstallBlocked(true);
+      return;
     }
-  }, [ready, installing]);
+
+    if (first.reason === "invalid") {
+      // The cached copy is corrupt (killed mid-download) — clear it and pull
+      // a fresh one, then try once more before giving up.
+      const fileUri = fileUriFor(ready);
+      if (fileUri) {
+        await FileSystem.deleteAsync(fileUri, { idempotent: true }).catch(
+          () => {},
+        );
+      }
+      await setItem(READY_KEY, "").catch(() => {});
+      const redownloaded = await downloadSilently(ready);
+      if (redownloaded) {
+        const second = await installApk(ready);
+        if (second.ok) {
+          setShowPrompt(false);
+          setInstalling(false);
+          return;
+        }
+      }
+    }
+
+    // The system refused the install (unknown sources) — guide the user.
+    setInstalling(false);
+    setInstallBlocked(true);
+  };
 
   const openInstallSettings = useCallback(async () => {
     try {
@@ -171,6 +273,22 @@ export function UpdateOverlay() {
       // Ignore — the system install prompt may already be guiding the user.
     }
   }, []);
+
+  /**
+   * Bootstrap path: open the APK URL in the system browser. The browser has
+   * its own "install unknown apps" permission and handles the download +
+   * install prompt itself — works even when the in-app installer is blocked.
+   */
+  const downloadInBrowser = useCallback(async () => {
+    if (!ready) return;
+    try {
+      await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+        data: ready.url,
+      });
+    } catch {
+      // Ignore — the settings shortcut is still available.
+    }
+  }, [ready]);
 
   const handleNo = useCallback(() => {
     // Defers only — the update still applies at the next natural reopen,
@@ -277,8 +395,25 @@ export function UpdateOverlay() {
                 ]}
               >
                 Android blocked the install. Allow "Install unknown apps" for
-                Matriq, then come back and try again.
+                Matriq — or download it in your browser, which has its own
+                install permission.
               </Text>
+              <Pressable
+                onPress={() => void downloadInBrowser()}
+                style={{
+                  marginTop: 12,
+                  alignItems: "center",
+                  paddingVertical: 11,
+                  borderRadius: theme.radii.md,
+                  backgroundColor: colors.accent,
+                  borderWidth: theme.mode === "pop" ? 2 : 0,
+                  borderColor: colors.borderStrong,
+                }}
+              >
+                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                  Download in browser
+                </Text>
+              </Pressable>
               <Pressable
                 onPress={() => void openInstallSettings()}
                 style={{

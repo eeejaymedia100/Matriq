@@ -1,0 +1,8 @@
+# Matriq — matriq.com.ng (waitlist landing + legal pages)
+# The web app (app.matriq.com.ng) is a login-gated SPA and is intentionally
+# excluded from crawling (see docs/docs/seo-checklist.md).
+
+User-agent: *
+Allow: /
+
+Sitemap: https://matriq.com.ng/sitemap.xml

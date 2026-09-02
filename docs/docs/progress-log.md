@@ -4,6 +4,76 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-09-02 (night) — Release pass: Focus Mode for everything, chat scroll fix, updater fix, build 25 (committed; APK building)
+
+- **Focus Mode is now general-purpose, not exam-only.** Backend prompts (focus.schema.ts + focus.prompt.ts) no longer assume a university course: coding topics get builder framing (how it works under the hood, pitfalls, real-project use), course codes still expand (CHM 101 → Chemistry), and everything else gets deep-understanding framing. Mobile copy updated (FocusModeScreen entry + the AiCompanion Focus pill). Tests updated + 4 new.
+- **Offline AI chat scroll fixed.** The message list auto-scrolled to the bottom on EVERY content change — so while an answer streamed (or after a layout change), any attempt to scroll up and read got yanked back down ("it won't scroll"). Now the list only follows the stream when the user is already at the bottom (`atBottomRef`); scrolling up to read is left alone, and a freshly-opened/sent conversation starts at the newest message.
+- **In-app updater hardened** (UpdateOverlay.tsx). Root causes of "update detected → install error": (a) a partial/corrupt APK left by a killed download was trusted and handed to the installer ("can't parse package"); (b) the old build lacked the install permission or the system blocked unknown sources. Now: cached APKs are validated (ZIP head magic + end-of-central-directory marker + plausible size) and re-downloaded when corrupt; install failures distinguish corrupt vs blocked; blocked installs offer BOTH "Open install settings" AND a new "Download in browser" bootstrap (the browser has its own install permission).
+- **Version bumped to 0.7.17 / build 25** (app.json + generated build.gradle). New `waitlist/download.html` manual-install page (linked from the footer) for anyone whose in-app installer is blocked. Manifest `app-version.json` → 25/0.7.17.
+- **Found the real release process**: the production APK is built locally (`mobile/android ./gradlew assembleRelease`, debug-signed with `android/app/debug.keystore` — cert matches the served APK) and shipped by `scripts/_finalize-apk.sh` (reads the version FROM the built APK so the manifest can't drift). No EAS involved. Rebuild in progress; verify versionCode 25 + cert before shipping.
+
+## 2026-09-02 (very late) — Fix the random auto-logouts + Focus Mode prompt improvement + streak nudge (typechecked, tested, not deployed)
+
+**Root cause of the "logs me out every seconds" reports — TWO bugs, both fixed:**
+1. **Server replay trap too aggressive** (`auth.service.ts` `refresh`): presenting an already-used refresh token revoked the WHOLE family. Android kills background processes constantly, so the app often rotated a token and died before saving the rotated one; the next launch presented the used token → family revoked → permanent logout. Now a used token whose replacement exists, is unused and was issued < 60s ago is treated as a benign lost-response retry: rotation continues from the replacement, the family survives. Genuine replays (old reuse, spent replacement) still revoke. 3 new tests.
+2. **Client treated ANY non-2xx refresh as a dead session** (`api/client.ts`): a 500/429/400 on `/auth/refresh` cleared the tokens and signed the user out even though the session was fine. Now only a real 401 from refresh is sessionDead; other statuses keep the tokens (offline-first rule preserved).
+
+**Focus Mode prompt improvement** (new `focus/focus.prompt.ts`, wired into `generate`):
+- Deterministic enhancement, zero extra AI cost: course-code expansion ("CHM 101" → "CHM 101 — Chemistry", ~40 Nigerian subject prefixes), terse-topic first-principles framing, level/department/faculty + exam framing injected into the model prompt. Cache key stays on the raw topic so equivalent inputs still share a map. 8 unit tests.
+
+**Retention (round-3 gamification §1 compliant — one streak, one badge, no levels):**
+- New `utils/streakReminder.ts`: one gentle local notification at 19:30 local, scheduled only for the next day that needs a study action to keep an ACTIVE streak; a broken streak (0) cancels reminders — no guilt loop. Reschedules on Home focus; respects existing permission flow. Wired into HomeScreen.
+
+Verified: mobile `tsc --noEmit` clean, backend `tsc --noEmit` clean, auth+focus suites 72/72 green.
+
+## 2026-09-02 (late) — Mobile design pass: locked decisions + streak badge + Tools declutter (round-4; typechecked, not deployed)
+
+Locked decisions registered in `docs/docs/design-system.md` (round-4 section):
+- Two-font system at one-voice-at-a-time: Plus Jakarta Sans owns UI, Fraunces serif reserved for display/h1/h2 + big numerals only (not yet installed).
+- Size floors: display 30 / h1 26, touch ≥44, caption ≥12; radii stay 8/14/20/28.
+- Home collapses to a Quick access list; Vault/Library haircut to hairline list rows; lime accent = one moment per screen.
+- Streak badge stays level-less (round-3 gamification §1) but becomes a game-style arrival.
+
+Implemented now:
+- New `StreakBadge` (Home): reanimated spring entrance with overshoot + rotate, rAF-driven count-up numeral, subtle continuous flame flicker; zero-state nudge fades in calmly; fully skips animation under prefers-reduced-motion. Replaces the 🔥/🌱 emoji pills (emoji-as-icon violation).
+- New filled `flame` icon in the inline SVG set.
+- Tools screen decluttered: one unified equal-height grid (no AI utilities / Documents / Grades section titles), every box the same height with hint pinned to the bottom; school-portal WhatsApp services moved to a quiet list at the very bottom.
+- Mobile `tsc --noEmit` clean.
+
+---
+
+## 2026-09-02 (later) — Waitlist visual refinement: “AI-slop” cleanup pass (frontend-design skill; not deployed)
+
+Felt sloppy → made deliberate (same locked brand: ink + violet + lime):
+- Killed the gimmicks: animated rainbow gradient headline, badge shimmer, 3D `data-tilt` on every card, gradient number bubbles, count “pop” bounce, emoji hero icons.
+- Lime is now spent in exactly one place — the primary CTA (Telegram + closing CTA) — instead of sprinkled everywhere; headline is static white with a quiet violet second line.
+- Surface language: solid low-brightness panels + 1px hairlines replace heavy glassmorphism + glowing gradient borders.
+- Rigorous hierarchy: eyebrow labels on sections, one display scale (Space Grotesk 600), Inter for UI, muted text raised to ≥6.8:1 contrast (was ~4.9:1).
+- Emoji hero strip → inline SVG icon set; still progressive-enhancement safe, still `prefers-reduced-motion` respected, all form IDs/behaviour untouched.
+- Verified: smoke-test green, JS syntax green, no orphan CSS classes, contrast battery ≥6.79:1.
+
+---
+
+## 2026-09-02 — Production hardening + SEO pass on the waitlist site and web app (not yet deployed; deploy = `scripts/deploy.sh` + re-export `mobile/dist`)
+
+**Status:** commit prepared, **NOT deployed to the VM yet**. Caddy changes take effect on next `docker compose up -d caddy backend`; the enlarged `waitlist/` directory is rsynced by deploy.
+
+**Did:**
+- **SEO/metadata (matriq.com.ng):** every public page (`/`, `/terms.html`, `/privacy.html`) got a unique title + real description + canonical + full Open Graph + Twitter cards + static favicon.svg/apple-touch-icon + theme-color. Added brand **OG share image** (1200×630, generated by `scripts/generate-og-assets.py`) so WhatsApp/X/Facebook/LinkedIn links render properly.
+- **Structured data:** JSON-LD `Organization` + `WebSite` + `SoftwareApplication` on the landing page (deliberately **no LocalBusiness**).
+- **robots.txt + sitemap.xml** added; `404.html` branded error page with navigation added (wired via Caddy `handle_errors`).
+- **Waitlist form:** inline email validation with `aria-invalid` + focus + error recovery, blur/input sync, honeypot, duplicate-safe backend (verified 4/4 waitlist specs). Live `/v1/waitlist/count` confirmed reachable.
+- **Performance for low-end Android/slow networks:** 3D scene (three.js + lantern model, ~2.5 MB) now skipped entirely on `saveData`/2g/3g/slow small-screen phones; HDR + bloom also skipped on small screens; Inter 900 weight dropped from the font payload; `defer` on app.js.
+- **Accessibility:** skip link, `:focus-visible` outline, one H1 per page, landmark `aria-labelledby` on sections, no-JS-safe content (reveal animations gated behind `.js` class), noscript fallback, mobile `<details>` menu, emoji icons marked decorative.
+- **Caddy hardening:** HSTS (+includeSubDomains), CSP on the marketing site, `Permissions-Policy`, `zstd+gzip` encoding, per-asset-class cache headers (hashed Expo bundles immutable), branded 404 handling, X-Robots-Tag noindex on the login-gated web app. **Removed the temporary raw-IP + ngrok catch-all blocks** (they served the API to any Host header; archived in `caddy/Caddyfile.tunnels`). Both configs `caddy validate`-clean.
+- **Leaks/artifacts:** backend production build now excludes source maps (`tsconfig.build.json` — was shipping 170 `.js.map` into the image); `google-services.json` gitignored; admin/dashboard Next.js: `poweredByHeader: false`, no browser source maps, security headers, `robots: noindex` (auth-gated tools); stale dev `apiUrl` in `mobile/app.json` updated to the live API.
+- **Web app (app.matriq.com.ng):** Expo `web` block now carries name/description/lang/themeColor; breadcrumb trail (Discover › Course › Title) added to the library document screen + search seeds from a tapped course code. Mobile `tsc --noEmit` clean.
+- **Verification:** `scripts/smoke-test-waitlist.py` green (titles/descriptions/canonicals/OG/JSON-LD/link resolution/duplicate ids) — re-run before each deploy.
+
+**Next (user/VM):** 1) deploy via `scripts/deploy.sh` (+ restart caddy) and confirm headers on `https://matriq.com.ng/`. 2) **Google Search Console setup — needs the user** (see `docs/docs/seo-checklist.md`: verify ownership, submit sitemap, check coverage/mobile-usability). 3) Consider re-exporting + rsyncing `mobile/dist` to `/srv/matriq-web` once `app.matriq.com.ng` DNS is live.
+
+---
+
 ## 2026-09-01 — Real device push (FCM) committed + Firebase integration runbook; OCR improvement planned
 
 **Status:** FCM round **committed as `61aa632`** (29 files; verified: backend tsc clean, 14 notification tests green, mobile tsc clean). **NOT deployed** — Firebase project + credentials + migration + APK rebuild still needed on the VM (see runbook below). OCR improvement: plan produced (see bottom), not yet implemented.
