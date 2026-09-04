@@ -1,5 +1,6 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  AccessibilityInfo,
   View,
   Text,
   ScrollView,
@@ -8,17 +9,29 @@ import {
   ActivityIndicator,
   Platform,
 } from "react-native";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import * as Haptics from "expo-haptics";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Surface } from "../../components/Surface";
+import { PressableScale } from "../../components/PressableScale";
 import { GameBadge } from "../../components/GameBadge";
 import { Icon } from "../../components/icons";
-import { useAchievements } from "../../hooks/useAchievements";
+import { useAchievements } from "../../hooks/AchievementsProvider";
 import {
   CATEGORY_META,
   CATEGORY_ORDER,
   type BoardAchievement,
 } from "../../utils/achievements";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const RARITY_LABEL: Record<string, string> = {
   common: "Common",
@@ -97,9 +110,9 @@ export function AchievementsScreen() {
             />
           </View>
         </View>
-        <Pressable onPress={() => void refresh()} hitSlop={8} accessibilityLabel="Refresh achievements">
+        <PressableScale onPress={() => void refresh()} hitSlop={8} accessibilityLabel="Refresh achievements" style={{ padding: 4 }}>
           <Icon name="refresh" size={18} color={colors.textMuted} />
-        </Pressable>
+        </PressableScale>
       </Surface>
 
       {loading && !board ? (
@@ -138,7 +151,7 @@ export function AchievementsScreen() {
 
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 12 }}>
                 {items.map((a) => (
-                  <Pressable
+                  <PressableScale
                     key={a.id}
                     onPress={() => setSelected(a)}
                     style={{ width: "47%" }}
@@ -190,7 +203,7 @@ export function AchievementsScreen() {
                             : "Locked"}
                       </Text>
                     </Surface>
-                  </Pressable>
+                  </PressableScale>
                 ))}
               </View>
             </View>
@@ -200,6 +213,8 @@ export function AchievementsScreen() {
 
       <AchievementDetailModal
         achievement={selected}
+        items={board?.achievements.filter((a) => a.earned) ?? []}
+        onSelect={setSelected}
         onClose={() => setSelected(null)}
       />
     </KeyboardScreen>
@@ -208,9 +223,14 @@ export function AchievementsScreen() {
 
 function AchievementDetailModal({
   achievement,
+  items,
+  onSelect,
   onClose,
 }: {
   achievement: BoardAchievement | null;
+  /** Earned badges, in story order — horizontal swipe navigates these. */
+  items: BoardAchievement[];
+  onSelect: (a: BoardAchievement) => void;
   onClose: () => void;
 }) {
   const { theme } = useTheme();
@@ -218,6 +238,83 @@ function AchievementDetailModal({
   const shareRef = useRef<View>(null);
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState<string | null>(null);
+
+  // Drag-to-dismiss from the grabber strip only — vertical drags here never
+  // fight the content ScrollView. The whole sheet follows the finger and
+  // springs back or dismisses based on distance + velocity.
+  const translateY = useSharedValue(0);
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+  }, []);
+
+  // Reset between opens — a previous dismissal must not leave the sheet
+  // translated for the next achievement.
+  useEffect(() => {
+    translateY.value = 0;
+  }, [achievement, translateY]);
+
+  const drag = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetY([12, 12])
+        .failOffsetX([-24, 24])
+        .onUpdate((e) => {
+          if (!reduceMotion) translateY.value = Math.max(0, e.translationY);
+        })
+        .onEnd((e) => {
+          const far = e.translationY > 110 || e.velocityY > 800;
+          if (far) {
+            if (reduceMotion) {
+              runOnJS(onClose)();
+            } else {
+              translateY.value = withTiming(360, { duration: 220 }, (finished) => {
+                if (finished) runOnJS(onClose)();
+              });
+            }
+          } else {
+            translateY.value = withSpring(0, { damping: 17, stiffness: 240 });
+          }
+        }),
+    [onClose, reduceMotion, translateY],
+  );
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  // Horizontal story-swipe: move between earned badges. Attached to the
+  // badge card (not the scroller) and fails on vertical drags so scrolling
+  // is never hijacked. Edge resistance at either end of the story.
+  const index = items.findIndex((i) => i.id === achievement?.id);
+  const translateX = useSharedValue(0);
+  const swipe = useMemo(
+    () =>
+      Gesture.Pan()
+        .activeOffsetX([-18, 18])
+        .failOffsetY([-22, 22])
+        .onUpdate((e) => {
+          const atStart = index <= 0;
+          const atEnd = index >= items.length - 1;
+          if ((atStart && e.translationX > 0) || (atEnd && e.translationX < 0)) return;
+          translateX.value = e.translationX * 0.85;
+        })
+        .onEnd((e) => {
+          const back = e.translationX > 64 || e.velocityX > 480;
+          const fwd = e.translationX < -64 || e.velocityX < -480;
+          translateX.value = withSpring(0, { damping: 18, stiffness: 260 });
+          if (!back && !fwd) return;
+          const nextIdx = fwd ? index + 1 : index - 1;
+          if (nextIdx < 0 || nextIdx >= items.length) return;
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          runOnJS(onSelect)(items[nextIdx]);
+        }),
+    [index, items, onSelect, translateX],
+  );
+  const swipeStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   const share = useCallback(async () => {
     if (!achievement || !shareRef.current) return;
@@ -260,10 +357,13 @@ function AchievementDetailModal({
       statusBarTranslucent
       navigationBarTranslucent
     >
+      {/* RNGH requires its own root view inside a Modal on Android. */}
+      <GestureHandlerRootView style={{ flex: 1 }}>
       <Pressable
         style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: "flex-end" }}
         onPress={onClose}
       >
+        <Animated.View style={sheetStyle}>
         <Pressable
           onPress={() => {}}
           style={{
@@ -277,9 +377,28 @@ function AchievementDetailModal({
             paddingBottom: 34,
           }}
         >
+          {/* Grabber — drag down to dismiss (the gesture lives only here). */}
+          <GestureDetector gesture={drag}>
+            <View
+              style={{ alignItems: "center", paddingTop: 2, paddingBottom: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel="Drag down to close"
+            >
+              <View
+                style={{
+                  width: 38,
+                  height: 5,
+                  borderRadius: 3,
+                  backgroundColor: colors.borderStrong,
+                }}
+              />
+            </View>
+          </GestureDetector>
           <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: "82%" }}>
-            {/* The shareable card — captured as the achievement image */}
-            <View ref={shareRef} collapsable={false} style={{ alignItems: "center", paddingVertical: 8 }}>
+            {/* The shareable card — captured as the achievement image.
+                Horizontal swipe navigates between earned badges. */}
+            <GestureDetector gesture={swipe}>
+            <Animated.View ref={shareRef} collapsable={false} style={[swipeStyle, { alignItems: "center", paddingVertical: 8 }]}>
               <GameBadge
                 rarity={achievement.rarity}
                 icon={achievement.icon as never}
@@ -329,7 +448,25 @@ function AchievementDetailModal({
                   Matriq
                 </Text>
               </View>
-            </View>
+            </Animated.View>
+            </GestureDetector>
+
+            {/* Story dots — position in the earned-badge story. */}
+            {items.length > 1 ? (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 5, marginTop: 10 }}>
+                {items.map((it, i) => (
+                  <View
+                    key={it.id}
+                    style={{
+                      width: i === index ? 16 : 5,
+                      height: 5,
+                      borderRadius: 3,
+                      backgroundColor: i === index ? colors.accent : colors.border,
+                    }}
+                  />
+                ))}
+              </View>
+            ) : null}
 
             {/* How it was earned */}
             <View
@@ -445,7 +582,9 @@ function AchievementDetailModal({
             ) : null}
           </ScrollView>
         </Pressable>
+        </Animated.View>
       </Pressable>
+      </GestureHandlerRootView>
     </Modal>
   );
 }

@@ -14,6 +14,8 @@ import { ThemeProvider, useTheme } from "./src/theme/ThemeContext";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { NotificationsProvider } from "./src/contexts/NotificationsContext";
 import { OfflineAiProvider } from "./src/offline/OfflineAiContext";
+import { AchievementsProvider } from "./src/hooks/AchievementsProvider";
+import { BadgeCeremonyHost } from "./src/components/badges/BadgeCeremonyHost";
 import { AppNavigator } from "./src/navigation/AppNavigator";
 import { navigationRef } from "./src/navigation/navigationRef";
 import { UpdateOverlay } from "./src/components/UpdateOverlay";
@@ -110,19 +112,22 @@ function AppInner() {
     <View style={{ flex: 1, backgroundColor: theme.colors.bg }}>
       <AuthProvider>
         <PushNotificationsGate />
-        <OfflineAiProvider>
-          <NotificationsProvider>
-            <NavigationContainer ref={navigationRef} theme={navTheme}>
-              {/* Splash overlay is dark, so force light status-bar icons over it. */}
-              <StatusBar
-                style={splashVisible ? "light" : isGlass ? "light" : "dark"}
-              />
-              <NavigationBar style={isGlass ? "light" : "dark"} />
-              <AppNavigator onFirstContent={handleFirstContent} />
-              <UpdateOverlay />
-            </NavigationContainer>
-          </NotificationsProvider>
-        </OfflineAiProvider>
+        <AchievementsProvider>
+          <OfflineAiProvider>
+            <NotificationsProvider>
+              <NavigationContainer ref={navigationRef} theme={navTheme}>
+                {/* Splash overlay is dark, so force light status-bar icons over it. */}
+                <StatusBar
+                  style={splashVisible ? "light" : isGlass ? "light" : "dark"}
+                />
+                <NavigationBar style={isGlass ? "light" : "dark"} />
+                <AppNavigator onFirstContent={handleFirstContent} />
+                <UpdateOverlay />
+                <BadgeCeremonyHost />
+              </NavigationContainer>
+            </NotificationsProvider>
+          </OfflineAiProvider>
+        </AchievementsProvider>
       </AuthProvider>
 
       {splashVisible && !forceHide && (

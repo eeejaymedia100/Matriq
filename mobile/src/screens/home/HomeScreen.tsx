@@ -25,8 +25,9 @@ import { getStreak, type StreakState } from "../../utils/streak";
 import { syncStreakReminder } from "../../utils/streakReminder";
 import { timeAgo } from "../../utils/relativeTime";
 import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntry } from "../../utils/timetable";
-import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
-import { CelebrationOverlay } from "../../components/CelebrationOverlay";
+import { checkTodoBadge } from "../../utils/badges";
+import { queueCelebrations } from "../../utils/celebrations";
+import { CEREMONY_LINES, type PendingCelebration } from "../../utils/badgeDesign";
 import { StreakBadge } from "../../components/StreakBadge";
 import { HomeBannerStrip } from "../../components/HomeBanner";
 import { AchievementsPreview } from "../../components/AchievementsPreview";
@@ -34,6 +35,18 @@ import type { MainTabParamList } from "../../navigation/types";
 import type { Announcement, Association } from "../../types/api";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Home">;
+
+/** Payload for the device-local first_foundations trigger (to-do's done). */
+function firstFoundationsCelebration(): PendingCelebration {
+  return {
+    id: "all_todos",
+    title: "First Foundations",
+    body: "You set up your timetable, offline AI, materials and profile — Matriq is officially yours.",
+    rarity: "common",
+    icon: "seed",
+    earnedAt: new Date().toISOString(),
+  };
+}
 
 interface Todo {
   id: string;
@@ -74,7 +87,7 @@ export function HomeScreen({ navigation }: Props) {
   });
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [nextClassEntry, setNextClassEntry] = useState<TimetableEntry | null>(null);
-  const [celebration, setCelebration] = useState<Badge | null>(null);
+
   const [notesCount, setNotesCount] = useState(0);
   const [streak, setStreak] = useState<StreakState>({
     current: 0,
@@ -138,8 +151,11 @@ export function HomeScreen({ navigation }: Props) {
     const hasModels = Object.keys(downloaded).length > 0;
     if (hasModels) {
       void markTodoDone("offlineAi").then((state) => setTodos(state));
-      void checkTodoBadge().then((id) => {
-        if (id) setCelebration(BADGES.find((b) => b.id === id) ?? null);
+      void checkTodoBadge().then(async (id) => {
+        if (!id) return;
+        // Route the device-local trigger through the celebration bus so the
+        // server ceremony can't double-fire for the same badge.
+        await queueCelebrations([firstFoundationsCelebration()]);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,8 +166,9 @@ export function HomeScreen({ navigation }: Props) {
     const allDone =
       todos.timetable && todos.offlineAi && todos.materials && todos.photo;
     if (allDone) {
-      void checkTodoBadge().then((id) => {
-        if (id) setCelebration(BADGES.find((b) => b.id === id) ?? null);
+      void checkTodoBadge().then(async (id) => {
+        if (!id) return;
+        await queueCelebrations([firstFoundationsCelebration()]);
       });
     }
   }, [todos]);
@@ -546,13 +563,6 @@ export function HomeScreen({ navigation }: Props) {
         </ScrollView>
       </SafeAreaView>
 
-      {celebration ? (
-        <CelebrationOverlay
-          visible={!!celebration}
-          badge={celebration}
-          onClose={() => setCelebration(null)}
-        />
-      ) : null}
     </ThemedScreen>
   );
 }

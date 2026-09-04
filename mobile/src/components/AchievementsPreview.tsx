@@ -4,7 +4,7 @@ import { useTheme } from "../theme/ThemeContext";
 import { Surface } from "./Surface";
 import { GameBadge } from "./GameBadge";
 import { Icon } from "./icons";
-import { useAchievements } from "../hooks/useAchievements";
+import { useAchievements } from "../hooks/AchievementsProvider";
 
 /**
  * Compact Home achievements preview (UI direction: Home answers \"what
