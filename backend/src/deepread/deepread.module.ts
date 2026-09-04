@@ -7,9 +7,10 @@ import { DeepReadCacheService } from "./deepread-cache.service";
 import { AuthModule } from "../auth/auth.module";
 import { NotificationsModule } from "../notifications/notifications.module";
 import { StorageModule } from "../storage/storage.module";
+import { AiModule } from "../ai/ai.module";
 
 @Module({
-  imports: [AuthModule, NotificationsModule, StorageModule],
+  imports: [AuthModule, NotificationsModule, StorageModule, AiModule],
   controllers: [DeepReadController],
   providers: [
     DeepReadService,

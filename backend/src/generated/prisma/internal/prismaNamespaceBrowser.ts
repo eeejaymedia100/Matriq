@@ -399,6 +399,7 @@ export const AiDocumentScalarFieldEnum = {
   contentChunk: 'contentChunk',
   moderationStatus: 'moderationStatus',
   submittedByUserId: 'submittedByUserId',
+  sourceRef: 'sourceRef',
   createdAt: 'createdAt'
 } as const
 

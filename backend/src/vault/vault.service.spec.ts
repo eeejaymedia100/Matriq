@@ -6,6 +6,7 @@ import {
 } from "@nestjs/common";
 import { PDFDocument, StandardFonts } from "pdf-lib";
 import { VaultService } from "./vault.service";
+import { AiService } from "../ai/ai.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { AuditService } from "../audit/audit.service";
@@ -90,6 +91,7 @@ describe("VaultService", () => {
         { provide: StorageService, useValue: mockStorage },
         { provide: AuditService, useValue: mockAudit },
         { provide: ToolsService, useValue: mockTools },
+        { provide: AiService, useValue: { ingestSource: jest.fn().mockResolvedValue(1) } },
       ],
     }).compile();
 

@@ -9,6 +9,7 @@ import { StorageService } from "../storage/storage.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { EntitlementService } from "../entitlement/entitlement.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { AiService } from "../ai/ai.service";
 import { parseBlocksFromText, blocksToJson } from "./deepread-blocks";
 import { estimateConfidence } from "./deepread-transcribe.service";
 
@@ -139,6 +140,7 @@ describe("DeepReadService", () => {
         { provide: StorageService, useValue: { isEnabled: false, put: jest.fn(), getBuffer: jest.fn(), presignedGetUrl: jest.fn() } },
         { provide: NotificationsService, useValue: { notifyUser: jest.fn().mockResolvedValue(true) } },
         { provide: EntitlementService, useValue: entitlement },
+        { provide: AiService, useValue: { ingestSource: jest.fn().mockResolvedValue(1) } },
       ],
     }).compile();
 

@@ -10,6 +10,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { Prisma, VerificationStatus } from "../generated/prisma/client";
 import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
+import { VaultService } from "../vault/vault.service";
 import { InAppNotificationsService } from "../notifications/in-app.service";
 import { InstitutionsService } from "../institutions/institutions.service";
 
@@ -23,6 +24,7 @@ export class AdminService {
     private readonly aiService: AiService,
     private readonly inAppNotificationsService: InAppNotificationsService,
     private readonly institutionsService: InstitutionsService,
+    private readonly vaultService: VaultService,
   ) {}
 
   /**
@@ -642,6 +644,114 @@ export class AdminService {
       moderationStatus: updated.moderationStatus,
       message: `Document ${status}`,
     };
+  }
+
+  /**
+   * RAG backfill — ingest every approved vault item that has extractable
+   * text but hasn't been ingested yet (anything uploaded before the
+   * ingestion hooks existed). Idempotent: sourceRef upserts mean already-
+   * ingested items update in place; items with no ai_documents rows are
+   * detected via a sourceRef prefix check and are the only ones processed.
+   * Sequential on purpose: bounded work per request, no thundering herd on
+   * the embed server. Runs in the background — the admin gets a receipt.
+   */
+  async backfillRagIngestion(
+    adminId: string,
+    ipAddress: string,
+  ): Promise<{ message: string; started: true }> {
+    // Approved vault items with no ingested chunks at all.
+    const candidates = await this.prisma.vaultItem.findMany({
+      where: {
+        moderationStatus: "approved",
+        deletedAt: null,
+      },
+      select: { id: true },
+      take: 2000,
+      orderBy: { createdAt: "asc" },
+    });
+    const alreadyIngested = await this.prisma.aiDocument.findMany({
+      where: { sourceRef: { startsWith: "vault:" } },
+      select: { sourceRef: true },
+      distinct: ["sourceRef"],
+    });
+    const ingestedItemIds = new Set(
+      alreadyIngested.map((d) => (d.sourceRef ?? "").split(":")[1] ?? ""),
+    );
+    const items = candidates.filter((c) => !ingestedItemIds.has(c.id));
+
+    void (async () => {
+      let ingested = 0;
+      let skipped = 0;
+      for (const candidate of items) {
+        try {
+          const full = await this.prisma.vaultItem.findUnique({
+            where: { id: candidate.id },
+            select: {
+              id: true,
+              userId: true,
+              associationId: true,
+              courseCode: true,
+            },
+          });
+          if (!full) {
+            skipped += 1;
+            continue;
+          }
+          await this.vaultIngestForBackfill(full);
+          ingested += 1;
+        } catch (err) {
+          skipped += 1;
+          this.logger.warn(
+            `Backfill ingest failed for ${candidate.id}: ${err instanceof Error ? err.message : String(err)}`,
+          );
+        }
+      }
+      this.logger.log(
+        `RAG backfill by admin ${adminId}: ${ingested} ingested, ${skipped} skipped/unreadable`,
+      );
+    })().catch((err: unknown) =>
+      this.logger.warn(
+        `RAG backfill crashed: ${err instanceof Error ? err.message : String(err)}`,
+      ),
+    );
+
+    await this.auditService.log({
+      actorType: "admin",
+      actorId: adminId,
+      action: "ai.backfill_ingestion",
+      targetType: "ai_document",
+      ipAddress,
+      metadata: { candidates: items.length },
+    });
+
+    return {
+      message: `Backfill started for ${items.length} approved vault item(s) without AI ingestion. It runs in the background — check the logs for the completion summary.`,
+      started: true,
+    };
+  }
+
+  /**
+   * Vault-item ingestion for the backfill path. Extraction reuses the
+   * VaultService admin text preview (same PDF/OCR pipeline as the reader;
+   * admin context needs no student-scope check).
+   */
+  private async vaultIngestForBackfill(item: {
+    id: string;
+    userId: string;
+    associationId: string;
+    courseCode: string;
+  }): Promise<void> {
+    const preview = await this.vaultService.getTextForAdmin(item.id);
+    if (!preview.text || preview.text.trim().length < 10) return;
+    await this.aiService.ingestSource({
+      sourceRef: `vault:${item.id}`,
+      text: preview.text,
+      sourceType: "vault",
+      courseCode: item.courseCode,
+      associationId: item.associationId,
+      ownerId: item.userId,
+      approved: true,
+    });
   }
 
   // ── Vault moderation queue (spec §15) ──────────────────────────

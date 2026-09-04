@@ -63,6 +63,18 @@ export class AiController {
   }
 
   /**
+   * "Ask my notes" — answers strictly from the student's own ingested
+   * material (vault uploads + Deep Read transcriptions). Premium-gated,
+   * owner-scoped retrieval; distinct from Quickie's daily cap.
+   */
+  @Post("ai/ask-my-notes")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  askMyNotes(@CurrentUser() user: JwtPayload, @Body() dto: { query: string }) {
+    return this.aiService.askMyNotes(user.sub, dto?.query);
+  }
+
+  /**
    * SSE streaming variant of /ai/query. Emits `data:` events with
    * { type: "content" | "sources" | "done" } payloads, then closes.
    * Falls back to a single content event on any streaming failure.

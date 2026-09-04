@@ -8,6 +8,7 @@ import {
 import { ConfigService } from "@nestjs/config";
 import { Prisma } from "../generated/prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { AiService } from "../ai/ai.service";
 import { StorageService } from "../storage/storage.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { EntitlementService } from "../entitlement/entitlement.service";
@@ -61,6 +62,7 @@ export class DeepReadService {
     private readonly storage: StorageService,
     private readonly notifications: NotificationsService,
     private readonly entitlement: EntitlementService,
+    private readonly ai: AiService,
   ) {
     const conc = Number(this.config.get<string>("DEEP_READ_CONCURRENCY"));
     this.semaphore = new Semaphore(
@@ -230,6 +232,26 @@ export class DeepReadService {
         blocks: blocksToJson(parseBlocksFromText(clean)) as Prisma.InputJsonValue,
       },
     });
+
+    // The corrected transcription is the better source of truth — re-ingest
+    // it (same sourceRef → in-place upsert). Fire-and-forget: an ingestion
+    // hiccup must never fail the student's save.
+    if (clean.trim().length >= 10) {
+      void this.ai
+        .ingestSource({
+          sourceRef: `deepread:${pageId}`,
+          text: clean,
+          sourceType: "deep_read",
+          ownerId: userId,
+          approved: true,
+        })
+        .catch((err: unknown) =>
+          this.logger.warn(
+            `RAG re-ingest failed for edited page ${pageId}: ${err instanceof Error ? err.message : String(err)}`,
+          ),
+        );
+    }
+
     return { page: { id: page.id, text: page.text, edited: page.edited } };
   }
 
@@ -355,9 +377,55 @@ export class DeepReadService {
       )
       .catch(() => undefined);
 
+    // RAG ingestion — the student's own transcriptions become retrievable
+    // for "Ask my notes" (owner-scoped, approved: private to them by
+    // construction). Idempotent per page; embeddings are fire-and-forget so
+    // this never delays the notification above.
+    void this.ingestJobPages(job.userId, job.pages, job.title);
+
     this.logger.log(
       `Deep Read job ${jobId} finished: ${completed}/${nTotal} pages (engine ${hardestTier ?? "n/a"})`,
     );
+  }
+
+  /**
+   * Ingest a job's readable pages into the AI corpus ("Ask my notes").
+   * One ai_document per page, owner-scoped to the student, idempotent via
+   * sourceRef "deepread:<pageId>". Fire-and-forget at the call site — an
+   * ingestion failure must never surface to the student.
+   */
+  private async ingestJobPages(
+    userId: string,
+    pages: Array<{ id: string; text: string | null; status: string }>,
+    jobTitle?: string | null,
+  ): Promise<void> {
+    const readable = pages.filter((p) => p.status !== "failed" && !!p.text?.trim());
+    for (const page of readable) {
+      try {
+        await this.ai.ingestSource({
+          sourceRef: `deepread:${page.id}`,
+          text: page.text as string,
+          sourceType: "deep_read",
+          // The job title often carries the course ("BIO 201 notes, week 3")
+          // — extract a course code when it looks like one (helps scoped
+          // retrieval); null otherwise. Honest: no code, no guess.
+          courseCode: DeepReadService.courseCodeFromTitle(jobTitle),
+          ownerId: userId,
+          approved: true,
+        });
+      } catch (err) {
+        this.logger.warn(
+          `RAG ingest failed for page ${page.id}: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+    }
+  }
+
+  /** Extract "ABC 123"-style course codes from a free-text job title. */
+  private static courseCodeFromTitle(title?: string | null): string | null {
+    if (!title) return null;
+    const m = /\b([A-Z]{2,4})[\s-]?(\d{3,4})\b/.exec(title.toUpperCase());
+    return m ? `${m[1]} ${m[2]}` : null;
   }
 
   /** One page → cache or live transcription with Pro → rescue fallback. */

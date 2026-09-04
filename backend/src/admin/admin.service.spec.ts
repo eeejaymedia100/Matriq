@@ -6,6 +6,7 @@ import { AdminService } from "./admin.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { AuditService } from "../audit/audit.service";
 import { AiService } from "../ai/ai.service";
+import { VaultService } from "../vault/vault.service";
 import { NotificationsService } from "../notifications/notifications.service";
 import { InAppNotificationsService } from "../notifications/in-app.service";
 import { InstitutionsService } from "../institutions/institutions.service";
@@ -384,6 +385,10 @@ describe("AdminService", () => {
             createForAssociationMembers: jest.fn().mockResolvedValue(undefined),
             createForAllUsers: jest.fn().mockResolvedValue(undefined),
           },
+        },
+        {
+          provide: VaultService,
+          useValue: { getTextForAdmin: jest.fn().mockResolvedValue({ text: "", source: "none" }) },
         },
       ],
     }).compile();

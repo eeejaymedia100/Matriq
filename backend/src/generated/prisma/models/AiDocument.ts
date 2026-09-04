@@ -32,6 +32,7 @@ export type AiDocumentMinAggregateOutputType = {
   contentChunk: string | null
   moderationStatus: $Enums.ModerationStatus | null
   submittedByUserId: string | null
+  sourceRef: string | null
   createdAt: Date | null
 }
 
@@ -43,6 +44,7 @@ export type AiDocumentMaxAggregateOutputType = {
   contentChunk: string | null
   moderationStatus: $Enums.ModerationStatus | null
   submittedByUserId: string | null
+  sourceRef: string | null
   createdAt: Date | null
 }
 
@@ -54,6 +56,7 @@ export type AiDocumentCountAggregateOutputType = {
   contentChunk: number
   moderationStatus: number
   submittedByUserId: number
+  sourceRef: number
   createdAt: number
   _all: number
 }
@@ -67,6 +70,7 @@ export type AiDocumentMinAggregateInputType = {
   contentChunk?: true
   moderationStatus?: true
   submittedByUserId?: true
+  sourceRef?: true
   createdAt?: true
 }
 
@@ -78,6 +82,7 @@ export type AiDocumentMaxAggregateInputType = {
   contentChunk?: true
   moderationStatus?: true
   submittedByUserId?: true
+  sourceRef?: true
   createdAt?: true
 }
 
@@ -89,6 +94,7 @@ export type AiDocumentCountAggregateInputType = {
   contentChunk?: true
   moderationStatus?: true
   submittedByUserId?: true
+  sourceRef?: true
   createdAt?: true
   _all?: true
 }
@@ -173,6 +179,7 @@ export type AiDocumentGroupByOutputType = {
   contentChunk: string
   moderationStatus: $Enums.ModerationStatus
   submittedByUserId: string | null
+  sourceRef: string | null
   createdAt: Date
   _count: AiDocumentCountAggregateOutputType | null
   _min: AiDocumentMinAggregateOutputType | null
@@ -205,6 +212,7 @@ export type AiDocumentWhereInput = {
   contentChunk?: Prisma.StringFilter<"AiDocument"> | string
   moderationStatus?: Prisma.EnumModerationStatusFilter<"AiDocument"> | $Enums.ModerationStatus
   submittedByUserId?: Prisma.UuidNullableFilter<"AiDocument"> | string | null
+  sourceRef?: Prisma.StringNullableFilter<"AiDocument"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AiDocument"> | Date | string
   association?: Prisma.XOR<Prisma.AssociationNullableScalarRelationFilter, Prisma.AssociationWhereInput> | null
   submitter?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
@@ -218,6 +226,7 @@ export type AiDocumentOrderByWithRelationInput = {
   contentChunk?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
   submittedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRef?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   association?: Prisma.AssociationOrderByWithRelationInput
   submitter?: Prisma.UserOrderByWithRelationInput
@@ -225,6 +234,7 @@ export type AiDocumentOrderByWithRelationInput = {
 
 export type AiDocumentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  sourceRef?: string
   AND?: Prisma.AiDocumentWhereInput | Prisma.AiDocumentWhereInput[]
   OR?: Prisma.AiDocumentWhereInput[]
   NOT?: Prisma.AiDocumentWhereInput | Prisma.AiDocumentWhereInput[]
@@ -237,7 +247,7 @@ export type AiDocumentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"AiDocument"> | Date | string
   association?: Prisma.XOR<Prisma.AssociationNullableScalarRelationFilter, Prisma.AssociationWhereInput> | null
   submitter?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id">
+}, "id" | "sourceRef">
 
 export type AiDocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -247,6 +257,7 @@ export type AiDocumentOrderByWithAggregationInput = {
   contentChunk?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
   submittedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRef?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AiDocumentCountOrderByAggregateInput
   _max?: Prisma.AiDocumentMaxOrderByAggregateInput
@@ -264,6 +275,7 @@ export type AiDocumentScalarWhereWithAggregatesInput = {
   contentChunk?: Prisma.StringWithAggregatesFilter<"AiDocument"> | string
   moderationStatus?: Prisma.EnumModerationStatusWithAggregatesFilter<"AiDocument"> | $Enums.ModerationStatus
   submittedByUserId?: Prisma.UuidNullableWithAggregatesFilter<"AiDocument"> | string | null
+  sourceRef?: Prisma.StringNullableWithAggregatesFilter<"AiDocument"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AiDocument"> | Date | string
 }
 
@@ -273,6 +285,7 @@ export type AiDocumentCreateInput = {
   courseCode?: string | null
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
+  sourceRef?: string | null
   createdAt?: Date | string
   association?: Prisma.AssociationCreateNestedOneWithoutAiDocumentsInput
   submitter?: Prisma.UserCreateNestedOneWithoutAiDocumentsSubmittedInput
@@ -286,6 +299,7 @@ export type AiDocumentUncheckedCreateInput = {
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
   submittedByUserId?: string | null
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -295,6 +309,7 @@ export type AiDocumentUpdateInput = {
   courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   association?: Prisma.AssociationUpdateOneWithoutAiDocumentsNestedInput
   submitter?: Prisma.UserUpdateOneWithoutAiDocumentsSubmittedNestedInput
@@ -308,6 +323,7 @@ export type AiDocumentUncheckedUpdateInput = {
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
   submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -319,6 +335,7 @@ export type AiDocumentCreateManyInput = {
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
   submittedByUserId?: string | null
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -328,6 +345,7 @@ export type AiDocumentUpdateManyMutationInput = {
   courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -339,6 +357,7 @@ export type AiDocumentUncheckedUpdateManyInput = {
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
   submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -360,6 +379,7 @@ export type AiDocumentCountOrderByAggregateInput = {
   contentChunk?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
   submittedByUserId?: Prisma.SortOrder
+  sourceRef?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -371,6 +391,7 @@ export type AiDocumentMaxOrderByAggregateInput = {
   contentChunk?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
   submittedByUserId?: Prisma.SortOrder
+  sourceRef?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -382,6 +403,7 @@ export type AiDocumentMinOrderByAggregateInput = {
   contentChunk?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
   submittedByUserId?: Prisma.SortOrder
+  sourceRef?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -479,6 +501,7 @@ export type AiDocumentCreateWithoutSubmitterInput = {
   courseCode?: string | null
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
+  sourceRef?: string | null
   createdAt?: Date | string
   association?: Prisma.AssociationCreateNestedOneWithoutAiDocumentsInput
 }
@@ -490,6 +513,7 @@ export type AiDocumentUncheckedCreateWithoutSubmitterInput = {
   associationId?: string | null
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -530,6 +554,7 @@ export type AiDocumentScalarWhereInput = {
   contentChunk?: Prisma.StringFilter<"AiDocument"> | string
   moderationStatus?: Prisma.EnumModerationStatusFilter<"AiDocument"> | $Enums.ModerationStatus
   submittedByUserId?: Prisma.UuidNullableFilter<"AiDocument"> | string | null
+  sourceRef?: Prisma.StringNullableFilter<"AiDocument"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AiDocument"> | Date | string
 }
 
@@ -539,6 +564,7 @@ export type AiDocumentCreateWithoutAssociationInput = {
   courseCode?: string | null
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
+  sourceRef?: string | null
   createdAt?: Date | string
   submitter?: Prisma.UserCreateNestedOneWithoutAiDocumentsSubmittedInput
 }
@@ -550,6 +576,7 @@ export type AiDocumentUncheckedCreateWithoutAssociationInput = {
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
   submittedByUserId?: string | null
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -586,6 +613,7 @@ export type AiDocumentCreateManySubmitterInput = {
   associationId?: string | null
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -595,6 +623,7 @@ export type AiDocumentUpdateWithoutSubmitterInput = {
   courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   association?: Prisma.AssociationUpdateOneWithoutAiDocumentsNestedInput
 }
@@ -606,6 +635,7 @@ export type AiDocumentUncheckedUpdateWithoutSubmitterInput = {
   associationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -616,6 +646,7 @@ export type AiDocumentUncheckedUpdateManyWithoutSubmitterInput = {
   associationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -626,6 +657,7 @@ export type AiDocumentCreateManyAssociationInput = {
   contentChunk: string
   moderationStatus?: $Enums.ModerationStatus
   submittedByUserId?: string | null
+  sourceRef?: string | null
   createdAt?: Date | string
 }
 
@@ -635,6 +667,7 @@ export type AiDocumentUpdateWithoutAssociationInput = {
   courseCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submitter?: Prisma.UserUpdateOneWithoutAiDocumentsSubmittedNestedInput
 }
@@ -646,6 +679,7 @@ export type AiDocumentUncheckedUpdateWithoutAssociationInput = {
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
   submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -656,6 +690,7 @@ export type AiDocumentUncheckedUpdateManyWithoutAssociationInput = {
   contentChunk?: Prisma.StringFieldUpdateOperationsInput | string
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
   submittedByUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -669,6 +704,7 @@ export type AiDocumentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   contentChunk?: boolean
   moderationStatus?: boolean
   submittedByUserId?: boolean
+  sourceRef?: boolean
   createdAt?: boolean
   association?: boolean | Prisma.AiDocument$associationArgs<ExtArgs>
   submitter?: boolean | Prisma.AiDocument$submitterArgs<ExtArgs>
@@ -682,6 +718,7 @@ export type AiDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   contentChunk?: boolean
   moderationStatus?: boolean
   submittedByUserId?: boolean
+  sourceRef?: boolean
   createdAt?: boolean
   association?: boolean | Prisma.AiDocument$associationArgs<ExtArgs>
   submitter?: boolean | Prisma.AiDocument$submitterArgs<ExtArgs>
@@ -695,6 +732,7 @@ export type AiDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   contentChunk?: boolean
   moderationStatus?: boolean
   submittedByUserId?: boolean
+  sourceRef?: boolean
   createdAt?: boolean
   association?: boolean | Prisma.AiDocument$associationArgs<ExtArgs>
   submitter?: boolean | Prisma.AiDocument$submitterArgs<ExtArgs>
@@ -708,10 +746,11 @@ export type AiDocumentSelectScalar = {
   contentChunk?: boolean
   moderationStatus?: boolean
   submittedByUserId?: boolean
+  sourceRef?: boolean
   createdAt?: boolean
 }
 
-export type AiDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceType" | "courseCode" | "associationId" | "contentChunk" | "moderationStatus" | "submittedByUserId" | "createdAt", ExtArgs["result"]["aiDocument"]>
+export type AiDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceType" | "courseCode" | "associationId" | "contentChunk" | "moderationStatus" | "submittedByUserId" | "sourceRef" | "createdAt", ExtArgs["result"]["aiDocument"]>
 export type AiDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   association?: boolean | Prisma.AiDocument$associationArgs<ExtArgs>
   submitter?: boolean | Prisma.AiDocument$submitterArgs<ExtArgs>
@@ -739,6 +778,7 @@ export type $AiDocumentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     contentChunk: string
     moderationStatus: $Enums.ModerationStatus
     submittedByUserId: string | null
+    sourceRef: string | null
     createdAt: Date
   }, ExtArgs["result"]["aiDocument"]>
   composites: {}
@@ -1172,6 +1212,7 @@ export interface AiDocumentFieldRefs {
   readonly contentChunk: Prisma.FieldRef<"AiDocument", 'String'>
   readonly moderationStatus: Prisma.FieldRef<"AiDocument", 'ModerationStatus'>
   readonly submittedByUserId: Prisma.FieldRef<"AiDocument", 'String'>
+  readonly sourceRef: Prisma.FieldRef<"AiDocument", 'String'>
   readonly createdAt: Prisma.FieldRef<"AiDocument", 'DateTime'>
 }
     

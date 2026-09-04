@@ -435,6 +435,20 @@ export class AdminController {
     );
   }
 
+  /**
+   * One-click RAG backfill: ingest every approved vault item that has
+   * extractable text but no ai_documents yet. Idempotent — safe to re-run;
+   * items already ingested are skipped in place.
+   */
+  @Post("ai/backfill-ingestion")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 2 } })
+  backfillIngestion(@CurrentUser() user: AdminPayload, @Req() req: Request) {
+    const ip = (req.ip || req.socket.remoteAddress || "unknown") as string;
+    return this.adminService.backfillRagIngestion(user.sub, ip);
+  }
+
   // ── Users ─────────────────────────────────────────────────────
 
   @Get("users")

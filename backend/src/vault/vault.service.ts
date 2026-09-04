@@ -18,6 +18,7 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { StorageService } from "../storage/storage.service";
 import { AuditService } from "../audit/audit.service";
+import { AiService } from "../ai/ai.service";
 import { ToolsService } from "../tools/tools.service";
 import type {
   VaultItemType,
@@ -127,6 +128,7 @@ export class VaultService {
     private readonly storageService: StorageService,
     private readonly auditService: AuditService,
     private readonly toolsService: ToolsService,
+    private readonly aiService: AiService,
   ) {}
 
   // ── Student: search the vault ─────────────────────────────────
@@ -394,6 +396,17 @@ export class VaultService {
     this.logger.log(
       `Vault upload: user=${userId}, item=${item.id}, ${courseCode} "${title}" (${visibility}, ${file.size ?? file.buffer.length} bytes, companion=${companionRef ? "yes" : "no"})`,
     );
+
+    // Private items are auto-approved (visible only to the owner) — ingest
+    // them right away so "Ask my notes" works immediately after upload.
+    // Public items ingest via the admin-approval hook instead.
+    if (visibility === "private") {
+      void this.ingestItem(item).catch((err: unknown) =>
+        this.logger.warn(
+          `RAG ingest failed for vault item ${item.id}: ${err instanceof Error ? err.message : String(err)}`,
+        ),
+      );
+    }
 
     return {
       id: item.id,
@@ -974,6 +987,18 @@ export class VaultService {
       `Admin ${adminId} ${status} vault item ${itemId} (${item.courseCode} "${item.title}")`,
     );
 
+    // RAG ingestion on approval — the item's text (PDF text layer or OCR)
+    // enters the AI corpus, owner-scoped to the uploader and approved by
+    // construction (a human just reviewed it). Idempotent per item; embeddings
+    // are fire-and-forget. Fire-and-forget: moderation response never waits.
+    if (status === "approved") {
+      void this.ingestItem(updated).catch((err: unknown) =>
+        this.logger.warn(
+          `RAG ingest failed for vault item ${itemId}: ${err instanceof Error ? err.message : String(err)}`,
+        ),
+      );
+    }
+
     return {
       id: updated.id,
       moderationStatus: updated.moderationStatus,
@@ -985,6 +1010,37 @@ export class VaultService {
   }
 
   // ── Private helpers ───────────────────────────────────────────
+
+  /**
+   * Ingest an approved vault item into the AI corpus (RAG). Text comes from
+   * the same extraction the in-app reader uses (PDF text layer / OCR).
+   * Owner-scoped to the uploader; idempotent via sourceRef, so a re-moderation
+   * cycle or text change updates in place instead of duplicating.
+   */
+  private async ingestItem(item: {
+    id: string;
+    userId: string;
+    associationId: string;
+    courseCode: string;
+    title: string;
+  }): Promise<void> {
+    const { text, source } = await this.getText(item.userId, item.id);
+    if (source === "none" || text.trim().length < 10) {
+      this.logger.log(
+        `Vault item ${item.id}: no extractable text — skipped AI ingestion`,
+      );
+      return;
+    }
+    await this.aiService.ingestSource({
+      sourceRef: `vault:${item.id}`,
+      text,
+      sourceType: "vault",
+      courseCode: item.courseCode,
+      associationId: item.associationId,
+      ownerId: item.userId,
+      approved: true,
+    });
+  }
 
   private async myAssociationIds(userId: string): Promise<string[]> {
     const memberships = await this.prisma.membership.findMany({

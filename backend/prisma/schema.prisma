@@ -518,19 +518,26 @@ model AuditLog {
 
 model AiDocument {
   id               String           @id @default(uuid()) @db.Uuid
-  sourceType       String           @map("source_type") // past_question, handout
+  sourceType       String           @map("source_type") // past_question, handout, vault, deep_read
   courseCode       String?          @map("course_code")
   associationId    String?          @map("association_id") @db.Uuid
   contentChunk     String           @map("content_chunk")
   embedding        Unsupported("vector(1536)")? // pgvector — Ollama embeddings
   moderationStatus ModerationStatus @default(pending) @map("moderation_status")
   submittedByUserId String?         @map("submitted_by_user_id") @db.Uuid
+  // Idempotent ingestion: unique per-source locator ("vault:<itemId>:chunk3",
+  // "deepread:<pageId>"). Re-ingesting the same source updates in place
+  // instead of duplicating rows. Null = manually submitted material.
+  sourceRef        String?          @map("source_ref")
   createdAt        DateTime         @default(now()) @map("created_at")
 
   // Relations
   association Association? @relation(fields: [associationId], references: [id])
   submitter   User?        @relation("Submitter", fields: [submittedByUserId], references: [id])
 
+  @@unique([sourceRef])
+  @@index([sourceType, moderationStatus])
+  @@index([submittedByUserId])
   @@map("ai_documents")
 }
 
