@@ -213,10 +213,11 @@ model User {
   entitlements          MagicPlusEntitlement?
   focusSessions         FocusModeSession[]
   focusUsage            FocusModeUsage[]
-  librarySaves          LibrarySave[]
-  libraryViews          LibraryView[]
-  libraryReports        LibraryReport[]
-  achievementUnlocks    AchievementUnlock[]
+  librarySaves         LibrarySave[]
+  libraryViews         LibraryView[]
+  libraryReports       LibraryReport[]
+  achievementUnlocks   AchievementUnlock[]
+  deepReadJobs         DeepReadJob[]
 
   @@map("users")
 }
@@ -899,6 +900,73 @@ model FocusModeUsage {
   @@index([userId, createdAt])
   @@index([createdAt])
   @@map("focus_mode_usage")
+}
+
+// ── Deep Read — premium handwriting OCR (Magic Plus) ───────────
+// An async job per batch of photographed pages. Pro-class vision
+// transcription runs server-side (rate-limited by a global worker
+// semaphore, env-tuned for free-tier vs billed Gemini), results are
+// cached per page-image hash so retries never re-bill the API, and
+// page images live in object storage like every other study file.
+// Free tier gets a small daily allowance (DEEP_READ_FREE_DAILY);
+// Magic Plus users get DEEP_READ_PREMIUM_DAILY.
+model DeepReadJob {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @map("user_id") @db.Uuid
+  // queued | processing | done | failed | partially_failed
+  status           String   @default("queued")
+  // denormalized count for list views; true count = pages rows
+  pageCount        Int      @default(0) @map("page_count")
+  completedPages   Int      @default(0) @map("completed_pages")
+  failedPages      Int      @default(0) @map("failed_pages")
+  // which engine produced the best result for the hardest page:
+  // deep_read (pro model) | rescue (flash) | ocr (tesseract/mlkit)
+  bestEngine       String?  @map("best_engine")
+  // optional title the student gave the batch ("BIO 201 notes, week 3")
+  title            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  completedAt      DateTime? @map("completed_at")
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages DeepReadPage[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("deep_read_jobs")
+}
+
+model DeepReadPage {
+  id            String   @id @default(uuid()) @db.Uuid
+  jobId         String   @map("job_id") @db.Uuid
+  // 1-based position in the batch
+  pageNumber    Int      @map("page_number")
+  // object-storage key of the (preprocessed) page image; null when storage
+  // is disabled (image stays in memory for the job only)
+  imageRef      String?  @map("image_ref")
+  // pending | processing | done | failed | empty (no legible text)
+  status        String   @default("pending")
+  engine        String?
+  // per-page transcription confidence estimate (0-100), null when unknown
+  confidence    Int?
+  // SHA-256 of the raw upload — the OCR result cache key. Retries and
+  // re-uploads of the same page never re-bill the vision API.
+  contentHash   String   @map("content_hash")
+  text          String?
+  // structured blocks extracted from `text` (headings/paragraphs/lists) —
+  // feeds the Reflow reader directly
+  blocks        Json?
+  // student corrected the transcription on the review screen
+  edited        Boolean  @default(false)
+  errorMessage  String?  @map("error_message")
+  latencyMs     Int      @default(0) @map("latency_ms")
+  createdAt     DateTime @default(now()) @map("created_at")
+  completedAt   DateTime? @map("completed_at")
+
+  job DeepReadJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId, pageNumber])
+  @@index([contentHash])
+  @@map("deep_read_pages")
 }
 
 // ── Refresh token rotation ──────────────────────────────────────

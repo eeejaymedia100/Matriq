@@ -25,6 +25,7 @@ import { ToolsModule } from "./tools/tools.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { BannersModule } from "./banners/banners.module";
 import { AchievementsModule } from "./achievements/achievements.module";
+import { DeepReadModule } from "./deepread/deepread.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
 import { InstitutionsModule } from "./institutions/institutions.module";
 import { TimetableModule } from "./timetable/timetable.module";
@@ -72,6 +73,7 @@ import { EmailModule } from "./email/email.module";
     NotificationsModule,
     BannersModule,
     AchievementsModule,
+    DeepReadModule,
     WaitlistModule,
     InstitutionsModule,
     TimetableModule,
