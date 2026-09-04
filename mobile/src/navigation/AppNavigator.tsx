@@ -42,7 +42,9 @@ import { OfflineModelsScreen } from "../screens/ai/OfflineModelsScreen";
 import { AiCompanionScreen } from "../screens/ai/AiCompanionScreen";
 import { AiHistoryScreen } from "../screens/ai/AiHistoryScreen";
 import { FocusModeScreen } from "../screens/ai/FocusModeScreen";
+import { VoiceModeScreen } from "../screens/ai/VoiceModeScreen";
 import { NotificationFeedScreen } from "../screens/notifications/NotificationFeedScreen";
+import { AchievementsScreen } from "../screens/achievements/AchievementsScreen";
 import { QuizScreen } from "../screens/study/QuizScreen";
 import { ReferralsScreen } from "../screens/referrals/ReferralsScreen";
 import { ProfileScreen } from "../screens/profile/ProfileScreen";
@@ -166,7 +168,9 @@ function MainNavigator() {
       <MainStack.Screen name="OfflineModels" component={OfflineModelsScreen} options={{ title: "Offline AI" }} />
       <MainStack.Screen name="AiChat" component={AiCompanionScreen} options={{ title: "AI Study Companion" }} />
       <MainStack.Screen name="AiFocus" component={FocusModeScreen} options={{ title: "Focus Mode" }} />
+      <MainStack.Screen name="AiVoice" component={VoiceModeScreen} options={{ title: "Voice Mode" }} />
       <MainStack.Screen name="AiHistory" component={AiHistoryScreen} options={{ title: "Chat history" }} />
+      <MainStack.Screen name="Achievements" component={AchievementsScreen} options={{ title: "Achievements" }} />
       <MainStack.Screen name="Notifications" component={NotificationFeedScreen} options={{ title: "Notifications" }} />
       <MainStack.Screen name="Quiz" component={QuizScreen} options={{ title: "Quiz" }} />
       <MainStack.Screen name="CgpaCalculator" component={CgpaCalculatorScreen} options={{ title: "CGPA" }} />
@@ -175,13 +179,13 @@ function MainNavigator() {
       <MainStack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ title: "Note" }} />
       <MainStack.Screen name="DocumentReader" component={DocumentReaderScreen} options={{ title: "Read" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
-      <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Vault" }} />
+      <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Library" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />
       <MainStack.Screen name="FocusTimer" component={FocusTimerScreen} options={{ title: "Focus Timer" }} />
       <MainStack.Screen name="DeadlineTracker" component={DeadlineTrackerScreen} options={{ title: "Deadlines" }} />
-      <MainStack.Screen name="Library" component={LibraryScreen} options={{ title: "Academic Library" }} />
-      <MainStack.Screen name="LibrarySearch" component={LibrarySearchScreen} options={{ title: "Search the Library" }} />
+      <MainStack.Screen name="Library" component={LibraryScreen} options={{ title: "Discover" }} />
+      <MainStack.Screen name="LibrarySearch" component={LibrarySearchScreen} options={{ title: "Search materials" }} />
       <MainStack.Screen name="LibrarySaved" component={LibrarySavedScreen} options={{ title: "Saved" }} />
       <MainStack.Screen name="LibraryDetail" component={LibraryDetailScreen} options={{ title: "Document" }} />
     </MainStack.Navigator>

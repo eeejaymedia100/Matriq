@@ -106,19 +106,21 @@ usage rules below are the contract for when it lands.)
 
 ### Typography — serif + sans, one voice at a time
 
-- **Sans (workhorse):** Plus Jakarta Sans (already bundled) owns *everything*: body, buttons,
+- **Sans (workhorse):** Plus Jakarta Sans owns *everything*: body, buttons,
   labels, chips, tab bar, h3+, tags. Never made "displayy".
-- **Serif (display only):** Fraunces (planned, via `@expo-google-fonts/fraunces`) appears **only**
-  at display/h1/h2 and on big numerals — CGPA result, focus-timer readout, streak count,
-  passcode screen.
+- **Serif (display only):** Fraunces (`@expo-google-fonts/fraunces`, **installed**)
+  appears **only** at display/h1/h2 and on big numerals — CGPA result, focus-timer
+  readout, streak count, passcode screen. The `display`/`h1`/`h2` typography tokens
+  ARE the serif voice now (`theme.serif.editorial` / `numeral` / `accent` cover the
+  smaller serif moments: facts, achievement names, big numerals).
 - **The rule:** never both voices at once in a way that splits attention. If a screen has a serif
   headline, everything beneath it is sans and quieter — exactly one serif moment per screen.
   Serif is never used for body, buttons, labels, or anything below 18pt-sized text.
 
-### Scale floors (a11y + consistency)
+### Scale floors (a11y + consistency) — applied to the shared tokens
 
-- Display 30 / h1 26 (down from 34/28 — less shout, more presence); existing screens migrate
-  gradually, every new screen starts here.
+- Display 30 / h1 26 (down from 34/28 — less shout, more presence); the shared tokens now
+  carry these floors, so every screen using `theme.typography.display/h1/h2` inherits them.
 - Touch targets ≥44pt; caption/minimum text ≥12. Radii stay canonical: 8 / 14 / 20 / 28.
 
 ### Layout language

@@ -1205,6 +1205,20 @@ export function AiCompanionScreen() {
                   <Ionicons name="chevron-forward" size={12} color={colors.brand} />
                 </Pressable>
 
+                {/* Voice Mode — speak a question, hear the answer */}
+                <Pressable
+                  style={styles.focusPill}
+                  onPress={() => navigation.navigate("AiVoice")}
+                  accessibilityRole="button"
+                  accessibilityLabel="Voice Mode — speak to the AI"
+                >
+                  <Ionicons name="mic-outline" size={14} color={colors.brand} />
+                  <Text style={styles.focusPillText}>
+                    Voice Mode — speak &amp; study hands-free
+                  </Text>
+                  <Ionicons name="chevron-forward" size={12} color={colors.brand} />
+                </Pressable>
+
                 {systemNotice && (
                   <View style={styles.notice}>
                     <Ionicons

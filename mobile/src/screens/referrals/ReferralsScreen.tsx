@@ -8,13 +8,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { useTheme } from "../../theme/ThemeContext";
+import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 import { Card, Button, ReferralsSkeleton } from "../../components";
 import { api } from "../../api/client";
 import { useFocusEffect } from "@react-navigation/native";
 import type { ReferralInfo } from "../../types/api";
 
 export function ReferralsScreen() {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const styles = makeStyles(theme, colors);
   const [data, setData] = useState<ReferralInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +75,7 @@ export function ReferralsScreen() {
             subtitle="Refer 10+ students to unlock Ambassador status"
           >
             <View style={styles.progressBox}>
-              <Ionicons name="flag" size={20} color={colors.primary} style={styles.progressIcon} />
+              <Ionicons name="flag" size={20} color={colors.brand} style={styles.progressIcon} />
               <Text style={styles.progressText}>
                 {data?.completedReferrals ?? 0} / 10 referrals completed
               </Text>
@@ -103,49 +107,63 @@ export function ReferralsScreen() {
           <Button title="Share Invite Link" onPress={handleShare} variant="primary" />
         </Card>
 
-        <View style={{ height: spacing.xxl }} />
+        <View style={{ height: theme.spacing.xxl }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: spacing.lg },
-  title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.md },
-  ambassadorBox: {
-    backgroundColor: colors.successBg,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    alignItems: "center",
-    gap: spacing.sm,
-  },
-  ambassadorText: { ...typography.body, color: colors.success, textAlign: "center" },
-  progressBox: { marginTop: spacing.sm },
-  progressIcon: { alignSelf: "center", marginBottom: spacing.sm },
-  progressText: { ...typography.captionBold, color: colors.textSecondary, marginBottom: spacing.sm },
-  progressBar: {
-    height: 8,
-    backgroundColor: colors.border,
-    borderRadius: radii.full,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: radii.full,
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: spacing.md,
-  },
-  statCard: { flex: 1, alignItems: "center" },
-  codeBox: {
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    alignItems: "center",
-    marginBottom: spacing.md,
-  },
-  codeText: { ...typography.h2, color: colors.primary, letterSpacing: 4 },
-});
+function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.bg },
+    container: { padding: theme.spacing.lg },
+    title: {
+      ...theme.typography.h1,
+      color: colors.textPrimary,
+      marginBottom: theme.spacing.md,
+    },
+    ambassadorBox: {
+      backgroundColor: colors.successBg,
+      borderRadius: theme.radii.md,
+      padding: theme.spacing.md,
+      alignItems: "center",
+      gap: theme.spacing.sm,
+    },
+    ambassadorText: {
+      ...theme.typography.body,
+      color: colors.success,
+      textAlign: "center",
+    },
+    progressBox: { marginTop: theme.spacing.sm },
+    progressIcon: { alignSelf: "center", marginBottom: theme.spacing.sm },
+    progressText: {
+      ...theme.typography.captionBold,
+      color: colors.textSecondary,
+      marginBottom: theme.spacing.sm,
+    },
+    progressBar: {
+      height: 8,
+      backgroundColor: colors.border,
+      borderRadius: theme.radii.pill,
+      overflow: "hidden",
+    },
+    progressFill: {
+      height: "100%",
+      backgroundColor: colors.brand,
+      borderRadius: theme.radii.pill,
+    },
+    statsRow: {
+      flexDirection: "row",
+      gap: theme.spacing.md,
+    },
+    statCard: { flex: 1, alignItems: "center" },
+    codeBox: {
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: theme.radii.md,
+      padding: theme.spacing.md,
+      alignItems: "center",
+      marginBottom: theme.spacing.md,
+    },
+    codeText: { ...theme.typography.h2, color: colors.brand, letterSpacing: 4 },
+  });
+}

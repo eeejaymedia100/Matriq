@@ -88,7 +88,7 @@ export function MyMaterialsScreen() {
 
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>My materials</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Your own books &amp; notes — separate from the shared Vault.
+            Your own books &amp; notes — separate from the shared Library.
           </Text>
 
           <TextInput

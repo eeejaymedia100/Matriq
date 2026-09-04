@@ -14,6 +14,12 @@ import {
   PlusJakartaSans_700Bold,
   PlusJakartaSans_800ExtraBold,
 } from "@expo-google-fonts/plus-jakarta-sans";
+import {
+  Fraunces_400Regular,
+  Fraunces_500Medium,
+  Fraunces_600SemiBold,
+  Fraunces_700Bold,
+} from "@expo-google-fonts/fraunces";
 import { getItem, setItem } from "../utils/storage";
 import { themes, type MatriqTheme, type ThemeMode } from "./themes";
 
@@ -42,6 +48,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     PlusJakartaSans_600SemiBold,
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
+    Fraunces_400Regular,
+    Fraunces_500Medium,
+    Fraunces_600SemiBold,
+    Fraunces_700Bold,
   });
   const [mode, setModeState] = useState<ThemeMode>("glass");
   const [hydrated, setHydrated] = useState(false);

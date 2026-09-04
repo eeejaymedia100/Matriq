@@ -28,6 +28,8 @@ import { getTimetable, nextClass, minutesToLabel, DAY_LABELS, type TimetableEntr
 import { checkTodoBadge, BADGES, type Badge } from "../../utils/badges";
 import { CelebrationOverlay } from "../../components/CelebrationOverlay";
 import { StreakBadge } from "../../components/StreakBadge";
+import { HomeBannerStrip } from "../../components/HomeBanner";
+import { AchievementsPreview } from "../../components/AchievementsPreview";
 import type { MainTabParamList } from "../../navigation/types";
 import type { Announcement, Association } from "../../types/api";
 
@@ -289,12 +291,19 @@ export function HomeScreen({ navigation }: Props) {
             </View>
           </View>
 
+          {/* Admin-controlled banner strip — quiet, minimal, scrollable
+              (UI direction: light announcement system, not an ad carousel). */}
+          <HomeBannerStrip />
+
           {/* Study streak — meaningful study days only (AI Q&As, notes,
               materials). Never counts app launches. Game-style badge with a
               spring entrance, count-up and flame flicker (round-4 pass). */}
           <View style={{ paddingHorizontal: 24, marginTop: 14 }}>
             <StreakBadge streak={streak} />
           </View>
+
+          {/* Achievements — mini earned badges + count (progress at a glance) */}
+          <AchievementsPreview onPress={() => go("Achievements")} />
 
           {/* AI Study Companion — always-visible quick shortcut */}
           <View style={{ paddingHorizontal: 24, marginTop: 20 }}>
@@ -451,7 +460,7 @@ export function HomeScreen({ navigation }: Props) {
                     <Icon name="vault" size={21} color={colors.brand} />
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>The Vault</Text>
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>Library</Text>
                     <Text style={[theme.typography.caption, { color: colors.textMuted }]}>
                       Past questions & materials from students like you
                     </Text>

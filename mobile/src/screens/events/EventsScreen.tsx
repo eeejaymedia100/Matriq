@@ -4,12 +4,14 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  TouchableOpacity,
   RefreshControl,
+  type ViewStyle,
+  type TextStyle,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { useTheme } from "../../theme/ThemeContext";
+import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 import { Card, Button, ListScreenSkeleton, ErrorBanner } from "../../components";
 import { api } from "../../api/client";
 import { useFocusEffect } from "@react-navigation/native";
@@ -17,6 +19,8 @@ import type { Event, Association } from "../../types/api";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
 
 export function EventsScreen() {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme, theme.colors);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -110,6 +114,7 @@ export function EventsScreen() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
+            tintColor={theme.colors.textMuted}
             onRefresh={() => {
               setRefreshing(true);
               fetch();
@@ -139,7 +144,7 @@ export function EventsScreen() {
             </Text>
             <View style={styles.footer}>
               <View style={styles.countRow}>
-                <Ionicons name="people-outline" size={14} color={colors.textMuted} />
+                <Ionicons name="people-outline" size={14} color={theme.colors.textMuted} />
                 <Text style={styles.count}>{item.rsvpCount} attending</Text>
               </View>
               <Button
@@ -152,25 +157,32 @@ export function EventsScreen() {
             </View>
           </Card>
         )}
-        ListFooterComponent={<View style={{ height: spacing.xxl }} />}
+        ListFooterComponent={<View style={{ height: theme.spacing.xxl }} />}
       />
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: spacing.lg },
-  header: { marginBottom: spacing.md },
-  title: { ...typography.h2, color: colors.textPrimary },
-  desc: { ...typography.body, color: colors.textSecondary, marginTop: spacing.sm },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: spacing.md,
-  },
-  count: { ...typography.caption, color: colors.textMuted },
-  countRow: { flexDirection: "row", alignItems: "center", gap: 6 },
-  emptyText: { ...typography.body, color: colors.textSecondary },
-});
+function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
+  const base: Record<string, ViewStyle | TextStyle> = {
+    safe: { flex: 1, backgroundColor: colors.bg },
+    container: { padding: theme.spacing.lg },
+    header: { marginBottom: theme.spacing.md },
+    title: { ...theme.typography.h1, color: colors.textPrimary },
+    desc: {
+      ...theme.typography.body,
+      color: colors.textSecondary,
+      marginTop: theme.spacing.sm,
+    },
+    footer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginTop: theme.spacing.md,
+    },
+    count: { ...theme.typography.caption, color: colors.textMuted },
+    countRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+    emptyText: { ...theme.typography.body, color: colors.textSecondary },
+  };
+  return StyleSheet.create(base);
+}

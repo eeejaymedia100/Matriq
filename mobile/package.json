@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
+    "@expo-google-fonts/fraunces": "^0.4.1",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/metro-runtime": "~57.0.9",
     "@expo/vector-icons": "^15.0.2",
@@ -40,6 +41,7 @@
     "react-native-safe-area-context": "~5.7.0",
     "react-native-screens": "~4.26.0",
     "react-native-svg": "15.15.4",
+    "react-native-view-shot": "^5.1.1",
     "react-native-web": "^0.21.2",
     "whisper.rn": "^0.7.3"
   },

@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { colors, spacing, typography, radii } from "../../theme/colors";
+import { useTheme } from "../../theme/ThemeContext";
+import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
 import { Card, Button, LoadingScreen, ReceiptSkeleton } from "../../components";
 import { api } from "../../api/client";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -18,6 +19,9 @@ import type { Payment } from "../../types/api";
 type ReceiptScreenProps = NativeStackScreenProps<MainStackParamList, "Receipt">;
 
 export function ReceiptScreen({ route }: ReceiptScreenProps) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const styles = makeStyles(theme, colors);
   const { paymentId } = route.params;
   const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
@@ -133,59 +137,77 @@ export function ReceiptScreen({ route }: ReceiptScreenProps) {
         </Card>
 
         <Button title="Share Receipt" onPress={handleShare} variant="primary" />
-        <View style={{ height: spacing.xxl }} />
+        <View style={{ height: theme.spacing.xxl }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
-  container: { padding: spacing.lg },
-  title: { ...typography.h2, color: colors.textPrimary, marginBottom: spacing.lg },
-  receiptCard: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    padding: spacing.lg,
-    borderWidth: 2,
-    borderColor: colors.primary + "20",
-    marginBottom: spacing.lg,
-  },
-  receiptHeader: { alignItems: "center", marginBottom: spacing.md },
-  logoText: { ...typography.h2, color: colors.primary, fontWeight: "800" },
-  receiptLabel: { ...typography.captionBold, color: colors.textMuted, marginTop: spacing.xs },
-  divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.md },
-  qrPlaceholder: { alignItems: "center", marginVertical: spacing.md },
-  qrLabel: { ...typography.captionBold, color: colors.textSecondary, marginBottom: spacing.sm },
-  qrBox: {
-    width: 120,
-    height: 120,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radii.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  verifiedBadge: {
-    marginTop: spacing.sm,
-    backgroundColor: colors.successBg,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    borderRadius: radii.full,
-  },
-  verifiedText: { ...typography.captionBold, color: colors.success },
-  verifiedRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  details: { gap: spacing.sm },
-  detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: spacing.xs,
-  },
-  detailLabel: { ...typography.caption, color: colors.textMuted },
-  detailValue: { ...typography.captionBold, color: colors.textPrimary },
-  footer: {
-    ...typography.small,
-    color: colors.textMuted,
-    textAlign: "center",
-    lineHeight: 18,
-  },
-});
+function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
+  return StyleSheet.create({
+    safe: { flex: 1, backgroundColor: colors.bg },
+    container: { padding: theme.spacing.lg },
+    title: {
+      ...theme.typography.h1,
+      color: colors.textPrimary,
+      marginBottom: theme.spacing.lg,
+    },
+    receiptCard: {
+      backgroundColor: colors.surface,
+      borderRadius: theme.radii.xl,
+      padding: theme.spacing.lg,
+      borderWidth: 2,
+      borderColor: colors.brand + "20",
+      marginBottom: theme.spacing.lg,
+    },
+    receiptHeader: { alignItems: "center", marginBottom: theme.spacing.md },
+    logoText: { ...theme.typography.h1, color: colors.brand, fontWeight: "800" },
+    receiptLabel: {
+      ...theme.typography.captionBold,
+      color: colors.textMuted,
+      marginTop: theme.spacing.xs,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: theme.spacing.md,
+    },
+    qrPlaceholder: { alignItems: "center", marginVertical: theme.spacing.md },
+    qrLabel: {
+      ...theme.typography.captionBold,
+      color: colors.textSecondary,
+      marginBottom: theme.spacing.sm,
+    },
+    qrBox: {
+      width: 120,
+      height: 120,
+      backgroundColor: colors.surfaceAlt,
+      borderRadius: theme.radii.md,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    verifiedBadge: {
+      marginTop: theme.spacing.sm,
+      backgroundColor: colors.successBg,
+      paddingHorizontal: theme.spacing.md,
+      paddingVertical: theme.spacing.xs,
+      borderRadius: theme.radii.pill,
+    },
+    verifiedText: { ...theme.typography.captionBold, color: colors.success },
+    verifiedRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+    details: { gap: theme.spacing.sm },
+    detailRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      paddingVertical: theme.spacing.xs,
+    },
+    detailLabel: { ...theme.typography.caption, color: colors.textMuted },
+    detailValue: { ...theme.typography.captionBold, color: colors.textPrimary },
+    footer: {
+      ...theme.typography.small,
+      color: colors.textMuted,
+      textAlign: "center",
+      lineHeight: 18,
+    },
+  });
+}

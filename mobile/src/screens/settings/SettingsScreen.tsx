@@ -120,6 +120,13 @@ export function SettingsScreen({ navigation }: Props) {
       onPress: () => go("Profile"),
     },
     {
+      id: "achievements",
+      label: "Achievements",
+      hint: "Badges, streaks & milestones",
+      icon: "trophy",
+      onPress: () => go("Achievements"),
+    },
+    {
       id: "dues",
       label: "Dues & Payments",
       hint: "Payments, receipts & history — never on Home",
@@ -165,7 +172,7 @@ export function SettingsScreen({ navigation }: Props) {
       onPress: () =>
         setInfo({
           title: `Matriq v${version}`,
-          body: "The smart way. — Made for Nigerian university students: offline AI study companion, the shared Vault, low-data design and association tools. Need help? Reach out through your association's support channel, or write to support@matriq.app.",
+          body: "The smart way. — Made for Nigerian university students: offline AI study companion, the shared Library, low-data design and association tools. Need help? Reach out through your association's support channel, or write to support@matriq.app.",
         }),
     },
   ];

@@ -17,6 +17,19 @@ const FONT = {
   800: "PlusJakartaSans_800ExtraBold",
 } as const;
 
+/**
+ * Fraunces — the serif voice (round-4 locked). Display moments only: display /
+ * h1 / h2 and big numerals (streak count, CGPA result, focus-timer readout).
+ * Exactly one serif moment per screen; everything beneath it stays sans and
+ * quiet. Never body, buttons, labels or anything below ~18pt-sized text.
+ */
+export const SERIF = {
+  400: "Fraunces_400Regular",
+  500: "Fraunces_500Medium",
+  600: "Fraunces_600SemiBold",
+  700: "Fraunces_700Bold",
+} as const;
+
 export interface MatriqThemeColors {
   /** Screen background. */
   bg: string;
@@ -55,6 +68,12 @@ export interface MatriqTheme {
   mode: ThemeMode;
   colors: MatriqThemeColors;
   typography: Record<string, TextStyle>;
+  /** Fraunces serif moments — one per screen, display contexts only. */
+  serif: {
+    editorial: TextStyle;
+    numeral: TextStyle;
+    accent: TextStyle;
+  };
   radii: { sm: number; md: number; lg: number; xl: number; pill: number };
   spacing: { xs: number; sm: number; md: number; lg: number; xl: number; xxl: number };
   motion: {
@@ -82,10 +101,23 @@ const type = (font: keyof typeof FONT, size: number, lineHeight: number, weight?
   ...(weight ? { fontWeight: weight as TextStyle["fontWeight"] } : {}),
 });
 
+const serifType = (
+  font: keyof typeof SERIF,
+  size: number,
+  lineHeight: number,
+): TextStyle => ({
+  fontFamily: SERIF[font],
+  fontSize: size,
+  lineHeight,
+});
+
 const typographyBase = {
-  display: type(800, 34, 42),
-  h1: type(700, 28, 36),
-  h2: type(700, 22, 30),
+  // Scale floors locked in round-4: display 30 / h1 26 (was 34/28 — less
+  // shout, more presence). Serif owns these two + h2 as the display voice;
+  // h3 and below stay sans.
+  display: serifType(600, 30, 38),
+  h1: serifType(600, 26, 34),
+  h2: serifType(600, 22, 30),
   h3: type(700, 18, 24),
   body: type(400, 16, 24),
   bodyMedium: type(500, 16, 24),
@@ -94,6 +126,20 @@ const typographyBase = {
   captionBold: type(600, 13, 18),
   small: type(500, 11, 16),
 };
+
+/**
+ * Explicit serif tokens for screens that want a serif moment without a full
+ * display headline (facts, achievements, learning moments). These sit outside
+ * the numbered scale so their usage stays intentional.
+ */
+export const serifTypography = {
+  /** Serif learning/editorial title — facts, achievement names. */
+  editorial: serifType(600, 20, 27),
+  /** Big numeral — streak count, CGPA result, focus-timer readout. */
+  numeral: serifType(700, 40, 44),
+  /** Small serif accent for premium/achievement metadata. */
+  accent: serifType(500, 14, 20),
+} as const;
 
 export const glassTheme: MatriqTheme = {
   mode: "glass",
@@ -131,6 +177,7 @@ export const glassTheme: MatriqTheme = {
     tabBarBg: "rgba(20,6,31,0.95)",
   },
   typography: typographyBase,
+  serif: serifTypography,
   radii,
   spacing,
   motion: {
@@ -206,6 +253,7 @@ export const popTheme: MatriqTheme = {
     tabBarBg: "rgba(250,245,253,0.97)",
   },
   typography: typographyBase,
+  serif: serifTypography,
   radii,
   spacing,
   motion: {

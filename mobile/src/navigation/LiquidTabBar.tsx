@@ -13,7 +13,7 @@ interface TabSpec {
 
 export const TABS: TabSpec[] = [
   { name: "Home", label: "Home", icon: "home" },
-  { name: "Vault", label: "Vault", icon: "vault" },
+  { name: "Vault", label: "Library", icon: "vault" },
   { name: "Tools", label: "Tools", icon: "tools" },
   { name: "Study", label: "Study", icon: "study" },
   { name: "Settings", label: "Settings", icon: "settings" },

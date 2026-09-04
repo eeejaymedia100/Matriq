@@ -43,6 +43,20 @@ export interface FocusMap {
   createdAt: number;
   nodes: FocusNode[];
   links: FocusLink[];
+  /**
+   * Learning journey (cloud maps): an ordered partition of the nodes into
+   * stages. Offline maps have none — the journey view falls back to one
+   * linear stage.
+   */
+  stages?: JourneyStage[];
+}
+
+export interface JourneyStage {
+  id: string;
+  title: string;
+  objective: string;
+  /** Ordered node ids shown in this stage. */
+  conceptIds: string[];
 }
 
 export const FOCUS_KINDS: FocusNodeKind[] = [
@@ -242,11 +256,19 @@ export interface BackendFocusConcept {
   parents?: string[];
 }
 
+export interface BackendFocusStage {
+  id: string;
+  title: string;
+  objective: string;
+  conceptIds: string[];
+}
+
 export interface BackendFocusMap {
-  version: "1.0";
+  version: "1.0" | "1.1";
   topic: string;
   overview: string;
   concepts: BackendFocusConcept[];
+  stages?: BackendFocusStage[];
 }
 
 export interface BackendEntitlement {
@@ -300,6 +322,21 @@ export function backendFocusMapToClient(b: BackendFocusMap): FocusMap {
     createdAt: Date.now(),
     nodes,
     links,
+    // Cloud maps carry the learning journey; offline maps leave it unset.
+    ...(Array.isArray(b.stages) && b.stages.length > 0
+      ? {
+          stages: b.stages
+            .map((s) => ({
+              id: s.id || `stage-${s.title}`,
+              title: s.title || "Next step",
+              objective: s.objective || "Understand these ideas well.",
+              conceptIds: (s.conceptIds ?? []).filter(
+                (id) => !!id && ids.has(id),
+              ),
+            }))
+            .filter((s) => s.conceptIds.length > 0),
+        }
+      : {}),
   };
 }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { Path, Circle, Line, Polyline, Rect, Ellipse, type SvgProps } from "react-native-svg";
+import Svg, { Path, Circle, Line, Polyline, Rect, Ellipse, Polygon, type SvgProps } from "react-native-svg";
 
 /**
  * Matriq icon set — hand-curated inline SVG (spec §2: icons are inline SVG
@@ -67,7 +67,12 @@ export type IconName =
   | "trendingUp"
   | "copy"
   | "dot"
-  | "flame";
+  | "flame"
+  | "seed"
+  | "bookmark"
+  | "mic"
+  | "play"
+  | "pause";
 
 const ICONS: Record<IconName, React.ReactNode> = {
   home: (
@@ -403,6 +408,29 @@ const ICONS: Record<IconName, React.ReactNode> = {
     </>
   ),
   dot: <Circle cx="12" cy="12" r="3" />,
+  seed: (
+    <>
+      <Path d="M7 20h10" />
+      <Path d="M10 20c5.5-2.5.8-6.4 3-10" />
+      <Path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z" />
+      <Path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z" />
+    </>
+  ),
+  bookmark: <Path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />,
+  mic: (
+    <>
+      <Rect width="18" height="11" x="3" y="3" rx="9" />
+      <Path d="M5 11v2a7 7 0 0 0 14 0v-2" />
+      <Line x1="12" x2="12" y1="20" y2="22" />
+    </>
+  ),
+  play: <Polygon points="6 3 20 12 6 21 6 3" />,
+  pause: (
+    <>
+      <Rect width="4" height="16" x="6" y="4" rx="1" />
+      <Rect width="4" height="16" x="14" y="4" rx="1" />
+    </>
+  ),
   flame: (
     <Path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
   ),

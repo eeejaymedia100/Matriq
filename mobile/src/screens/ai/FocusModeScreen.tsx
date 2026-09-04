@@ -46,6 +46,7 @@ import {
   saveFocusMap,
   deleteFocusMap,
 } from "../../utils/focusHistory";
+import { FocusJourneyView } from "./FocusJourneyView";
 
 type Phase = "entry" | "generating" | "ready";
 
@@ -74,6 +75,9 @@ export function FocusModeScreen() {
   const [topicInput, setTopicInput] = useState(route.params?.topic ?? "");
   const [savedMaps, setSavedMaps] = useState<FocusMap[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // New maps open as a guided learning journey; the free map canvas stays one
+  // toggle away (UI direction §Focus Mode: journey first, map second).
+  const [journeyMode, setJourneyMode] = useState(true);
 
   const [map, setMap] = useState<FocusMap | null>(null);
   const [selected, setSelected] = useState<FocusNode | null>(null);
@@ -102,6 +106,7 @@ export function FocusModeScreen() {
       if (!mounted || !m) return;
       setMap(m);
       setPhase("ready");
+      setJourneyMode(true);
       setTimeout(() => fitToView(m), 60);
     });
     return () => {
@@ -158,6 +163,7 @@ export function FocusModeScreen() {
         setMap(m);
         await saveFocusMap(m);
         setPhase("ready");
+        setJourneyMode(true);
         void refreshEnt();
         setTimeout(() => fitToView(m), 60);
       } catch (err) {
@@ -190,6 +196,7 @@ export function FocusModeScreen() {
     (m: FocusMap) => {
       setMap(m);
       setPhase("ready");
+      setJourneyMode(true);
       setTimeout(() => fitToView(m), 60);
     },
     [fitToView],
@@ -488,8 +495,9 @@ export function FocusModeScreen() {
         ]}
       >
         Turn any complex thing — a course topic, a coding concept, a skill, a
-        hard problem — into a visual map of connected cards you can zoom and
-        explore. Powered by cloud AI (a Magic Plus feature).
+        hard problem — into a guided learning journey. Walk it step by step,
+        prove you've got each stage, then explore the full map freely.
+        Powered by cloud AI (a Magic Plus feature).
       </Text>
 
       {/* Premium / free-allowance messaging */}
@@ -640,7 +648,23 @@ export function FocusModeScreen() {
   );
 
   const renderWorkspace = () => {
-    if (!map || !layout) return null;
+    if (!map) return null;
+
+    // Guided learning journey — the default way to walk a map (UI direction
+    // §Focus Mode). The free map canvas is one toggle away.
+    if (journeyMode) {
+      return (
+        <FocusJourneyView
+          map={map}
+          sessionId={serverSessionIdOf(map)}
+          onExit={() => setPhase("entry")}
+          onShowMap={() => setJourneyMode(false)}
+          onUpdateMap={persistCurrent}
+        />
+      );
+    }
+
+    if (!layout) return null;
     return (
       <View style={{ flex: 1 }}>
         {/* Toolbar */}
@@ -669,6 +693,42 @@ export function FocusModeScreen() {
           >
             {map.topic}
           </Text>
+          {/* Journey / Map toggle */}
+          <View
+            style={{
+              flexDirection: "row",
+              padding: 3,
+              borderRadius: theme.radii.pill,
+              backgroundColor: colors.surfaceAlt,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <Pressable
+              onPress={() => setJourneyMode(true)}
+              style={{ paddingVertical: 5, paddingHorizontal: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Back to the guided journey"
+            >
+              <Text style={[theme.typography.small, { color: colors.textSecondary }]}>
+                Journey
+              </Text>
+            </Pressable>
+            <View
+              style={{
+                paddingVertical: 5,
+                paddingHorizontal: 10,
+                borderRadius: theme.radii.pill - 2,
+                backgroundColor: colors.accent,
+              }}
+            >
+              <Text
+                style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 11, color: "#170B26" }}
+              >
+                Map
+              </Text>
+            </View>
+          </View>
           <Text style={[theme.typography.small, { color: colors.textMuted }]}>
             {percent}%
           </Text>

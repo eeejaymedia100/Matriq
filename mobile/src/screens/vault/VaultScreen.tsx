@@ -59,7 +59,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 const LEVELS = ["", "100", "200", "300", "400", "500"] as const;
 
 /**
- * The Vault — two clearly separated spaces:
+ * The Library (formerly "The Vault") — two clearly separated spaces:
  *  - Community library: PUBLIC resources from students at your school
  *    (approved by admins), searchable by course code / title / type / level.
  *    These are community contributions, not personal storage.
@@ -435,7 +435,7 @@ export function VaultScreen({ navigation }: Props) {
     >
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
             <View style={{ flex: 1 }}>
-              <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Vault</Text>
+              <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Library</Text>
               <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
                 Your private files &amp; your school's public library.
               </Text>
@@ -689,7 +689,7 @@ export function VaultScreen({ navigation }: Props) {
                 <View style={{ alignItems: "center", paddingVertical: 40 }}>
                   <ActivityIndicator color={colors.brand} />
                   <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 10 }]}>
-                    Opening the Vault…
+                    Opening the Library…
                   </Text>
                 </View>
               ) : items.length === 0 ? (
@@ -826,7 +826,7 @@ export function VaultScreen({ navigation }: Props) {
       <ConfirmSheet
         visible={!!deleteTarget}
         title="Delete this upload?"
-        body={`“${deleteTarget?.originalName || deleteTarget?.title || "this file"}” will be removed from the Vault. This can't be undone.`}
+        body={`“${deleteTarget?.originalName || deleteTarget?.title || "this file"}” will be removed from the Library. This can't be undone.`}
         confirmLabel={deleteBusy ? "Deleting…" : "Delete"}
         destructive
         onConfirm={() => void doDelete()}

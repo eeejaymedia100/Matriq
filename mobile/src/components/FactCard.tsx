@@ -25,7 +25,11 @@ export function FactCard({ fact, label }: { fact: Fact; label: string }) {
           {fact.tag} · {label}
         </Text>
       </View>
-      <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>{fact.title}</Text>
+      {/* Serif editorial moment — a fact is a learning moment, so its title
+          gets the one serif voice on this screen. */}
+      <Text style={[theme.serif.editorial, { color: colors.textPrimary }]}>
+        {fact.title}
+      </Text>
       <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 6, lineHeight: 24 }]}>
         {fact.body}
       </Text>

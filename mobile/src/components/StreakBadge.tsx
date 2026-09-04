@@ -15,6 +15,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
+import { GameBadge } from "./GameBadge";
 import type { StreakState } from "../utils/streak";
 
 /** easeOutCubic — game-feel count-up pacing (fast start, gentle landing). */
@@ -170,33 +171,22 @@ export function StreakBadge({ streak }: { streak: StreakState }) {
         streak.best > streak.current ? `, best ${streak.best}` : ""
       }`}
     >
-      {/* Flame tile — the badge's one lime moment */}
-      <Animated.View
-        style={[
-          {
-            width: 34,
-            height: 34,
-            borderRadius: 12,
-            backgroundColor: colors.accent,
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 0 18px rgba(198,255,61,0.35)",
-          },
-          flameStyle,
-        ]}
-      >
-        <Icon name="flame" size={19} color="#170B26" strokeWidth={1.6} />
+      {/* Metallic flame badge — game-style, layered (UI direction: the streak
+          badge should be especially polished). The count-up numeral next to it
+          stays the serif big-numeral moment. */}
+      <Animated.View style={flameStyle}>
+        <GameBadge rarity="rare" icon="flame" earned size="sm" />
       </Animated.View>
 
       {/* Count-up numeral + label */}
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
+        {/* Serif big numeral — the streak count is a locked serif moment
+            (round-4: display/h1/h2 + big numerals get Fraunces). */}
         <Text
-          style={{
-            fontFamily: "PlusJakartaSans_800ExtraBold",
-            fontSize: 22,
-            lineHeight: 24,
-            color: colors.textPrimary,
-          }}
+          style={[
+            theme.serif.numeral,
+            { fontSize: 24, lineHeight: 26, color: colors.textPrimary },
+          ]}
         >
           {display}
         </Text>

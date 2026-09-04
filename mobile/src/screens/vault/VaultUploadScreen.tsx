@@ -200,7 +200,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
   return (
     <KeyboardScreen paddingBottom={40}>
 
-          <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Add to the Vault</Text>
+          <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Add to the Library</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4, lineHeight: 22 }]}>
             Share a past question or material with students in your school —
             or keep it private for yourself.
@@ -558,7 +558,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
                   color: canSubmit ? "#170B26" : colors.textMuted,
                 }}
               >
-                {firstUpload ? "Accept terms & upload" : "Upload to the Vault"}
+                {firstUpload ? "Accept terms & upload" : "Upload to the Library"}
               </Text>
             )}
           </Pressable>
