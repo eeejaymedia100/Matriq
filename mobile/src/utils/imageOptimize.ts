@@ -27,6 +27,13 @@ export const JPEG_QUALITY = 0.7;
 /** Must stay under the backend multer cap for the tools routes (11 MB). */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
+/**
+ * Long-edge cap for OCR uploads. Handwriting is thin-stroke detail — a
+ * 1200px cap (the general upload default) smears pen strokes before the
+ * server ever sees them, so Deep Read uses a higher-fidelity profile.
+ */
+export const MAX_OCR_WIDTH = 2048;
+
 export interface OptimizedImage {
   uri: string;
   fileName: string;
@@ -71,13 +78,17 @@ export interface OptimizeOptions {
  * Resize (longest side ≤ 1200px) + re-encode to JPEG 0.7. Pass the asset's
  * known width/height (expo-image-picker returns them) to skip the extra
  * Image.getSize round-trip.
+ *
+ * `maxDimension` overrides the long-edge cap: Deep Read captures pass 2048
+ * to preserve handwriting stroke detail (see MAX_OCR_WIDTH).
  */
 export async function optimizeImageForUpload(
   uri: string,
   fileName: string,
-  options: OptimizeOptions = {},
+  options: OptimizeOptions & { maxDimension?: number } = {},
 ): Promise<OptimizedImage> {
-  const { knownSize, skipUnderBytes } = options;
+  const { knownSize, skipUnderBytes, maxDimension } = options;
+  const cap = maxDimension ?? MAX_UPLOAD_WIDTH;
   try {
     // Keep small originals untouched (e.g. Vault's "original is kept
     // pristine" promise) — only compress files that actually need it.
@@ -97,11 +108,11 @@ export async function optimizeImageForUpload(
     const height = size?.height ?? 0;
 
     const actions: ImageManipulator.Action[] = [];
-    if (width > MAX_UPLOAD_WIDTH) {
-      actions.push({ resize: { width: MAX_UPLOAD_WIDTH } });
-    } else if (height > MAX_UPLOAD_WIDTH) {
+    if (width > cap) {
+      actions.push({ resize: { width: cap } });
+    } else if (height > cap) {
       // Pathological tall crops (e.g. 900×4000) — bound the long side too.
-      actions.push({ resize: { height: MAX_UPLOAD_WIDTH } });
+      actions.push({ resize: { height: cap } });
     }
 
     const result = await ImageManipulator.manipulateAsync(uri, actions, {

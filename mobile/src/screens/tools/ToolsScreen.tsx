@@ -16,7 +16,7 @@ import type { MainTabParamList } from "../../navigation/types";
 
 type Props = BottomTabScreenProps<MainTabParamList, "Tools">;
 
-type ToolTarget = "CgpaCalculator" | "Ocr" | "ImageToPdf";
+type ToolTarget = "CgpaCalculator" | "Ocr" | "ImageToPdf" | "DeepRead";
 
 interface ToolCard {
   id: string;
@@ -40,6 +40,7 @@ interface GridCardItem {
  *  tools sit together, equal-height boxes, WhatsApp services moved to the
  *  very bottom of the screen). */
 const ALL_TOOLS: ToolCard[] = [
+  { id: "deepread", label: "Deep Read ✨", hint: "Handwritten notes → documents", icon: "sparkle", target: "DeepRead" },
   { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", target: "Ocr" },
   { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", target: "ImageToPdf" },
   { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", target: "CgpaCalculator" },

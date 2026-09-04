@@ -56,6 +56,8 @@ export type MainStackParamList = {
     mimeType: string;
   };
   Ocr: undefined;
+  /** Deep Read — premium handwriting OCR (Magic Plus). */
+  DeepRead: undefined;
   ImageToPdf: undefined;
   /** Academic Library (Netflix-for-Students discovery). */
   Library: undefined;
