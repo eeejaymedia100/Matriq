@@ -31,6 +31,16 @@ class ExpandDto {
   conceptId!: string;
 }
 
+class CheckpointDto {
+  @IsString()
+  @Length(1, 60)
+  conceptId!: string;
+
+  @IsString()
+  @Length(1, 2000)
+  answer!: string;
+}
+
 class ListQuery {
   @IsOptional()
   @IsString()
@@ -77,6 +87,23 @@ export class FocusController {
     @Body() dto: ExpandDto,
   ) {
     return this.focus.expandConcept(user.sub, id, dto.conceptId);
+  }
+
+  /**
+   * Mastery checkpoint — the AI judges the student's answer against the
+   * concept's own explanation. Junk answers are rejected deterministically
+   * before any model call (see isObviousBypass).
+   */
+  @Post("focus/maps/:id/checkpoint")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 20, getTracker: userTracker } })
+  checkpoint(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") id: string,
+    @Body() dto: CheckpointDto,
+  ) {
+    return this.focus.checkpoint(user.sub, id, dto.conceptId, dto.answer);
   }
 
   @Get("focus/maps")

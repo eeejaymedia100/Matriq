@@ -216,6 +216,7 @@ model User {
   librarySaves          LibrarySave[]
   libraryViews          LibraryView[]
   libraryReports        LibraryReport[]
+  achievementUnlocks    AchievementUnlock[]
 
   @@map("users")
 }
@@ -399,6 +400,29 @@ model AnnouncementRead {
 
   @@id([announcementId, userId])
   @@map("announcement_reads")
+}
+
+// ── Admin-controlled Home banners ──────────────────────────────
+// Lightweight global announcement strip shown on Home (UI direction: admin-
+// controlled, scrollable, minimal — NOT an advertising carousel). Admins
+// create/edit/publish/reorder/schedule/remove; students see only published
+// banners whose schedule window is open, ordered by sortOrder. Distinct from
+// the association-scoped Announcement table above.
+model Banner {
+  id        String    @id @default(uuid()) @db.Uuid
+  title     String
+  body      String
+  linkLabel String?   @map("link_label") // optional action text ("View")
+  linkUrl   String?   @map("link_url") // optional http(s) destination
+  published Boolean   @default(false)
+  startsAt  DateTime? @map("starts_at") // null = no start restriction
+  endsAt    DateTime? @map("ends_at") // null = no end restriction
+  sortOrder Int       @default(0) @map("sort_order")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@index([published, startsAt, endsAt])
+  @@map("banners")
 }
 
 model Event {
@@ -826,6 +850,24 @@ model FocusModeSession {
   @@index([userId])
   @@index([topicHash])
   @@map("focus_mode_sessions")
+}
+
+// ── Student achievements (Achievement Board) ──────────────────
+// One row per (student, achievement) the moment it is earned, so the board
+// can show "earned on" dates and "how it was earned" from real data. The
+// evaluation itself is deterministic server-side (see achievements module) —
+// the table only records the fact + timestamp of earning.
+model AchievementUnlock {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  achievementId String   @map("achievement_id")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@map("achievement_unlocks")
 }
 
 // ── Cloud Focus Mode usage / economics ─────────────────────────

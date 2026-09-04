@@ -56,10 +56,26 @@ export interface FocusConcept {
 }
 
 export interface FocusMap {
-  version: "1.0";
+  version: "1.1";
   topic: string;
   overview: string;
   concepts: FocusConcept[];
+  /**
+   * The learning journey (UI direction §Focus Mode): an ordered partition of
+   * the concepts into stages the student walks through. Optional — maps
+   * generated before journeys shipped stay valid, and the client falls back
+   * to a single linear stage when absent.
+   */
+  stages?: FocusStage[];
+}
+
+export interface FocusStage {
+  id: string;
+  title: string;
+  /** What the student will understand by the end of the stage. */
+  objective: string;
+  /** Ordered concept ids shown in this stage (must exist in the map). */
+  conceptIds: string[];
 }
 
 /** Provider input/output limits — keep responses small and cheap. */
@@ -69,7 +85,7 @@ export const MAX_OVERVIEW_CHARS = 700;
 export const MAX_LABEL_CHARS = 90;
 export const MAX_SUMMARY_CHARS = 140;
 
-export const PROMPT_VERSION = 1;
+export const PROMPT_VERSION = 2;
 
 const KIND_SET = new Set<string>(FOCUS_KINDS);
 
@@ -171,12 +187,45 @@ export function validateFocusMap(raw: unknown, topic: string): FocusMap | null {
     if (c.parents?.length === 0) c.parents = undefined;
   }
 
-  return {
-    version: "1.0",
+  const map: FocusMap = {
+    version: "1.1",
     topic: clean(topic, 120) || "Concept map",
     overview: clean(obj.overview ?? obj.summary, MAX_OVERVIEW_CHARS),
     concepts,
   };
+
+  // Learning journey stages — sanitized hard: every referenced id must exist,
+  // each concept appears at most once across stages, and titles are cleaned.
+  // When the model's stages are unusable we simply drop them (the map stays
+  // valid and the client falls back to one linear stage).
+  if (Array.isArray(obj.stages)) {
+    const used = new Set<string>();
+    const stages: FocusStage[] = [];
+    for (const raw of obj.stages.slice(0, 8)) {
+      if (!raw || typeof raw !== "object") continue;
+      const s = raw as Record<string, unknown>;
+      const title = clean(s.title, 80);
+      if (!title) continue;
+      const conceptIds = [
+        ...new Set(
+          (Array.isArray(s.conceptIds) ? s.conceptIds : [])
+            .map((id) => sanitizeId(id, ""))
+            .filter((id) => id && idSet.has(id) && !used.has(id)),
+        ),
+      ];
+      if (conceptIds.length === 0) continue;
+      for (const id of conceptIds) used.add(id);
+      stages.push({
+        id: sanitizeId(s.id, `stage${stages.length + 1}`),
+        title,
+        objective: clean(s.objective, 200) || "Understand these ideas well.",
+        conceptIds,
+      });
+    }
+    if (stages.length > 0) map.stages = stages;
+  }
+
+  return map;
 }
 
 /**
@@ -214,6 +263,14 @@ Produce ONE JSON object only (no markdown, no prose outside the JSON) matching E
       "prerequisites": ["<concept ids you should understand first, optional>"],
       "parents": ["<concept ids this is part of, optional>"]
     }
+  ],
+  "stages": [
+    {
+      "id": "<short slug, e.g. \"basics\">",
+      "title": "<short stage name, e.g. \"Start with the basics\">",
+      "objective": "<what the student will understand by the end of this stage - one sentence>",
+      "conceptIds": ["<concept ids in learning order for THIS stage>"]
+    }
   ]
 }
 
@@ -222,9 +279,117 @@ Rules:
 - Use 6 to 10 concepts total (MAX do not exceed 10).
 - Every "id" must be unique, lowercase, no spaces.
 - "prerequisites" and "parents" must reference ids that exist, never the concept's own id.
+- "stages" must be an ordered learning journey: 2 to 5 stages that PARTITION the
+  concepts (every concept appears in exactly one stage, concepts listed in the
+  order the student should learn them). Earlier stages first — prerequisites
+  before the ideas that build on them. Keep each stage's "conceptIds" to 2-4
+  concepts.
 - Keep every string short and accurate. Prefer correct academic content over length.
 - No HTML. No markdown formatting. Plain UTF-8 text only.
 Return valid JSON with the exact key names above.`;
+}
+
+// ── Mastery checkpoints (UI direction §Mastery Checkpoints) ──────────
+// At the end of a stage the student answers a question about one concept; the
+// AI evaluates the answer with the concept's own explanation as the rubric.
+// The student must not be able to skip with junk — obvious non-answers are
+// caught deterministically BEFORE any model call.
+
+export interface CheckpointVerdict {
+  passed: boolean;
+  /** Concise, rewarding (or guiding) feedback. */
+  feedback: string;
+  /** Optional: what the answer got wrong / left out. */
+  misconception?: string;
+  /** Optional: what to review before retrying. */
+  suggestion?: string;
+}
+
+/**
+ * Deterministic bypass pre-check — junk answers never reach the paid model.
+ * "I don't understand" is NOT a bypass: it is a valid learning action handled
+ * by the caller (it offers a simpler explanation) before this runs.
+ */
+export function isObviousBypass(answer: string): boolean {
+  const a = (answer ?? "").trim().toLowerCase();
+  if (a.length < 2) return true;
+  if (/^[^a-z0-9]+$/i.test(a)) return true; // punctuation/emoji only
+  const compact = a.replace(/[^a-z0-9]/g, "");
+  const bypasses = [
+    "skip", "next", "pass", "nextquestion", "skipit", "idontknow",
+    "idk", "dontknow", "donotknow", "noidea", "whatever", "nothing",
+    "passquestion", "imdone", "idontunderstand", "helpless", "random",
+  ];
+  return bypasses.some((b) => compact === b || compact.startsWith(`${b}please`) || compact.endsWith(`just${b}`));
+}
+
+/**
+ * Validate + sanitize a checkpoint verdict from provider JSON. Returns null
+ * when structurally unusable (caller surfaces a retryable error).
+ */
+export function validateVerdict(raw: unknown): CheckpointVerdict | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.passed !== "boolean") return null;
+  const feedback =
+    typeof o.feedback === "string" && o.feedback.trim()
+      ? o.feedback.trim().slice(0, 400)
+      : "";
+  if (!feedback) return null;
+  const misconception =
+    typeof o.misconception === "string"
+      ? o.misconception.trim().slice(0, 240)
+      : "";
+  const suggestion =
+    typeof o.suggestion === "string" ? o.suggestion.trim().slice(0, 240) : "";
+  return {
+    passed: o.passed,
+    feedback,
+    misconception: misconception || undefined,
+    suggestion: suggestion || undefined,
+  };
+}
+
+/**
+ * The prompt that asks the AI to judge a mastery-checkpoint answer. The
+ * concept's own validated explanation is the rubric, so the judgement has
+ * explicit context (never a bare "is this right?").
+ */
+export function buildCheckpointPrompt(opts: {
+  topic: string;
+  stageTitle: string;
+  conceptLabel: string;
+  rubric: string;
+  question: string;
+  answer: string;
+}): string {
+  return `You are Matriq's Focus Mode, a tutor running a mastery checkpoint. A student is
+learning "${opts.topic}" and just finished the stage "${opts.stageTitle}". You asked:
+"${opts.question}"
+
+The concept being checked is "${opts.conceptLabel}". Here is the correct explanation
+(the rubric — judge the answer against THIS, not generic knowledge):
+${opts.rubric.slice(0, 1600)}
+
+The student answered:
+"${opts.answer.slice(0, 2000)}"
+
+Decide whether the answer demonstrates genuine understanding of the core idea.
+- PASS only when the answer shows real understanding in the student's own words:
+  the mechanism, the "why", or a correct example. Lenient with wording, strict
+  with meaning.
+- FAIL when the answer is irrelevant, guessed, memorised-but-unexplained,
+  contradicts the rubric, or clearly off-topic. Never accept irrelevant text.
+- This is a learning tool, not a trap: when they fail, point kindly at what's
+  missing and what to re-read. Never shame.
+
+Return ONLY a JSON object (no markdown):
+{
+  "passed": true|false,
+  "feedback": "<1-2 warm, concise sentences — congratulate on success, or guide on what's missing>",
+  "misconception": "<optional, what the answer got wrong or left out>",
+  "suggestion": "<optional, exactly what to review before retrying>"
+}`;
 }
 
 /**

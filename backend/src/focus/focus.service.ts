@@ -18,8 +18,12 @@ import {
   validateFocusMap,
   buildMapPrompt,
   buildExpandPrompt,
+  buildCheckpointPrompt,
+  validateVerdict,
+  isObviousBypass,
   extractJson,
   PROMPT_VERSION,
+  type CheckpointVerdict,
 } from "./focus.schema";
 import { enhanceTopic, EnhancedTopic } from "./focus.prompt";
 
@@ -356,6 +360,109 @@ export class FocusService {
     return { sessionId, concept: enriched };
   }
 
+  /**
+   * Mastery checkpoint (UI direction §Mastery Checkpoints): evaluate a
+   * student's answer about one concept against the concept's own explanation.
+   * Obvious non-answers ("skip", "idk", emoji-only) are rejected without any
+   * model call — the student can't bypass the stage. "I don't understand" is
+   * handled BEFORE this endpoint (it routes to a simpler explanation).
+   */
+  async checkpoint(
+    userId: string,
+    sessionId: string,
+    conceptId: string,
+    answer: string,
+  ): Promise<{ sessionId: string; verdict: CheckpointVerdict }> {
+    const session = await this.prisma.focusModeSession.findFirst({
+      where: { id: sessionId, userId },
+    });
+    if (!session) {
+      throw new NotFoundException("Focus map not found.");
+    }
+    const map = session.conceptMap as unknown as FocusMap;
+    const concept = map.concepts.find((c) => c.id === conceptId);
+    if (!concept) {
+      throw new NotFoundException("Concept not found in this map.");
+    }
+
+    const cleanAnswer = (answer ?? "").trim().slice(0, 2000);
+    if (!cleanAnswer) {
+      return {
+        sessionId,
+        verdict: {
+          passed: false,
+          feedback:
+            "Type your answer in your own words — even one correct idea counts. If you're stuck, tap \"I don't understand\" and we'll simplify it together.",
+          suggestion: "Re-read the concept card, then try again.",
+        },
+      };
+    }
+    if (isObviousBypass(cleanAnswer)) {
+      return {
+        sessionId,
+        verdict: {
+          passed: false,
+          feedback:
+            "That doesn't count as an answer — and that's fine, this isn't a trap. Tell us what you DO understand about it, or tap \"I don't understand\" for a simpler explanation.",
+          suggestion: "Summarise the concept in your own words, even roughly.",
+        },
+      };
+    }
+
+    // A real answer costs a model call: authorize + daily-cap + log usage.
+    await this.entitlements.authorizeGeneration(userId);
+    await this.assertDailyCap(userId);
+
+    const rubric = [
+      concept.detail,
+      concept.importance,
+      concept.examples?.length ? `Examples: ${concept.examples.join("; ")}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    // The question is derived deterministically — the server is the authority
+    // on what "mastery" is being checked, never the client.
+    const question = `Explain \"${concept.label}\" in your own words — what it is, how it works, and why it matters in \"${map.topic}\".`;
+    const prompt = buildCheckpointPrompt({
+      topic: map.topic,
+      stageTitle: concept.label,
+      conceptLabel: concept.label,
+      rubric,
+      question,
+      answer: cleanAnswer,
+    });
+
+    const attempts: Array<"deepseek" | "nvidia" | "gemini"> = [
+      "deepseek",
+      "nvidia",
+      "gemini",
+    ];
+    for (const provider of attempts) {
+      const started = Date.now();
+      const call = await this.safeCall(prompt, provider);
+      if (!call) continue;
+      const verdict = validateVerdict(call.json);
+      if (!verdict) {
+        this.logger.warn(`Focus checkpoint: ${provider} returned invalid JSON`);
+        await this.recordError(userId, sessionId, "checkpoint", provider, "schema");
+        continue;
+      }
+      await this.logUsage(userId, sessionId, "checkpoint", {
+        provider,
+        model: call.model,
+        promptTokens: call.promptTokens,
+        completionTokens: call.completionTokens,
+        latencyMs: Date.now() - started,
+        cached: false,
+      });
+      return { sessionId, verdict };
+    }
+
+    throw new ServiceUnavailableException(
+      "The AI couldn't evaluate your answer right now. Please try again in a moment.",
+    );
+  }
+
   /** List the user's own Focus maps (ids only — light pagination). */
   async listOwn(userId: string, cursor?: string, limit = 20) {
     const sessions = await this.prisma.focusModeSession.findMany({
@@ -675,7 +782,7 @@ export class FocusService {
   private async logUsage(
     userId: string,
     sessionId: string,
-    operation: "generate" | "expand",
+    operation: "generate" | "expand" | "checkpoint",
     opts: {
       provider: string;
       model: string;
@@ -715,7 +822,7 @@ export class FocusService {
   private async recordError(
     userId: string | null,
     sessionId: string | null,
-    operation: "generate" | "expand",
+    operation: "generate" | "expand" | "checkpoint",
     provider: string,
     errorKind: string,
   ): Promise<void> {

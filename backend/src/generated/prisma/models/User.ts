@@ -399,6 +399,7 @@ export type UserWhereInput = {
   librarySaves?: Prisma.LibrarySaveListRelationFilter
   libraryViews?: Prisma.LibraryViewListRelationFilter
   libraryReports?: Prisma.LibraryReportListRelationFilter
+  achievementUnlocks?: Prisma.AchievementUnlockListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -450,6 +451,7 @@ export type UserOrderByWithRelationInput = {
   librarySaves?: Prisma.LibrarySaveOrderByRelationAggregateInput
   libraryViews?: Prisma.LibraryViewOrderByRelationAggregateInput
   libraryReports?: Prisma.LibraryReportOrderByRelationAggregateInput
+  achievementUnlocks?: Prisma.AchievementUnlockOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -504,6 +506,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   librarySaves?: Prisma.LibrarySaveListRelationFilter
   libraryViews?: Prisma.LibraryViewListRelationFilter
   libraryReports?: Prisma.LibraryReportListRelationFilter
+  achievementUnlocks?: Prisma.AchievementUnlockListRelationFilter
 }, "id" | "email" | "verificationToken">
 
 export type UserOrderByWithAggregationInput = {
@@ -618,6 +621,7 @@ export type UserCreateInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -668,6 +672,7 @@ export type UserUncheckedCreateInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -718,6 +723,7 @@ export type UserUpdateInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -768,6 +774,7 @@ export type UserUncheckedUpdateInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1319,6 +1326,20 @@ export type UserUpdateOneRequiredWithoutFocusSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutFocusSessionsInput, Prisma.UserUpdateWithoutFocusSessionsInput>, Prisma.UserUncheckedUpdateWithoutFocusSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutAchievementUnlocksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutAchievementUnlocksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAchievementUnlocksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAchievementUnlocksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutAchievementUnlocksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAchievementUnlocksInput
+  upsert?: Prisma.UserUpsertWithoutAchievementUnlocksInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAchievementUnlocksInput, Prisma.UserUpdateWithoutAchievementUnlocksInput>, Prisma.UserUncheckedUpdateWithoutAchievementUnlocksInput>
+}
+
 export type UserCreateNestedOneWithoutFocusUsageInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutFocusUsageInput, Prisma.UserUncheckedCreateWithoutFocusUsageInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutFocusUsageInput
@@ -1394,6 +1415,7 @@ export type UserCreateWithoutInstitutionInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInstitutionInput = {
@@ -1443,6 +1465,7 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInstitutionInput = {
@@ -1549,6 +1572,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -1598,6 +1622,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExecutiveRolesInput = {
@@ -1663,6 +1688,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -1712,6 +1738,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1761,6 +1788,7 @@ export type UserCreateWithoutMembershipsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1810,6 +1838,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1875,6 +1904,7 @@ export type UserUpdateWithoutMembershipsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1924,6 +1954,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVerificationRequestsInput = {
@@ -1973,6 +2004,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -2022,6 +2054,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationRequestsInput = {
@@ -2087,6 +2120,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -2136,6 +2170,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -2185,6 +2220,7 @@ export type UserCreateWithoutPaymentsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -2234,6 +2270,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -2299,6 +2336,7 @@ export type UserUpdateWithoutPaymentsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -2348,6 +2386,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAnnouncementReadsInput = {
@@ -2397,6 +2436,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -2446,6 +2486,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAnnouncementReadsInput = {
@@ -2511,6 +2552,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -2560,6 +2602,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventRsvpsInput = {
@@ -2609,6 +2652,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -2658,6 +2702,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventRsvpsInput = {
@@ -2723,6 +2768,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -2772,6 +2818,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventAttendanceInput = {
@@ -2821,6 +2868,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventAttendanceInput = {
@@ -2870,6 +2918,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventAttendanceInput = {
@@ -2935,6 +2984,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventAttendanceInput = {
@@ -2984,6 +3034,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsGivenInput = {
@@ -3033,6 +3084,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -3082,6 +3134,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsGivenInput = {
@@ -3136,6 +3189,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -3185,6 +3239,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -3250,6 +3305,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -3299,6 +3355,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -3359,6 +3416,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -3408,6 +3466,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiDocumentsSubmittedInput = {
@@ -3457,6 +3516,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -3506,6 +3566,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiDocumentsSubmittedInput = {
@@ -3571,6 +3632,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -3620,6 +3682,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiQueryLogsInput = {
@@ -3669,6 +3732,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -3718,6 +3782,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiQueryLogsInput = {
@@ -3783,6 +3848,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -3832,6 +3898,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVaultItemsInput = {
@@ -3881,6 +3948,7 @@ export type UserCreateWithoutVaultItemsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVaultItemsInput = {
@@ -3930,6 +3998,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVaultItemsInput = {
@@ -3995,6 +4064,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVaultItemsInput = {
@@ -4044,6 +4114,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibrarySavesInput = {
@@ -4093,6 +4164,7 @@ export type UserCreateWithoutLibrarySavesInput = {
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibrarySavesInput = {
@@ -4142,6 +4214,7 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibrarySavesInput = {
@@ -4207,6 +4280,7 @@ export type UserUpdateWithoutLibrarySavesInput = {
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibrarySavesInput = {
@@ -4256,6 +4330,7 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibraryViewsInput = {
@@ -4305,6 +4380,7 @@ export type UserCreateWithoutLibraryViewsInput = {
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryViewsInput = {
@@ -4354,6 +4430,7 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryViewsInput = {
@@ -4419,6 +4496,7 @@ export type UserUpdateWithoutLibraryViewsInput = {
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryViewsInput = {
@@ -4468,6 +4546,7 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibraryReportsInput = {
@@ -4517,6 +4596,7 @@ export type UserCreateWithoutLibraryReportsInput = {
   focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryReportsInput = {
@@ -4566,6 +4646,7 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryReportsInput = {
@@ -4631,6 +4712,7 @@ export type UserUpdateWithoutLibraryReportsInput = {
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryReportsInput = {
@@ -4680,6 +4762,7 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -4729,6 +4812,7 @@ export type UserCreateWithoutNotificationsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -4778,6 +4862,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -4843,6 +4928,7 @@ export type UserUpdateWithoutNotificationsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -4892,6 +4978,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPushDevicesInput = {
@@ -4941,6 +5028,7 @@ export type UserCreateWithoutPushDevicesInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPushDevicesInput = {
@@ -4990,6 +5078,7 @@ export type UserUncheckedCreateWithoutPushDevicesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPushDevicesInput = {
@@ -5055,6 +5144,7 @@ export type UserUpdateWithoutPushDevicesInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushDevicesInput = {
@@ -5104,6 +5194,7 @@ export type UserUncheckedUpdateWithoutPushDevicesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLegalAcceptancesInput = {
@@ -5153,6 +5244,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -5202,6 +5294,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLegalAcceptancesInput = {
@@ -5267,6 +5360,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -5316,6 +5410,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEntitlementsInput = {
@@ -5365,6 +5460,7 @@ export type UserCreateWithoutEntitlementsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEntitlementsInput = {
@@ -5414,6 +5510,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEntitlementsInput = {
@@ -5479,6 +5576,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEntitlementsInput = {
@@ -5528,6 +5626,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFocusSessionsInput = {
@@ -5577,6 +5676,7 @@ export type UserCreateWithoutFocusSessionsInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusSessionsInput = {
@@ -5626,6 +5726,7 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusSessionsInput = {
@@ -5691,6 +5792,7 @@ export type UserUpdateWithoutFocusSessionsInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusSessionsInput = {
@@ -5736,6 +5838,223 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
   pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAchievementUnlocksInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
+  entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+}
+
+export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+}
+
+export type UserCreateOrConnectWithoutAchievementUnlocksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutAchievementUnlocksInput>
+}
+
+export type UserUpsertWithoutAchievementUnlocksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAchievementUnlocksInput, Prisma.UserUncheckedUpdateWithoutAchievementUnlocksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAchievementUnlocksInput, Prisma.UserUncheckedCreateWithoutAchievementUnlocksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAchievementUnlocksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAchievementUnlocksInput, Prisma.UserUncheckedUpdateWithoutAchievementUnlocksInput>
+}
+
+export type UserUpdateWithoutAchievementUnlocksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
@@ -5789,6 +6108,7 @@ export type UserCreateWithoutFocusUsageInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusUsageInput = {
@@ -5838,6 +6158,7 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusUsageInput = {
@@ -5903,6 +6224,7 @@ export type UserUpdateWithoutFocusUsageInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusUsageInput = {
@@ -5952,6 +6274,7 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRefreshTokenFamiliesInput = {
@@ -6001,6 +6324,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -6050,6 +6374,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokenFamiliesInput = {
@@ -6115,6 +6440,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
@@ -6164,6 +6490,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInstitutionInput = {
@@ -6240,6 +6567,7 @@ export type UserUpdateWithoutInstitutionInput = {
   librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInstitutionInput = {
@@ -6289,6 +6617,7 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutInstitutionInput = {
@@ -6345,6 +6674,7 @@ export type UserCountOutputType = {
   librarySaves: number
   libraryViews: number
   libraryReports: number
+  achievementUnlocks: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6369,6 +6699,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   librarySaves?: boolean | UserCountOutputTypeCountLibrarySavesArgs
   libraryViews?: boolean | UserCountOutputTypeCountLibraryViewsArgs
   libraryReports?: boolean | UserCountOutputTypeCountLibraryReportsArgs
+  achievementUnlocks?: boolean | UserCountOutputTypeCountAchievementUnlocksArgs
 }
 
 /**
@@ -6528,6 +6859,13 @@ export type UserCountOutputTypeCountLibraryReportsArgs<ExtArgs extends runtime.T
   where?: Prisma.LibraryReportWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAchievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AchievementUnlockWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -6578,6 +6916,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   librarySaves?: boolean | Prisma.User$librarySavesArgs<ExtArgs>
   libraryViews?: boolean | Prisma.User$libraryViewsArgs<ExtArgs>
   libraryReports?: boolean | Prisma.User$libraryReportsArgs<ExtArgs>
+  achievementUnlocks?: boolean | Prisma.User$achievementUnlocksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -6692,6 +7031,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   librarySaves?: boolean | Prisma.User$librarySavesArgs<ExtArgs>
   libraryViews?: boolean | Prisma.User$libraryViewsArgs<ExtArgs>
   libraryReports?: boolean | Prisma.User$libraryReportsArgs<ExtArgs>
+  achievementUnlocks?: boolean | Prisma.User$achievementUnlocksArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -6727,6 +7067,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     librarySaves: Prisma.$LibrarySavePayload<ExtArgs>[]
     libraryViews: Prisma.$LibraryViewPayload<ExtArgs>[]
     libraryReports: Prisma.$LibraryReportPayload<ExtArgs>[]
+    achievementUnlocks: Prisma.$AchievementUnlockPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -7171,6 +7512,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   librarySaves<T extends Prisma.User$librarySavesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$librarySavesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibrarySavePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   libraryViews<T extends Prisma.User$libraryViewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$libraryViewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryViewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   libraryReports<T extends Prisma.User$libraryReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$libraryReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  achievementUnlocks<T extends Prisma.User$achievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$achievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8165,6 +8507,30 @@ export type User$libraryReportsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.LibraryReportScalarFieldEnum | Prisma.LibraryReportScalarFieldEnum[]
+}
+
+/**
+ * User.achievementUnlocks
+ */
+export type User$achievementUnlocksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AchievementUnlock
+   */
+  select?: Prisma.AchievementUnlockSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AchievementUnlock
+   */
+  omit?: Prisma.AchievementUnlockOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AchievementUnlockInclude<ExtArgs> | null
+  where?: Prisma.AchievementUnlockWhereInput
+  orderBy?: Prisma.AchievementUnlockOrderByWithRelationInput | Prisma.AchievementUnlockOrderByWithRelationInput[]
+  cursor?: Prisma.AchievementUnlockWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AchievementUnlockScalarFieldEnum | Prisma.AchievementUnlockScalarFieldEnum[]
 }
 
 /**

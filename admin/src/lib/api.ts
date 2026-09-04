@@ -14,6 +14,7 @@ import type {
   WaitlistEntry,
   WaitlistStats,
   InstitutionCascade,
+  Banner,
 } from "@/types/api";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/v1";
@@ -390,4 +391,69 @@ export async function listWaitlist(token: string, cursor?: string) {
 
 export async function getWaitlistStats(token: string) {
   return fetchApi<WaitlistStats>("/admin/waitlist/stats", { token });
+}
+
+// ── Home banners (admin-controlled announcement strip) ───────────────
+
+export async function listBanners(token: string) {
+  return fetchApi<{ banners: Banner[] }>("/admin/banners", { token });
+}
+
+export async function createBanner(
+  data: {
+    title: string;
+    body: string;
+    linkLabel?: string;
+    linkUrl?: string;
+    published?: boolean;
+    startsAt?: string | null;
+    endsAt?: string | null;
+    sortOrder?: number;
+  },
+  token: string,
+) {
+  return fetchApi<Banner>("/admin/banners", {
+    method: "POST",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateBanner(
+  id: string,
+  data: Partial<{
+    title: string;
+    body: string;
+    linkLabel: string | null;
+    linkUrl: string | null;
+    published: boolean;
+    startsAt: string | null;
+    endsAt: string | null;
+    sortOrder: number;
+  }>,
+  token: string,
+) {
+  return fetchApi<Banner>(`/admin/banners/${id}`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteBanner(id: string, token: string) {
+  return fetchApi<{ ok: boolean }>(`/admin/banners/${id}`, {
+    method: "DELETE",
+    token,
+  });
+}
+
+export async function reorderBanners(
+  items: Array<{ id: string; sortOrder: number }>,
+  token: string,
+) {
+  return fetchApi<{ banners: Banner[] }>("/admin/banners/reorder", {
+    method: "POST",
+    token,
+    body: JSON.stringify({ items }),
+  });
 }

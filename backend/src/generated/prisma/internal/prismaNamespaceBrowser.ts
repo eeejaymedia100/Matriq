@@ -64,6 +64,7 @@ export const ModelName = {
   Receipt: 'Receipt',
   Announcement: 'Announcement',
   AnnouncementRead: 'AnnouncementRead',
+  Banner: 'Banner',
   Event: 'Event',
   EventRsvp: 'EventRsvp',
   EventAttendance: 'EventAttendance',
@@ -83,6 +84,7 @@ export const ModelName = {
   WaitlistEntry: 'WaitlistEntry',
   MagicPlusEntitlement: 'MagicPlusEntitlement',
   FocusModeSession: 'FocusModeSession',
+  AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
@@ -296,6 +298,23 @@ export const AnnouncementReadScalarFieldEnum = {
 } as const
 
 export type AnnouncementReadScalarFieldEnum = (typeof AnnouncementReadScalarFieldEnum)[keyof typeof AnnouncementReadScalarFieldEnum]
+
+
+export const BannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  linkLabel: 'linkLabel',
+  linkUrl: 'linkUrl',
+  published: 'published',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
 
 
 export const EventScalarFieldEnum = {
@@ -575,6 +594,16 @@ export const FocusModeSessionScalarFieldEnum = {
 } as const
 
 export type FocusModeSessionScalarFieldEnum = (typeof FocusModeSessionScalarFieldEnum)[keyof typeof FocusModeSessionScalarFieldEnum]
+
+
+export const AchievementUnlockScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  achievementId: 'achievementId',
+  earnedAt: 'earnedAt'
+} as const
+
+export type AchievementUnlockScalarFieldEnum = (typeof AchievementUnlockScalarFieldEnum)[keyof typeof AchievementUnlockScalarFieldEnum]
 
 
 export const FocusModeUsageScalarFieldEnum = {

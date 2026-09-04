@@ -83,6 +83,11 @@ export type Announcement = Prisma.AnnouncementModel
  */
 export type AnnouncementRead = Prisma.AnnouncementReadModel
 /**
+ * Model Banner
+ * 
+ */
+export type Banner = Prisma.BannerModel
+/**
  * Model Event
  * 
  */
@@ -177,6 +182,11 @@ export type MagicPlusEntitlement = Prisma.MagicPlusEntitlementModel
  * 
  */
 export type FocusModeSession = Prisma.FocusModeSessionModel
+/**
+ * Model AchievementUnlock
+ * 
+ */
+export type AchievementUnlock = Prisma.AchievementUnlockModel
 /**
  * Model FocusModeUsage
  * 

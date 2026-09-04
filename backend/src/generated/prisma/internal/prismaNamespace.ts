@@ -410,6 +410,7 @@ export const ModelName = {
   Receipt: 'Receipt',
   Announcement: 'Announcement',
   AnnouncementRead: 'AnnouncementRead',
+  Banner: 'Banner',
   Event: 'Event',
   EventRsvp: 'EventRsvp',
   EventAttendance: 'EventAttendance',
@@ -429,6 +430,7 @@ export const ModelName = {
   WaitlistEntry: 'WaitlistEntry',
   MagicPlusEntitlement: 'MagicPlusEntitlement',
   FocusModeSession: 'FocusModeSession',
+  AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
@@ -447,7 +449,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusModeUsage" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "achievementUnlock" | "focusModeUsage" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1410,6 +1412,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AnnouncementReadCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AnnouncementReadCountAggregateOutputType> | number
+        }
+      }
+    }
+    Banner: {
+      payload: Prisma.$BannerPayload<ExtArgs>
+      fields: Prisma.BannerFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BannerFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BannerFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        findFirst: {
+          args: Prisma.BannerFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BannerFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        findMany: {
+          args: Prisma.BannerFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>[]
+        }
+        create: {
+          args: Prisma.BannerCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        createMany: {
+          args: Prisma.BannerCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BannerCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>[]
+        }
+        delete: {
+          args: Prisma.BannerDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        update: {
+          args: Prisma.BannerUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        deleteMany: {
+          args: Prisma.BannerDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BannerUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BannerUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>[]
+        }
+        upsert: {
+          args: Prisma.BannerUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BannerPayload>
+        }
+        aggregate: {
+          args: Prisma.BannerAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBanner>
+        }
+        groupBy: {
+          args: Prisma.BannerGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BannerCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BannerCountAggregateOutputType> | number
         }
       }
     }
@@ -2819,6 +2895,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AchievementUnlock: {
+      payload: Prisma.$AchievementUnlockPayload<ExtArgs>
+      fields: Prisma.AchievementUnlockFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AchievementUnlockFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AchievementUnlockFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        findFirst: {
+          args: Prisma.AchievementUnlockFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AchievementUnlockFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        findMany: {
+          args: Prisma.AchievementUnlockFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>[]
+        }
+        create: {
+          args: Prisma.AchievementUnlockCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        createMany: {
+          args: Prisma.AchievementUnlockCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AchievementUnlockCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>[]
+        }
+        delete: {
+          args: Prisma.AchievementUnlockDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        update: {
+          args: Prisma.AchievementUnlockUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        deleteMany: {
+          args: Prisma.AchievementUnlockDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AchievementUnlockUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AchievementUnlockUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>[]
+        }
+        upsert: {
+          args: Prisma.AchievementUnlockUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AchievementUnlockPayload>
+        }
+        aggregate: {
+          args: Prisma.AchievementUnlockAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAchievementUnlock>
+        }
+        groupBy: {
+          args: Prisma.AchievementUnlockGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementUnlockGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AchievementUnlockCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AchievementUnlockCountAggregateOutputType> | number
+        }
+      }
+    }
     FocusModeUsage: {
       payload: Prisma.$FocusModeUsagePayload<ExtArgs>
       fields: Prisma.FocusModeUsageFieldRefs
@@ -3274,6 +3424,23 @@ export const AnnouncementReadScalarFieldEnum = {
 export type AnnouncementReadScalarFieldEnum = (typeof AnnouncementReadScalarFieldEnum)[keyof typeof AnnouncementReadScalarFieldEnum]
 
 
+export const BannerScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  body: 'body',
+  linkLabel: 'linkLabel',
+  linkUrl: 'linkUrl',
+  published: 'published',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BannerScalarFieldEnum = (typeof BannerScalarFieldEnum)[keyof typeof BannerScalarFieldEnum]
+
+
 export const EventScalarFieldEnum = {
   id: 'id',
   associationId: 'associationId',
@@ -3551,6 +3718,16 @@ export const FocusModeSessionScalarFieldEnum = {
 } as const
 
 export type FocusModeSessionScalarFieldEnum = (typeof FocusModeSessionScalarFieldEnum)[keyof typeof FocusModeSessionScalarFieldEnum]
+
+
+export const AchievementUnlockScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  achievementId: 'achievementId',
+  earnedAt: 'earnedAt'
+} as const
+
+export type AchievementUnlockScalarFieldEnum = (typeof AchievementUnlockScalarFieldEnum)[keyof typeof AchievementUnlockScalarFieldEnum]
 
 
 export const FocusModeUsageScalarFieldEnum = {
@@ -4101,6 +4278,7 @@ export type GlobalOmitConfig = {
   receipt?: Prisma.ReceiptOmit
   announcement?: Prisma.AnnouncementOmit
   announcementRead?: Prisma.AnnouncementReadOmit
+  banner?: Prisma.BannerOmit
   event?: Prisma.EventOmit
   eventRsvp?: Prisma.EventRsvpOmit
   eventAttendance?: Prisma.EventAttendanceOmit
@@ -4120,6 +4298,7 @@ export type GlobalOmitConfig = {
   waitlistEntry?: Prisma.WaitlistEntryOmit
   magicPlusEntitlement?: Prisma.MagicPlusEntitlementOmit
   focusModeSession?: Prisma.FocusModeSessionOmit
+  achievementUnlock?: Prisma.AchievementUnlockOmit
   focusModeUsage?: Prisma.FocusModeUsageOmit
   refreshTokenFamily?: Prisma.RefreshTokenFamilyOmit
   refreshToken?: Prisma.RefreshTokenOmit

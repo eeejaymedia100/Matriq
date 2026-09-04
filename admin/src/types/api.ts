@@ -227,3 +227,19 @@ export interface WaitlistStats {
   joined: number;
   today: number;
 }
+
+export interface Banner {
+  id: string;
+  title: string;
+  body: string;
+  linkLabel: string | null;
+  linkUrl: string | null;
+  published: boolean;
+  startsAt: string | null;
+  endsAt: string | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+  /** Computed server-side: published AND inside the schedule window now. */
+  live: boolean;
+}

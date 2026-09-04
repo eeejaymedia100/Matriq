@@ -20,6 +20,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/users", label: "Users", icon: "👥" },
     { href: "/admins", label: "Admins", icon: "🔐" },
     { href: "/security", label: "Security", icon: "🛡️" },
+    { href: "/banners", label: "Banners", icon: "📣" },
     { href: "/waitlist", label: "Waitlist", icon: "✉️" },
     { href: "/analytics", label: "Analytics", icon: "📈" },
     { href: "/audit-logs", label: "Audit Logs", icon: "📋" },

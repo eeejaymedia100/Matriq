@@ -2,6 +2,9 @@ import {
   validateFocusMap,
   extractJson,
   buildMapPrompt,
+  validateVerdict,
+  isObviousBypass,
+  buildCheckpointPrompt,
   PROMPT_VERSION,
 } from "./focus.schema";
 
@@ -40,7 +43,7 @@ describe("validateFocusMap", () => {
   it("accepts a structurally valid map and normalizes it", () => {
     const map = validateFocusMap(validMap, "Photosynthesis");
     expect(map).not.toBeNull();
-    expect(map!.version).toBe("1.0");
+    expect(map!.version).toBe("1.1");
     expect(map!.concepts).toHaveLength(3);
     expect(map!.concepts[2].prerequisites).toBeUndefined();
     expect(map!.concepts[2].examples).toEqual(["C3 plants"]);
@@ -104,6 +107,109 @@ describe("validateFocusMap", () => {
     expect(map).not.toBeNull();
     expect(map!.overview).not.toContain("<script>");
   });
+
+  it("accepts a valid learning journey (stages) and partitions concepts", () => {
+    const map = validateFocusMap(
+      {
+        ...validMap,
+        stages: [
+          { id: "basics", title: "The basics", objective: "Understand the light reaction.", conceptIds: ["photosynthesis", "chlorophyll"] },
+          { id: "fixation", title: "Making sugar", objective: "Understand carbon fixation.", conceptIds: ["calvin-cycle"] },
+        ],
+      },
+      "Photosynthesis",
+    );
+    expect(map).not.toBeNull();
+    expect(map!.stages).toHaveLength(2);
+    expect(map!.stages![0].conceptIds).toEqual(["photosynthesis", "chlorophyll"]);
+    expect(map!.stages![1].conceptIds).toEqual(["calvin-cycle"]);
+  });
+
+  it("drops stages with unknown/duplicated concept ids instead of failing", () => {
+    const map = validateFocusMap(
+      {
+        ...validMap,
+        stages: [
+          { id: "s1", title: "Bad", objective: "o", conceptIds: ["nope", "photosynthesis", "photosynthesis"] },
+          { id: "s2", title: "", objective: "o", conceptIds: ["chlorophyll"] },
+        ],
+      },
+      "Photosynthesis",
+    );
+    expect(map).not.toBeNull();
+    // Unknown id dropped, duplicates dropped, empty-title stage skipped.
+    expect(map!.stages).toHaveLength(1);
+    expect(map!.stages![0].conceptIds).toEqual(["photosynthesis"]);
+  });
+
+  it("leaves stages undefined when the model provides none or garbage", () => {
+    const noStages = validateFocusMap(validMap, "Photosynthesis");
+    expect(noStages!.stages).toBeUndefined();
+    const garbage = validateFocusMap(
+      { ...validMap, stages: "not-an-array" },
+      "Photosynthesis",
+    );
+    expect(garbage!.stages).toBeUndefined();
+  });
+});
+
+describe("isObviousBypass", () => {
+  it("flags empty / punctuation-only / skip-style answers", () => {
+    expect(isObviousBypass("")).toBe(true);
+    expect(isObviousBypass("!!!")).toBe(true);
+    expect(isObviousBypass("skip")).toBe(true);
+    expect(isObviousBypass("next")).toBe(true);
+    expect(isObviousBypass("idk")).toBe(true);
+    expect(isObviousBypass("i don't know")).toBe(true);
+    expect(isObviousBypass("no idea")).toBe(true);
+    expect(isObviousBypass("pass")).toBe(true);
+    expect(isObviousBypass("😅")).toBe(true);
+  });
+
+  it("never flags real (even rough) attempts", () => {
+    expect(isObviousBypass("chlorophyll absorbs light energy in the chloroplasts")).toBe(false);
+    expect(isObviousBypass("I think it turns sunlight into chemical energy")).toBe(false);
+    expect(isObviousBypass("the calvin cycle fixes carbon")).toBe(false);
+  });
+});
+
+describe("validateVerdict", () => {
+  it("accepts a well-formed verdict", () => {
+    const v = validateVerdict({
+      passed: true,
+      feedback: "Exactly right — light energy drives the reaction.",
+      misconception: "",
+      suggestion: "",
+    });
+    expect(v).toEqual({
+      passed: true,
+      feedback: "Exactly right — light energy drives the reaction.",
+    });
+  });
+
+  it("rejects verdicts without a boolean or feedback", () => {
+    expect(validateVerdict({ passed: "yes", feedback: "x" })).toBeNull();
+    expect(validateVerdict({ passed: true, feedback: "" })).toBeNull();
+    expect(validateVerdict(null)).toBeNull();
+  });
+});
+
+describe("buildCheckpointPrompt", () => {
+  it("carries topic, rubric and answer with strict judging instructions", () => {
+    const prompt = buildCheckpointPrompt({
+      topic: "Photosynthesis",
+      stageTitle: "The basics",
+      conceptLabel: "Chlorophyll",
+      rubric: "Captures light energy in chloroplasts.",
+      question: "Explain chlorophyll",
+      answer: "It captures light energy.",
+    });
+    expect(prompt).toContain("Photosynthesis");
+    expect(prompt).toContain("Captures light energy in chloroplasts.");
+    expect(prompt).toContain("It captures light energy.");
+    expect(prompt).toContain("Never accept irrelevant text");
+    expect(prompt).toContain('"passed": true|false');
+  });
 });
 
 describe("extractJson", () => {
@@ -133,6 +239,6 @@ describe("buildMapPrompt", () => {
   });
 
   it("keeps the schema version in sync", () => {
-    expect(PROMPT_VERSION).toBe(1);
+    expect(PROMPT_VERSION).toBe(2);
   });
 });
