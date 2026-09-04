@@ -53,8 +53,9 @@ import {
 } from "../../utils/focusHistory";
 import { FocusJourneyView } from "./FocusJourneyView";
 import { AgentSheet } from "../../components/AgentSheet";
+import { FocusQuestioner } from "./FocusQuestioner";
 
-type Phase = "entry" | "generating" | "ready";
+type Phase = "entry" | "questions" | "generating" | "ready";
 
 /** Honest generation stages surfaced by the backend's SSE stream. */
 type FocusStage = "understanding" | "reading" | "validating";
@@ -102,6 +103,7 @@ async function pingBackend(): Promise<boolean> {
  */
 function streamFocusGenerate(
   topic: string,
+  payload: { clarificationId?: string; answers?: Record<string, string> } | undefined,
   onStage: (stage: FocusStage) => void,
   onMap: (result: {
     map: import("../../offline/focus").BackendFocusMap;
@@ -185,7 +187,7 @@ function streamFocusGenerate(
         onError("Network error while generating");
       }
     };
-    xhr.send(JSON.stringify({ topic }));
+    xhr.send(JSON.stringify({ topic, ...(payload ?? {}) }));
   });
 
   return {
@@ -233,6 +235,8 @@ export function FocusModeScreen() {
   const [offlineTopic, setOfflineTopic] = useState<string | null>(null);
   // Agent assist on a focus node ("check my notes about this concept").
   const [agentOpen, setAgentOpen] = useState(false);
+  // The topic being questioned by the intake step (the Questioner).
+  const [questionerTopic, setQuestionerTopic] = useState<string | null>(null);
   const [topicInput, setTopicInput] = useState(route.params?.topic ?? "");
   const [savedMaps, setSavedMaps] = useState<FocusMap[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -342,12 +346,34 @@ export function FocusModeScreen() {
         return;
       }
       setOnline(true);
-      setPhase("generating");
       setError(null);
+      // The Questioner: a quick tap-to-answer intake (skippable) so the map
+      // fits the student's actual goal — not a generic textbook chapter.
+      // Load failure inside the questioner flows straight to generation:
+      // asking must never block learning.
+      setQuestionerTopic(t);
+      setPhase("questions");
+    },
+    [online],
+  );
+
+  /**
+   * The actual map build (after the Questioner). Streams honest stage
+   * progress over SSE; the student's answers ride along to personalize
+   * the map when the Questioner ran.
+   */
+  const runGeneration = useCallback(
+    (
+      t: string,
+      clarificationId: string | null,
+      answers: Record<string, string>,
+    ) => {
+      setPhase("generating");
       setGenStage("understanding");
       try {
         genStreamRef.current = streamFocusGenerate(
           t,
+          clarificationId ? { clarificationId, answers } : undefined,
           (stage) => setGenStage(stage),
           (res) => {
             const m = backendFocusMapToClient(res.map);
@@ -398,7 +424,7 @@ export function FocusModeScreen() {
         );
       }
     },
-    [fitToView, refreshEnt, online],
+    [fitToView, refreshEnt],
   );
 
   const openSaved = useCallback(
@@ -1374,6 +1400,19 @@ export function FocusModeScreen() {
   };
 
   if (phase === "entry") return renderEntry();
+  if (phase === "questions") {
+    return (
+      <View style={{ flex: 1, backgroundColor: colors.bg }}>
+        <FocusQuestioner
+          topic={questionerTopic ?? ""}
+          onDone={(answers, clarificationId) =>
+            runGeneration(questionerTopic ?? "", clarificationId, answers)
+          }
+          onCancel={() => runGeneration(questionerTopic ?? "", null, {})}
+        />
+      </View>
+    );
+  }
   if (phase === "generating") return renderGenerating();
   return renderWorkspace();
 }

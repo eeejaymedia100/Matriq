@@ -213,6 +213,7 @@ model User {
   entitlements          MagicPlusEntitlement?
   focusSessions         FocusModeSession[]
   focusUsage            FocusModeUsage[]
+  focusClarifications   FocusClarification[]
   librarySaves         LibrarySave[]
   libraryViews         LibraryView[]
   libraryReports       LibraryReport[]
@@ -863,6 +864,27 @@ model FocusModeSession {
   @@index([userId])
   @@index([topicHash])
   @@map("focus_mode_sessions")
+}
+
+// ── Focus Mode clarification (the Questioner) ─────────────────
+// One row per intake questionnaire: the model-proposed questions, the
+// student's tap-to-answer responses, and (optionally) the session that
+// consumed them. Lets generate() verify answers exist, keeps exactly-once
+// linkage (a question set maps to one map session), and lets the student
+// re-open their answers later.
+model FocusClarification {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  topic       String
+  questions   Json
+  answers     Json?
+  sessionMapId String? @map("session_map_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("focus_clarifications")
 }
 
 // ── Student achievements (Achievement Board) ──────────────────

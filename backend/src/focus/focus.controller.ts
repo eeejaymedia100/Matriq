@@ -10,7 +10,15 @@ import {
   HttpStatus,
   Res,
 } from "@nestjs/common";
-import { IsOptional, IsString, IsInt, Min, Max, Length } from "class-validator";
+import {
+  IsOptional,
+  IsString,
+  IsInt,
+  IsObject,
+  Min,
+  Max,
+  Length,
+} from "class-validator";
 import { Type } from "class-transformer";
 import { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
@@ -25,6 +33,17 @@ class GenerateDto {
   @IsString()
   @Length(1, 300)
   topic!: string;
+
+  /** The Questioner: answered intake set (optional — legacy flows omit it). */
+  @IsOptional()
+  @IsString()
+  @Length(1, 60)
+  clarificationId?: string;
+
+  /** Question id → answer (tap-able options or short free text). */
+  @IsOptional()
+  @IsObject()
+  answers?: Record<string, string>;
 }
 
 class ExpandDto {
@@ -41,6 +60,11 @@ class CheckpointDto {
   @IsString()
   @Length(1, 2000)
   answer!: string;
+}
+
+class AnswersDto {
+  @IsObject()
+  answers!: Record<string, string>;
 }
 
 class ListQuery {
@@ -72,7 +96,38 @@ export class FocusController {
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60000, limit: 10, getTracker: userTracker } })
   generate(@CurrentUser() user: JwtPayload, @Body() dto: GenerateDto) {
-    return this.focus.generate(user.sub, dto.topic);
+    return this.focus.generate(user.sub, dto.topic, undefined, {
+      clarificationId: dto.clarificationId,
+      answers: dto.answers,
+    });
+  }
+
+  /**
+   * The Questioner — 2-3 tap-to-answer intake questions for a topic, before
+   * any map is generated. Cached per topic; paywall is surfaced here (before
+   * the student answers), and the step is skippable by design.
+   */
+  @Post("focus/clarify")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 10, getTracker: userTracker } })
+  clarify(@CurrentUser() user: JwtPayload, @Body() dto: GenerateDto) {
+    return this.focus.clarify(user.sub, dto.topic);
+  }
+
+  /**
+   * Persist answers for an intake set (progress saving mid-flow; ownership
+   * enforced). Answers may also be sent inline to focus/generate.
+   */
+  @Post("focus/clarify/:id/answers")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60000, limit: 20, getTracker: userTracker } })
+  submitAnswers(
+    @CurrentUser() user: JwtPayload,
+    @Param("id") id: string,
+    @Body() dto: AnswersDto,
+  ) {
+    return this.focus.submitClarificationAnswers(user.sub, id, dto.answers);
   }
 
   /**
@@ -100,8 +155,11 @@ export class FocusController {
       res.write(`data: ${JSON.stringify(payload)}\n\n`);
     };
     try {
-      const result = await this.focus.generate(user.sub, dto.topic, (stage) =>
-        send({ type: "progress", stage }),
+      const result = await this.focus.generate(
+        user.sub,
+        dto.topic,
+        (stage) => send({ type: "progress", stage }),
+        { clarificationId: dto.clarificationId, answers: dto.answers },
       );
       send({ type: "map", map: result.map, sessionId: result.sessionId, cached: result.cached, usage: result.usage });
     } catch (err) {

@@ -289,6 +289,171 @@ Rules:
 Return valid JSON with the exact key names above.`;
 }
 
+// ── The Questioner (pre-generation clarify step) ────────────────────
+// Before a map is built the system asks 2-3 short, tap-to-answer questions
+// so the map fits the student's actual goal (exam prep vs first exposure vs
+// assignment cram). The AI proposes questions; strict validation below
+// guarantees every question is answerable WITHOUT typing (options only,
+// optional free-text escape rendered by the client).
+
+export type ClarifyQuestionType = "single" | "multi";
+
+export interface ClarifyQuestion {
+  id: string;
+  text: string;
+  options: string[];
+  type: ClarifyQuestionType;
+  /** Whether the client should offer a free-text "Something else…" escape. */
+  allowCustom: boolean;
+  /** One short line shown under the question — why we're asking. */
+  why?: string;
+}
+
+export interface ClarifyQuestionSet {
+  questions: ClarifyQuestion[];
+}
+
+export const MAX_CLARIFY_QUESTIONS = 4;
+export const MAX_CLARIFY_QUESTION_TEXT = 200;
+export const MAX_CLARIFY_OPTION_CHARS = 80;
+export const MAX_CLARIFY_WHY_CHARS = 120;
+export const MAX_ANSWER_CHARS = 500;
+export const MAX_ANSWER_ENTRIES = 8;
+
+/**
+ * Validate + sanitize the model's proposed question set. Returns null when
+ * structurally unusable (no valid questions) — caller falls back to
+ * generating without clarification, never blocks the student.
+ */
+export function validateClarifyQuestions(raw: unknown): ClarifyQuestionSet | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+  const listRaw = Array.isArray(obj.questions)
+    ? obj.questions
+    : Array.isArray(obj)
+      ? obj
+      : [];
+
+  const questions: ClarifyQuestion[] = [];
+  const usedIds = new Set<string>();
+  for (const item of listRaw.slice(0, MAX_CLARIFY_QUESTIONS)) {
+    if (!item || typeof item !== "object") continue;
+    const q = item as Record<string, unknown>;
+    const text = clean(q.text ?? q.question, MAX_CLARIFY_QUESTION_TEXT);
+    if (!text) continue;
+    const options = (Array.isArray(q.options) ? q.options : [])
+      .map((o) => clean(o, MAX_CLARIFY_OPTION_CHARS))
+      .filter(Boolean)
+      .slice(0, 6);
+    // A question with fewer than 2 real options can't be answered by
+    // tapping — that defeats the whole design.
+    if (options.length < 2) continue;
+    const id = sanitizeId(q.id, `q${questions.length + 1}`);
+    if (usedIds.has(id)) continue;
+    usedIds.add(id);
+    questions.push({
+      id,
+      text,
+      options,
+      type: q.type === "multi" ? "multi" : "single",
+      allowCustom: q.allowCustom !== false,
+      why: clean(q.why, MAX_CLARIFY_WHY_CHARS) || undefined,
+    });
+  }
+
+  if (questions.length === 0) return null;
+  return { questions };
+}
+
+/**
+ * The prompt that asks the AI to propose the intake questions. Personalized
+ * with the student's profile when known.
+ */
+export function buildClarifyPrompt(topic: string, profile?: { level?: string | null; department?: string | null; faculty?: string | null }): string {
+  const profileLines: string[] = [];
+  if (profile?.level) profileLines.push(`- Level: ${profile.level}`);
+  if (profile?.department) profileLines.push(`- Department: ${profile.department}`);
+  if (profile?.faculty) profileLines.push(`- Faculty: ${profile.faculty}`);
+  const profileBlock = profileLines.length
+    ? `\nStudent profile (personalize depth and angle — do NOT ask what you can infer from this):\n${profileLines.join("\n")}`
+    : "";
+
+  return `You are Matriq's Focus Mode intake tutor. A student is about to learn this topic:
+"${topic}"${profileBlock}
+
+Before building their concept map, ask them 2 to 3 SHORT questions so the map
+fits their actual need — not a generic textbook chapter. Good angles:
+- Goal: exam preparation, an assignment due, general understanding, teaching someone else
+- Depth: first exposure, revision before a test, deep mastery
+- Scope: the whole topic, or one specific aspect they're stuck on
+- Style: definitions first, worked examples, exam-question drills, real-life applications
+
+Return ONLY a JSON object (no markdown, no prose outside the JSON):
+{
+  "questions": [
+    {
+      "id": "<short slug, e.g. \"goal\">",
+      "text": "<the question, max 15 words>",
+      "options": ["<3-5 short tap-able answer options, max 6 words each>"],
+      "type": "single" or "multi",
+      "allowCustom": true,
+      "why": "<one short line: why you're asking — shown under the question>"
+    }
+  ]
+}
+
+Rules:
+- Every question must be answerable by tapping options alone. Never require typing.
+- Never ask what the student's level or department is if the profile already says it.
+- Never ask the topic back ("what is <topic>?" is not an intake question).
+- Keep every string short, warm and plain. No HTML, no markdown.
+Return valid JSON with the exact key names above.`;
+}
+
+/**
+ * Clamp raw student answers to sane size bounds (entry count + value
+ * length). Keys are re-sanitized to safe slugs; empty values are dropped.
+ * Applied everywhere answers enter the system (submit endpoint + generate).
+ */
+export function sanitizeAnswers(
+  answers: Record<string, string>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [id, value] of Object.entries(answers ?? {}).slice(
+    0,
+    MAX_ANSWER_ENTRIES,
+  )) {
+    const key = sanitizeId(id, "");
+    const v = clean(value, MAX_ANSWER_CHARS);
+    if (key && v) out[key] = v;
+  }
+  return out;
+}
+
+/**
+ * Turn sanitized student answers into the Context block appended to the map
+ * prompt. The model must obey this — it's the whole point of the questioner.
+ */
+export function buildAnswersContext(
+  questions: ClarifyQuestion[],
+  answers: Record<string, string>,
+): string {
+  // Lookup is case-insensitive: ids survive sanitize round-trips and client
+  // echoes, but case drift (GOAL vs goal) must never lose an answer.
+  const byId = new Map(questions.map((q) => [q.id.toLowerCase(), q]));
+  const lines: string[] = [];
+  for (const [id, rawAnswer] of Object.entries(answers).slice(0, MAX_ANSWER_ENTRIES)) {
+    const q = byId.get(id.toLowerCase());
+    const answer = clean(rawAnswer, MAX_ANSWER_CHARS);
+    if (!answer) continue;
+    const label = q ? q.text : clean(id, 60);
+    lines.push(`- ${label}: ${answer}`);
+  }
+  if (lines.length === 0) return "";
+  return `Student's own answers about how they want this taught (obey these — they define the map's angle, depth and examples):
+${lines.join("\n")}`;
+}
+
 // ── Mastery checkpoints (UI direction §Mastery Checkpoints) ──────────
 // At the end of a stage the student answers a question about one concept; the
 // AI evaluates the answer with the concept's own explanation as the rubric.

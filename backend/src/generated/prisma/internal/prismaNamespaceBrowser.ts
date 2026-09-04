@@ -84,6 +84,7 @@ export const ModelName = {
   WaitlistEntry: 'WaitlistEntry',
   MagicPlusEntitlement: 'MagicPlusEntitlement',
   FocusModeSession: 'FocusModeSession',
+  FocusClarification: 'FocusClarification',
   AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
   DeepReadJob: 'DeepReadJob',
@@ -599,6 +600,19 @@ export const FocusModeSessionScalarFieldEnum = {
 } as const
 
 export type FocusModeSessionScalarFieldEnum = (typeof FocusModeSessionScalarFieldEnum)[keyof typeof FocusModeSessionScalarFieldEnum]
+
+
+export const FocusClarificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  questions: 'questions',
+  answers: 'answers',
+  sessionMapId: 'sessionMapId',
+  createdAt: 'createdAt'
+} as const
+
+export type FocusClarificationScalarFieldEnum = (typeof FocusClarificationScalarFieldEnum)[keyof typeof FocusClarificationScalarFieldEnum]
 
 
 export const AchievementUnlockScalarFieldEnum = {

@@ -11,6 +11,7 @@ import { ConfigService } from "@nestjs/config";
 import { createHash } from "crypto";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
+import { Prisma as PrismaTypes } from "../generated/prisma/client";
 import { EntitlementService } from "../entitlement/entitlement.service";
 import {
   FocusMap,
@@ -24,6 +25,13 @@ import {
   extractJson,
   PROMPT_VERSION,
   type CheckpointVerdict,
+  validateClarifyQuestions,
+  buildClarifyPrompt,
+  buildAnswersContext,
+  sanitizeAnswers,
+  MAX_ANSWER_CHARS,
+  MAX_ANSWER_ENTRIES,
+  type ClarifyQuestion,
 } from "./focus.schema";
 import { enhanceTopic, EnhancedTopic } from "./focus.prompt";
 
@@ -188,12 +196,20 @@ export class FocusService {
   // ── Public API ──────────────────────────────────────────────
 
   /**
-   * Generate (or serve from cache) a Focus Map for a topic.
+   * Generate (or serve from cache) a Focus Map for a topic. When a
+   * clarificationId + answers are supplied (the Questioner flow), the map is
+   * personalized by the student's answers — such maps bypass the global
+   * cache by design, and the question set is marked consumed (exactly-once
+   * linkage).
    */
   async generate(
     userId: string,
     topicInput: string,
     onProgress?: (stage: "understanding" | "cache" | "reading" | "validating") => void,
+    opts?: {
+      clarificationId?: string;
+      answers?: Record<string, string>;
+    },
   ): Promise<GeneratedMap> {
     const topic = (topicInput ?? "").trim();
     if (!topic) {
@@ -209,10 +225,43 @@ export class FocusService {
     // 2. Abuse protection: per-user daily cap (counts all cloud calls incl. errors).
     await this.assertDailyCap(userId);
 
+    // 2.5 The Questioner: when a clarification was answered, load it, verify
+    //     ownership, and build the personalization context. Answers change
+    //     WHAT is generated, so the cache key gains an answers fingerprint —
+    //     same topic + same answers still shares a cache entry.
+    let answersContext = "";
+    let answersFingerprint = "";
+    let clarificationRowId: string | null = null;
+    const rawAnswers = opts?.answers;
+    if (opts?.clarificationId && rawAnswers && Object.keys(rawAnswers).length > 0) {
+      const row = await this.prisma.focusClarification.findFirst({
+        where: { id: opts.clarificationId, userId },
+      });
+      if (!row) {
+        throw new NotFoundException("Clarification not found.");
+      }
+      const set = validateClarifyQuestions(row.questions);
+      const sanitized = sanitizeAnswers(rawAnswers);
+      if (set && Object.keys(sanitized).length > 0) {
+        answersContext = buildAnswersContext(set.questions, sanitized);
+        answersFingerprint = createHash("sha256")
+          .update(
+            set.questions
+              .map((q) => `${q.id}=${(sanitized[q.id] ?? "").trim().toLowerCase()}`)
+              .sort()
+              .join("|"),
+          )
+          .digest("hex")
+          .slice(0, 16);
+        clarificationRowId = row.id;
+      }
+    }
+
     // 3. Cache key (normalized topic + prompt + model version) so identical /
     //    substantially equivalent topics don't repeatedly hit the paid model.
+    //    Personalized maps key on the answers fingerprint too.
     onProgress?.("understanding");
-    const cacheKey = this.cacheKey(topic);
+    const cacheKey = this.cacheKey(topic, answersFingerprint);
     const cached = await this.getCachedMap(cacheKey);
     if (cached) {
       const session = await this.prisma.focusModeSession.create({
@@ -232,6 +281,11 @@ export class FocusService {
         model: this.modelVersion,
         cached: true,
       });
+      if (clarificationRowId) {
+        await this.prisma.focusClarification
+          .update({ where: { id: clarificationRowId }, data: { sessionMapId: session.id } })
+          .catch(() => {});
+      }
       onProgress?.("cache");
       return {
         map: cached,
@@ -253,6 +307,11 @@ export class FocusService {
       select: { level: true, department: true, faculty: true },
     });
     const enhanced = enhanceTopic(topic, profile ?? undefined);
+    if (answersContext) {
+      // The Questioner's payload: the student's own answers, injected as an
+      // obey-this Context block (same mechanism as profile framing).
+      enhanced.prompt = `${enhanced.prompt}\n\n${answersContext}`;
+    }
 
     // 5. Call the model chain: DeepSeek → NVIDIA → Gemini.
     onProgress?.("reading");
@@ -282,6 +341,11 @@ export class FocusService {
       },
     });
     await this.setCachedMap(cacheKey, map);
+    if (clarificationRowId) {
+      await this.prisma.focusClarification
+        .update({ where: { id: clarificationRowId }, data: { sessionMapId: session.id } })
+        .catch(() => {});
+    }
     await this.logUsage(userId, session.id, "generate", {
       provider: result.provider,
       model: result.model,
@@ -300,6 +364,171 @@ export class FocusService {
         isPremium: entitlement.isPremium,
       },
     };
+  }
+
+  // ── The Questioner (pre-generation clarify step) ────────────
+
+  /**
+   * Propose 2-3 tap-to-answer intake questions for a topic. Questions are
+   * AI-proposed (personalized by profile) but cached globally per topic for
+   * 6h, so at scale the cost of asking is near zero. Re-invoking for the
+   * same topic + student returns the same pending set (idempotent — we never
+   * re-ask mid-flow), and the paywall is surfaced HERE, before the student
+   * invests time answering.
+   */
+  async clarify(
+    userId: string,
+    topicInput: string,
+  ): Promise<{
+    clarificationId: string;
+    topic: string;
+    questions: ClarifyQuestion[];
+    existingAnswers: Record<string, string> | null;
+  }> {
+    const topic = (topicInput ?? "").trim();
+    if (!topic) throw new BadRequestException("A topic is required.");
+    if (topic.length > 300) {
+      throw new BadRequestException("Topic is too long (max 300 characters).");
+    }
+
+    // Surface the paywall BEFORE the student answers anything (light status
+    // check — no side effects). Same condition generate() will enforce.
+    const status = await this.entitlements.status(userId);
+    if (!status.isPremium && (status.freeRemaining ?? 0) <= 0) {
+      throw new HttpException(
+        {
+          code: "MAGIC_PLUS_REQUIRED",
+          message:
+            "You've used your free Focus Mode generations. Focus Mode is a Magic Plus feature.",
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    // Idempotency: a pending (unlinked) set for this exact topic is returned
+    // as-is — refreshing the screen mid-flow must not re-ask or re-bill.
+    const normalized = topic.toLowerCase().replace(/\s+/g, " ");
+    const pending = await this.prisma.focusClarification.findFirst({
+      where: {
+        userId,
+        topic: { in: [topic, normalized], mode: "insensitive" },
+        sessionMapId: null,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    if (pending) {
+      const set = validateClarifyQuestions(pending.questions);
+      if (set) {
+        return {
+          clarificationId: pending.id,
+          topic: pending.topic,
+          questions: set.questions,
+          existingAnswers: (pending.answers as Record<string, string>) ?? null,
+        };
+      }
+      // Stored set failed validation (legacy/corrupt) — fall through and
+      // regenerate a fresh one.
+    }
+
+    // Global question cache (6h per topic): identical topics across ALL
+    // students share one model call. This is why asking costs ~nothing.
+    const profile = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { level: true, department: true, faculty: true },
+    });
+    const qPrime = `focus:clarify:v1:${this.modelVersion}:${normalized}`;
+    let questions: ClarifyQuestion[] | null = null;
+
+    if (this.redis && (this.redisHealthy || Date.now() >= this.redisRetryAfter)) {
+      try {
+        const raw = await this.redis.get(qPrime);
+        this.redisHealthy = true;
+        if (raw) {
+          const set = validateClarifyQuestions(JSON.parse(raw) as unknown);
+          if (set) questions = set.questions;
+        }
+      } catch {
+        this.redisHealthy = false;
+        this.redisRetryAfter = Date.now() + FocusService.REDIS_RETRY_COOLDOWN_MS;
+      }
+    }
+
+    if (!questions) {
+      const prompt = buildClarifyPrompt(topic, profile ?? undefined);
+      const attempts: Array<"deepseek" | "nvidia" | "gemini"> = [
+        "deepseek",
+        "nvidia",
+        "gemini",
+      ];
+      for (const provider of attempts) {
+        const call = await this.safeCall(prompt, provider);
+        if (!call) continue;
+        const set = validateClarifyQuestions(call.json);
+        if (!set) {
+          this.logger.warn(`Focus clarify: ${provider} returned invalid question JSON`);
+          continue;
+        }
+        questions = set.questions;
+        if (this.redis && (this.redisHealthy || Date.now() >= this.redisRetryAfter)) {
+          try {
+            await this.redis.set(qPrime, JSON.stringify(set), "EX", 6 * 3600);
+            this.redisHealthy = true;
+          } catch {
+            this.redisHealthy = false;
+            this.redisRetryAfter = Date.now() + FocusService.REDIS_RETRY_COOLDOWN_MS;
+          }
+        }
+        break;
+      }
+    }
+
+    // The questioner must NEVER block learning: every provider failed (or no
+    // key) → the student proceeds straight to generation, map-less questions
+    // are simply skipped.
+    if (!questions) {
+      questions = [];
+    }
+
+    const row = await this.prisma.focusClarification.create({
+      data: {
+        userId,
+        topic,
+        questions: { questions } as unknown as PrismaTypes.InputJsonValue,
+        answers: PrismaTypes.JsonNull,
+      },
+    });
+
+    return {
+      clarificationId: row.id,
+      topic,
+      questions,
+      existingAnswers: null,
+    };
+  }
+
+  /**
+   * Save the student's answers for a clarification (ownership enforced).
+   * Answers are also accepted inline on generate() — this endpoint exists so
+   * the app can persist progress if the student pauses mid-flow.
+   */
+  async submitClarificationAnswers(
+    userId: string,
+    clarificationId: string,
+    answers: Record<string, string>,
+  ): Promise<{ ok: true }> {
+    const row = await this.prisma.focusClarification.findFirst({
+      where: { id: clarificationId, userId },
+    });
+    if (!row) throw new NotFoundException("Clarification not found.");
+    if (row.sessionMapId) {
+      throw new BadRequestException("These questions were already answered.");
+    }
+    const sanitized = sanitizeAnswers(answers);
+    await this.prisma.focusClarification.update({
+      where: { id: row.id },
+      data: { answers: sanitized as unknown as PrismaTypes.InputJsonValue },
+    });
+    return { ok: true };
   }
 
   /**
@@ -722,9 +951,12 @@ export class FocusService {
 
   // ── Cache ──────────────────────────────────────────────────
 
-  private cacheKey(topic: string): { prime: string; hash: string } {
+  private cacheKey(
+    topic: string,
+    answersFingerprint = "",
+  ): { prime: string; hash: string } {
     const normalized = topic.trim().toLowerCase().replace(/\s+/g, " ").slice(0, 300);
-    const prime = `focus:map:v${PROMPT_VERSION}:${this.modelVersion}:${normalized}`;
+    const prime = `focus:map:v${PROMPT_VERSION}:${this.modelVersion}:${normalized}:${answersFingerprint}`;
     return { prime, hash: createHash("sha256").update(prime).digest("hex") };
   }
 

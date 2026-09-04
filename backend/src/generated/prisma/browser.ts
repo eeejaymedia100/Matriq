@@ -183,6 +183,11 @@ export type MagicPlusEntitlement = Prisma.MagicPlusEntitlementModel
  */
 export type FocusModeSession = Prisma.FocusModeSessionModel
 /**
+ * Model FocusClarification
+ * 
+ */
+export type FocusClarification = Prisma.FocusClarificationModel
+/**
  * Model AchievementUnlock
  * 
  */

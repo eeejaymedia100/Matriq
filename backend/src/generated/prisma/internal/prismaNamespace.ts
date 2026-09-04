@@ -430,6 +430,7 @@ export const ModelName = {
   WaitlistEntry: 'WaitlistEntry',
   MagicPlusEntitlement: 'MagicPlusEntitlement',
   FocusModeSession: 'FocusModeSession',
+  FocusClarification: 'FocusClarification',
   AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
   DeepReadJob: 'DeepReadJob',
@@ -451,7 +452,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2897,6 +2898,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FocusClarification: {
+      payload: Prisma.$FocusClarificationPayload<ExtArgs>
+      fields: Prisma.FocusClarificationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FocusClarificationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FocusClarificationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        findFirst: {
+          args: Prisma.FocusClarificationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FocusClarificationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        findMany: {
+          args: Prisma.FocusClarificationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>[]
+        }
+        create: {
+          args: Prisma.FocusClarificationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        createMany: {
+          args: Prisma.FocusClarificationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FocusClarificationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>[]
+        }
+        delete: {
+          args: Prisma.FocusClarificationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        update: {
+          args: Prisma.FocusClarificationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        deleteMany: {
+          args: Prisma.FocusClarificationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FocusClarificationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FocusClarificationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>[]
+        }
+        upsert: {
+          args: Prisma.FocusClarificationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FocusClarificationPayload>
+        }
+        aggregate: {
+          args: Prisma.FocusClarificationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFocusClarification>
+        }
+        groupBy: {
+          args: Prisma.FocusClarificationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FocusClarificationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FocusClarificationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FocusClarificationCountAggregateOutputType> | number
+        }
+      }
+    }
     AchievementUnlock: {
       payload: Prisma.$AchievementUnlockPayload<ExtArgs>
       fields: Prisma.AchievementUnlockFieldRefs
@@ -3873,6 +3948,19 @@ export const FocusModeSessionScalarFieldEnum = {
 export type FocusModeSessionScalarFieldEnum = (typeof FocusModeSessionScalarFieldEnum)[keyof typeof FocusModeSessionScalarFieldEnum]
 
 
+export const FocusClarificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  topic: 'topic',
+  questions: 'questions',
+  answers: 'answers',
+  sessionMapId: 'sessionMapId',
+  createdAt: 'createdAt'
+} as const
+
+export type FocusClarificationScalarFieldEnum = (typeof FocusClarificationScalarFieldEnum)[keyof typeof FocusClarificationScalarFieldEnum]
+
+
 export const AchievementUnlockScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -4488,6 +4576,7 @@ export type GlobalOmitConfig = {
   waitlistEntry?: Prisma.WaitlistEntryOmit
   magicPlusEntitlement?: Prisma.MagicPlusEntitlementOmit
   focusModeSession?: Prisma.FocusModeSessionOmit
+  focusClarification?: Prisma.FocusClarificationOmit
   achievementUnlock?: Prisma.AchievementUnlockOmit
   focusModeUsage?: Prisma.FocusModeUsageOmit
   deepReadJob?: Prisma.DeepReadJobOmit
