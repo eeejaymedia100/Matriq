@@ -22,12 +22,17 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import Svg, { Line } from "react-native-svg";
-import { useRoute, type RouteProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  type RouteProp,
+} from "@react-navigation/native";
+import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import type { MainStackParamList } from "../../navigation/types";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
-import { api, ApiError } from "../../api/client";
+import { api, ApiError, API_BASE, getTokens } from "../../api/client";
 import { useEntitlement } from "../../hooks/useEntitlement";
 import {
   KIND_META,
@@ -50,6 +55,150 @@ import { FocusJourneyView } from "./FocusJourneyView";
 
 type Phase = "entry" | "generating" | "ready";
 
+/** Honest generation stages surfaced by the backend's SSE stream. */
+type FocusStage = "understanding" | "reading" | "validating";
+const STAGES: FocusStage[] = ["understanding", "reading", "validating"];
+
+const STAGE_COPY: Record<FocusStage, { title: string; detail: string }> = {
+  understanding: {
+    title: "Reading your topic…",
+    detail: "Pinpointing the core ideas behind what you asked.",
+  },
+  reading: {
+    title: "Gathering the structure…",
+    detail: "Definitions, parts, processes and examples — the backbone of your map.",
+  },
+  validating: {
+    title: "Drawing your journey…",
+    detail: "Laying out stages, links and checkpoints. Your map opens as soon as it's ready.",
+  },
+};
+
+const OFFLINE_ERROR =
+  "Focus Mode builds maps with cloud AI, so it needs the internet. Your saved maps stay fully readable offline — or ask about this topic in Quickie, which works on-device.";
+
+/** Quick connectivity probe — any HTTP response means the server is reachable. */
+async function pingBackend(): Promise<boolean> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
+  try {
+    const res = await fetch(`${API_BASE}/health`, {
+      signal: controller.signal,
+    });
+    return res.ok;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Stream Focus map generation over SSE using XMLHttpRequest (React Native's
+ * fetch doesn't expose a streaming body reader). Emits honest stage progress
+ * (understanding → reading → validating) so the student watches the journey
+ * being built instead of staring at a spinner — then the final map.
+ */
+function streamFocusGenerate(
+  topic: string,
+  onStage: (stage: FocusStage) => void,
+  onMap: (result: {
+    map: import("../../offline/focus").BackendFocusMap;
+    sessionId: string;
+    cached: boolean;
+  }) => void,
+  onError: (message: string, code?: string, status?: number) => void,
+): { abort: () => void } {
+  const xhr = new XMLHttpRequest();
+  let finished = false;
+  let buffer = "";
+
+  const handleProgress = () => {
+    buffer += xhr.responseText.slice(buffer.length);
+    let newlineIndex = buffer.indexOf("\n");
+    while (newlineIndex !== -1) {
+      const line = buffer.slice(0, newlineIndex).trim();
+      buffer = buffer.slice(newlineIndex + 1);
+      if (line.startsWith("data:")) {
+        const raw = line.slice(5).trim();
+        if (raw) {
+          try {
+            const event = JSON.parse(raw) as {
+              type: string;
+              stage?: string;
+              map?: import("../../offline/focus").BackendFocusMap;
+              sessionId?: string;
+              cached?: boolean;
+              message?: string;
+              code?: string;
+            };
+            if (event.type === "progress" && event.stage) {
+              onStage(event.stage as FocusStage);
+            } else if (
+              event.type === "map" &&
+              event.map &&
+              event.sessionId &&
+              !finished
+            ) {
+              finished = true;
+              onMap({
+                map: event.map,
+                sessionId: event.sessionId,
+                cached: !!event.cached,
+              });
+            } else if (event.type === "error" && !finished) {
+              finished = true;
+              onError(event.message ?? "Generation failed", event.code);
+            }
+          } catch {
+            // Ignore partial/unknown lines.
+          }
+        }
+      }
+      newlineIndex = buffer.indexOf("\n");
+    }
+  };
+
+  void getTokens().then((tokens) => {
+    if (finished) return;
+    xhr.open("POST", `${API_BASE}/focus/generate/stream`);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    if (tokens?.accessToken) {
+      xhr.setRequestHeader("Authorization", `Bearer ${tokens.accessToken}`);
+    }
+    xhr.onprogress = handleProgress;
+    xhr.onload = () => {
+      handleProgress();
+      if (!finished) {
+        finished = true;
+        if (xhr.status !== 200) {
+          onError(`Stream failed (HTTP ${xhr.status})`, undefined, xhr.status);
+        } else {
+          onError("Generation failed — no map received");
+        }
+      }
+    };
+    xhr.onerror = () => {
+      if (!finished) {
+        finished = true;
+        onError("Network error while generating");
+      }
+    };
+    xhr.send(JSON.stringify({ topic }));
+  });
+
+  return {
+    abort: () => {
+      try {
+        xhr.abort();
+      } catch {
+        // ignore
+      }
+      finished = true;
+    },
+  };
+}
+
 const MIN_SCALE = 0.3;
 const MAX_SCALE = 2.5;
 
@@ -68,10 +217,19 @@ export function FocusModeScreen() {
   const { theme } = useTheme();
   const colors = theme.colors;
   const route = useRoute<RouteProp<MainStackParamList, "AiFocus">>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const { width: winW, height: winH } = useWindowDimensions();
   const { status: ent, loading: entLoading, refresh: refreshEnt } = useEntitlement();
 
   const [phase, setPhase] = useState<Phase>("entry");
+  // Focus is strictly an online activity — connectivity is probed on entry
+  // and re-verified before every generation. `null` = not yet checked.
+  const [online, setOnline] = useState<boolean | null>(null);
+  const [genStage, setGenStage] = useState<FocusStage>("understanding");
+  // Topic the student tried to generate while offline — powers the one-tap
+  // "take it to Quickie" handoff instead of a dead end.
+  const [offlineTopic, setOfflineTopic] = useState<string | null>(null);
   const [topicInput, setTopicInput] = useState(route.params?.topic ?? "");
   const [savedMaps, setSavedMaps] = useState<FocusMap[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -122,6 +280,28 @@ export function FocusModeScreen() {
     }
   }, [phase, loadSaved, refreshEnt]);
 
+  // Connectivity probe on entry + whenever the student returns to the entry
+  // screen — the gate message and the Quickie handoff react to real state.
+  useEffect(() => {
+    if (phase !== "entry") return;
+    let mounted = true;
+    void pingBackend().then((ok) => {
+      if (!mounted) return;
+      setOnline(ok);
+      if (ok) setOfflineTopic(null);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [phase]);
+
+  // Abort an in-flight generation when the screen goes away — no orphaned
+  // streams, no setState-after-unmount.
+  const genStreamRef = useRef<{ abort: () => void } | null>(null);
+  useEffect(() => {
+    return () => genStreamRef.current?.abort();
+  }, []);
+
   const fitToView = useCallback(
     (m: FocusMap) => {
       const l = layoutFocusMap(m);
@@ -149,47 +329,73 @@ export function FocusModeScreen() {
     async (topic: string) => {
       const t = topic.trim();
       if (!t) return;
+      // Hard online gate BEFORE leaving the entry screen — Focus never
+      // strands the student in a generating state that must fail. Uses the
+      // probed connectivity state (same pattern as chat/voice); when the
+      // state is stale, the stream's error path converts to the same gate.
+      if (online === false) {
+        setOfflineTopic(t);
+        setError(OFFLINE_ERROR);
+        return;
+      }
+      setOnline(true);
       setPhase("generating");
       setError(null);
+      setGenStage("understanding");
       try {
-        const res = await api.post<{
-          map: BackendFocusMap;
-          sessionId: string;
-          cached: boolean;
-        }>("/focus/generate", { topic: t });
-        const m = backendFocusMapToClient(res.map);
-        // Tag with the server session id so expansion can reach the same map.
-        m.id = `remote-${res.sessionId}`;
-        setMap(m);
-        await saveFocusMap(m);
-        setPhase("ready");
-        setJourneyMode(true);
-        void refreshEnt();
-        setTimeout(() => fitToView(m), 60);
-      } catch (err) {
-        setPhase("entry");
-        if (err instanceof ApiError) {
-          if (err.code === "MAGIC_PLUS_REQUIRED") {
+        genStreamRef.current = streamFocusGenerate(
+          t,
+          (stage) => setGenStage(stage),
+          (res) => {
+            const m = backendFocusMapToClient(res.map);
+            // Tag with the server session id so expansion can reach the same map.
+            m.id = `remote-${res.sessionId}`;
+            setMap(m);
+            void saveFocusMap(m);
+            setPhase("ready");
+            setJourneyMode(true);
+            void refreshEnt();
+            setTimeout(() => fitToView(m), 60);
+          },
+          (message, code, status) => {
+            setPhase("entry");
+            if (status === undefined) {
+              // Network-level failure — flip to the offline gate with the
+              // Quickie handoff rather than a generic error.
+              setOnline(false);
+              setOfflineTopic(t);
+              setError(OFFLINE_ERROR);
+              return;
+            }
+            if (code === "MAGIC_PLUS_REQUIRED") {
+              setError(
+                "You've used your free Focus Mode generations. Focus Mode is a Magic Plus feature — get Magic Plus to keep mapping complex topics with cloud AI.",
+              );
+              return;
+            }
+            if (code === "FOCUS_RATE_LIMITED") {
+              setError(message);
+              return;
+            }
+            if (status === 429) {
+              setError(
+                "You're moving too fast — please wait a moment and try again.",
+              );
+              return;
+            }
             setError(
-              "You've used your free Focus Mode generations. Focus Mode is a Magic Plus feature — get Magic Plus to keep mapping complex topics with cloud AI.",
+              "Focus Mode couldn't build a map right now. Check your connection and try again in a moment.",
             );
-            return;
-          }
-          if (err.code === "FOCUS_RATE_LIMITED") {
-            setError(err.message);
-            return;
-          }
-          if (err.status === 429) {
-            setError("You're moving too fast — please wait a moment and try again.");
-            return;
-          }
-        }
+          },
+        );
+      } catch {
+        setPhase("entry");
         setError(
           "Focus Mode couldn't build a map right now. Check your connection and try again in a moment.",
         );
       }
     },
-    [fitToView, refreshEnt],
+    [fitToView, refreshEnt, online],
   );
 
   const openSaved = useCallback(
@@ -568,6 +774,40 @@ export function FocusModeScreen() {
         </View>
       ) : null}
 
+      {/* Offline handoff — Focus needs the internet; Quickie doesn't. One tap
+          carries the exact topic into the chat (auto-sent there), so there's
+          no dead end. */}
+      {online === false && offlineTopic ? (
+        <Pressable
+          onPress={() => {
+            const topic = offlineTopic;
+            setOfflineTopic(null);
+            navigation.navigate("AiChat", { prefill: topic });
+          }}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 10,
+            backgroundColor: colors.brand + "1A",
+            borderRadius: 12,
+            padding: 12,
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Ask about this topic in Quickie instead"
+        >
+          <Icon name="sparkle" size={16} color={colors.brand} />
+          <Text
+            style={[
+              theme.typography.captionBold,
+              { color: colors.brand, flex: 1 },
+            ]}
+          >
+            Ask “{offlineTopic}” in Quickie instead →
+          </Text>
+        </Pressable>
+      ) : null}
+
       {savedMaps.length > 0 ? (
         <View style={{ marginTop: 24 }}>
           <Text
@@ -629,23 +869,53 @@ export function FocusModeScreen() {
     </KeyboardScreen>
   );
 
-  const renderGenerating = () => (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
-      <ActivityIndicator size="large" color={colors.brand} />
-      <Text style={[theme.typography.bodyBold, { color: colors.textPrimary, marginTop: 20 }]}>
-        Building your concept map…
-      </Text>
-      <Text
-        style={[
-          theme.typography.caption,
-          { color: colors.textMuted, marginTop: 6, textAlign: "center", maxWidth: 280 },
-        ]}
-      >
-        Cloud AI is working out the structure — definitions, parts, processes
-        and examples. Just a few seconds.
-      </Text>
-    </View>
-  );
+  const renderGenerating = () => {
+    const copy = STAGE_COPY[genStage];
+    const stageIndex = STAGES.indexOf(genStage);
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 24 }}>
+        <ActivityIndicator size="large" color={colors.brand} />
+        <Text style={[theme.typography.bodyBold, { color: colors.textPrimary, marginTop: 20 }]}>
+          {copy.title}
+        </Text>
+        <Text
+          style={[
+            theme.typography.caption,
+            { color: colors.textMuted, marginTop: 6, textAlign: "center", maxWidth: 280 },
+          ]}
+        >
+          {copy.detail}
+        </Text>
+        {/* Honest stage progress — the map pipeline's real boundaries, not
+            a fake percentage. Generation usually lands in well under 5s. */}
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 6,
+            marginTop: 18,
+          }}
+          accessibilityRole="progressbar"
+        >
+          {STAGES.map((s, i) => (
+            <View
+              key={s}
+              style={{
+                width: 34,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor:
+                  i < stageIndex
+                    ? colors.success
+                    : i === stageIndex
+                      ? colors.brand
+                      : colors.border,
+              }}
+            />
+          ))}
+        </View>
+      </View>
+    );
+  };
 
   const renderWorkspace = () => {
     if (!map) return null;

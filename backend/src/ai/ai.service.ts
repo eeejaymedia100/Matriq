@@ -1,6 +1,7 @@
 import {
   Injectable,
   BadRequestException,
+  ForbiddenException,
   Logger,
   ServiceUnavailableException,
 } from "@nestjs/common";
@@ -10,6 +11,7 @@ import { Response } from "express";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
 import { Semaphore } from "./semaphore";
+import { AiQuotaService } from "./ai-quota.service";
 
 export interface AiQueryDto {
   query: string;
@@ -137,6 +139,7 @@ export class AiService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly quota: AiQuotaService,
   ) {
     this.ollamaHost = (
       this.configService.get<string>("OLLAMA_HOST") ?? DEFAULT_OLLAMA_HOST
@@ -249,13 +252,20 @@ export class AiService {
           queryText: dto.query,
           responseText: cached,
           retrievedDocumentIds: sources,
+          cached: true,
+          engine: "cache",
         },
       });
       return { response: cached, sources };
     }
 
+    // Quickie free-tier limit — real generations only (cache hits above
+    // never count; they cost the platform nothing).
+    await this.quota.authorize(userId);
+
     // Generate the response — real LLM first, placeholder as fallback.
     let response: string;
+    let engine = "ollama";
     try {
       response = await this.generateFromOllama(dto.query, relevantDocs);
       this.logger.log(
@@ -274,6 +284,7 @@ export class AiService {
       // unavailable.
       try {
         response = await this.generateFromDeepSeek(dto.query, relevantDocs);
+        engine = "deepseek";
         this.logger.log(`AI query from user ${userId}: answered via DeepSeek`);
       } catch (deepseekErr) {
         this.logger.warn(
@@ -281,6 +292,7 @@ export class AiService {
         );
         try {
           response = await this.generateFromNvidia(dto.query, relevantDocs);
+          engine = "nvidia";
           this.logger.log(`AI query from user ${userId}: answered via NVIDIA NIM`);
         } catch (nvidiaErr) {
           this.logger.warn(
@@ -312,6 +324,8 @@ export class AiService {
         queryText: dto.query,
         responseText: response,
         retrievedDocumentIds: sources,
+        cached: false,
+        engine,
       },
     });
 
@@ -360,6 +374,8 @@ export class AiService {
             queryText: dto.query,
             responseText: cached,
             retrievedDocumentIds: sources,
+            cached: true,
+            engine: "cache",
           },
         });
       } catch (err) {
@@ -370,7 +386,27 @@ export class AiService {
       return;
     }
 
+    // Quickie free-tier limit — real generations only. The stream has already
+    // opened its SSE headers, so a denial is delivered as an SSE error event
+    // (the chat bubble shows the friendly message) instead of an HTTP 403 the
+    // streaming client could not parse.
+    try {
+      await this.quota.authorize(userId);
+    } catch (err) {
+      const message =
+        err instanceof ForbiddenException
+          ? ((err.getResponse() as { message?: string })?.message ??
+            "You've reached today's free question limit.")
+          : "You've reached today's free question limit.";
+      this.writeSse(
+        res,
+        `data: ${JSON.stringify({ type: "error", message, code: "QUICKIE_LIMIT" })}\n\n`,
+      );
+      return;
+    }
+
     let response: string;
+    let engine = "ollama";
     try {
       const streamed = await this.streamFromOllama(
         dto.query,
@@ -397,12 +433,14 @@ export class AiService {
         // Cloud fallbacks: DeepSeek (primary) → NVIDIA NIM → Gemini → placeholder.
         try {
           response = await this.generateFromDeepSeek(dto.query, relevantDocs);
+          engine = "deepseek";
         } catch (deepseekErr) {
           this.logger.warn(
             `DeepSeek stream fallback failed: ${deepseekErr instanceof Error ? deepseekErr.message : String(deepseekErr)}`,
           );
           try {
             response = await this.generateFromNvidia(dto.query, relevantDocs);
+            engine = "nvidia";
           } catch (nvidiaErr) {
             this.logger.warn(
               `NVIDIA NIM fallback failed: ${nvidiaErr instanceof Error ? nvidiaErr.message : String(nvidiaErr)}`,
@@ -438,6 +476,8 @@ export class AiService {
           queryText: dto.query,
           responseText: response,
           retrievedDocumentIds: sources,
+          cached: false,
+          engine,
         },
       });
     } catch (err) {

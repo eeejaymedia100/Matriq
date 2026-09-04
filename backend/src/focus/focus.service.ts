@@ -193,6 +193,7 @@ export class FocusService {
   async generate(
     userId: string,
     topicInput: string,
+    onProgress?: (stage: "understanding" | "cache" | "reading" | "validating") => void,
   ): Promise<GeneratedMap> {
     const topic = (topicInput ?? "").trim();
     if (!topic) {
@@ -210,6 +211,7 @@ export class FocusService {
 
     // 3. Cache key (normalized topic + prompt + model version) so identical /
     //    substantially equivalent topics don't repeatedly hit the paid model.
+    onProgress?.("understanding");
     const cacheKey = this.cacheKey(topic);
     const cached = await this.getCachedMap(cacheKey);
     if (cached) {
@@ -230,6 +232,7 @@ export class FocusService {
         model: this.modelVersion,
         cached: true,
       });
+      onProgress?.("cache");
       return {
         map: cached,
         sessionId: session.id,
@@ -252,9 +255,11 @@ export class FocusService {
     const enhanced = enhanceTopic(topic, profile ?? undefined);
 
     // 5. Call the model chain: DeepSeek → NVIDIA → Gemini.
+    onProgress?.("reading");
     const result = await this.generateMapWithFallbacks(enhanced);
 
     // 6. Validate (already done in fallback loop, but guard the empty case).
+    onProgress?.("validating");
     const map = validateFocusMap(result.json, enhanced.title);
     if (!map) {
       await this.recordError(userId, null, "generate", result.provider, "schema");

@@ -3683,6 +3683,8 @@ export const AiQueryLogScalarFieldEnum = {
   queryText: 'queryText',
   responseText: 'responseText',
   retrievedDocumentIds: 'retrievedDocumentIds',
+  cached: 'cached',
+  engine: 'engine',
   createdAt: 'createdAt'
 } as const
 

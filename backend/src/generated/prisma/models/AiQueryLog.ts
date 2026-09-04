@@ -29,6 +29,8 @@ export type AiQueryLogMinAggregateOutputType = {
   userId: string | null
   queryText: string | null
   responseText: string | null
+  cached: boolean | null
+  engine: string | null
   createdAt: Date | null
 }
 
@@ -37,6 +39,8 @@ export type AiQueryLogMaxAggregateOutputType = {
   userId: string | null
   queryText: string | null
   responseText: string | null
+  cached: boolean | null
+  engine: string | null
   createdAt: Date | null
 }
 
@@ -46,6 +50,8 @@ export type AiQueryLogCountAggregateOutputType = {
   queryText: number
   responseText: number
   retrievedDocumentIds: number
+  cached: number
+  engine: number
   createdAt: number
   _all: number
 }
@@ -56,6 +62,8 @@ export type AiQueryLogMinAggregateInputType = {
   userId?: true
   queryText?: true
   responseText?: true
+  cached?: true
+  engine?: true
   createdAt?: true
 }
 
@@ -64,6 +72,8 @@ export type AiQueryLogMaxAggregateInputType = {
   userId?: true
   queryText?: true
   responseText?: true
+  cached?: true
+  engine?: true
   createdAt?: true
 }
 
@@ -73,6 +83,8 @@ export type AiQueryLogCountAggregateInputType = {
   queryText?: true
   responseText?: true
   retrievedDocumentIds?: true
+  cached?: true
+  engine?: true
   createdAt?: true
   _all?: true
 }
@@ -155,6 +167,8 @@ export type AiQueryLogGroupByOutputType = {
   queryText: string
   responseText: string
   retrievedDocumentIds: string[]
+  cached: boolean
+  engine: string | null
   createdAt: Date
   _count: AiQueryLogCountAggregateOutputType | null
   _min: AiQueryLogMinAggregateOutputType | null
@@ -185,6 +199,8 @@ export type AiQueryLogWhereInput = {
   queryText?: Prisma.StringFilter<"AiQueryLog"> | string
   responseText?: Prisma.StringFilter<"AiQueryLog"> | string
   retrievedDocumentIds?: Prisma.StringNullableListFilter<"AiQueryLog">
+  cached?: Prisma.BoolFilter<"AiQueryLog"> | boolean
+  engine?: Prisma.StringNullableFilter<"AiQueryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AiQueryLog"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
@@ -195,6 +211,8 @@ export type AiQueryLogOrderByWithRelationInput = {
   queryText?: Prisma.SortOrder
   responseText?: Prisma.SortOrder
   retrievedDocumentIds?: Prisma.SortOrder
+  cached?: Prisma.SortOrder
+  engine?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
 }
@@ -208,6 +226,8 @@ export type AiQueryLogWhereUniqueInput = Prisma.AtLeast<{
   queryText?: Prisma.StringFilter<"AiQueryLog"> | string
   responseText?: Prisma.StringFilter<"AiQueryLog"> | string
   retrievedDocumentIds?: Prisma.StringNullableListFilter<"AiQueryLog">
+  cached?: Prisma.BoolFilter<"AiQueryLog"> | boolean
+  engine?: Prisma.StringNullableFilter<"AiQueryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AiQueryLog"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
@@ -218,6 +238,8 @@ export type AiQueryLogOrderByWithAggregationInput = {
   queryText?: Prisma.SortOrder
   responseText?: Prisma.SortOrder
   retrievedDocumentIds?: Prisma.SortOrder
+  cached?: Prisma.SortOrder
+  engine?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AiQueryLogCountOrderByAggregateInput
   _max?: Prisma.AiQueryLogMaxOrderByAggregateInput
@@ -233,6 +255,8 @@ export type AiQueryLogScalarWhereWithAggregatesInput = {
   queryText?: Prisma.StringWithAggregatesFilter<"AiQueryLog"> | string
   responseText?: Prisma.StringWithAggregatesFilter<"AiQueryLog"> | string
   retrievedDocumentIds?: Prisma.StringNullableListFilter<"AiQueryLog">
+  cached?: Prisma.BoolWithAggregatesFilter<"AiQueryLog"> | boolean
+  engine?: Prisma.StringNullableWithAggregatesFilter<"AiQueryLog"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AiQueryLog"> | Date | string
 }
 
@@ -241,6 +265,8 @@ export type AiQueryLogCreateInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAiQueryLogsInput
 }
@@ -251,6 +277,8 @@ export type AiQueryLogUncheckedCreateInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
 }
 
@@ -259,6 +287,8 @@ export type AiQueryLogUpdateInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAiQueryLogsNestedInput
 }
@@ -269,6 +299,8 @@ export type AiQueryLogUncheckedUpdateInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -278,6 +310,8 @@ export type AiQueryLogCreateManyInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
 }
 
@@ -286,6 +320,8 @@ export type AiQueryLogUpdateManyMutationInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -295,6 +331,8 @@ export type AiQueryLogUncheckedUpdateManyInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -322,6 +360,8 @@ export type AiQueryLogCountOrderByAggregateInput = {
   queryText?: Prisma.SortOrder
   responseText?: Prisma.SortOrder
   retrievedDocumentIds?: Prisma.SortOrder
+  cached?: Prisma.SortOrder
+  engine?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -330,6 +370,8 @@ export type AiQueryLogMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   queryText?: Prisma.SortOrder
   responseText?: Prisma.SortOrder
+  cached?: Prisma.SortOrder
+  engine?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -338,6 +380,8 @@ export type AiQueryLogMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   queryText?: Prisma.SortOrder
   responseText?: Prisma.SortOrder
+  cached?: Prisma.SortOrder
+  engine?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -397,6 +441,8 @@ export type AiQueryLogCreateWithoutUserInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
 }
 
@@ -405,6 +451,8 @@ export type AiQueryLogUncheckedCreateWithoutUserInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
 }
 
@@ -443,6 +491,8 @@ export type AiQueryLogScalarWhereInput = {
   queryText?: Prisma.StringFilter<"AiQueryLog"> | string
   responseText?: Prisma.StringFilter<"AiQueryLog"> | string
   retrievedDocumentIds?: Prisma.StringNullableListFilter<"AiQueryLog">
+  cached?: Prisma.BoolFilter<"AiQueryLog"> | boolean
+  engine?: Prisma.StringNullableFilter<"AiQueryLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AiQueryLog"> | Date | string
 }
 
@@ -451,6 +501,8 @@ export type AiQueryLogCreateManyUserInput = {
   queryText: string
   responseText: string
   retrievedDocumentIds?: Prisma.AiQueryLogCreateretrievedDocumentIdsInput | string[]
+  cached?: boolean
+  engine?: string | null
   createdAt?: Date | string
 }
 
@@ -459,6 +511,8 @@ export type AiQueryLogUpdateWithoutUserInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -467,6 +521,8 @@ export type AiQueryLogUncheckedUpdateWithoutUserInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -475,6 +531,8 @@ export type AiQueryLogUncheckedUpdateManyWithoutUserInput = {
   queryText?: Prisma.StringFieldUpdateOperationsInput | string
   responseText?: Prisma.StringFieldUpdateOperationsInput | string
   retrievedDocumentIds?: Prisma.AiQueryLogUpdateretrievedDocumentIdsInput | string[]
+  cached?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  engine?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -486,6 +544,8 @@ export type AiQueryLogSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   queryText?: boolean
   responseText?: boolean
   retrievedDocumentIds?: boolean
+  cached?: boolean
+  engine?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiQueryLog"]>
@@ -496,6 +556,8 @@ export type AiQueryLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   queryText?: boolean
   responseText?: boolean
   retrievedDocumentIds?: boolean
+  cached?: boolean
+  engine?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiQueryLog"]>
@@ -506,6 +568,8 @@ export type AiQueryLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   queryText?: boolean
   responseText?: boolean
   retrievedDocumentIds?: boolean
+  cached?: boolean
+  engine?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["aiQueryLog"]>
@@ -516,10 +580,12 @@ export type AiQueryLogSelectScalar = {
   queryText?: boolean
   responseText?: boolean
   retrievedDocumentIds?: boolean
+  cached?: boolean
+  engine?: boolean
   createdAt?: boolean
 }
 
-export type AiQueryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "queryText" | "responseText" | "retrievedDocumentIds" | "createdAt", ExtArgs["result"]["aiQueryLog"]>
+export type AiQueryLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "queryText" | "responseText" | "retrievedDocumentIds" | "cached" | "engine" | "createdAt", ExtArgs["result"]["aiQueryLog"]>
 export type AiQueryLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -541,6 +607,8 @@ export type $AiQueryLogPayload<ExtArgs extends runtime.Types.Extensions.Internal
     queryText: string
     responseText: string
     retrievedDocumentIds: string[]
+    cached: boolean
+    engine: string | null
     createdAt: Date
   }, ExtArgs["result"]["aiQueryLog"]>
   composites: {}
@@ -971,6 +1039,8 @@ export interface AiQueryLogFieldRefs {
   readonly queryText: Prisma.FieldRef<"AiQueryLog", 'String'>
   readonly responseText: Prisma.FieldRef<"AiQueryLog", 'String'>
   readonly retrievedDocumentIds: Prisma.FieldRef<"AiQueryLog", 'String[]'>
+  readonly cached: Prisma.FieldRef<"AiQueryLog", 'Boolean'>
+  readonly engine: Prisma.FieldRef<"AiQueryLog", 'String'>
   readonly createdAt: Prisma.FieldRef<"AiQueryLog", 'DateTime'>
 }
     

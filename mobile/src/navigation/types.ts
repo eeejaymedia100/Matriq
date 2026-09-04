@@ -32,7 +32,7 @@ export type MainStackParamList = {
   VerificationUpload: undefined;
   VerificationStatus: undefined;
   OfflineModels: undefined;
-  AiChat: { conversationId?: string } | undefined;
+  AiChat: { conversationId?: string; prefill?: string } | undefined;
   AiVoice: undefined;
   AiFocus: { topic?: string; mapId?: string } | undefined;
   AiHistory: undefined;

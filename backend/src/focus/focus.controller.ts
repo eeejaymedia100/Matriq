@@ -8,9 +8,11 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Res,
 } from "@nestjs/common";
 import { IsOptional, IsString, IsInt, Min, Max, Length } from "class-validator";
 import { Type } from "class-transformer";
+import { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { FocusService } from "./focus.service";
 import { EntitlementService } from "../entitlement/entitlement.service";
@@ -71,6 +73,56 @@ export class FocusController {
   @Throttle({ default: { ttl: 60000, limit: 10, getTracker: userTracker } })
   generate(@CurrentUser() user: JwtPayload, @Body() dto: GenerateDto) {
     return this.focus.generate(user.sub, dto.topic);
+  }
+
+  /**
+   * SSE variant of focus/generate emitting honest stage progress
+   * (understanding → reading → validating) before the final map event, so
+   * the app shows real generation progress instead of a bare spinner. Same
+   * quota/authorization path as the JSON endpoint; failures are SSE error
+   * events with the same codes the JSON path returns.
+   */
+  @Post("focus/generate/stream")
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { ttl: 60000, limit: 10, getTracker: userTracker } })
+  async generateStream(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: GenerateDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.flushHeaders?.();
+    res.on("close", () => res.end());
+    const send = (payload: Record<string, unknown>) => {
+      res.write(`data: ${JSON.stringify(payload)}\n\n`);
+    };
+    try {
+      const result = await this.focus.generate(user.sub, dto.topic, (stage) =>
+        send({ type: "progress", stage }),
+      );
+      send({ type: "map", map: result.map, sessionId: result.sessionId, cached: result.cached, usage: result.usage });
+    } catch (err) {
+      // Mirror Nest's exception-filter discipline: only messages from real
+      // HttpExceptions (which were written for students) reach the client.
+      // Anything else (Prisma faults, network internals) is sanitized to a
+      // generic 500 — the JSON endpoint never leaks these, neither do we.
+      const isHttp = typeof (err as { status?: number }).status === "number";
+      const status = isHttp ? (err as { status: number }).status : 500;
+      const message = isHttp
+        ? err instanceof Error
+          ? err.message
+          : "Generation failed"
+        : "Generation failed — please try again in a moment.";
+      const code =
+        (err as { response?: { code?: string } }).response?.code ??
+        (status === 403 ? "MAGIC_PLUS_REQUIRED" : undefined);
+      send({ type: "error", message, status, code });
+    } finally {
+      res.end();
+    }
   }
 
   /**

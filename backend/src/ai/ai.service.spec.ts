@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
 import { AiService } from "./ai.service";
+import { AiQuotaService } from "./ai-quota.service";
 import { PrismaService } from "../prisma/prisma.service";
 
 describe("AiService", () => {
@@ -28,6 +29,19 @@ describe("AiService", () => {
     get: jest.fn((key: string) => env[key]),
   };
 
+  // Quota gate mock — allow-everything by default (this suite tests the
+  // answer pipeline, not the quota); individual tests override as needed.
+  const mockQuota = {
+    authorize: jest.fn().mockResolvedValue(undefined),
+    status: jest.fn().mockResolvedValue({
+      tier: "free",
+      plan: "free",
+      used: 0,
+      limit: 30,
+      remaining: 30,
+    }),
+  };
+
   const mockFetch = jest.fn();
   const originalFetch = global.fetch;
 
@@ -48,6 +62,7 @@ describe("AiService", () => {
         AiService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: ConfigService, useValue: mockConfigService },
+        { provide: AiQuotaService, useValue: mockQuota },
       ],
     }).compile();
 

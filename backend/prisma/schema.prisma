@@ -540,6 +540,11 @@ model AiQueryLog {
   queryText             String    @map("query_text")
   responseText          String    @map("response_text")
   retrievedDocumentIds  String[]  @map("retrieved_document_ids") @db.Uuid
+  // True when the answer came from the Redis cache (zero model cost).
+  // Quickie's free daily limit counts only real generations.
+  cached                Boolean   @default(false)
+  // Which engine answered: ollama | deepseek | nvidia | gemini | placeholder
+  engine                String?
   createdAt             DateTime  @default(now()) @map("created_at")
 
   // Relations

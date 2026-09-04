@@ -70,6 +70,14 @@ type Nav = NativeStackNavigationProp<MainStackParamList>;
 const WELCOME_COPY =
   "Hi! I'm your AI Study Companion. Ask me anything about your courses, past questions, or study materials — I search the association's approved materials and answer in real time.";
 
+/** Shape of GET /ai/quota — the free-tier Quickie allowance. */
+interface QuickieQuota {
+  isPremium: boolean;
+  limit: number | null;
+  usedToday: number;
+  remainingToday: number | null;
+}
+
 const STOP_WORDS = new Set([
   "about", "after", "again", "against", "also", "before", "between",
   "could", "does", "from", "have", "into", "just", "know", "like",
@@ -136,7 +144,7 @@ async function pingBackend(): Promise<boolean> {
 function streamAiQuery(
   query: string,
   onChunk: (text: string) => void,
-  onError: (message: string) => void,
+  onError: (message: string, code?: string) => void,
   onDone: () => void,
 ): { abort: () => void } {
   const xhr = new XMLHttpRequest();
@@ -165,11 +173,12 @@ function streamAiQuery(
               type: string;
               text?: string;
               message?: string;
+              code?: string;
             };
             if (event.type === "content" && event.text) {
               onChunk(event.text);
             } else if (event.type === "error") {
-              onError(event.message ?? "Stream failed");
+              onError(event.message ?? "Stream failed", event.code);
             }
           } catch {
             // Ignore partial/unknown lines.
@@ -243,6 +252,7 @@ export function AiCompanionScreen() {
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState<boolean | null>(null);
   const [systemNotice, setSystemNotice] = useState<string | null>(null);
+  const [quota, setQuota] = useState<QuickieQuota | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
@@ -304,6 +314,20 @@ export function AiCompanionScreen() {
     };
   }, [navigation, warmUp]);
 
+  // Free-tier Quickie allowance — surfaced so students are never surprised
+  // by a sudden stop; the backend stays the enforcement authority.
+  const refreshQuota = useCallback(async () => {
+    try {
+      setQuota(await api.get<QuickieQuota>("/ai/quota"));
+    } catch {
+      // Offline / transient — the pill just hides.
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!offlineMode) void refreshQuota();
+  }, [offlineMode, refreshQuota, messages.length]);
+
   // Load the student's own study files so the offline AI can read them.
   const loadMaterials = useCallback(async () => {
     const list = await getMaterials();
@@ -316,6 +340,13 @@ export function AiCompanionScreen() {
 
   // Load a conversation from history when navigated with a conversationId.
   useEffect(() => {
+    const prefill = route.params?.prefill;
+    if (prefill && prefill.trim()) {
+      // Topic handed off from Focus Mode's offline gate — auto-send it once.
+      navigation.setParams({ prefill: undefined });
+      void sendMessage(prefill.trim());
+      return;
+    }
     const id = route.params?.conversationId;
     if (!id) return;
     let mounted = true;
@@ -861,8 +892,18 @@ export function AiCompanionScreen() {
             armSafetyNet();
             appendToStreaming(chunk);
           },
-          () => {
+          (message: string, code?: string) => {
             disarmSafetyNet();
+            if (code === "QUICKIE_LIMIT") {
+              // Free tier exhausted — honest message + the offline escape
+              // hatch instead of a dead end.
+              void refreshQuota();
+              const offlineHint = localReady
+                ? " Tip: switch on Offline AI above the keyboard to keep asking on-device."
+                : " Magic Plus removes the limit — or download Offline AI (once, over Wi-Fi) to keep asking on-device.";
+              replaceStreamingContent(aiMsgId, message + offlineHint);
+              return;
+            }
             // Stream failed (e.g. network dropped) — if a local model is
             // available, switch to it seamlessly; otherwise retry non-streaming.
             if (localReady) {
@@ -877,6 +918,7 @@ export function AiCompanionScreen() {
           () => {
             disarmSafetyNet();
             finishStreaming();
+            void refreshQuota();
           },
         );
         streamRef.current = stream;
@@ -1186,6 +1228,64 @@ export function AiCompanionScreen() {
                     ? "Offline mode — answers come from the model on your phone"
                     : "Answers grounded in your association's approved study materials"}
                 </Text>
+
+                {/* Quickie mode identity + honest free-tier allowance. */}
+                <View style={styles.modeRow}>
+                  <View
+                    style={[
+                      styles.modeChip,
+                      offlineMode && styles.modeChipOffline,
+                    ]}
+                  >
+                    <Ionicons
+                      name={offlineMode ? "phone-portrait-outline" : "flash"}
+                      size={12}
+                      color={offlineMode ? colors.warning : colors.brand}
+                    />
+                    <Text
+                      style={[
+                        styles.modeChipText,
+                        offlineMode && { color: colors.warning },
+                      ]}
+                    >
+                      {offlineMode ? "QUICKIE · offline" : "QUICKIE"}
+                    </Text>
+                  </View>
+                  {!offlineMode &&
+                    quota &&
+                    !quota.isPremium &&
+                    quota.limit !== null &&
+                    quota.remainingToday !== null &&
+                    quota.remainingToday <= 3 && (
+                      <View style={styles.modeChip}>
+                        <Ionicons
+                          name={
+                            quota.remainingToday === 0
+                              ? "lock-closed"
+                              : "pulse"
+                          }
+                          size={12}
+                          color={
+                            quota.remainingToday === 0
+                              ? colors.error
+                              : colors.warning
+                          }
+                        />
+                        <Text
+                          style={[
+                            styles.modeChipText,
+                            quota.remainingToday === 0 && {
+                              color: colors.error,
+                            },
+                          ]}
+                        >
+                          {quota.remainingToday === 0
+                            ? "Daily limit reached"
+                            : `${quota.remainingToday} free ${quota.remainingToday === 1 ? "question" : "questions"} left today`}
+                        </Text>
+                      </View>
+                    )}
+                </View>
 
                 {/* Focus Mode — turn a complex topic into a visual, zoomable map */}
                 <Pressable
@@ -1527,6 +1627,34 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
       ...theme.typography.caption,
       color: colors.textSecondary,
       flex: 1,
+    },
+    modeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      gap: theme.spacing.sm,
+      marginTop: theme.spacing.sm,
+    },
+    modeChip: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
+      backgroundColor: colors.surfaceAlt,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: theme.radii.pill,
+      paddingHorizontal: theme.spacing.sm,
+      paddingVertical: 3,
+    },
+    modeChipOffline: {
+      backgroundColor: colors.warningBg,
+      borderColor: "transparent",
+    },
+    modeChipText: {
+      ...theme.typography.captionBold,
+      color: colors.brand,
+      letterSpacing: 0.3,
     },
     focusPill: {
       flexDirection: "row",

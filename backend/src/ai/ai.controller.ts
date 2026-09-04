@@ -14,6 +14,7 @@ import { Type } from "class-transformer";
 import { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { AiService } from "./ai.service";
+import { AiQuotaService } from "./ai-quota.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { JwtPayload } from "../auth/auth.service";
@@ -42,7 +43,17 @@ class QuizDto {
 
 @Controller("v1")
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+  constructor(
+    private readonly aiService: AiService,
+    private readonly quota: AiQuotaService,
+  ) {}
+
+  /** Quickie daily-quota snapshot for the chat UI. */
+  @Get("ai/quota")
+  @UseGuards(JwtAuthGuard)
+  quotaStatus(@CurrentUser() user: JwtPayload) {
+    return this.quota.status(user.sub);
+  }
 
   @Post("ai/query")
   @UseGuards(JwtAuthGuard)
