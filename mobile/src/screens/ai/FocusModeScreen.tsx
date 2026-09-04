@@ -52,6 +52,7 @@ import {
   deleteFocusMap,
 } from "../../utils/focusHistory";
 import { FocusJourneyView } from "./FocusJourneyView";
+import { AgentSheet } from "../../components/AgentSheet";
 
 type Phase = "entry" | "generating" | "ready";
 
@@ -230,6 +231,8 @@ export function FocusModeScreen() {
   // Topic the student tried to generate while offline — powers the one-tap
   // "take it to Quickie" handoff instead of a dead end.
   const [offlineTopic, setOfflineTopic] = useState<string | null>(null);
+  // Agent assist on a focus node ("check my notes about this concept").
+  const [agentOpen, setAgentOpen] = useState(false);
   const [topicInput, setTopicInput] = useState(route.params?.topic ?? "");
   const [savedMaps, setSavedMaps] = useState<FocusMap[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -1229,6 +1232,24 @@ export function FocusModeScreen() {
                   {/* Actions */}
                   <View style={{ flexDirection: "row", gap: 10, marginTop: 16 }}>
                     <Pressable
+                      onPress={() => setAgentOpen(true)}
+                      style={{
+                        flex: 1,
+                        alignItems: "center",
+                        paddingVertical: 12,
+                        borderRadius: theme.radii.md,
+                        backgroundColor: colors.brand + "1A",
+                        borderWidth: 1,
+                        borderColor: colors.brand + "44",
+                      }}
+                    >
+                      <Text style={[theme.typography.captionBold, { color: colors.brand }]}>
+                        ✦ Check my notes
+                      </Text>
+                    </Pressable>
+                  </View>
+                  <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
+                    <Pressable
                       onPress={() => void expandConcept("lost")}
                       disabled={helping}
                       style={{
@@ -1267,7 +1288,7 @@ export function FocusModeScreen() {
                   {helping || help ? (
                     <View
                       style={{
-                        marginTop: 14,
+                        marginTop: 10,
                         padding: 14,
                         borderRadius: theme.radii.md,
                         backgroundColor: colors.surfaceAlt,
@@ -1336,6 +1357,18 @@ export function FocusModeScreen() {
             </Pressable>
           </Pressable>
         </Modal>
+
+        {/* Agent assist — grounded in the student's own ingested material
+            (Magic Plus). Opens with the selected concept as context. */}
+        <AgentSheet
+          visible={agentOpen}
+          onClose={() => setAgentOpen(false)}
+          baseRequest={{
+            surface: "focus",
+            nodeLabel: selected?.label,
+            nodeKind: selected?.kind,
+          }}
+        />
       </View>
     );
   };

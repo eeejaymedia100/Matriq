@@ -7,6 +7,7 @@ import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Surface } from "../../components/Surface";
 import { Icon } from "../../components/icons";
 import { ReflowReader } from "../../components/ReflowReader";
+import { AgentSheet } from "../../components/AgentSheet";
 import { api, API_BASE, authHeaders } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { newNoteId, upsertNote } from "../../utils/notes";
@@ -57,6 +58,8 @@ export function DocumentReaderScreen({
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [savedNote, setSavedNote] = useState(false);
+  const [agentOpen, setAgentOpen] = useState(false);
+  const [agentPassage, setAgentPassage] = useState<string | undefined>(undefined);
   const attempted = useRef(false);
 
   const isImage = mimeType.startsWith("image/");
@@ -315,6 +318,10 @@ export function DocumentReaderScreen({
               docId={`vault-${itemId}`}
               sourceLabel={sourceLabel}
               firstLineIsTitle={result!.source === "pptx"}
+              onAskAgent={(passage) => {
+                setAgentPassage(passage);
+                setAgentOpen(true);
+              }}
             />
           </View>
         ) : (
@@ -376,6 +383,20 @@ export function DocumentReaderScreen({
           </View>
         )}
       </View>
+
+      {/* Agent v2 companion — answers grounded in this document + the
+          student's own notes (Magic Plus, server-enforced). */}
+      <AgentSheet
+        visible={agentOpen}
+        onClose={() => setAgentOpen(false)}
+        baseRequest={{
+          surface: "reader",
+          itemId,
+          docTitle: title || originalName,
+          courseCode,
+          ...(agentPassage ? { selection: agentPassage } : {}),
+        }}
+      />
     </KeyboardScreen>
   );
 }

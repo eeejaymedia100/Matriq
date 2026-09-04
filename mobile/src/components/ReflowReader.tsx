@@ -59,12 +59,17 @@ export function ReflowReader({
   docId,
   sourceLabel,
   firstLineIsTitle,
+  onAskAgent,
 }: {
   text: string;
   docId: string;
   sourceLabel: string;
   /** Deck provenance: the document's first line is a slide title. */
   firstLineIsTitle?: boolean;
+  /** Present when the host offers the Agent companion — called with the
+   * currently visible block's text so the agent opens pre-loaded with the
+   * passage the student is reading. */
+  onAskAgent?: (passage: string) => void;
 }) {
   const { theme } = useTheme();
   const colors = theme.colors;
@@ -288,7 +293,7 @@ export function ReflowReader({
         }}
       />
 
-      {/* Controls: font size, progress, highlights → note */}
+      {/* Controls: font size, progress, highlights → note, ask-the-agent */}
       <View style={styles.controls}>
         <View style={styles.fontControls}>
           <Pressable
@@ -318,6 +323,16 @@ export function ReflowReader({
             <Text style={styles.noteButtonText}>
               {savedNote ? "Saved" : `${highlights.length} → note`}
             </Text>
+          </Pressable>
+        ) : null}
+        {onAskAgent && blocks[activeBlock] && blocks[activeBlock].type !== "slide_break" ? (
+          <Pressable
+            onPress={() => onAskAgent(blocks[activeBlock].text.slice(0, 600))}
+            style={styles.agentButton}
+            accessibilityLabel="Ask the AI about this page"
+          >
+            <Icon name="sparkle" size={13} color={colors.brand} />
+            <Text style={styles.agentButtonText}>Ask AI</Text>
           </Pressable>
         ) : null}
       </View>
@@ -400,6 +415,20 @@ const makeStyles = (colors: any) =>
     },
     fontButtonText: { color: colors.textPrimary, fontSize: 14, fontWeight: "700" },
     progressText: { color: colors.textMuted, fontSize: 12, fontWeight: "600", minWidth: 48, textAlign: "center" },
+    agentButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 5,
+      paddingHorizontal: 12,
+      paddingVertical: 7,
+      borderRadius: 999,
+      backgroundColor: colors.brand + "1A",
+    },
+    agentButtonText: {
+      fontFamily: "PlusJakartaSans_700Bold",
+      fontSize: 12,
+      color: colors.brand,
+    },
     noteButton: {
       flexDirection: "row",
       alignItems: "center",
