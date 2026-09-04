@@ -215,6 +215,16 @@ export type AchievementUnlock = Prisma.AchievementUnlockModel
  */
 export type FocusModeUsage = Prisma.FocusModeUsageModel
 /**
+ * Model DeepReadJob
+ * 
+ */
+export type DeepReadJob = Prisma.DeepReadJobModel
+/**
+ * Model DeepReadPage
+ * 
+ */
+export type DeepReadPage = Prisma.DeepReadPageModel
+/**
  * Model RefreshTokenFamily
  * 
  */

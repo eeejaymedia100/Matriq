@@ -86,6 +86,8 @@ export const ModelName = {
   FocusModeSession: 'FocusModeSession',
   AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
+  DeepReadJob: 'DeepReadJob',
+  DeepReadPage: 'DeepReadPage',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
 } as const
@@ -626,6 +628,43 @@ export const FocusModeUsageScalarFieldEnum = {
 } as const
 
 export type FocusModeUsageScalarFieldEnum = (typeof FocusModeUsageScalarFieldEnum)[keyof typeof FocusModeUsageScalarFieldEnum]
+
+
+export const DeepReadJobScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  pageCount: 'pageCount',
+  completedPages: 'completedPages',
+  failedPages: 'failedPages',
+  bestEngine: 'bestEngine',
+  title: 'title',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DeepReadJobScalarFieldEnum = (typeof DeepReadJobScalarFieldEnum)[keyof typeof DeepReadJobScalarFieldEnum]
+
+
+export const DeepReadPageScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  pageNumber: 'pageNumber',
+  imageRef: 'imageRef',
+  status: 'status',
+  engine: 'engine',
+  confidence: 'confidence',
+  contentHash: 'contentHash',
+  text: 'text',
+  blocks: 'blocks',
+  edited: 'edited',
+  errorMessage: 'errorMessage',
+  latencyMs: 'latencyMs',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DeepReadPageScalarFieldEnum = (typeof DeepReadPageScalarFieldEnum)[keyof typeof DeepReadPageScalarFieldEnum]
 
 
 export const RefreshTokenFamilyScalarFieldEnum = {

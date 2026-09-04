@@ -6,6 +6,7 @@ import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Surface } from "../../components/Surface";
 import { Icon } from "../../components/icons";
+import { ReflowReader } from "../../components/ReflowReader";
 import { api, API_BASE, authHeaders } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { newNoteId, upsertNote } from "../../utils/notes";
@@ -13,13 +14,22 @@ import { vaultFileDestination, rememberVaultFile } from "../../utils/vaultCache"
 
 interface ReaderResult {
   text: string;
-  source: "pdf" | "ocr" | "none";
+  source: "pdf" | "pptx" | "docx" | "ocr" | "none";
 }
 
 /**
- * In-app document reader. Fetches the extracted text of a vault file — the
- * PDF's text layer, or Tesseract OCR for photo uploads — and shows an image
- * preview when the file is a photo. Reading never counts as a download.
+ * In-app document reader with two reading modes:
+ *
+ *  - Reflow ("mobile view", the default): extracted text re-typeset into
+ *    full-width block cards — vertical swipe, big controllable type,
+ *    long-press highlights that convert to a cited note. The scroll students
+ *    already live in, no pinch-zoom on A4 slabs.
+ *  - A4: the faithful original view — page-faithful text (or the photo
+ *    itself for image uploads), for when layout matters (slides, diagrams,
+ *    tables).
+ *
+ * Reading never counts as a download; extraction is cached on-device after
+ * first open so re-reading is fully offline.
  */
 export function DocumentReaderScreen({
   navigation,
@@ -40,6 +50,7 @@ export function DocumentReaderScreen({
   const colors = theme.colors;
   const { itemId, originalName, title, courseCode, mimeType } = route.params;
 
+  const [mode, setMode] = useState<"reflow" | "a4">("reflow");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ title: string; message: string; action: string } | null>(null);
   const [result, setResult] = useState<ReaderResult | null>(null);
@@ -126,166 +137,212 @@ export function DocumentReaderScreen({
     ]);
   };
 
-  const sourceLabel =
-    result?.source === "pdf"
-      ? "Text layer · extracted from the PDF"
-      : result?.source === "ocr"
-        ? "Read from your photo · on-device style OCR"
-        : "No readable text found";
+  const sourceLabel = `${courseCode}${title ? ` — ${title}` : originalName ? ` — ${originalName}` : ""}`;
+  const hasText = !!result?.text && result.source !== "none";
 
   return (
-    <KeyboardScreen paddingBottom={40}>
-      {/* File header */}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 12,
-          padding: 14,
-          borderRadius: theme.radii.lg,
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: colors.border,
-        }}
-      >
-        <View
-          style={{
-            width: 42,
-            height: 42,
-            borderRadius: 13,
-            backgroundColor: colors.surfaceAlt,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon name={isImage ? "image" : "fileText"} size={20} color={colors.brand} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <View style={{ borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, backgroundColor: colors.brand + "1A" }}>
-              <Text style={[theme.typography.small, { color: colors.brand, fontWeight: "700" }]}>{courseCode}</Text>
-            </View>
-          </View>
-          <Text style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 4 }]} numberOfLines={1}>
-            {originalName || title}
-          </Text>
-        </View>
-      </View>
-
-      {loading ? (
-        <View style={{ alignItems: "center", paddingVertical: 44 }}>
-          <ActivityIndicator color={colors.brand} />
-          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 10 }]}>
-            {isImage ? "Reading the text…" : "Extracting the text…"}
-          </Text>
-        </View>
-      ) : error ? (
+    <KeyboardScreen scroll={false} paddingBottom={0}>
+      <View style={{ flex: 1 }}>
+        {/* File header + mode toggle */}
         <View
           style={{
             flexDirection: "row",
-            alignItems: "flex-start",
-            gap: 8,
-            marginTop: 16,
-            backgroundColor: colors.errorBg,
-            borderRadius: 12,
-            padding: 12,
-            borderWidth: 1,
-            borderColor: colors.error + "44",
+            alignItems: "center",
+            gap: 12,
+            padding: 14,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.border,
+            backgroundColor: colors.surface,
           }}
         >
-          <Icon name="alert" size={16} color={colors.error} />
+          <View
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: 12,
+              backgroundColor: colors.surfaceAlt,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Icon name={isImage ? "image" : "fileText"} size={18} color={colors.brand} />
+          </View>
           <View style={{ flex: 1 }}>
-            <Text style={[theme.typography.captionBold, { color: colors.error }]}>{error.title}</Text>
-            <Text style={[theme.typography.caption, { color: colors.textSecondary, marginTop: 2, lineHeight: 17 }]}>
-              {error.message} {error.action}
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <View style={{ borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2, backgroundColor: colors.brand + "1A" }}>
+                <Text style={[theme.typography.small, { color: colors.brand, fontWeight: "700" }]}>{courseCode}</Text>
+              </View>
+            </View>
+            <Text style={[theme.typography.captionBold, { color: colors.textPrimary, marginTop: 3 }]} numberOfLines={1}>
+              {originalName || title}
             </Text>
           </View>
-        </View>
-      ) : (
-        <>
-          {/* Image preview for photo uploads */}
-          {imageUri ? (
+
+          {/* Reflow ↔ A4 toggle — only when there is text to reflow */}
+          {hasText ? (
             <View
               style={{
-                marginTop: 16,
-                borderRadius: theme.radii.lg,
-                overflow: "hidden",
-                borderWidth: 1,
-                borderColor: colors.border,
+                flexDirection: "row",
+                backgroundColor: colors.surfaceAlt,
+                borderRadius: 999,
+                padding: 2,
               }}
             >
-              <Image source={{ uri: imageUri }} style={{ width: "100%", height: 260 }} resizeMode="contain" />
+              {(["reflow", "a4"] as const).map((m) => (
+                <Pressable
+                  key={m}
+                  onPress={() => setMode(m)}
+                  style={{
+                    paddingVertical: 6,
+                    paddingHorizontal: 12,
+                    borderRadius: 999,
+                    backgroundColor: mode === m ? colors.accent : "transparent",
+                  }}
+                  accessibilityLabel={m === "reflow" ? "Mobile reading view" : "Original document view"}
+                >
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: "700",
+                      color: mode === m ? "#170B26" : colors.textSecondary,
+                    }}
+                  >
+                    {m === "reflow" ? "Mobile" : "A4"}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
           ) : null}
+        </View>
 
-          {/* Source / status line */}
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 7, marginTop: 18 }}>
-            <Icon
-              name={result?.source === "none" ? "alert" : "check"}
-              size={15}
-              color={result?.source === "none" ? colors.warning : colors.success}
-            />
-            <Text
-              style={[
-                theme.typography.captionBold,
-                { color: result?.source === "none" ? colors.warning : colors.success },
-              ]}
-            >
-              {sourceLabel}
+        {loading ? (
+          <View style={{ alignItems: "center", paddingVertical: 44, flex: 1, justifyContent: "center" }}>
+            <ActivityIndicator color={colors.brand} />
+            <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 10 }]}>
+              {isImage ? "Reading the text…" : "Extracting the text…"}
             </Text>
           </View>
-
-          {result?.source === "none" ? (
-            <Surface style={{ padding: 16, marginTop: 12 }}>
-              <Text style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>
-                {isImage
-                  ? "We couldn't make out clear text in this photo. Try a clearer, closer, better-lit shot — or a screenshot with bigger text."
-                  : "This PDF has no text layer — its pages are likely scanned images. Run it through Image to Text in Tools to read the pages."}
-              </Text>
-              <Pressable
-                onPress={() => navigation.navigate("Ocr", {})}
+        ) : error ? (
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "flex-start",
+                gap: 8,
+                backgroundColor: colors.errorBg,
+                borderRadius: 12,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: colors.error + "44",
+              }}
+            >
+              <Icon name="alert" size={16} color={colors.error} />
+              <View style={{ flex: 1 }}>
+                <Text style={[theme.typography.captionBold, { color: colors.error }]}>{error.title}</Text>
+                <Text style={[theme.typography.caption, { color: colors.textSecondary, marginTop: 2, lineHeight: 17 }]}>
+                  {error.message} {error.action}
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        ) : !hasText ? (
+          /* No readable text — same guidance as before, now with Deep Read for photos */
+          <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+            {imageUri ? (
+              <View
                 style={{
-                  alignSelf: "flex-start",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: 6,
-                  marginTop: 14,
-                  paddingVertical: 10,
-                  paddingHorizontal: 16,
-                  borderRadius: theme.radii.pill,
-                  backgroundColor: colors.accent,
+                  borderRadius: theme.radii.lg,
+                  overflow: "hidden",
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  marginBottom: 14,
                 }}
               >
-                <Icon name="image" size={15} color="#170B26" />
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
-                  Go to Image to Text
-                </Text>
-              </Pressable>
+                <Image source={{ uri: imageUri }} style={{ width: "100%", height: 260 }} resizeMode="contain" />
+              </View>
+            ) : null}
+            <Surface style={{ padding: 16 }}>
+              <Text style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>
+                {isImage
+                  ? "We couldn't make out clear text in this photo. Try a clearer, closer, better-lit shot — or let Deep Read transcribe it properly."
+                  : "This PDF has no text layer — its pages are likely scanned images. Run it through Image to Text, or send it to Deep Read (Magic Plus) for a full transcription."}
+              </Text>
+              <View style={{ flexDirection: "row", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
+                <Pressable
+                  onPress={() => navigation.navigate("Ocr", {})}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: theme.radii.pill,
+                    backgroundColor: colors.surfaceAlt,
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                  }}
+                >
+                  <Icon name="image" size={15} color={colors.textSecondary} />
+                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: colors.textSecondary }}>
+                    Image to Text
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => navigation.navigate("DeepRead", {})}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    gap: 6,
+                    paddingVertical: 10,
+                    paddingHorizontal: 16,
+                    borderRadius: theme.radii.pill,
+                    backgroundColor: colors.accent,
+                  }}
+                >
+                  <Icon name="sparkle" size={15} color="#170B26" />
+                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                    Deep Read
+                  </Text>
+                </Pressable>
+              </View>
             </Surface>
-          ) : (
-            <ScrollView
-              style={{ marginTop: 12 }}
-              showsVerticalScrollIndicator={false}
-              nestedScrollEnabled
-            >
-              <Surface style={{ padding: 18 }}>
-                <Text selectable style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 25 }]}>
-                  {result?.text}
-                </Text>
-              </Surface>
-            </ScrollView>
-          )}
-
-          {result?.text ? (
-            <View style={{ flexDirection: "row", gap: 8, marginTop: 12 }}>
+          </ScrollView>
+        ) : mode === "reflow" ? (
+          /* ── Reflow: the mobile reading view ── */
+          <View style={{ flex: 1 }}>
+            <ReflowReader
+              text={result!.text}
+              docId={`vault-${itemId}`}
+              sourceLabel={sourceLabel}
+              firstLineIsTitle={result!.source === "pptx"}
+            />
+          </View>
+        ) : (
+          /* ── A4: the faithful original view ── */
+          <View style={{ flex: 1 }}>
+            {imageUri ? (
+              <ScrollView contentContainerStyle={{ padding: 16 }}>
+                <Image source={{ uri: imageUri }} style={{ width: "100%", height: 380 }} resizeMode="contain" />
+              </ScrollView>
+            ) : (
+              <ScrollView contentContainerStyle={{ padding: 16 }} showsVerticalScrollIndicator>
+                <Surface style={{ padding: 18 }}>
+                  <Text selectable style={[theme.typography.body, { color: colors.textPrimary, lineHeight: 24 }]}>
+                    {result!.text}
+                  </Text>
+                </Surface>
+              </ScrollView>
+            )}
+            <View style={{ flexDirection: "row", gap: 8, padding: 12, borderTopWidth: 1, borderTopColor: colors.border }}>
               <Pressable
                 onPress={() => void copyText()}
                 style={{
+                  flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: 6,
-                  paddingVertical: 8,
-                  paddingHorizontal: 14,
+                  paddingVertical: 10,
                   borderRadius: theme.radii.pill,
                   backgroundColor: copied ? colors.success + "22" : colors.surfaceAlt,
                   borderWidth: 1,
@@ -294,17 +351,18 @@ export function DocumentReaderScreen({
               >
                 <Icon name={copied ? "check" : "copy"} size={14} color={copied ? colors.success : colors.textSecondary} />
                 <Text style={[theme.typography.captionBold, { color: copied ? colors.success : colors.textSecondary }]}>
-                  {copied ? "Copied to clipboard" : "Copy text"}
+                  {copied ? "Copied" : "Copy text"}
                 </Text>
               </Pressable>
               <Pressable
                 onPress={() => void saveAsNote()}
                 style={{
+                  flex: 1,
                   flexDirection: "row",
                   alignItems: "center",
+                  justifyContent: "center",
                   gap: 6,
-                  paddingVertical: 8,
-                  paddingHorizontal: 14,
+                  paddingVertical: 10,
                   borderRadius: theme.radii.pill,
                   backgroundColor: savedNote ? colors.success : colors.accent,
                 }}
@@ -315,9 +373,9 @@ export function DocumentReaderScreen({
                 </Text>
               </Pressable>
             </View>
-          ) : null}
-        </>
-      )}
+          </View>
+        )}
+      </View>
     </KeyboardScreen>
   );
 }

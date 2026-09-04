@@ -4,9 +4,47 @@ import { spawn } from "child_process";
 import { mkdtemp, writeFile, rm } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
+import { unzipSync, strFromU8 } from "fflate";
 import pdfParse from "pdf-parse";
 import * as mammoth from "mammoth";
 import sharp from "sharp";
+
+/**
+ * Slide text out of a .pptx (a zip of XML). Slide text lives in <a:t> runs
+ * inside ppt/slides/slideN.xml; slides are ordered numerically (slide10 sorts
+ * before slide2 lexicographically, hence the numeric parse). Slide breaks
+ * become blank lines so the Reflow reader keeps lecture structure.
+ */
+export function extractPptxText(buffer: Buffer): string {
+  const files = unzipSync(new Uint8Array(buffer));
+  const slideFiles = Object.keys(files)
+    .filter((f) => /^ppt\/slides\/slide(\d+)\.xml$/.test(f))
+    .sort((a, b) => {
+      const na = Number(a.match(/slide(\d+)\.xml$/)![1]);
+      const nb = Number(b.match(/slide(\d+)\.xml$/)![1]);
+      return na - nb;
+    });
+  const slides: string[] = [];
+  for (const f of slideFiles) {
+    const xml = strFromU8(files[f]);
+    // <a:t>…</a:t> holds one text run; join runs in document order.
+    const runs = [...xml.matchAll(/<a:t>([\s\S]*?)<\/a:t>/g)].map((m) =>
+      m[1]
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .trim(),
+    );
+    const slideText = runs.filter(Boolean).join("\n");
+    if (slideText) slides.push(slideText);
+  }
+  // Slides are separated by a "---" marker: the Reflow reader renders slide
+  // breaks from these and treats the next line as the slide title (the first
+  // text line of a slide IS the title). Harmless to the AI prompt paths.
+  return slides.join("\n\n---\n\n").trim();
+}
 
 /**
  * Tools (spec §8 + round-2 QA §7) — server-side utilities so Android and the
@@ -486,7 +524,7 @@ export class ToolsService {
 
   async extractText(file: Express.Multer.File): Promise<{
     text: string;
-    source: "pdf" | "docx" | "text" | "ocr" | "none";
+    source: "pdf" | "docx" | "pptx" | "text" | "ocr" | "none";
   }> {
     if (!file?.buffer || !file.buffer.length) {
       throw new BadRequestException("Choose a file to read first.");
@@ -525,6 +563,24 @@ export class ToolsService {
       return { text: "", source: "none" };
     }
 
+    // PPTX → slide text. A .pptx is a zip of XML; slide text lives in
+    // <a:t> runs inside ppt/slides/slideN.xml (in numeric slide order).
+    // Uses fflate (already a dependency — no new package) and preserves
+    // slide breaks as blank lines so the reader keeps lecture structure.
+    if (
+      file.mimetype ===
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
+      name.endsWith(".pptx")
+    ) {
+      try {
+        const text = extractPptxText(file.buffer);
+        if (text) return { text: text.slice(0, 50_000), source: "pptx" };
+      } catch {
+        // fall through to "none"
+      }
+      return { text: "", source: "none" };
+    }
+
     // Plain text / markdown → read directly.
     if (
       file.mimetype.startsWith("text/") ||
@@ -546,7 +602,7 @@ export class ToolsService {
     }
 
     throw new BadRequestException(
-      "That file type isn't supported for reading — try a PDF, Word document, text file, or photo.",
+      "That file type isn't supported for reading — try a PDF, Word document, PowerPoint (.pptx), text file, or photo.",
     );
   }
 

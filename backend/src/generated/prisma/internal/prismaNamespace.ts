@@ -432,6 +432,8 @@ export const ModelName = {
   FocusModeSession: 'FocusModeSession',
   AchievementUnlock: 'AchievementUnlock',
   FocusModeUsage: 'FocusModeUsage',
+  DeepReadJob: 'DeepReadJob',
+  DeepReadPage: 'DeepReadPage',
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken'
 } as const
@@ -449,7 +451,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "achievementUnlock" | "focusModeUsage" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3043,6 +3045,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DeepReadJob: {
+      payload: Prisma.$DeepReadJobPayload<ExtArgs>
+      fields: Prisma.DeepReadJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DeepReadJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DeepReadJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        findFirst: {
+          args: Prisma.DeepReadJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DeepReadJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        findMany: {
+          args: Prisma.DeepReadJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>[]
+        }
+        create: {
+          args: Prisma.DeepReadJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        createMany: {
+          args: Prisma.DeepReadJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DeepReadJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>[]
+        }
+        delete: {
+          args: Prisma.DeepReadJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        update: {
+          args: Prisma.DeepReadJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.DeepReadJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DeepReadJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DeepReadJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.DeepReadJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadJobPayload>
+        }
+        aggregate: {
+          args: Prisma.DeepReadJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDeepReadJob>
+        }
+        groupBy: {
+          args: Prisma.DeepReadJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeepReadJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DeepReadJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeepReadJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    DeepReadPage: {
+      payload: Prisma.$DeepReadPagePayload<ExtArgs>
+      fields: Prisma.DeepReadPageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DeepReadPageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DeepReadPageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        findFirst: {
+          args: Prisma.DeepReadPageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DeepReadPageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        findMany: {
+          args: Prisma.DeepReadPageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>[]
+        }
+        create: {
+          args: Prisma.DeepReadPageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        createMany: {
+          args: Prisma.DeepReadPageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DeepReadPageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>[]
+        }
+        delete: {
+          args: Prisma.DeepReadPageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        update: {
+          args: Prisma.DeepReadPageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        deleteMany: {
+          args: Prisma.DeepReadPageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DeepReadPageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DeepReadPageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>[]
+        }
+        upsert: {
+          args: Prisma.DeepReadPageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DeepReadPagePayload>
+        }
+        aggregate: {
+          args: Prisma.DeepReadPageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDeepReadPage>
+        }
+        groupBy: {
+          args: Prisma.DeepReadPageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeepReadPageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DeepReadPageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeepReadPageCountAggregateOutputType> | number
+        }
+      }
+    }
     RefreshTokenFamily: {
       payload: Prisma.$RefreshTokenFamilyPayload<ExtArgs>
       fields: Prisma.RefreshTokenFamilyFieldRefs
@@ -3752,6 +3902,43 @@ export const FocusModeUsageScalarFieldEnum = {
 export type FocusModeUsageScalarFieldEnum = (typeof FocusModeUsageScalarFieldEnum)[keyof typeof FocusModeUsageScalarFieldEnum]
 
 
+export const DeepReadJobScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  pageCount: 'pageCount',
+  completedPages: 'completedPages',
+  failedPages: 'failedPages',
+  bestEngine: 'bestEngine',
+  title: 'title',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DeepReadJobScalarFieldEnum = (typeof DeepReadJobScalarFieldEnum)[keyof typeof DeepReadJobScalarFieldEnum]
+
+
+export const DeepReadPageScalarFieldEnum = {
+  id: 'id',
+  jobId: 'jobId',
+  pageNumber: 'pageNumber',
+  imageRef: 'imageRef',
+  status: 'status',
+  engine: 'engine',
+  confidence: 'confidence',
+  contentHash: 'contentHash',
+  text: 'text',
+  blocks: 'blocks',
+  edited: 'edited',
+  errorMessage: 'errorMessage',
+  latencyMs: 'latencyMs',
+  createdAt: 'createdAt',
+  completedAt: 'completedAt'
+} as const
+
+export type DeepReadPageScalarFieldEnum = (typeof DeepReadPageScalarFieldEnum)[keyof typeof DeepReadPageScalarFieldEnum]
+
+
 export const RefreshTokenFamilyScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -4300,6 +4487,8 @@ export type GlobalOmitConfig = {
   focusModeSession?: Prisma.FocusModeSessionOmit
   achievementUnlock?: Prisma.AchievementUnlockOmit
   focusModeUsage?: Prisma.FocusModeUsageOmit
+  deepReadJob?: Prisma.DeepReadJobOmit
+  deepReadPage?: Prisma.DeepReadPageOmit
   refreshTokenFamily?: Prisma.RefreshTokenFamilyOmit
   refreshToken?: Prisma.RefreshTokenOmit
 }
