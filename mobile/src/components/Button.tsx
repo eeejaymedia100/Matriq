@@ -30,7 +30,7 @@ interface ButtonProps {
  * Theme-aware button.
  * - primary → lime accent (Pop: ink sticker border + offset shadow that
  *   collapses on press; Glass: lime with soft glow) — the "look here" action.
- * - secondary → purple brand.
+ * - secondary → ink brand chrome.
  * - outline / ghost → quiet alternatives.
  */
 export function Button({
@@ -66,8 +66,8 @@ export function Button({
                 borderWidth: 2,
                 borderColor: colors.borderStrong,
                 boxShadow: pressed
-                  ? "1px 1px 0 #170B26"
-                  : "4px 4px 0 #170B26",
+                  ? "1px 1px 0 #17181A"
+                  : "4px 4px 0 #17181A",
               }
             : {
                 boxShadow:
@@ -104,7 +104,7 @@ export function Button({
 
   const labelColor =
     variant === "primary"
-      ? "#170B26"
+      ? "#17181A"
       : variant === "secondary"
         ? isGlass
           ? colors.textPrimary

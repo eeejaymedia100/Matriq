@@ -257,7 +257,7 @@ export function OcrScreen({
                     backgroundColor: colors.accent,
                   }}
                 >
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
                     From gallery
                   </Text>
                 </Pressable>
@@ -299,9 +299,9 @@ export function OcrScreen({
                   }}
                 >
                   {busy ? (
-                    <ActivityIndicator size="small" color="#170B26" />
+                    <ActivityIndicator size="small" color="#17181A" />
                   ) : (
-                    <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                    <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
                       Read the text
                     </Text>
                   )}
@@ -427,8 +427,8 @@ export function OcrScreen({
                         backgroundColor: colors.accent,
                       }}
                     >
-                      <Icon name="pen" size={14} color="#170B26" />
-                      <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                      <Icon name="pen" size={14} color="#17181A" />
+                      <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                         Save as note
                       </Text>
                     </Pressable>

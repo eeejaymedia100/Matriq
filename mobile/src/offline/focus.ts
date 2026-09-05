@@ -74,8 +74,8 @@ export const FOCUS_KINDS: FocusNodeKind[] = [
 /** Palette used by the workspace — readable on both the glass and pop themes. */
 export const KIND_META: Record<FocusNodeKind, { color: string; label: string }> = {
   topic: { color: "#C6FF3D", label: "Topic" },
-  definition: { color: "#8B5CF6", label: "Definition" },
-  type: { color: "#A78BFA", label: "Types" },
+  definition: { color: "#6FD9E8", label: "Definition" },
+  type: { color: "#4FC3DC", label: "Types" },
   component: { color: "#60A5FA", label: "Components" },
   process: { color: "#34D399", label: "Process" },
   example: { color: "#F472B6", label: "Example" },

@@ -136,7 +136,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                 borderColor: colors.borderStrong,
                 alignItems: "center",
                 ...(theme.mode === "pop"
-                  ? { boxShadow: "4px 4px 0 #170B26", transform: [{ rotate: "1.2deg" }] }
+                  ? { boxShadow: "4px 4px 0 #17181A", transform: [{ rotate: "1.2deg" }] }
                   : {}),
               }}
             >
@@ -171,7 +171,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                   backgroundColor: colors.accent,
                 }}
               >
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                   Coming soon
                 </Text>
               </View>
@@ -231,7 +231,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                         borderColor: colors.borderStrong,
                       }}
                     >
-                      <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                      <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
                         Pay dues
                       </Text>
                     </Pressable>

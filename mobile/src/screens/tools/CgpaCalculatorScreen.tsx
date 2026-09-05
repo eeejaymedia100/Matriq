@@ -176,7 +176,7 @@ export function CgpaCalculatorScreen() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Icon name="plus" size={20} color="#170B26" />
+                <Icon name="plus" size={20} color="#17181A" />
               </Pressable>
             </View>
           </View>
@@ -250,7 +250,7 @@ export function CgpaCalculatorScreen() {
                   backgroundColor: colors.accent,
                 }}
               >
-                <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 13, color: "#17181A" }}>
                   Save to history
                 </Text>
               </Pressable>
@@ -335,9 +335,9 @@ export function CgpaCalculatorScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "PlusJakartaSans_600SemiBold",
+                      fontFamily: "Inter_600SemiBold",
                       fontSize: 12,
-                      color: timeframe.label === t.label ? "#170B26" : colors.textPrimary,
+                      color: timeframe.label === t.label ? "#17181A" : colors.textPrimary,
                     }}
                   >
                     {t.label}
@@ -419,7 +419,7 @@ function inputStyle(colors: import("../../theme/themes").MatriqThemeColors, radi
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "PlusJakartaSans_400Regular",
+    fontFamily: "Inter_400Regular",
     fontSize: 15,
     paddingHorizontal: 12,
     paddingVertical: 11,

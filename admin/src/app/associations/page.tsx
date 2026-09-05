@@ -127,9 +127,9 @@ export default function AdminAssociationsPage() {
     return (
       <AdminLayout>
         <div className="space-y-3">
-          <div className="h-8 bg-gray-800 rounded w-48 animate-pulse" />
+          <div className="h-8 bg-surfaceAlt rounded w-48 animate-pulse" />
           {[1,2,3,4,5].map(i => (
-            <div key={i} className="h-12 bg-gray-800 rounded-lg animate-pulse" />
+            <div key={i} className="h-12 bg-surfaceAlt rounded-lg animate-pulse" />
           ))}
         </div>
       </AdminLayout>
@@ -139,10 +139,10 @@ export default function AdminAssociationsPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Associations</h1>
+        <h1 className="text-2xl font-bold text-text">Associations</h1>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+          className="px-4 py-2 bg-lime text-ink rounded-lg text-sm font-semibold hover:brightness-110 transition-colors"
         >
           {showForm ? "Cancel" : "New Association"}
         </button>
@@ -156,21 +156,21 @@ export default function AdminAssociationsPage() {
       )}
 
       {showForm && (
-        <form onSubmit={handleCreate} className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6 space-y-4">
+        <form onSubmit={handleCreate} className="bg-surface rounded-xl border border-line p-6 mb-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">Name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} required
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Short Code</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">Short Code</label>
               <input value={shortCode} onChange={(e) => setShortCode(e.target.value)} required
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Institution <span className="text-gray-500">(optional)</span>
+              <label className="block text-sm font-medium text-textSecondary mb-1">
+                Institution <span className="text-muted">(optional)</span>
               </label>
               <select
                 value={institutionId}
@@ -179,7 +179,7 @@ export default function AdminAssociationsPage() {
                   setFaculty("");
                   setDepartment("");
                 }}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
               >
                 <option value="">Any institution (platform-wide)</option>
                 {institutions.map((i) => (
@@ -190,8 +190,8 @@ export default function AdminAssociationsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Faculty <span className="text-gray-500">{institutionId ? "(from selected institution)" : "(free text)"}</span>
+              <label className="block text-sm font-medium text-textSecondary mb-1">
+                Faculty <span className="text-muted">{institutionId ? "(from selected institution)" : "(free text)"}</span>
               </label>
               {institutionId ? (
                 <select
@@ -201,7 +201,7 @@ export default function AdminAssociationsPage() {
                     setDepartment("");
                   }}
                   required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
                 >
                   <option value="">Select a faculty</option>
                   {selectedInstitution?.faculties.map((f) => (
@@ -210,18 +210,18 @@ export default function AdminAssociationsPage() {
                 </select>
               ) : (
                 <input value={faculty} onChange={(e) => setFaculty(e.target.value)} required
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Department <span className="text-gray-500">(optional — blank = faculty-wide)</span>
+              <label className="block text-sm font-medium text-textSecondary mb-1">
+                Department <span className="text-muted">(optional — blank = faculty-wide)</span>
               </label>
               {faculty && selectedFaculty ? (
                 <select
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
                 >
                   <option value="">Entire faculty</option>
                   {selectedFaculty.departments.map((d) => (
@@ -230,94 +230,94 @@ export default function AdminAssociationsPage() {
                 </select>
               ) : (
                 <input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Optional"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">WhatsApp</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">WhatsApp</label>
               <input value={whatsappNumber} onChange={(e) => setWhatsappNumber(e.target.value)} required
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
           </div>
 
-          <div className="border-t border-gray-800 pt-4">
-            <p className="text-sm font-medium text-gray-300 mb-1">
-              Association dashboard login <span className="text-gray-500">(optional)</span>
+          <div className="border-t border-line pt-4">
+            <p className="text-sm font-medium text-textSecondary mb-1">
+              Association dashboard login <span className="text-muted">(optional)</span>
             </p>
-            <p className="text-xs text-gray-500 mb-3">
+            <p className="text-xs text-muted mb-3">
               Set a custom email + password and the association can sign into its own dashboard. Leave blank to manage it via executive roles only.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Login email</label>
+                <label className="block text-sm font-medium text-textSecondary mb-1">Login email</label>
                 <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)}
                   placeholder="naas@matriq.app"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Password</label>
+                <label className="block text-sm font-medium text-textSecondary mb-1">Password</label>
                 <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="Min 8 characters"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                  className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
               </div>
             </div>
           </div>
 
           {institutionId && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted">
               Students registered at {selectedInstitution?.name} in {faculty || "…"}
               {department ? ` / ${department}` : ""} will be auto-added as members and notified that they can now pay dues.
             </p>
           )}
 
           <button type="submit" disabled={submitting}
-            className="px-6 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:bg-purple-800 transition-colors">
+            className="px-6 py-2 bg-lime text-ink rounded-lg text-sm font-semibold hover:brightness-110 disabled:opacity-40 transition-colors">
             {submitting ? "Creating..." : "Create Association"}
           </button>
         </form>
       )}
 
-      <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+      <div className="bg-surface rounded-xl border border-line overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Name</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Code</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Status</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Target</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Login</th>
-              <th className="text-right py-3 px-4 text-gray-400 font-medium">Actions</th>
+            <tr className="border-b border-line">
+              <th className="text-left py-3 px-4 text-muted font-medium">Name</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Code</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Status</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Target</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Login</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {associations.map((a) => {
               const inst = institutions.find((i) => i.id === a.institutionId);
               return (
-                <tr key={a.id} className="border-b border-gray-800/50">
-                  <td className="py-3 px-4 text-gray-200">{a.name}</td>
-                  <td className="py-3 px-4 text-gray-400">{a.shortCode}</td>
+                <tr key={a.id} className="border-b border-line/50">
+                  <td className="py-3 px-4 text-text">{a.name}</td>
+                  <td className="py-3 px-4 text-muted">{a.shortCode}</td>
                   <td className="py-3 px-4">
                     <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
                       a.status === "active" ? "bg-green-900/50 text-green-400" : "bg-red-900/50 text-red-400"
                     }`}>{a.status}</span>
                   </td>
-                  <td className="py-3 px-4 text-gray-400">
+                  <td className="py-3 px-4 text-muted">
                     {inst ? (
                       <span className="block text-xs">
-                        <span className="text-gray-300">{inst.name}</span>
-                        <span className="text-gray-500"> · {a.faculty}{a.department ? ` / ${a.department}` : ""}</span>
+                        <span className="text-textSecondary">{inst.name}</span>
+                        <span className="text-muted"> · {a.faculty}{a.department ? ` / ${a.department}` : ""}</span>
                       </span>
                     ) : (
-                      <span className="text-gray-500">{a.faculty}{a.department ? ` / ${a.department}` : ""}</span>
+                      <span className="text-muted">{a.faculty}{a.department ? ` / ${a.department}` : ""}</span>
                     )}
                   </td>
                   <td className="py-3 px-4">
                     {a.hasLogin ? (
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-purple-900/50 text-purple-300" title={a.loginEmail ?? undefined}>
+                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-limeSoft text-lime" title={a.loginEmail ?? undefined}>
                         Enabled
                       </span>
                     ) : (
-                      <span className="text-gray-600 text-xs">—</span>
+                      <span className="text-muted text-xs">—</span>
                     )}
                   </td>
                   <td className="py-3 px-4 text-right">

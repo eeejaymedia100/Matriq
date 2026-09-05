@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE, brand } from "../../theme/tokens";
+import { MatriqMark } from "../../components/MatriqMark";
 
 /**
  * The very first screen (spec §4) — before onboarding, before anything else.
@@ -28,9 +29,9 @@ export function ThemePickerScreen() {
       <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
         <Defs>
           <LinearGradient id="neutralBg" x1="0" y1="0" x2="1" y2="1">
-            <Stop offset="0%" stopColor="#2A1B42" />
-            <Stop offset="55%" stopColor="#1D1130" />
-            <Stop offset="100%" stopColor="#3B2A55" />
+            <Stop offset="0%" stopColor="#1C1C1E" />
+            <Stop offset="55%" stopColor="#0A0A0A" />
+            <Stop offset="100%" stopColor="#2A2A2C" />
           </LinearGradient>
         </Defs>
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#neutralBg)" />
@@ -38,20 +39,7 @@ export function ThemePickerScreen() {
 
       <View style={[styles.content, { paddingTop: insets.top + 60 }]}>
         <View style={styles.wordmark}>
-          <View
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 14,
-              backgroundColor: brand.purple500,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Text style={{ color: "#fff", fontSize: 22, fontFamily: "PlusJakartaSans_800ExtraBold" }}>
-              M
-            </Text>
-          </View>
+          <MatriqMark size={44} />
           <Text style={styles.name}>Matriq</Text>
         </View>
 
@@ -120,7 +108,7 @@ function GlassPreviewCard({ onChoose }: { onChoose: () => void }) {
       onPress={onChoose}
     >
       <Animated.View style={[styles.card, { transform: [{ scale: press }] }]}>
-        <View style={[styles.preview, { backgroundColor: brand.purple950 }]}>
+        <View style={[styles.preview, { backgroundColor: brand.void }]}>
           <Animated.View
             style={[
               {
@@ -183,7 +171,7 @@ function PopPreviewCard({ onChoose }: { onChoose: () => void }) {
               backgroundColor: brand.paper,
               borderWidth: 2,
               borderColor: brand.ink,
-              boxShadow: "4px 4px 0 #170B26",
+              boxShadow: "4px 4px 0 #17181A",
               transform: [{ rotate: "-1.5deg" }],
             },
           ]}
@@ -212,13 +200,13 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { flex: 1, paddingHorizontal: 28, paddingTop: 72 },
   wordmark: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 44 },
-  name: { color: "#F7F3FF", fontSize: 26, fontFamily: "PlusJakartaSans_800ExtraBold" },
+  name: { color: "#F5F4F1", fontSize: 26, fontFamily: "Inter_800ExtraBold" },
   heading: { marginBottom: 28 },
-  title: { color: "#F7F3FF", fontSize: 30, fontFamily: "PlusJakartaSans_700Bold" },
+  title: { color: "#F5F4F1", fontSize: 30, fontFamily: "Inter_700Bold" },
   subtitle: {
-    color: "#B9A8D8",
+    color: "#C8C6C1",
     fontSize: 15,
-    fontFamily: "PlusJakartaSans_400Regular",
+    fontFamily: "Inter_400Regular",
     lineHeight: 22,
     marginTop: 6,
     maxWidth: 300,
@@ -254,18 +242,18 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 2,
   },
-  cardTitle: { color: "#F7F3FF", fontSize: 19, fontFamily: "PlusJakartaSans_700Bold" },
-  cardSub: { color: "#A995C9", fontSize: 13, fontFamily: "PlusJakartaSans_400Regular", marginTop: 2 },
+  cardTitle: { color: "#F5F4F1", fontSize: 19, fontFamily: "Inter_700Bold" },
+  cardSub: { color: "#9B9995", fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
   cardCta: {
     color: brand.lime500,
     fontSize: 13,
-    fontFamily: "PlusJakartaSans_600SemiBold",
+    fontFamily: "Inter_600SemiBold",
   },
   tagline: {
     textAlign: "center",
-    color: "#8E7BAF",
+    color: "#8E8C88",
     fontSize: 13,
-    fontFamily: "PlusJakartaSans_500Medium",
+    fontFamily: "Inter_500Medium",
     paddingBottom: 48,
     letterSpacing: 1,
     textTransform: "uppercase",

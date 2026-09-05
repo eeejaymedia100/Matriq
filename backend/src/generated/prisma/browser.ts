@@ -217,3 +217,13 @@ export type RefreshTokenFamily = Prisma.RefreshTokenFamilyModel
  * 
  */
 export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model ActivityJournalEntry
+ * 
+ */
+export type ActivityJournalEntry = Prisma.ActivityJournalEntryModel
+/**
+ * Model MasteryCheckpointPass
+ * 
+ */
+export type MasteryCheckpointPass = Prisma.MasteryCheckpointPassModel

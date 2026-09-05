@@ -29,6 +29,7 @@ import { DeepReadModule } from "./deepread/deepread.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
 import { InstitutionsModule } from "./institutions/institutions.module";
 import { TimetableModule } from "./timetable/timetable.module";
+import { ActivityModule } from "./activity/activity.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
 
@@ -73,6 +74,7 @@ import { EmailModule } from "./email/email.module";
     NotificationsModule,
     BannersModule,
     AchievementsModule,
+    ActivityModule,
     DeepReadModule,
     WaitlistModule,
     InstitutionsModule,

@@ -2,46 +2,47 @@ import { Easing, type ViewStyle, type TextStyle } from "react-native";
 import { brand, motionTokens } from "./tokens";
 
 /**
- * The two Matriq themes — Glass (dark, frosted, fluid) and Pop (light, clay,
- * tactile). Every new screen styles exclusively from `useTheme()`; nothing
- * hard-codes a hex value (spec §2).
+ * The two Matriq themes — Glass (dark, frosted, fluid) and Pop (light, warm
+ * paper, tactile). Every new screen styles exclusively from `useTheme()`;
+ * nothing hard-codes a hex value. The brand is black + lime: dark surfaces
+ * are void blacks, light surfaces warm neutral paper, lime the only accent.
  */
 
 export type ThemeMode = "glass" | "pop";
 
 const FONT = {
-  400: "PlusJakartaSans_400Regular",
-  500: "PlusJakartaSans_500Medium",
-  600: "PlusJakartaSans_600SemiBold",
-  700: "PlusJakartaSans_700Bold",
-  800: "PlusJakartaSans_800ExtraBold",
+  400: "Inter_400Regular",
+  500: "Inter_500Medium",
+  600: "Inter_600SemiBold",
+  700: "Inter_700Bold",
+  800: "Inter_800ExtraBold",
 } as const;
 
 /**
- * Fraunces — the serif voice (round-4 locked). Display moments only: display /
- * h1 / h2 and big numerals (streak count, CGPA result, focus-timer readout).
+ * Playfair Display — the serif voice. Display moments only: display / h1 /
+ * h2 and big numerals (streak count, CGPA result, focus-timer readout).
  * Exactly one serif moment per screen; everything beneath it stays sans and
  * quiet. Never body, buttons, labels or anything below ~18pt-sized text.
  */
 export const SERIF = {
-  400: "Fraunces_400Regular",
-  500: "Fraunces_500Medium",
-  600: "Fraunces_600SemiBold",
-  700: "Fraunces_700Bold",
+  400: "PlayfairDisplay_400Regular",
+  500: "PlayfairDisplay_500Medium",
+  600: "PlayfairDisplay_600SemiBold",
+  700: "PlayfairDisplay_700Bold",
 } as const;
 
 export interface MatriqThemeColors {
   /** Screen background. */
   bg: string;
-  /** Deeper background shade (behind ambient blobs). */
+  /** Deeper background shade (behind ambient glows). */
   bgDeep: string;
-  /** Card surface. Glass: translucent; Pop: clay white. */
+  /** Card surface. Glass: translucent; Pop: warm paper. */
   surface: string;
   /** Elevated/sunken surface. */
   surfaceAlt: string;
   /** Hairline borders. */
   border: string;
-  /** Strong/ink borders (Pop brutalist). */
+  /** Strong/ink borders (Pop tactile). */
   borderStrong: string;
   textPrimary: string;
   textSecondary: string;
@@ -49,7 +50,9 @@ export interface MatriqThemeColors {
   /** Lime accent — "this is alive, look here". */
   accent: string;
   accentBright: string;
-  /** Purple brand accent. */
+  /** Color for text/icons sitting on the lime accent. */
+  onAccent: string;
+  /** Secondary brand hue (chrome, chips, selection). */
   brand: string;
   brandDeep: string;
   error: string;
@@ -68,7 +71,7 @@ export interface MatriqTheme {
   mode: ThemeMode;
   colors: MatriqThemeColors;
   typography: Record<string, TextStyle>;
-  /** Fraunces serif moments — one per screen, display contexts only. */
+  /** Playfair serif moments — one per screen, display contexts only. */
   serif: {
     editorial: TextStyle;
     numeral: TextStyle;
@@ -82,7 +85,7 @@ export interface MatriqTheme {
     durationSlow: number;
     easing: (value: number) => number;
   };
-  /** Shadows are theme-specific: Glass = soft float, Pop = clay dual / brutalist sticker. */
+  /** Shadows are theme-specific: Glass = soft float, Pop = tactile offset. */
   shadows: {
     card: ViewStyle;
     cardPressed: ViewStyle;
@@ -144,27 +147,30 @@ export const serifTypography = {
 export const glassTheme: MatriqTheme = {
   mode: "glass",
   colors: {
-    bg: brand.purple950,
-    bgDeep: "#0C0316",
-    // Frosted glass, but readable: the surface is a translucent deep-purple
-    // pane (≈92% opaque) rather than a faint white wash. At 6% white, cards,
+    bg: brand.void,
+    bgDeep: brand.voidDeep,
+    // Frosted glass, but readable: the surface is a translucent near-black
+    // pane (≈93% opaque) rather than a faint white wash. At 6% white, cards,
     // menus, the chat composer and the tab bar let the content beneath them
     // bleed straight through (round-3 QA: dark-mode layering). The residual
-    // translucency still lets the ambient blobs glow faintly through, keeping
+    // translucency still lets the ambient glow drift faintly through, keeping
     // the glass feel — without text ghosting behind foreground components.
-    surface: "rgba(38,20,64,0.92)",
+    surface: "rgba(22,22,24,0.93)",
     // Lighter chips/inputs sitting ON TOP of a surface — white highlight over
     // the now-opaque pane reads as frosted glass, not as bleed-through.
-    surfaceAlt: "rgba(255,255,255,0.09)",
-    border: "rgba(255,255,255,0.16)",
-    borderStrong: "rgba(255,255,255,0.34)",
-    textPrimary: "#F7F3FF",
-    textSecondary: "#C9BCE6",
-    textMuted: "#8F80B5",
+    surfaceAlt: "rgba(255,255,255,0.08)",
+    border: "rgba(255,255,255,0.14)",
+    borderStrong: "rgba(255,255,255,0.32)",
+    textPrimary: "#F5F4F1",
+    textSecondary: "#C8C6C1",
+    textMuted: "#8E8C88",
     accent: brand.lime500,
     accentBright: brand.lime400,
-    brand: brand.purple500,
-    brandDeep: brand.purple600,
+    onAccent: brand.onAccent,
+    // Secondary hue on dark: pure white chrome (was purple). Chips, selection
+    // states and "brand" moments are now monochrome + lime only.
+    brand: "#F5F4F1",
+    brandDeep: "#B9B7B2",
     error: "#FF7A7A",
     errorBg: "rgba(255,122,122,0.12)",
     success: "#8EF0AC",
@@ -173,8 +179,8 @@ export const glassTheme: MatriqTheme = {
     warningBg: "rgba(255,209,102,0.14)",
     info: "#8FBCFF",
     infoBg: "rgba(143,188,255,0.12)",
-    overlay: "rgba(10,4,20,0.72)",
-    tabBarBg: "rgba(20,6,31,0.95)",
+    overlay: "rgba(0,0,0,0.74)",
+    tabBarBg: "rgba(10,10,10,0.94)",
   },
   typography: typographyBase,
   serif: serifTypography,
@@ -194,28 +200,28 @@ export const glassTheme: MatriqTheme = {
   shadows: {
     card: {
       shadowColor: "#000000",
-      shadowOpacity: 0.3,
+      shadowOpacity: 0.4,
       shadowRadius: 24,
       shadowOffset: { width: 0, height: 12 },
       elevation: 8,
     },
     cardPressed: {
       shadowColor: "#000000",
-      shadowOpacity: 0.2,
+      shadowOpacity: 0.25,
       shadowRadius: 14,
       shadowOffset: { width: 0, height: 6 },
       elevation: 4,
     },
     sticker: {
       shadowColor: "#000000",
-      shadowOpacity: 0.35,
+      shadowOpacity: 0.45,
       shadowRadius: 0,
       shadowOffset: { width: 4, height: 4 },
       elevation: 6,
     },
     stickerPressed: {
       shadowColor: "#000000",
-      shadowOpacity: 0.2,
+      shadowOpacity: 0.25,
       shadowRadius: 0,
       shadowOffset: { width: 1, height: 1 },
       elevation: 2,
@@ -227,20 +233,22 @@ export const popTheme: MatriqTheme = {
   mode: "pop",
   colors: {
     bg: brand.paper,
-    bgDeep: "#EFE8F9",
-    // Round-2 QA §10: more colour, less white — surfaces are tinted clay,
-    // not plain white-with-a-shadow.
-    surface: "#FCF7FF",
-    surfaceAlt: "#EFE4F9",
-    border: "#E0D4EF",
+    bgDeep: brand.paperDeep,
+    // Warm paper surfaces, tinted only by ink at low alpha — zero purple.
+    surface: "#FFFFFF",
+    surfaceAlt: "#F0EEE9",
+    border: "#E3E1DC",
     borderStrong: brand.ink,
     textPrimary: brand.ink,
-    textSecondary: "#5A4D73",
-    textMuted: "#8F83A8",
+    textSecondary: "#56585A",
+    textMuted: "#8C8E90",
     accent: brand.lime500,
     accentBright: "#D9F97D",
-    brand: brand.purple600,
-    brandDeep: "#3E1D6E",
+    onAccent: brand.onAccent,
+    // Secondary hue on light: ink (was purple). Sticker borders, chips and
+    // secondary buttons are ink — monochrome + lime only.
+    brand: brand.ink,
+    brandDeep: "#000000",
     error: "#D13438",
     errorBg: "#FDEBEC",
     success: "#1F7A33",
@@ -249,8 +257,8 @@ export const popTheme: MatriqTheme = {
     warningBg: "#FDF3E3",
     info: "#2563EB",
     infoBg: "#E8F0FE",
-    overlay: "rgba(23,11,38,0.45)",
-    tabBarBg: "rgba(250,245,253,0.97)",
+    overlay: "rgba(23,24,26,0.45)",
+    tabBarBg: "rgba(250,249,246,0.97)",
   },
   typography: typographyBase,
   serif: serifTypography,
@@ -268,23 +276,23 @@ export const popTheme: MatriqTheme = {
     ),
   },
   shadows: {
-    // Clay: gentle dual shadow — looks faintly raised, pressable with a thumb.
+    // Tactile: gentle dual shadow — looks faintly raised, pressable with a thumb.
     card: {
-      boxShadow: "0 1px 2px rgba(23,11,38,0.05), 0 10px 24px rgba(23,11,38,0.08)",
+      boxShadow: "0 1px 2px rgba(23,24,26,0.05), 0 10px 24px rgba(23,24,26,0.08)",
     },
     cardPressed: {
-      boxShadow: "0 1px 2px rgba(23,11,38,0.04), 0 4px 10px rgba(23,11,38,0.06)",
+      boxShadow: "0 1px 2px rgba(23,24,26,0.04), 0 4px 10px rgba(23,24,26,0.06)",
     },
     // Sticker: thick ink border + hard offset shadow, no blur.
     sticker: {
       borderWidth: 2,
       borderColor: brand.ink,
-      boxShadow: "5px 5px 0 #170B26",
+      boxShadow: "5px 5px 0 #17181A",
     },
     stickerPressed: {
       borderWidth: 2,
       borderColor: brand.ink,
-      boxShadow: "1px 1px 0 #170B26",
+      boxShadow: "1px 1px 0 #17181A",
     },
   },
 };

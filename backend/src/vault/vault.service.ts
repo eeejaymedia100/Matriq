@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { zipSync } from "fflate";
 import pdfParse from "pdf-parse";
+import * as crypto from "node:crypto";
 import {
   IsInt,
   IsNotEmpty,
@@ -360,6 +361,12 @@ export class VaultService {
         originalName: originalname.slice(0, 200),
         mimeType,
         sizeBytes: file.size ?? file.buffer.length,
+        // SHA-256 of the original bytes — the upload-dedupe key behind the
+        // achievements upload badges (a farmed duplicate counts once).
+        contentHash: crypto
+          .createHash("sha256")
+          .update(file.buffer)
+          .digest("hex"),
         companionSizeBytes: companion?.buffer.length ?? null,
         companionMimeType: companion?.mimeType ?? null,
         moderationStatus: visibility === "public" ? "pending" : "approved",

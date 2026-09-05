@@ -10,20 +10,20 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const { admin, logout } = useSession();
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: "⚡" },
-    { href: "/associations", label: "Associations", icon: "🏛️" },
-    { href: "/institutions", label: "Institutions", icon: "🏫" },
-    { href: "/payments", label: "Payments", icon: "💳" },
-    { href: "/verification", label: "Verification", icon: "🪪" },
-    { href: "/ai-moderation", label: "AI Moderation", icon: "🤖" },
-    { href: "/vault-moderation", label: "Vault", icon: "📚" },
-    { href: "/users", label: "Users", icon: "👥" },
-    { href: "/admins", label: "Admins", icon: "🔐" },
-    { href: "/security", label: "Security", icon: "🛡️" },
-    { href: "/banners", label: "Banners", icon: "📣" },
-    { href: "/waitlist", label: "Waitlist", icon: "✉️" },
-    { href: "/analytics", label: "Analytics", icon: "📈" },
-    { href: "/audit-logs", label: "Audit Logs", icon: "📋" },
+    { href: "/dashboard", label: "Overview" },
+    { href: "/associations", label: "Associations" },
+    { href: "/institutions", label: "Institutions" },
+    { href: "/payments", label: "Payments" },
+    { href: "/verification", label: "Verification" },
+    { href: "/ai-moderation", label: "AI Moderation" },
+    { href: "/vault-moderation", label: "Vault" },
+    { href: "/users", label: "Users" },
+    { href: "/admins", label: "Admins" },
+    { href: "/security", label: "Security" },
+    { href: "/banners", label: "Banners" },
+    { href: "/waitlist", label: "Waitlist" },
+    { href: "/analytics", label: "Analytics" },
+    { href: "/audit-logs", label: "Audit Logs" },
   ];
 
   const handleLogout = () => {
@@ -31,26 +31,32 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+    <div className="min-h-screen bg-void">
+      <nav className="bg-surface/95 backdrop-blur border-b border-line sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center gap-8">
-              <Link href="/dashboard" className="text-xl font-bold text-white">
-                Matriq <span className="text-gray-400 text-sm font-normal">Admin</span>
+            <div className="flex items-center gap-6">
+              <Link href="/dashboard" className="flex items-center gap-2.5">
+                {/* Brand mark — the official uploaded logo */}
+                <img src="/matriq-mark.png" alt="" className="w-7 h-7" aria-hidden />
+                <span className="text-lg font-serif font-semibold text-text">
+                  Matriq{" "}
+                  <span className="text-muted text-sm font-sans font-normal">
+                    Admin
+                  </span>
+                </span>
               </Link>
-              <div className="hidden sm:flex gap-1">
+              <div className="hidden xl:flex gap-0.5">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                       pathname.startsWith(item.href)
-                        ? "bg-gray-700 text-white"
-                        : "text-gray-400 hover:bg-gray-800 hover:text-gray-200"
+                        ? "bg-surfaceAlt text-lime"
+                        : "text-muted hover:text-text hover:bg-surfaceAlt"
                     }`}
                   >
-                    <span className="mr-1.5">{item.icon}</span>
                     {item.label}
                   </Link>
                 ))}
@@ -58,15 +64,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-4">
               {admin && (
-                <span className="hidden md:block text-sm text-gray-400">
+                <span className="hidden md:block text-sm text-muted">
                   {admin.email}
                 </span>
               )}
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-400 hover:text-gray-200 transition-colors"
+                className="text-sm text-muted hover:text-text transition"
               >
-                Logout
+                Sign out
               </button>
             </div>
           </div>

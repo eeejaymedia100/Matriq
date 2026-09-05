@@ -389,11 +389,11 @@ export function VoiceModeScreen() {
                 style={[
                   theme.typography.caption,
                   {
-                    color: e.role === "user" ? "#170B26" : colors.textSecondary,
+                    color: e.role === "user" ? "#17181A" : colors.textSecondary,
                     lineHeight: 20,
                     fontFamily:
                       e.role === "user"
-                        ? "PlusJakartaSans_600SemiBold"
+                        ? "Inter_600SemiBold"
                         : theme.typography.caption.fontFamily,
                   },
                 ]}
@@ -549,7 +549,7 @@ export function VoiceModeScreen() {
             ) : phase === "listening" ? (
               <Icon name="x" size={30} color="#FFFFFF" strokeWidth={2.4} />
             ) : (
-              <Icon name="mic" size={38} color="#170B26" strokeWidth={1.8} />
+              <Icon name="mic" size={38} color="#17181A" strokeWidth={1.8} />
             )}
           </Pressable>
         </View>

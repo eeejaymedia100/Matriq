@@ -3,391 +3,342 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- Primary metadata -->
-  <title>Matriq — Students, this is the smart way to get through semester</title>
-  <meta name="description" content="Matriq is the student app for past questions, offline AI and study tools built for Nigerian campuses — searchable past questions by course code, an offline AI that works with zero data, and a CGPA calculator for the Nigerian grading scale. Join the waitlist for early access." />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  <meta name="theme-color" content="#0d0620" />
-
-  <!-- Canonical -->
+  <title>Matriq — The smart way through semester</title>
+  <meta name="description" content="Every past question your department has ever uploaded. An AI that answers with no data. Join the students already in line." />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" type="image/png" href="/app-icon.png" />
+  <link rel="apple-touch-icon" href="/app-icon.png" />
   <link rel="canonical" href="https://matriq.com.ng/" />
-
-  <!-- Icons -->
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-  <!-- Open Graph (WhatsApp, Facebook, LinkedIn, Telegram) -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Matriq" />
   <meta property="og:url" content="https://matriq.com.ng/" />
-  <meta property="og:title" content="Matriq — Students, this is the smart way to get through semester" />
-  <meta property="og:description" content="Past questions, offline AI and study tools built for how Nigerian students actually study. Works on bad data. Join the waitlist for early access." />
+  <meta property="og:title" content="Matriq — The smart way through semester" />
+  <meta property="og:description" content="Every past question your department has ever uploaded. An AI that answers with no data. Join the students already in line." />
   <meta property="og:image" content="https://matriq.com.ng/assets/og-image.png" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Matriq — The Smart Way to Get Through Semester" />
-  <meta property="og:locale" content="en_NG" />
-
-  <!-- Twitter / X -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Matriq — Students, this is the smart way to get through semester" />
-  <meta name="twitter:description" content="Past questions, offline AI and study tools for how Nigerian students actually study. Works on bad data. Join the waitlist." />
-  <meta name="twitter:image" content="https://matriq.com.ng/assets/og-image.png" />
-  <meta name="twitter:image:alt" content="Matriq — The Smart Way to Get Through Semester" />
-
-  <!-- Fonts -->
+  <meta name="theme-color" content="#0a0a0a" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="styles.css" />
-
-  <!-- Structured data: Organization + WebSite + SoftwareApplication.
-       Deliberately NOT LocalBusiness — Matriq is not a local business. -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://matriq.com.ng/#organization",
-        "name": "Matriq",
-        "url": "https://matriq.com.ng/",
-        "logo": "https://matriq.com.ng/favicon.svg",
-        "description": "Matriq is a study app for Nigerian university students — past questions, offline AI and daily study tools, built for how Nigerian students actually study.",
-        "sameAs": [
-          "https://t.me/+Bk-Wbby2_Cc3Njk0"
-        ]
-      },
-      {
-        "@type": "WebSite",
-        "@id": "https://matriq.com.ng/#website",
-        "url": "https://matriq.com.ng/",
-        "name": "Matriq — The Smart Way to Get Through Semester",
-        "inLanguage": "en",
-        "publisher": { "@id": "https://matriq.com.ng/#organization" }
-      },
-      {
-        "@type": "SoftwareApplication",
-        "@id": "https://matriq.com.ng/#software",
-        "name": "Matriq",
-        "applicationCategory": "EducationApplication",
-        "operatingSystem": "Android",
-        "description": "Matriq is the app for Nigerian students — searchable past questions by course code, an offline AI that answers with zero data, and study tools like a Nigerian-scale CGPA calculator and OCR.",
-        "url": "https://matriq.com.ng/",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "NGN"
-        },
-        "publisher": { "@id": "https://matriq.com.ng/#organization" }
-      }
-    ]
+    "@type": "SoftwareApplication",
+    "name": "Matriq",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Android",
+    "description": "Past questions, offline AI and study tools for Nigerian university students. Works on bad data.",
+    "offers": { "@type": "Offer", "price": "0" }
   }
   </script>
 </head>
 <body>
-  <script>document.documentElement.classList.add("js");</script>
+  <div id="scroll-progress" aria-hidden="true"></div>
 
-  <a class="skip-link" href="#main">Skip to content</a>
-
-  <!-- 3D scene (lantern + fireflies), rendered behind everything -->
-  <canvas id="scene-canvas" aria-hidden="true"></canvas>
-
-  <!-- Ambient CSS fallback (also layered under the 3D scene) -->
-  <div class="bg" aria-hidden="true">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-    <div class="grid-overlay"></div>
-  </div>
-
-  <!-- Scroll progress -->
-  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
-
-  <!-- Cursor glow (desktop only) -->
-  <div class="cursor-glow" id="cursor-glow" aria-hidden="true"></div>
-
-  <!-- Nav -->
-  <header class="nav" id="nav">
+  <nav class="nav" id="nav" aria-label="Main">
     <div class="nav-inner">
-      <a href="#join" class="logo" aria-label="Matriq — home">
-        <span class="logo-mark" aria-hidden="true">M</span>
-        <span class="logo-text">Matriq</span>
+      <a class="nav-brand" href="/">
+        <img src="/app-icon.png" alt="Matriq" width="28" height="28" />
+        Matriq
       </a>
-      <nav class="nav-links" aria-label="Primary">
-        <a href="#problem" data-scrollspy="problem">Why Matriq</a>
-        <a href="#features" data-scrollspy="features">Features</a>
+      <div class="nav-links">
+        <a href="#why" data-scrollspy="why">Why Matriq</a>
         <a href="#how" data-scrollspy="how">How it works</a>
-      </nav>
-      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener" class="nav-cta">Join the waitlist</a>
-
-      <details class="mobile-menu">
-        <!-- <details>/<summary> exposes the expanded state to assistive tech natively. -->
-        <summary aria-label="Open menu">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </summary>
-        <div class="mobile-menu-panel">
-          <a href="#problem">Why Matriq</a>
-          <a href="#features">Features</a>
-          <a href="#how">How it works</a>
-          <a href="#join" class="mobile-menu-cta">Join the waitlist</a>
-        </div>
-      </details>
+        <a href="#questions" data-scrollspy="questions">Questions</a>
+        <a href="/download.html" class="btn">Get the app</a>
+      </div>
     </div>
+  </nav>
+
+  <!-- ═══ Hero — The Stack ═══ -->
+  <header class="hero" id="top">
+    <div id="scene" aria-hidden="true"></div>
+
+    <div class="wrap hero-inner">
+      <p class="eyebrow">For Nigerian university students</p>
+      <h1>Your department's memory, in your pocket.</h1>
+      <p class="lede">
+        Every past question your seniors ever uploaded. An AI study partner
+        that answers with <strong>zero data</strong>. The tools lecturers
+        assume you already have. One app, built for the network you actually
+        have.
+      </p>
+      <div class="hero-actions">
+        <a href="#join" class="btn btn-lg">Join the waitlist</a>
+        <a href="/download.html" class="btn btn-lg btn-ghost">Get the Android app</a>
+      </div>
+      <p class="hero-meta">
+        <span id="count">—</span> students in line · first 500 get Magic Plus free for a semester
+      </p>
+    </div>
+
+    <p class="drag-hint" id="drag-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>
+      Drag to spin · it's your department's archive
+    </p>
   </header>
 
-  <main id="main">
-    <!-- Hero -->
-    <section class="hero" id="join" aria-labelledby="hero-title">
-      <div class="hero-inner">
-        <div class="badge fade-up"><span class="dot" aria-hidden="true"></span> Early access — opening soon</div>
-        <h1 id="hero-title" class="fade-up delay-1">
-          The Smart Way to<br />
-          <span class="lead-line">Get Through Semester.</span>
-        </h1>
-        <p class="hero-sub fade-up delay-2">
-          Past questions, offline AI, and the tools you actually reach for
-          daily — one app, built for how Nigerian students actually study.
+  <main>
+    <!-- ═══ Why — three features, icons not emojis ═══ -->
+    <section class="section" id="why">
+      <div class="wrap">
+        <p class="eyebrow reveal">Why Matriq</p>
+        <h2 class="reveal" style="margin-bottom: 18px; max-width: 22ch;">
+          Built for the campus, not the cloud.
+        </h2>
+        <p class="lede reveal" style="margin-bottom: 48px;">
+          Most study apps assume you're on Wi-Fi with a new phone and unlimited
+          data. Matriq assumes lecture halls, prepaid data, and a phone you
+          hold onto for years.
         </p>
 
-        <!-- Waitlist card: primary = Telegram, email capture secondary -->
-        <div class="join-card fade-up delay-3" id="join-card">
-          <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener" id="join-btn">
-            <span class="btn-label">Join the waitlist</span>
-          </a>
-          <p class="telegram-note">
-            Takes you to our
-            <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Telegram</a>,
-            where we're building this with the people actually using it.
+        <div class="grid-3">
+          <article class="card feature reveal" data-tilt>
+            <div class="icon-well">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h3>The Vault</h3>
+            <p>
+              Every past question, handout and summary your department has
+              uploaded — organised by course, searchable in seconds. The exam
+              pool your seniors built, finally open to everyone.
+            </p>
+          </article>
+
+          <article class="card feature reveal" data-tilt>
+            <div class="icon-well">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <h3>AI with no data</h3>
+            <p>
+              A study companion that runs on your phone, not a server. Ask it
+              to explain a concept in the dark at 2am — it answers with no
+              network, no data cost, and no waiting.
+            </p>
+          </article>
+
+          <article class="card feature reveal" data-tilt>
+            <div class="icon-well">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Tools that carry you</h3>
+            <p>
+              Scan handwritten notes into text. Turn photos into one PDF.
+              Track deadlines. Know your CGPA on the NUC scale before results
+              drop. Small things, done properly.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ How it works ═══ -->
+    <section class="section" id="how">
+      <div class="wrap split">
+        <div class="sticky">
+          <p class="eyebrow reveal">How it works</p>
+          <h2 class="reveal">Four steps. One semester. Changed.</h2>
+          <p class="lede reveal" style="margin-top: 16px;">
+            Matriq isn't another app you forget. It's the one your coursemates
+            ask you to share.
           </p>
+        </div>
+        <div class="steps-list">
+          <div class="step reveal">
+            <div>
+              <h3>Join the waitlist</h3>
+              <p>One email. We'll tell you the day your department's Vault opens.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div>
+              <h3>Set up in minutes</h3>
+              <p>Pick your school and department. Download the offline AI if you want it — one file, then it never needs the internet again.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div>
+              <h3>Study with what exists</h3>
+              <p>Read real past questions from your department. Ask the AI about anything you don't understand — it teaches with your own materials.</p>
+            </div>
+          </div>
+          <div class="step reveal">
+            <div>
+              <h3>Give back one file</h3>
+              <p>Upload one past question the Vault doesn't have. That's the whole price. The archive stays alive because everyone adds one.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Join — the form ═══ -->
+    <section class="section" id="join">
+      <div class="wrap split">
+        <div class="sticky">
+          <p class="eyebrow reveal">Early access</p>
+          <h2 class="reveal">Be first through the door.</h2>
+          <p class="lede reveal" style="margin-top: 16px;">
+            We're rolling out department by department so the Vault is full
+            before you arrive. Tell us where to reach you — and if you run
+            your association, tell us that too. We build for executives
+            second, but we build for them properly.
+          </p>
+          <p class="form-note reveal">
+            No spam. One email when it's your turn, one when it launches.
+            That's it.
+          </p>
+        </div>
+
+        <div class="card reveal" data-tilt>
           <form id="waitlist-form" novalidate>
-            <!-- Honeypot (bots fill this; it stays hidden) -->
-            <input type="text" name="website" id="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-            <div class="join-fields">
-              <div class="field">
-                <label for="fullName" class="visually-hidden">Your name (optional)</label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  placeholder="Your name (optional)"
-                  autocomplete="name"
-                  maxlength="120"
-                  aria-label="Your name (optional)"
-                />
-              </div>
-              <div class="field">
-                <label for="email" class="visually-hidden">Email address</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  placeholder="Your email address"
-                  autocomplete="email"
-                  required
-                  aria-label="Email address"
-                  aria-describedby="form-msg"
-                />
+            <div class="field">
+              <label for="email">Your email</label>
+              <input type="email" id="email" name="email" placeholder="you@school.edu.ng" autocomplete="email" required />
+            </div>
+
+            <div class="field">
+              <label for="fullName">Your name <span class="muted">(optional)</span></label>
+              <input type="text" id="fullName" name="fullName" placeholder="Chiamaka O." maxlength="120" autocomplete="name" />
+            </div>
+
+            <div class="field">
+              <label for="painPoint">What eats your data (and your time) most? <span class="muted">(optional)</span></label>
+              <select id="painPoint" name="painPoint">
+                <option value="">Pick one — or skip</option>
+                <option value="Finding past questions is pure luck">Finding past questions is pure luck</option>
+                <option value="Data is too expensive to study online">Data is too expensive to study online</option>
+                <option value="No one explains hard topics at 2am">No one explains hard topics at 2am</option>
+                <option value="Association info reaches me late">Association info reaches me late</option>
+                <option value="Dues payments and receipts are chaos">Dues payments and receipts are chaos</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Do you hold an executive position in your association?</label>
+              <div class="radio-row" id="exec-toggle">
+                <label class="radio-option">
+                  <input type="radio" name="isExec" value="yes" />
+                  Yes, I do
+                </label>
+                <label class="radio-option">
+                  <input type="radio" name="isExec" value="no" />
+                  Not yet
+                </label>
               </div>
             </div>
 
-            <!-- Growth survey (optional) -->
-            <div class="survey">
-              <span class="survey-label">Help us build the right thing <em>(optional)</em></span>
-
-              <label for="painPoint" class="visually-hidden">Most annoying part of studying</label>
-              <textarea
-                id="painPoint"
-                name="painPoint"
-                placeholder="What's the single most annoying part of studying right now?"
-                maxlength="500"
-                aria-label="What's the single most annoying part of studying right now?"
-              ></textarea>
-
-              <fieldset class="exec-fieldset">
-                <legend class="survey-label">Do you hold a position in a class, department, or faculty association?</legend>
-                <div class="radio-group" id="exec-toggle">
-                  <label class="radio-option">
-                    <input type="radio" name="isExec" value="no" />
-                    <span>No</span>
-                  </label>
-                  <label class="radio-option">
-                    <input type="radio" name="isExec" value="yes" />
-                    <span>Yes, I hold a position</span>
-                  </label>
+            <div id="exec-followup">
+              <div class="field-row">
+                <div class="field">
+                  <label for="execLevel">Position level</label>
+                  <select id="execLevel">
+                    <option value="">Select…</option>
+                    <option value="President / Vice">President / Vice</option>
+                    <option value="General Secretary">General Secretary</option>
+                    <option value="Financial Secretary / Treasurer">Financial Secretary / Treasurer</option>
+                    <option value="PRO / Publicity">PRO / Publicity</option>
+                    <option value="Other executive">Other executive</option>
+                  </select>
                 </div>
-              </fieldset>
-
-              <div class="exec-followup" id="exec-followup">
-                <div class="exec-grid">
-                  <div class="field">
-                    <label for="execLevel" class="visually-hidden">Level</label>
-                    <input type="text" id="execLevel" name="execLevel" placeholder="Level (e.g. 300)" maxlength="40" autocomplete="off" />
-                  </div>
-                  <div class="field">
-                    <label for="execDepartment" class="visually-hidden">Department</label>
-                    <input type="text" id="execDepartment" name="execDepartment" placeholder="Department" maxlength="120" autocomplete="off" />
-                  </div>
-                  <div class="field full">
-                    <label for="execFaculty" class="visually-hidden">Faculty</label>
-                    <input type="text" id="execFaculty" name="execFaculty" placeholder="Faculty" maxlength="120" autocomplete="off" />
-                  </div>
+                <div class="field">
+                  <label for="execDepartment">Department</label>
+                  <input type="text" id="execDepartment" placeholder="e.g. Political Science" maxlength="120" />
                 </div>
+              </div>
+              <div class="field">
+                <label for="execFaculty">Faculty</label>
+                <input type="text" id="execFaculty" placeholder="e.g. Social Sciences" maxlength="120" />
               </div>
             </div>
 
-            <button type="submit" id="email-btn" class="secondary-cta">
-              <span class="btn-label">Email me at launch instead</span>
-              <span class="btn-spinner" aria-hidden="true"></span>
+            <!-- Honeypot — invisible to humans -->
+            <div class="hp" aria-hidden="true">
+              <label for="website">Website</label>
+              <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <button type="submit" id="email-btn" class="btn btn-lg" style="width: 100%;">
+              <span class="btn-label">Email me at launch</span>
             </button>
             <p class="form-msg" id="form-msg" role="status" aria-live="polite"></p>
           </form>
-
-          <p class="join-note">
-            <span id="count">0</span> students already on the list ·
-            no spam — just the launch email
-          </p>
-        </div>
-
-        <div class="hero-points fade-up delay-4">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/><path d="M9 21v-3h6v3"/></svg> Built for Nigerian campuses</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a12 12 0 0 1 20 0"/><path d="M5.5 12.5a7.5 7.5 0 0 1 13 0"/><path d="M9 16a3.5 3.5 0 0 1 6 0"/><circle cx="12" cy="19" r="1" fill="currentColor" stroke="none"/></svg> Works on bad data</span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="13" rx="2"/><path d="M10 4h4"/><path d="M12 12v3"/></svg> Offline AI, zero data cost</span>
-        </div>
-      </div>
-
-      <a href="#problem" class="scroll-cue" aria-label="Scroll to learn more">
-        <span class="scroll-cue-mouse" aria-hidden="true"></span>
-      </a>
-    </section>
-
-    <!-- The problem -->
-    <section class="problem" id="problem" aria-labelledby="problem-title">
-      <p class="eyebrow reveal">Why Matriq</p>
-      <h2 id="problem-title" class="section-title reveal">The old way is exhausting</h2>
-      <p class="section-sub reveal">If any of these sound familiar, you're in the right place.</p>
-      <div class="pain-list">
-        <article class="pain-item reveal">
-          <strong>Past questions scattered</strong> across a dozen forgotten WhatsApp chats.
-        </article>
-        <article class="pain-item reveal">
-          <strong>Data too expensive</strong> to burn re-downloading a 200MB PDF for the third time.
-        </article>
-        <article class="pain-item reveal">
-          <strong>ChatGPT doesn't know</strong> what your lecturer actually asked last year.
-        </article>
-        <article class="pain-item reveal">
-          <strong>"What do I even read first"</strong> panic, every single exam week.
-        </article>
-        <article class="pain-item reveal">
-          <strong>No signal in the hall,</strong> no access to anything you need.
-        </article>
-      </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features" id="features" aria-labelledby="features-title">
-      <p class="eyebrow reveal">Features</p>
-      <h2 id="features-title" class="section-title reveal">Everything you need</h2>
-      <p class="section-sub reveal">The tools you actually reach for, every single day.</p>
-      <div class="feature-grid">
-        <article class="feature-card reveal">
-          <div class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 7.5a2 2 0 0 1 2-2h3.6l1.8 2h7.6a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2V7.5z"/><path d="M3.5 9.5h17"/></svg>
-          </div>
-          <h3>The Vault</h3>
-          <p>Past questions and materials from students who came before you — searchable by course code.</p>
-        </article>
-        <article class="feature-card reveal">
-          <div class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.8 5.9 4.5 9.6 10.4 10.4-5.9.8-9.6 4.5-10.4 10.4C11.2 16.9 7.5 13.2 1.6 12.4 7.5 11.6 11.2 7.9 12 2z"/></svg>
-          </div>
-          <h3>Offline AI</h3>
-          <p>Download once, ask anything after. Zero data, zero signal required.</p>
-        </article>
-        <article class="feature-card reveal">
-          <div class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11.5h.01M12 11.5h.01M15 11.5h.01M9 15h.01M12 15h.01M15 15h.01M9 18.5h.01M12 18.5h.01M15 18.5h.01"/></svg>
-          </div>
-          <h3>Tools</h3>
-          <p>A CGPA calculator built for the Nigerian grading scale, a predictor that tells you exactly what you need to hit your target, OCR, document conversion — straight to your school portal.</p>
-        </article>
-        <article class="feature-card reveal">
-          <div class="feature-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v10m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-          </div>
-          <h3>Built for bad data</h3>
-          <p>Light versions of every document — downloaded once, usable all semester.</p>
-        </article>
-      </div>
-
-      <p class="association-line reveal">
-        If your department or faculty association is on Matriq too, dues and
-        verified membership live right there in <strong>Settings</strong>.
-      </p>
-    </section>
-
-    <!-- How it works -->
-    <section class="how" id="how" aria-labelledby="how-title">
-      <p class="eyebrow reveal">How it works</p>
-      <h2 id="how-title" class="section-title reveal">How it works</h2>
-      <div class="steps">
-        <div class="step reveal">
-          <span class="step-num" aria-hidden="true">1</span>
-          <h3>Join the waitlist</h3>
-          <p>Enter your email above. You'll get early access the moment we open.</p>
-        </div>
-        <div class="step reveal">
-          <span class="step-num" aria-hidden="true">2</span>
-          <h3>Get invited as we roll out</h3>
-          <p>We open in waves — you'll be first in line when it's your turn.</p>
-        </div>
-        <div class="step reveal">
-          <span class="step-num" aria-hidden="true">3</span>
-          <h3>Download, verify, and you're in</h3>
-          <p>Install the app, verify once, and everything's waiting for you.</p>
         </div>
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta reveal" aria-labelledby="cta-title">
-      <h2 id="cta-title">Be first in line.</h2>
-      <p>Join the Telegram channel — the waitlist is the only way in before launch.</p>
-      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener" class="cta-btn cta-btn-form">Join the waitlist</a>
-      <div class="cta-or">or leave your email and we'll email you at launch</div>
-      <form id="waitlist-form-cta" class="cta-form" novalidate>
-        <div class="field">
-          <label for="cta-email" class="visually-hidden">Email address</label>
-          <input type="email" id="cta-email" name="email" placeholder="Your email address" autocomplete="email" required aria-label="Email address" aria-describedby="cta-form-msg" />
+    <!-- ═══ CTA band ═══ -->
+    <section class="section" id="questions">
+      <div class="wrap">
+        <div class="cta-band reveal">
+          <div>
+            <h2 class="serif">The smart way through semester.</h2>
+            <p>
+              Join the line. When your department's Vault opens, you'll know
+              before your coursemates do.
+            </p>
+          </div>
+          <form id="waitlist-form-cta" class="inline-form" novalidate>
+            <input type="email" id="cta-email" placeholder="you@school.edu.ng" autocomplete="email" aria-label="Email address" required />
+            <button type="submit" class="btn"><span class="btn-label">Email me</span></button>
+          </form>
+          <p class="form-msg" id="cta-form-msg" role="status" aria-live="polite" style="grid-column: 1 / -1;"></p>
         </div>
-        <button type="submit" class="secondary-cta">Email me</button>
-      </form>
-      <p class="form-msg cta-msg" id="cta-form-msg" role="status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- ═══ FAQ ═══ -->
+    <section class="section">
+      <div class="wrap split">
+        <div class="sticky">
+          <p class="eyebrow reveal">Questions</p>
+          <h2 class="reveal">Asked honestly, answered straight.</h2>
+        </div>
+        <div class="faq reveal">
+          <details>
+            <summary>Is it really free?</summary>
+            <p class="faq-body">The Vault, tools and core AI are free. Magic Plus — deeper AI features like the study agent and handwriting reading — is a paid upgrade. The first 500 on this waitlist get it free for a semester.</p>
+          </details>
+          <details>
+            <summary>How does the AI work with no data?</summary>
+            <p class="faq-body">You download a small AI model once, on Wi-Fi if you can. After that it runs entirely on your phone. Ask questions, generate study maps, check your understanding — all offline. Your materials never leave your device.</p>
+          </details>
+          <details>
+            <summary>Where do the past questions come from?</summary>
+            <p class="faq-body">From students. Your seniors upload what they have; moderation keeps junk out; everyone gets access. One upload from you keeps it alive for the set behind you.</p>
+          </details>
+          <details>
+            <summary>Which schools get it first?</summary>
+            <p class="faq-body">We're opening department by department, starting with the largest waitlists. Add yours now — the count decides the order.</p>
+          </details>
+          <details>
+            <summary>Android only?</summary>
+            <p class="faq-body">For now, yes — most Nigerian students are on Android, so we're going deep there first. iOS follows once the Android experience is perfect.</p>
+          </details>
+          <details>
+            <summary>I run an association. What's in it for us?</summary>
+            <p class="faq-body">A dashboard for dues, verification, announcements and events — with transparency your members can see. Tell us your position in the form and we'll reach out about onboarding your association.</p>
+          </details>
+        </div>
+      </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <nav class="footer-links" aria-label="Legal and contact">
-      <a href="/terms.html">Terms &amp; Conditions</a>
-      <a href="/privacy.html">Privacy Policy</a>
-      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Telegram community</a>
-      <a href="/download.html">Download Android app</a>
-    </nav>
-    <p>© <span id="year">2026</span> Matriq · The Smart Way</p>
-    <p class="footer-credit">Lantern model · Khronos glTF Samples (CC0)</p>
+  <footer>
+    <div class="wrap footer-inner">
+      <div class="footer-brand">
+        <img src="/app-icon.png" alt="Matriq" width="30" height="30" />
+        <p>Matriq — past questions, offline AI and study tools for how Nigerian students actually study.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/download.html">Download</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy.html">Privacy</a>
+      </div>
+      <p class="footer-tag">The smart way. · <span id="year">2026</span></p>
+    </div>
   </footer>
 
-  <noscript>
-    <div class="noscript-banner" role="note">
-      <strong>JavaScript is off.</strong> The email form needs JavaScript — join the
-      <a href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Matriq Telegram</a>
-      instead and you'll still be first in line.
-    </div>
-  </noscript>
-
-  <script src="app.js" defer></script>
+  <script src="/app.js"></script>
 </body>
 </html>

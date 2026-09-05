@@ -158,7 +158,7 @@ export default function VaultModerationPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Vault Moderation</h1>
+        <h1 className="text-2xl font-bold text-text">Vault Moderation</h1>
         <div className="flex gap-2">
           {["pending", "approved", "rejected", "all"].map((f) => (
             <button
@@ -166,8 +166,8 @@ export default function VaultModerationPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  ? "bg-lime text-ink"
+                  : "bg-surfaceAlt text-muted hover:bg-surfaceAlt"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -188,12 +188,12 @@ export default function VaultModerationPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">
             No {filter === "all" ? "" : filter} vault items
           </p>
         </div>
@@ -202,18 +202,18 @@ export default function VaultModerationPage() {
           {items.map((item) => (
             <div
               key={item.id}
-              className="bg-gray-900 rounded-xl border border-gray-800 p-5"
+              className="bg-surface rounded-xl border border-line p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span className="text-sm font-bold text-purple-300">
+                    <span className="text-sm font-bold text-lime">
                       {item.courseCode}
                     </span>
-                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-200">
+                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-surfaceAlt text-text">
                       {item.type === "past_question" ? "Past question" : "Material"}
                     </span>
-                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-800 text-gray-400">
+                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-surfaceAlt text-muted">
                       {item.visibility}
                     </span>
                     <span
@@ -228,13 +228,13 @@ export default function VaultModerationPage() {
                       {item.moderationStatus}
                     </span>
                   </div>
-                  <p className="text-gray-200 font-medium">{item.title}</p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-text font-medium">{item.title}</p>
+                  <p className="text-xs text-muted mt-2">
                     {item.originalName} · {formatBytes(item.sizeBytes)}
                     {item.hasCompanion ? " · light copy" : ""} ·{" "}
                     {item.downloads} downloads
                   </p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-muted mt-1">
                     {item.user?.fullName ?? "Unknown"} ({item.user?.email ?? ""}) ·{" "}
                     {item.association?.name ?? "General"} ·{" "}
                     {new Date(item.createdAt).toLocaleString()}
@@ -252,8 +252,8 @@ export default function VaultModerationPage() {
                     disabled={previewLoading && previewingId === item.id}
                     className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                       previewingId === item.id
-                        ? "bg-purple-600 border-purple-600 text-white"
-                        : "bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700"
+                        ? "bg-lime border-lime text-ink"
+                        : "bg-surfaceAlt border-line text-text hover:bg-surfaceAlt"
                     }`}
                   >
                     {previewingId === item.id ? "Close" : "Preview"}
@@ -263,14 +263,14 @@ export default function VaultModerationPage() {
                       <button
                         onClick={() => handleModerate(item.id, "approved")}
                         disabled={actionId === item.id}
-                        className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
+                        className="px-3 py-1.5 text-sm bg-green-600 text-text rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
                       >
                         {actionId === item.id ? "..." : "Approve"}
                       </button>
                       <button
                         onClick={() => handleModerate(item.id, "rejected")}
                         disabled={actionId === item.id}
-                        className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
+                        className="px-3 py-1.5 text-sm bg-red-600 text-text rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
                       >
                         Reject
                       </button>
@@ -281,15 +281,15 @@ export default function VaultModerationPage() {
 
               {/* Inline preview — see the actual content before deciding */}
               {previewingId === item.id ? (
-                <div className="mt-4 border-t border-gray-800 pt-4">
+                <div className="mt-4 border-t border-line pt-4">
                   {previewLoading ? (
-                    <div className="h-20 bg-gray-800 rounded-lg animate-pulse" />
+                    <div className="h-20 bg-surfaceAlt rounded-lg animate-pulse" />
                   ) : previewError ? (
                     <p className="text-sm text-red-400">{previewError}</p>
                   ) : (
                     <div className="space-y-3">
                       {previewImageUrl && (
-                        <div className="bg-gray-950 rounded-lg p-2 flex justify-center">
+                        <div className="bg-void rounded-lg p-2 flex justify-center">
                           {/* eslint-disable-next-line @next/next/no-img-element -- blob URL can't use next/image */}
                           <img
                             src={previewImageUrl}
@@ -300,15 +300,15 @@ export default function VaultModerationPage() {
                       )}
                       {preview?.text ? (
                         <div>
-                          <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
+                          <p className="text-xs text-muted mb-1 uppercase tracking-wide">
                             {preview.source === "pdf" ? "Text layer" : "OCR text"}
                           </p>
-                          <p className="text-sm text-gray-300 whitespace-pre-wrap bg-gray-950 rounded-lg p-3 max-h-72 overflow-y-auto leading-relaxed">
+                          <p className="text-sm text-textSecondary whitespace-pre-wrap bg-void rounded-lg p-3 max-h-72 overflow-y-auto leading-relaxed">
                             {preview.text}
                           </p>
                         </div>
                       ) : (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted">
                           {previewFile?.mimeType.startsWith("image/") || preview?.source === "none"
                             ? "No readable text in this file."
                             : "No readable text found."}
@@ -317,7 +317,7 @@ export default function VaultModerationPage() {
                       {previewFile && !previewFile.mimeType.startsWith("image/") && (
                         <button
                           onClick={() => downloadOriginal(previewFile)}
-                          className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition-colors"
+                          className="px-3 py-1.5 text-sm bg-surfaceAlt hover:bg-surfaceAlt text-text rounded-lg border border-line transition-colors"
                         >
                           Download original ({previewFile.fileName})
                         </button>

@@ -446,7 +446,7 @@ export interface IconProps {
   strokeWidth?: number;
 }
 
-export function Icon({ name, size = 24, color = "#170B26", strokeWidth = 2 }: IconProps) {
+export function Icon({ name, size = 24, color = "#17181A", strokeWidth = 2 }: IconProps) {
   const filled = FILLED.has(name);
   const common: SvgProps = {
     width: size,

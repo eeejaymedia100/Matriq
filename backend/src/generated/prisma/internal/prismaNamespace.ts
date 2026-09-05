@@ -436,7 +436,9 @@ export const ModelName = {
   DeepReadJob: 'DeepReadJob',
   DeepReadPage: 'DeepReadPage',
   RefreshTokenFamily: 'RefreshTokenFamily',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  ActivityJournalEntry: 'ActivityJournalEntry',
+  MasteryCheckpointPass: 'MasteryCheckpointPass'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -452,7 +454,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3416,6 +3418,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ActivityJournalEntry: {
+      payload: Prisma.$ActivityJournalEntryPayload<ExtArgs>
+      fields: Prisma.ActivityJournalEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ActivityJournalEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ActivityJournalEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.ActivityJournalEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ActivityJournalEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        findMany: {
+          args: Prisma.ActivityJournalEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>[]
+        }
+        create: {
+          args: Prisma.ActivityJournalEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        createMany: {
+          args: Prisma.ActivityJournalEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ActivityJournalEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.ActivityJournalEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        update: {
+          args: Prisma.ActivityJournalEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.ActivityJournalEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ActivityJournalEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ActivityJournalEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.ActivityJournalEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ActivityJournalEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.ActivityJournalEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateActivityJournalEntry>
+        }
+        groupBy: {
+          args: Prisma.ActivityJournalEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ActivityJournalEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ActivityJournalEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ActivityJournalEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    MasteryCheckpointPass: {
+      payload: Prisma.$MasteryCheckpointPassPayload<ExtArgs>
+      fields: Prisma.MasteryCheckpointPassFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MasteryCheckpointPassFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MasteryCheckpointPassFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        findFirst: {
+          args: Prisma.MasteryCheckpointPassFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MasteryCheckpointPassFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        findMany: {
+          args: Prisma.MasteryCheckpointPassFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>[]
+        }
+        create: {
+          args: Prisma.MasteryCheckpointPassCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        createMany: {
+          args: Prisma.MasteryCheckpointPassCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MasteryCheckpointPassCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>[]
+        }
+        delete: {
+          args: Prisma.MasteryCheckpointPassDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        update: {
+          args: Prisma.MasteryCheckpointPassUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        deleteMany: {
+          args: Prisma.MasteryCheckpointPassDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MasteryCheckpointPassUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MasteryCheckpointPassUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>[]
+        }
+        upsert: {
+          args: Prisma.MasteryCheckpointPassUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MasteryCheckpointPassPayload>
+        }
+        aggregate: {
+          args: Prisma.MasteryCheckpointPassAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMasteryCheckpointPass>
+        }
+        groupBy: {
+          args: Prisma.MasteryCheckpointPassGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MasteryCheckpointPassGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MasteryCheckpointPassCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MasteryCheckpointPassCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -3506,6 +3656,7 @@ export const UserScalarFieldEnum = {
   verificationEmailCount: 'verificationEmailCount',
   verificationEmailWindowStart: 'verificationEmailWindowStart',
   dateOfBirth: 'dateOfBirth',
+  pendingReferralCode: 'pendingReferralCode',
   profilePhotoUrl: 'profilePhotoUrl',
   mfaEnabled: 'mfaEnabled',
   mfaSecret: 'mfaSecret',
@@ -3780,6 +3931,7 @@ export const VaultItemScalarFieldEnum = {
   originalName: 'originalName',
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
+  contentHash: 'contentHash',
   companionSizeBytes: 'companionSizeBytes',
   companionMimeType: 'companionMimeType',
   moderationStatus: 'moderationStatus',
@@ -4050,6 +4202,30 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const ActivityJournalEntryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  eventKey: 'eventKey',
+  activityDate: 'activityDate',
+  createdAt: 'createdAt'
+} as const
+
+export type ActivityJournalEntryScalarFieldEnum = (typeof ActivityJournalEntryScalarFieldEnum)[keyof typeof ActivityJournalEntryScalarFieldEnum]
+
+
+export const MasteryCheckpointPassScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  focusSessionId: 'focusSessionId',
+  mapId: 'mapId',
+  score: 'score',
+  passedAt: 'passedAt'
+} as const
+
+export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPassScalarFieldEnum)[keyof typeof MasteryCheckpointPassScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4583,6 +4759,8 @@ export type GlobalOmitConfig = {
   deepReadPage?: Prisma.DeepReadPageOmit
   refreshTokenFamily?: Prisma.RefreshTokenFamilyOmit
   refreshToken?: Prisma.RefreshTokenOmit
+  activityJournalEntry?: Prisma.ActivityJournalEntryOmit
+  masteryCheckpointPass?: Prisma.MasteryCheckpointPassOmit
 }
 
 /* Types for Logging */

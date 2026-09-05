@@ -151,7 +151,7 @@
             // A duplicate submit is still reported as “already on the list” with the
       // same line number — never reveals that the email existed before (the
       // backend treats duplicates identically on purpose).
-      show(msgEl, "ok", name + " on the list! 🎉 You're #" + data.position.toLocaleString("en-NG") + " in line.");
+      show(msgEl, "ok", name + " on the list. You're #" + data.position.toLocaleString("en-NG") + " in line.");
           formEl.reset();
           resetExecToggle();
           if (countEl) {
@@ -163,7 +163,7 @@
         } else if (data && data.error && data.error.message) {
           show(msgEl, "err", data.error.message);
         } else {
-          show(msgEl, "ok", "You're on the list! We'll email you at launch. 🎉");
+          show(msgEl, "ok", "You're on the list. We'll email you at launch.");
           formEl.reset();
           resetExecToggle();
         }
@@ -187,7 +187,7 @@
       e.preventDefault();
       submitForm(heroForm, document.getElementById("form-msg"), document.getElementById("email-btn"), {
         survey: true,
-        label: "Email me at launch instead",
+        label: "Email me at launch",
         loadingLabel: "Sending…",
       });
     });
@@ -317,20 +317,15 @@
       HTMLScriptElement.supports("importmap");
   }
 
-  // Skip the 3D scene entirely on slow / data-constrained / low-end mobile
-  // connections: it pulls ~2.5MB of three.js + the lantern model from the
-  // CDN, which is the single biggest cost on this page. The CSS ambient
-  // background keeps the look for everyone else.
+  // The scene is procedural (no model downloads), so the only real cost is
+  // the three.js module itself (~330KB gzipped from the CDN). Skip it only
+  // for data-saver users and 2G: everyone else gets the full hero.
   function shouldSkipScene() {
     var conn = (typeof navigator !== "undefined" && navigator.connection) || null;
     if (conn) {
       if (conn.saveData === true) return true;
       var et = (conn.effectiveType || "4g").toLowerCase();
-      if (et === "2g" || et === "3g") return true;
-    }
-    // Low-end phones: small screen + touch + (unknown recent throughput).
-    if (window.matchMedia("(max-width: 480px) and (pointer: coarse)").matches) {
-      if (!conn || conn.rtt === undefined || conn.rtt > 300) return true;
+      if (et === "2g" || et === "slow-2g") return true;
     }
     return false;
   }

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "0.7.17",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -13,8 +13,8 @@
       "shortName": "Matriq",
       "description": "Past questions, offline AI and study tools for how Nigerian students actually study. Works on bad data.",
       "lang": "en",
-      "themeColor": "#14061F",
-      "backgroundColor": "#0d0620"
+      "themeColor": "#0A0A0A",
+      "backgroundColor": "#0A0A0A"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -26,11 +26,11 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive/foreground-light.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#0A0A0A"
       },
       "package": "app.matriq.mobile",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 25,
+      "versionCode": 26,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
@@ -42,11 +42,11 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#121212",
+          "backgroundColor": "#0A0A0A",
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "dark": {
-            "backgroundColor": "#121212",
+            "backgroundColor": "#0A0A0A",
             "image": "./assets/splash-icon-dark.png",
             "imageWidth": 160
           }
@@ -69,7 +69,7 @@
         "expo-navigation-bar",
         {
           "enforceContrast": false,
-          "style": "light"
+          "style": "dark"
         }
       ],
       "expo-build-properties",
@@ -87,7 +87,7 @@
         "expo-notifications",
         {
           "icon": "./assets/notification_icon.png",
-          "color": "#7B4BC4",
+          "color": "#C6FF3D",
           "sounds": []
         }
       ]

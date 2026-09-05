@@ -5,7 +5,7 @@ import { api } from "../api/client";
 /**
  * Real device notifications (the "custom notification above every screen"):
  * the app requests the system notification permission the moment it opens,
- * creates a branded Matriq channel (purple tint + the white bell icon from
+ * creates a branded Matriq channel (lime tint + the white bell icon from
  * the expo-notifications config plugin), registers its FCM device token with
  * the backend, and routes taps on a notification to the right screen.
  *
@@ -16,7 +16,7 @@ import { api } from "../api/client";
  */
 
 const CHANNEL_ID = "matriq";
-const BRAND_COLOR = "#7B4BC4";
+const BRAND_COLOR = "#C6FF3D";
 
 let configured = false;
 let permissionAsked = false;

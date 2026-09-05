@@ -13,6 +13,7 @@ import * as argon2 from "argon2";
 import * as crypto from "node:crypto";
 import { JsonWebTokenError, TokenExpiredError } from "jsonwebtoken";
 import { PrismaService } from "../prisma/prisma.service";
+import { ActivityService } from "../activity/activity.service";
 import { EmailService } from "../email/email.service";
 import { StorageService } from "../storage/storage.service";
 import { MfaService } from "./mfa.service";
@@ -80,6 +81,7 @@ export class AuthService {
     private readonly emailService: EmailService,
     private readonly mfaService: MfaService,
     private readonly storageService: StorageService,
+    private readonly activity: ActivityService,
   ) {}
 
   // ── Registration: Staylite ────────────────────────────────────
@@ -139,6 +141,7 @@ export class AuthService {
           verificationCodeExpiresAt: c.verificationCodeExpiresAt,
           verificationEmailCount: nextCounter.count,
           verificationEmailWindowStart: nextCounter.windowStart,
+          pendingReferralCode: this.normalizeReferralCode(dto.referralCode),
         },
       }),
     );
@@ -222,6 +225,7 @@ export class AuthService {
           verificationCodeExpiresAt: c.verificationCodeExpiresAt,
           verificationEmailCount: nextCounter.count,
           verificationEmailWindowStart: nextCounter.windowStart,
+          pendingReferralCode: this.normalizeReferralCode(dto.referralCode),
         },
       }),
     );
@@ -290,8 +294,110 @@ export class AuthService {
       },
     });
 
+    // A referral code captured at registration only counts now that the
+    // invitee is provably a genuine, verified new student. Best-effort — a
+    // referral problem must never fail email verification.
+    if (user.pendingReferralCode) {
+      await this.consumePendingReferral(user.id, user.pendingReferralCode);
+    }
+
     this.logger.log(`Email verified: ${updated.id} (${updated.email})`);
     return this.generateTokens(updated);
+  }
+
+  /**
+   * Credit a verified new student's referral to its referrer.
+   *
+   * The share code was captured at registration (pendingReferralCode) and is
+   * consumed exactly once here, at email verification. Rejected silently:
+   *  - unknown/bogus codes → nothing to credit, the field is just cleared;
+   *  - self-referral (referrer === invitee) → refused;
+   *  - double-conversion → the unique referredUserId index refuses it, and
+   *    the pre-check makes it a no-op instead of a 500;
+   *  - a referrer who deleted their account → the FK on the update refuses it.
+   * On success the referrer's referral row is linked and the verified invite
+   * is journaled as a meaningful activity (First Spark counts it too).
+   */
+  private async consumePendingReferral(
+    userId: string,
+    pendingCode: string,
+  ): Promise<void> {
+    try {
+      const code = pendingCode.trim();
+      if (!code) return;
+
+      // UUID columns can't use string prefix filters, so resolve the share
+      // code (first 8 chars of the referral id — or a full id pasted in)
+      // via a text LIKE on the id. LIMIT 1: prefix collisions are
+      // astronomically unlikely (16^8 space) and would still resolve to a
+      // real referral.
+      const rows = await this.prisma.$queryRaw<
+        Array<{
+          id: string;
+          referrer_id: string;
+          referred_user_id: string | null;
+        }>
+      >`SELECT id, referrer_id, referred_user_id FROM referrals WHERE id::text LIKE ${`${code}%`} LIMIT 1`;
+      const referral = rows[0];
+
+      // Unknown code, referrer gone, or already converted — nothing to do.
+      if (!referral || referral.referred_user_id !== null) {
+        await this.clearPendingReferral(userId);
+        return;
+      }
+      // Self-referral: registering with your own invite code earns nothing.
+      if (referral.referrer_id === userId) {
+        await this.clearPendingReferral(userId);
+        this.logger.warn(
+          `Self-referral rejected at verification: user ${userId}`,
+        );
+        return;
+      }
+
+      await this.prisma.referral.update({
+        where: { id: referral.id },
+        data: { referredUserId: userId },
+      });
+      await this.clearPendingReferral(userId);
+
+      await this.activity.journal(userId, "referral_verified", referral.id);
+      this.logger.log(
+        `Referral converted: ${referral.id} → user ${userId} (referrer ${referral.referrer_id})`,
+      );
+    } catch (err: unknown) {
+      this.logger.warn(
+        `Referral consume failed (user=${userId}): ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
+  }
+
+  private async clearPendingReferral(userId: string): Promise<void> {
+    await this.prisma.user
+      .update({
+        where: { id: userId },
+        data: { pendingReferralCode: null },
+      })
+      .catch(() => undefined);
+  }
+
+  /**
+   * Normalise whatever the client pasted into a usable referral lookup key:
+   * trim, and if the user pasted a full invite link, take the last path
+   * segment (the code). Anything else stays as-is for startsWith matching
+   * (both the 8-char share code and the full referral UUID resolve).
+   */
+  private normalizeReferralCode(raw?: string): string | null {
+    if (!raw) return null;
+    let code = raw.trim();
+    if (!code) return null;
+    if (code.includes("/")) {
+      const segments = code.split("/").filter(Boolean);
+      code = segments[segments.length - 1] ?? "";
+    }
+    code = code.trim().slice(0, 64);
+    return code || null;
   }
 
   /**

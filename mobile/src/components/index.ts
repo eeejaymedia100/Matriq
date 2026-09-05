@@ -1,5 +1,7 @@
 export { Button } from "./Button";
 export { Input } from "./Input";
+export { Field } from "./Field";
+export { MatriqMark } from "./MatriqMark";
 export { Card } from "./Card";
 export { ErrorBanner } from "./ErrorBanner";
 export { PasswordStrength } from "./PasswordStrength";

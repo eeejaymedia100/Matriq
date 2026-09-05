@@ -41,7 +41,7 @@ export default function UsersPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Students</h1>
+        <h1 className="text-2xl font-bold text-text">Students</h1>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -53,11 +53,11 @@ export default function UsersPage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search name, email, matric…"
-            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none w-72"
+            className="px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none w-72"
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-lime hover:brightness-110 text-ink rounded-lg text-sm font-medium transition-colors"
           >
             Search
           </button>
@@ -74,21 +74,21 @@ export default function UsersPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-20 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : users.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">
             {search ? "No students match your search" : "Search for students to get started"}
           </p>
         </div>
       ) : (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div className="bg-surface rounded-xl border border-line overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-800">
+                <tr className="text-left text-muted border-b border-line">
                   <th className="py-3 px-4 font-medium">Student</th>
                   <th className="py-3 px-4 font-medium">Matric / JAMB</th>
                   <th className="py-3 px-4 font-medium">Dept</th>
@@ -102,17 +102,17 @@ export default function UsersPage() {
                 {users.map((u) => (
                   <tr
                     key={u.id}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                    className="border-b border-line/50 hover:bg-surfaceAlt/30 transition-colors"
                   >
                     <td className="py-3 px-4">
-                      <p className="text-gray-200">{u.fullName}</p>
-                      <p className="text-xs text-gray-500">{u.email}</p>
+                      <p className="text-text">{u.fullName}</p>
+                      <p className="text-xs text-muted">{u.email}</p>
                     </td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-muted">
                       {u.matricNumber || u.jambNumber || "—"}
                     </td>
-                    <td className="py-3 px-4 text-gray-400">{u.department}</td>
-                    <td className="py-3 px-4 text-gray-400">{u.level}</td>
+                    <td className="py-3 px-4 text-muted">{u.department}</td>
+                    <td className="py-3 px-4 text-muted">{u.level}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
@@ -127,13 +127,13 @@ export default function UsersPage() {
                         className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ml-1 ${
                           u.matricStatus === "confirmed"
                             ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-600"
+                            : "bg-surfaceAlt text-textSecondary"
                         }`}
                       >
                         {u.matricStatus ?? "—"}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-muted">
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4">
@@ -172,13 +172,13 @@ export default function UsersPage() {
                               }
                             }}
                             disabled={actioning === u.id}
-                            className="px-2 py-1 text-xs rounded-lg bg-purple-600 hover:bg-purple-700 text-white disabled:opacity-50 transition-colors"
+                            className="px-2 py-1 text-xs rounded-lg bg-lime hover:brightness-110 text-ink disabled:opacity-50 transition-colors"
                           >
                             {actioning === u.id ? "…" : "Cancel"}
                           </button>
                         </div>
                       ) : (
-                        <span className="text-gray-600">—</span>
+                        <span className="text-muted">—</span>
                       )}
                     </td>
                   </tr>

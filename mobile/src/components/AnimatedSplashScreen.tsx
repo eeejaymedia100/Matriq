@@ -4,7 +4,7 @@ import { TAGLINE } from "../theme/tokens";
 
 /** Matches the native splash config in app.json so the native → JS handoff is
  *  pixel-identical (zero flicker). */
-export const SPLASH_BG = "#121212";
+export const SPLASH_BG = "#0A0A0A";
 
 interface AnimatedSplashScreenProps {
   /** True once the app's first real screen is mounted and resources are loaded. */

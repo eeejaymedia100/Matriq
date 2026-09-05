@@ -263,8 +263,8 @@ export function LibraryDetailScreen({
               ...(theme.mode === "pop" ? { borderWidth: 2, borderColor: colors.borderStrong } : {}),
             }}
           >
-            <Icon name="book" size={17} color="#170B26" />
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: "#170B26" }}>
+            <Icon name="book" size={17} color="#17181A" />
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>
               {doc.opens > 0 ? "Continue reading" : "Read now"}
             </Text>
           </Pressable>
@@ -286,8 +286,8 @@ export function LibraryDetailScreen({
                 borderColor: saved ? colors.accent : colors.borderStrong,
               }}
             >
-              <Icon name="book" size={14} color={saved ? "#170B26" : colors.textPrimary} />
-              <Text style={[theme.typography.captionBold, { color: saved ? "#170B26" : colors.textPrimary }]}>
+              <Icon name="book" size={14} color={saved ? "#17181A" : colors.textPrimary} />
+              <Text style={[theme.typography.captionBold, { color: saved ? "#17181A" : colors.textPrimary }]}>
                 {saved ? "Saved" : "Save"}
               </Text>
             </Pressable>

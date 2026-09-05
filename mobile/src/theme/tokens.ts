@@ -1,18 +1,25 @@
 /**
- * Matriq brand tokens — single source of truth for the two accent hues and
- * the supporting palette (spec §2 "Glass & Pop"). Both themes are built from
- * these; the two themes read as one product only because the accents never
- * drift.
+ * Matriq brand tokens — single source of truth for the accent hues and
+ * the supporting palette. The brand is BLACK + LIME. There is no purple
+ * anywhere in the product (locked correction): dark surfaces are true
+ * void blacks, light surfaces are warm neutral paper, and lime is the
+ * only accent. The two themes read as one product because the accents
+ * never drift.
  */
 
 export const brand = {
-  purple950: "#14061F", // Glass base background (deep enough to read as void)
-  purple600: "#55278F", // Pop brand accent
-  purple500: "#7B4BC4", // Avatar gradients, both themes
+  // Dark surfaces — true black, not tinted.
+  void: "#0A0A0A", // Glass base background (reads as void)
+  voidDeep: "#000000", // Deepest background shade
+  // Light surfaces — warm neutral, zero purple tint.
+  paper: "#F6F5F2", // Pop base background
+  paperDeep: "#ECEAE5", // Pop deep shade / wells
+  ink: "#17181A", // Pop text + borders (neutral near-black)
+  // The accent — unchanged, the original lime.
   lime500: "#C6FF3D", // Primary accent, both themes — never under body text
   lime400: "#DBFF7A", // Lighter lime, on-dark text/hover
-  ink: "#170B26", // Pop text + brutalist borders/shadows
-  paper: "#F5F1FB", // Pop base background
+  // Color for text/icons sitting ON lime.
+  onAccent: "#17181A",
 } as const;
 
 /** One small sparkle icon (four-point flash) is reserved for AI-touched

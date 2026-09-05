@@ -181,7 +181,7 @@ export function StreakBadge({ streak }: { streak: StreakState }) {
       {/* Count-up numeral + label */}
       <View style={{ flexDirection: "row", alignItems: "baseline", gap: 6 }}>
         {/* Serif big numeral — the streak count is a locked serif moment
-            (round-4: display/h1/h2 + big numerals get Fraunces). */}
+            (round-4: display/h1/h2 + big numerals get the serif). */}
         <Text
           style={[
             theme.serif.numeral,

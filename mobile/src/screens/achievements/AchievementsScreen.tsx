@@ -560,13 +560,13 @@ function AchievementDetailModal({
                   }}
                 >
                   {sharing ? (
-                    <ActivityIndicator size="small" color="#170B26" />
+                    <ActivityIndicator size="small" color="#17181A" />
                   ) : (
                     <Text
                       style={{
-                        fontFamily: "PlusJakartaSans_700Bold",
+                        fontFamily: "Inter_700Bold",
                         fontSize: 13,
-                        color: achievement.earned ? "#170B26" : colors.textMuted,
+                        color: achievement.earned ? "#17181A" : colors.textMuted,
                       }}
                     >
                       {achievement.earned ? "Share card" : "Earn it first"}

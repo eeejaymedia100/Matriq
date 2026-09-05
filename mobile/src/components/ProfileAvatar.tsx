@@ -76,7 +76,7 @@ export function ProfileAvatar({
 
 const styles = StyleSheet.create({
   initial: {
-    fontFamily: "PlusJakartaSans_800ExtraBold",
+    fontFamily: "Inter_800ExtraBold",
     color: "#FFFFFF",
   },
 });

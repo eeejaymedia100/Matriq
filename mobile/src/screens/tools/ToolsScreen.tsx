@@ -40,7 +40,7 @@ interface GridCardItem {
  *  tools sit together, equal-height boxes, WhatsApp services moved to the
  *  very bottom of the screen). */
 const ALL_TOOLS: ToolCard[] = [
-  { id: "deepread", label: "Deep Read ✨", hint: "Handwritten notes → documents", icon: "sparkle", target: "DeepRead" },
+  { id: "deepread", label: "Deep Read", hint: "Handwritten notes → documents", icon: "sparkle", target: "DeepRead" },
   { id: "ocr", label: "Image to Text (OCR)", hint: "Read text from a photo", icon: "image", target: "Ocr" },
   { id: "img2pdf", label: "Image to PDF", hint: "Photos into one document", icon: "fileText", target: "ImageToPdf" },
   { id: "cgpa", label: "CGPA Calculator", hint: "NUC 5-point scale", icon: "target", target: "CgpaCalculator" },
@@ -95,8 +95,8 @@ export function ToolsScreen({ navigation }: Props) {
             justifyContent: "center",
             backgroundColor:
               theme.mode === "glass" ? "rgba(255,255,255,0.08)" : colors.surfaceAlt,
-            // Soft glow behind the icon (new-arch + web boxShadow).
-            boxShadow: `0 0 18px ${item.glow ?? "rgba(123,75,196,0.45)"}`,
+            // Soft lime glow behind the icon (new-arch + web boxShadow).
+            boxShadow: `0 0 18px rgba(198,255,61,0.18)`,
           }}
         >
           <Icon name={item.icon} size={18} color={item.iconColor ?? colors.brand} />
@@ -166,7 +166,7 @@ export function ToolsScreen({ navigation }: Props) {
                   justifyContent: "center",
                 }}
               >
-                <Icon name="globe" size={20} color={colors.brand} />
+                <Icon name="globe" size={20} color={colors.textPrimary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>

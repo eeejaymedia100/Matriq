@@ -182,7 +182,7 @@ export function QuizScreen() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>
                   Start quiz (5 questions)
                 </Text>
               </Pressable>
@@ -290,7 +290,7 @@ export function QuizScreen() {
                           justifyContent: "center",
                         }}
                       >
-                        <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                        <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
                           {LETTERS[i]}
                         </Text>
                       </View>
@@ -337,7 +337,7 @@ export function QuizScreen() {
                     borderColor: colors.borderStrong,
                   }}
                 >
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
                     {index + 1 >= questions.length ? "See results" : "Next question"}
                   </Text>
                 </Pressable>
@@ -392,7 +392,7 @@ export function QuizScreen() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
                   New quiz
                 </Text>
               </Pressable>

@@ -231,9 +231,9 @@ export function ImageToPdfScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "PlusJakartaSans_600SemiBold",
+                    fontFamily: "Inter_600SemiBold",
                     fontSize: 13,
-                    color: pageSize === key ? "#170B26" : colors.textPrimary,
+                    color: pageSize === key ? "#17181A" : colors.textPrimary,
                   }}
                 >
                   {PDF_PAGE_SIZES[key].label}
@@ -263,7 +263,7 @@ export function ImageToPdfScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "PlusJakartaSans_600SemiBold",
+                    fontFamily: "Inter_600SemiBold",
                     fontSize: 12,
                     textAlign: "center",
                     color: fit === f.id ? colors.accent : colors.textPrimary,
@@ -299,13 +299,13 @@ export function ImageToPdfScreen() {
           >
             {busy ? (
               <View style={{ alignItems: "center" }}>
-                <ActivityIndicator size="small" color="#170B26" />
-                <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 12, color: "#170B26", marginTop: 6 }}>
+                <ActivityIndicator size="small" color="#17181A" />
+                <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 12, color: "#17181A", marginTop: 6 }}>
                   Building the PDF…
                 </Text>
               </View>
             ) : (
-              <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: images.length > 0 ? "#170B26" : colors.textMuted }}>
+              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: images.length > 0 ? "#17181A" : colors.textMuted }}>
                 Create PDF ({images.length} page{images.length === 1 ? "" : "s"} · {sizeLabel})
               </Text>
             )}
@@ -392,7 +392,7 @@ export function ImageToPdfScreen() {
               }}
             >
               <Icon name="x" size={14} color="#FFFFFF" />
-              <Text style={{ color: "#FFFFFF", fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 13 }}>
+              <Text style={{ color: "#FFFFFF", fontFamily: "Inter_600SemiBold", fontSize: 13 }}>
                 Tap anywhere to close
               </Text>
             </View>

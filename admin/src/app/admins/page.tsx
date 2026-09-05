@@ -144,7 +144,7 @@ export default function AdminsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">Admins & Roles</h1>
+      <h1 className="text-2xl font-bold text-text mb-6">Admins & Roles</h1>
 
       {message && (
         <div
@@ -163,11 +163,11 @@ export default function AdminsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Create admin */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="font-semibold text-white mb-4">Create admin account</h2>
+        <div className="bg-surface rounded-xl border border-line p-6">
+          <h2 className="font-semibold text-text mb-4">Create admin account</h2>
           <form onSubmit={handleCreateAdmin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-textSecondary mb-1">
                 Email
               </label>
               <input
@@ -175,12 +175,12 @@ export default function AdminsPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none"
                 placeholder="admin2@matriq.app"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-textSecondary mb-1">
                 Password (min 12 chars)
               </label>
               <input
@@ -189,34 +189,34 @@ export default function AdminsPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={12}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none"
                 placeholder="••••••••••••"
               />
             </div>
             <button
               type="submit"
               disabled={creating}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-6 py-2 bg-lime hover:brightness-110 text-ink disabled:opacity-40 text-text rounded-lg text-sm font-medium transition-colors"
             >
               {creating ? "Creating..." : "Create Admin"}
             </button>
           </form>
 
-          <h3 className="font-semibold text-gray-200 mt-6 mb-3 text-sm">
+          <h3 className="font-semibold text-text mt-6 mb-3 text-sm">
             Existing admins
           </h3>
           {admins.length === 0 ? (
-            <p className="text-gray-500 text-sm">No admin accounts</p>
+            <p className="text-muted text-sm">No admin accounts</p>
           ) : (
             <div className="space-y-2">
               {admins.map((a) => (
                 <div
                   key={a.id}
-                  className="flex items-center justify-between bg-gray-800/50 rounded-lg px-4 py-2.5"
+                  className="flex items-center justify-between bg-surfaceAlt/50 rounded-lg px-4 py-2.5"
                 >
                   <div>
-                    <p className="text-sm text-gray-200">{a.email}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-sm text-text">{a.email}</p>
+                    <p className="text-xs text-muted">
                       Joined {new Date(a.createdAt).toLocaleDateString()}
                     </p>
                   </div>
@@ -236,13 +236,13 @@ export default function AdminsPage() {
         </div>
 
         {/* Grant executive role */}
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="font-semibold text-white mb-4">
+        <div className="bg-surface rounded-xl border border-line p-6">
+          <h2 className="font-semibold text-text mb-4">
             Grant executive role
           </h2>
           <form onSubmit={handleGrantRole} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-textSecondary mb-1">
                 Student email
               </label>
               <div className="flex gap-2">
@@ -250,14 +250,14 @@ export default function AdminsPage() {
                   type="email"
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="flex-1 px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none"
                   placeholder="student@matriq.app"
                 />
                 <button
                   type="button"
                   onClick={handleFindUser}
                   disabled={searchingUser || !userEmail.trim()}
-                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:bg-gray-800 text-white rounded-lg text-sm font-medium transition-colors"
+                  className="px-4 py-2 bg-surfaceAlt hover:bg-lineStrong disabled:bg-surfaceAlt text-text rounded-lg text-sm font-medium transition-colors"
                 >
                   {searchingUser ? "..." : "Find"}
                 </button>
@@ -269,14 +269,14 @@ export default function AdminsPage() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-textSecondary mb-1">
                 Association
               </label>
               <select
                 value={grantAssocId}
                 onChange={(e) => setGrantAssocId(e.target.value)}
                 required
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
               >
                 <option value="">Select association…</option>
                 {associations.map((a) => (
@@ -287,7 +287,7 @@ export default function AdminsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-textSecondary mb-1">
                 Role
               </label>
               <div className="flex gap-2">
@@ -298,8 +298,8 @@ export default function AdminsPage() {
                     onClick={() => setRole(r)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       role === r
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                        ? "bg-lime text-ink"
+                        : "bg-surfaceAlt text-muted hover:bg-surfaceAlt"
                     }`}
                   >
                     {r}
@@ -310,7 +310,7 @@ export default function AdminsPage() {
             <button
               type="submit"
               disabled={granting || !foundUser || !grantAssocId}
-              className="px-6 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg text-sm font-medium transition-colors"
+              className="px-6 py-2 bg-lime hover:brightness-110 text-ink disabled:opacity-40 text-text rounded-lg text-sm font-medium transition-colors"
             >
               {granting ? "Granting..." : "Grant Role"}
             </button>
@@ -319,19 +319,19 @@ export default function AdminsPage() {
       </div>
 
       {/* Executives roster */}
-      <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-        <h2 className="font-semibold text-white mb-4">
+      <div className="bg-surface rounded-xl border border-line p-6">
+        <h2 className="font-semibold text-text mb-4">
           Executive roster ({executives.length})
         </h2>
         {loading ? (
-          <div className="h-16 bg-gray-800 rounded-lg animate-pulse" />
+          <div className="h-16 bg-surfaceAlt rounded-lg animate-pulse" />
         ) : executives.length === 0 ? (
-          <p className="text-gray-500 text-sm">No executives yet</p>
+          <p className="text-muted text-sm">No executives yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-800">
+                <tr className="text-left text-muted border-b border-line">
                   <th className="py-2 pr-4 font-medium">Name</th>
                   <th className="py-2 pr-4 font-medium">Association</th>
                   <th className="py-2 pr-4 font-medium">Role</th>
@@ -340,22 +340,22 @@ export default function AdminsPage() {
               </thead>
               <tbody>
                 {executives.map((e) => (
-                  <tr key={e.id} className="border-b border-gray-800/50">
-                    <td className="py-2.5 pr-4 text-gray-200">
+                  <tr key={e.id} className="border-b border-line/50">
+                    <td className="py-2.5 pr-4 text-text">
                       {e.user?.fullName ?? "—"}
-                      <span className="block text-xs text-gray-500">
+                      <span className="block text-xs text-muted">
                         {e.user?.email}
                       </span>
                     </td>
-                    <td className="py-2.5 pr-4 text-gray-400">
+                    <td className="py-2.5 pr-4 text-muted">
                       {e.association.name}
                     </td>
                     <td className="py-2.5 pr-4">
-                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                      <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-limeSoft text-lime">
                         {e.role}
                       </span>
                     </td>
-                    <td className="py-2.5 text-gray-400">
+                    <td className="py-2.5 text-muted">
                       {e.mfaEnabled ? "✓" : "—"}
                     </td>
                   </tr>

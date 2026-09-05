@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { ExpressAdapter } from "@nestjs/platform-express";
+import helmet from "helmet";
 import cluster from "cluster";
 import * as os from "os";
 import { AppModule } from "./app.module";
@@ -36,6 +37,25 @@ async function bootstrap(): Promise<void> {
   // module destroy hooks (Prisma disconnect, Redis teardown) so in-flight
   // requests drain instead of a hard kill mid-request.
   app.enableShutdownHooks();
+
+  // Security headers on every response: CSP, HSTS, X-Content-Type-Options,
+  // frame-ancestors, referrer-policy. crossOriginResourcePolicy stays
+  // same-origin so the Vault's file streaming isn't broken for the apps.
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          "default-src": ["'self'"],
+          "img-src": ["'self'", "data:", "blob:"],
+          "script-src": ["'self'"],
+          "style-src": ["'self'", "'unsafe-inline'"],
+        },
+      },
+      crossOriginResourcePolicy: { policy: "same-origin" },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
   // Global validation — every DTO gets validated automatically
   app.useGlobalPipes(

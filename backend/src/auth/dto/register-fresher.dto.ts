@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from "class-validator";
 
 export class RegisterFresherDto {
   @IsEmail()
@@ -26,6 +33,14 @@ export class RegisterFresherDto {
 
   @IsString()
   institutionId?: string;
+
+  // Optional referral share code from an existing student's invite link.
+  // Stored as pendingReferralCode and only credited once the invitee
+  // verifies their email — see AuthService.consumePendingReferral.
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  referralCode?: string;
 
   @IsString()
   @IsNotEmpty()

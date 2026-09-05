@@ -14,7 +14,7 @@ export function RecommendedBadge() {
         backgroundColor: theme.colors.accent,
       }}
     >
-      <Text style={{ fontSize: 10, fontWeight: "700", color: "#170B26" }}>
+      <Text style={{ fontSize: 10, fontWeight: "700", color: "#17181A" }}>
         Recommended
       </Text>
     </View>

@@ -307,7 +307,7 @@ export function InstitutionCascadePicker({
                       backgroundColor: colors.accent,
                     }}
                   >
-                    <Icon name="check" size={18} color="#170B26" />
+                    <Icon name="check" size={18} color="#17181A" />
                   </Pressable>
                   <View
                     style={{

@@ -43,7 +43,7 @@ export function TermsCheckbox({ checked, onToggle, error }: TermsCheckboxProps) 
           }}
         >
           {checked ? (
-            <Icon name="check" size={17} color="#170B26" strokeWidth={3} />
+            <Icon name="check" size={17} color="#17181A" strokeWidth={3} />
           ) : null}
         </View>
         <Text

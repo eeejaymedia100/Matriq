@@ -11,6 +11,7 @@ import Constants from "expo-constants";
 import { useTheme } from "../../theme/ThemeContext";
 import type { ThemeMode } from "../../theme/themes";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
+import { Surface } from "../../components/Surface";
 import { Icon, type IconName } from "../../components/icons";
 import { ThemeTransitionOverlay } from "../../components/ThemeTransitionOverlay";
 import { ConfirmSheet } from "../../components/ConfirmSheet";
@@ -109,71 +110,87 @@ export function SettingsScreen({ navigation }: Props) {
       })
     : null;
 
-  const version = Constants.expoConfig?.version ?? "0.4.0";
+  const version = Constants.expoConfig?.version ?? "2.0.0";
 
-  const rows: Row[] = [
+  /** Inset-grouped rows — three cards, each one job (Account / App / About). */
+  const groups: Array<{ title: string; rows: Row[] }> = [
     {
-      id: "profile",
-      label: "Profile",
-      hint: "Name, faculty, level, photo",
-      icon: "user",
-      onPress: () => go("Profile"),
+      title: "Account",
+      rows: [
+        {
+          id: "profile",
+          label: "Profile",
+          hint: "Name, faculty, level, photo",
+          icon: "user",
+          onPress: () => go("Profile"),
+        },
+        {
+          id: "verification",
+          label: "Verification",
+          hint: "Identity & matric status",
+          icon: "shield",
+          onPress: () => go("VerificationStatus"),
+        },
+        {
+          id: "achievements",
+          label: "Achievements",
+          hint: "Badges, streaks & milestones",
+          icon: "trophy",
+          onPress: () => go("Achievements"),
+        },
+      ],
     },
     {
-      id: "achievements",
-      label: "Achievements",
-      hint: "Badges, streaks & milestones",
-      icon: "trophy",
-      onPress: () => go("Achievements"),
+      title: "App",
+      rows: [
+        {
+          id: "notifications",
+          label: "Notifications",
+          hint: "Verification, payments, dues & announcements",
+          icon: "bell",
+          onPress: () => go("Notifications"),
+        },
+        {
+          id: "dues",
+          label: "Dues & Payments",
+          hint: "Payments, receipts & history — never on Home",
+          icon: "wallet",
+          onPress: () => go("Fees"),
+        },
+        {
+          // Round-2 QA §7: offline-AI setup lives in exactly one place (Study).
+          // Data & Storage here only covers general storage — downloaded
+          // materials and cache — never AI model management.
+          id: "data",
+          label: "Data & Storage",
+          hint: "Downloaded materials & offline cache",
+          icon: "fileText",
+          onPress: () => go("MyMaterials"),
+        },
+      ],
     },
     {
-      id: "dues",
-      label: "Dues & Payments",
-      hint: "Payments, receipts & history — never on Home",
-      icon: "wallet",
-      onPress: () => go("Fees"),
-    },
-    {
-      id: "notifications",
-      label: "Notifications",
-      hint: "Verification, payments, dues & announcements",
-      icon: "bell",
-      onPress: () => go("Notifications"),
-    },
-    {
-      // Round-2 QA §7: offline-AI setup lives in exactly one place (Study).
-      // Data & Storage here only covers general storage — downloaded
-      // materials and cache — never AI model management.
-      id: "data",
-      label: "Data & Storage",
-      hint: "Downloaded materials & offline cache",
-      icon: "fileText",
-      onPress: () => go("MyMaterials"),
-    },
-    {
-      id: "verification",
-      label: "Verification",
-      hint: "Identity & matric status",
-      icon: "shield",
-      onPress: () => go("VerificationStatus"),
-    },
-    {
-      id: "legal",
-      label: "Terms of Use & Privacy",
-      hint: "Read the fine print",
-      icon: "fileText",
-      onPress: () => Linking.openURL(TERMS_URL).catch(() => {}),
-    },
-    {
-      id: "help",
-      label: "Help & About",
-      hint: `Matriq v${version} · contact support`,
-      icon: "info",
-      onPress: () =>
-        setInfo({
-          title: `Matriq v${version}`,
-          body: "The smart way. — Made for Nigerian university students: offline AI study companion, the shared Library, low-data design and association tools. Need help? Reach out through your association's support channel, or write to support@matriq.app.",
-        }),
+      title: "About",
+      rows: [
+        {
+          id: "legal",
+          label: "Terms of Use & Privacy",
+          hint: "Read the fine print",
+          icon: "fileText",
+          onPress: () => Linking.openURL(TERMS_URL).catch(() => {}),
+        },
+        {
+          id: "help",
+          label: "Help & About",
+          hint: `Matriq v${version} · contact support`,
+          icon: "info",
+          onPress: () =>
+            setInfo({
+              title: `Matriq v${version}`,
+              body: "The smart way. — Made for Nigerian university students: offline AI study companion, the shared Library, low-data design and association tools. Need help? Reach out through your association's support channel, or write to support@matriq.app.",
+            }),
+        },
+      ],
     },
   ];
 
@@ -240,35 +257,59 @@ export function SettingsScreen({ navigation }: Props) {
             </View>
           </Pressable>
 
-          {/* Rows */}
-          <View style={{ marginTop: 20 }}>
-            {rows.map((row, i) => (
-              <Pressable key={row.id} onPress={row.onPress}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 12,
-                    paddingVertical: 15,
-                    paddingHorizontal: 4,
-                    borderBottomWidth: i < rows.length - 1 ? 1 : 0,
-                    borderBottomColor: colors.border,
-                  }}
+          {/* Inset-grouped rows — three cards, each one job */}
+          <View style={{ marginTop: 16, gap: 16 }}>
+            {groups.map((group) => (
+              <View key={group.title}>
+                <Text
+                  style={[
+                    theme.typography.captionBold,
+                    {
+                      color: colors.textMuted,
+                      textTransform: "uppercase",
+                      letterSpacing: 1,
+                      fontSize: 11,
+                      marginBottom: 8,
+                      marginLeft: 4,
+                    },
+                  ]}
                 >
-                  <Icon name={row.icon} size={20} color={colors.brand} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={[theme.typography.bodyMedium, { color: colors.textPrimary }]}>
-                      {row.label}
-                    </Text>
-                    {row.hint ? (
-                      <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
-                        {row.hint}
-                      </Text>
-                    ) : null}
-                  </View>
-                  <Icon name="chevronRight" size={17} color={colors.textMuted} />
-                </View>
-              </Pressable>
+                  {group.title}
+                </Text>
+                <Surface style={{ paddingVertical: 4 }}>
+                  {group.rows.map((row, i) => (
+                    <Pressable
+                      key={row.id}
+                      onPress={row.onPress}
+                      style={({ pressed }) => ({
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 12,
+                        paddingVertical: 14,
+                        paddingHorizontal: 16,
+                        opacity: pressed ? 0.6 : 1,
+                        borderTopWidth: i === 0 ? 0 : 1,
+                        borderTopColor: colors.border,
+                      })}
+                      accessibilityRole="button"
+                      accessibilityLabel={row.label}
+                    >
+                      <Icon name={row.icon} size={20} color={colors.textSecondary} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[theme.typography.bodyMedium, { color: colors.textPrimary }]}>
+                          {row.label}
+                        </Text>
+                        {row.hint ? (
+                          <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
+                            {row.hint}
+                          </Text>
+                        ) : null}
+                      </View>
+                      <Icon name="chevronRight" size={17} color={colors.textMuted} />
+                    </Pressable>
+                  ))}
+                </Surface>
+              </View>
             ))}
           </View>
 
@@ -327,7 +368,7 @@ export function SettingsScreen({ navigation }: Props) {
                     backgroundColor: colors.warning,
                   }}
                 >
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
                     {deleting ? "Working…" : "Cancel deletion"}
                   </Text>
                 </Pressable>

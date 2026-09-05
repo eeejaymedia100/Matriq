@@ -161,7 +161,7 @@ export function NoteEditorScreen({
         placeholder="Title"
         placeholderTextColor={colors.textMuted}
         style={{
-          fontFamily: "PlusJakartaSans_700Bold",
+          fontFamily: "Inter_700Bold",
           fontSize: 22,
           color: colors.textPrimary,
           paddingVertical: 10,
@@ -187,7 +187,7 @@ export function NoteEditorScreen({
           minHeight: 320,
           marginTop: 12,
           padding: 14,
-          fontFamily: "PlusJakartaSans_400Regular",
+          fontFamily: "Inter_400Regular",
           fontSize: 16,
           lineHeight: 26,
           color: colors.textPrimary,

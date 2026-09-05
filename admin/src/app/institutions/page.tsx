@@ -152,14 +152,14 @@ export default function InstitutionsPage() {
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Institutions</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-text">Institutions</h1>
+          <p className="text-sm text-muted mt-1">
             Nigerian institutions, faculties and departments used for association targeting and registration dropdowns.
           </p>
         </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+          className="px-4 py-2 bg-lime text-ink rounded-lg text-sm font-semibold hover:brightness-110 transition-colors"
         >
           {showAdd ? "Cancel" : "Add Institution"}
         </button>
@@ -173,35 +173,35 @@ export default function InstitutionsPage() {
       )}
 
       {showAdd && (
-        <form onSubmit={handleAddInstitution} className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6 space-y-4">
+        <form onSubmit={handleAddInstitution} className="bg-surface rounded-xl border border-line p-6 mb-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-1">Full name</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">Full name</label>
               <input value={newName} onChange={(e) => setNewName(e.target.value)} required placeholder="e.g. University of Lagos"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Short name</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">Short name</label>
               <input value={newShortName} onChange={(e) => setNewShortName(e.target.value)} placeholder="e.g. UNILAG"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Type</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">Type</label>
               <select value={newType} onChange={(e) => setNewType(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none">
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none">
                 <option value="university">University</option>
                 <option value="polytechnic">Polytechnic</option>
                 <option value="college_of_education">College of Education</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">State</label>
+              <label className="block text-sm font-medium text-textSecondary mb-1">State</label>
               <input value={newState} onChange={(e) => setNewState(e.target.value)} placeholder="e.g. Lagos"
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none" />
+                className="w-full px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none" />
             </div>
           </div>
           <button type="submit" disabled={submitting}
-            className="px-6 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 disabled:bg-purple-800 transition-colors">
+            className="px-6 py-2 bg-lime text-ink rounded-lg text-sm font-semibold hover:brightness-110 disabled:opacity-40 transition-colors">
             {submitting ? "Adding..." : "Add Institution"}
           </button>
         </form>
@@ -209,19 +209,19 @@ export default function InstitutionsPage() {
 
       {loading ? (
         <div className="space-y-3">
-          {[1,2,3].map(i => <div key={i} className="h-12 bg-gray-800 rounded-lg animate-pulse" />)}
+          {[1,2,3].map(i => <div key={i} className="h-12 bg-surfaceAlt rounded-lg animate-pulse" />)}
         </div>
       ) : (
         <div className="space-y-4">
           {institutions.map((inst) => (
-            <div key={inst.id} className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+            <div key={inst.id} className="bg-surface rounded-xl border border-line overflow-hidden">
               <div className="flex items-center justify-between px-5 py-4">
                 <div className="min-w-0">
-                  <p className="text-white font-semibold truncate">
+                  <p className="text-text font-semibold truncate">
                     {inst.name}
-                    {inst.shortName ? <span className="ml-2 text-gray-500 text-sm font-normal">({inst.shortName})</span> : null}
+                    {inst.shortName ? <span className="ml-2 text-muted text-sm font-normal">({inst.shortName})</span> : null}
                   </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-muted mt-0.5">
                     {TYPE_LABELS[inst.type] ?? inst.type}
                     {inst.state ? ` · ${inst.state}` : ""} · {inst.faculties.length} faculties ·{" "}
                     {inst.faculties.reduce((s, f) => s + f.departments.length, 0)} departments
@@ -233,7 +233,7 @@ export default function InstitutionsPage() {
                       setExpanded(expanded === inst.id ? null : inst.id);
                       setFacultyFor(null);
                     }}
-                    className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition-colors"
+                    className="px-3 py-1.5 text-xs bg-surfaceAlt hover:bg-surfaceAlt text-text rounded-lg border border-line transition-colors"
                   >
                     {expanded === inst.id ? "Collapse" : "Manage faculties"}
                   </button>
@@ -247,34 +247,34 @@ export default function InstitutionsPage() {
               </div>
 
               {expanded === inst.id && (
-                <div className="border-t border-gray-800 px-5 py-4 space-y-3">
+                <div className="border-t border-line px-5 py-4 space-y-3">
                   <div className="flex items-center gap-2">
                     <input
                       value={facultyName}
                       onChange={(e) => setFacultyName(e.target.value)}
                       placeholder="New faculty name (e.g. Science)"
-                      className="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                      className="flex-1 px-3 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
                     />
                     <button
                       onClick={() => handleAddFaculty(inst.id)}
                       disabled={!facultyName.trim()}
-                      className="px-3 py-2 text-sm bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900 text-white rounded-lg transition-colors"
+                      className="px-3 py-2 text-sm bg-lime hover:brightness-110 text-ink disabled:opacity-40 text-text rounded-lg transition-colors"
                     >
                       Add faculty
                     </button>
                   </div>
 
                   {inst.faculties.map((f) => (
-                    <div key={f.id} className="rounded-lg border border-gray-800 bg-gray-950/50">
+                    <div key={f.id} className="rounded-lg border border-line bg-void/50">
                       <div className="flex items-center justify-between px-4 py-2.5">
-                        <p className="text-sm text-gray-200 font-medium">{f.name}</p>
+                        <p className="text-sm text-text font-medium">{f.name}</p>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
                               setFacultyFor(facultyFor === f.id ? null : f.id);
                               setDeptName("");
                             }}
-                            className="px-2.5 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded border border-gray-700 transition-colors"
+                            className="px-2.5 py-1 text-xs bg-surfaceAlt hover:bg-surfaceAlt text-textSecondary rounded border border-line transition-colors"
                           >
                             {facultyFor === f.id ? "Done" : `Departments (${f.departments.length})`}
                           </button>
@@ -293,23 +293,23 @@ export default function InstitutionsPage() {
                               value={deptName}
                               onChange={(e) => setDeptName(e.target.value)}
                               placeholder="New department name"
-                              className="flex-1 px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+                              className="flex-1 px-3 py-1.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
                             />
                             <button
                               onClick={() => handleAddDepartment(f.id)}
                               disabled={!deptName.trim()}
-                              className="px-3 py-1.5 text-xs bg-purple-600 hover:bg-purple-700 disabled:bg-purple-900 text-white rounded-lg transition-colors"
+                              className="px-3 py-1.5 text-xs bg-lime hover:brightness-110 text-ink disabled:opacity-40 text-text rounded-lg transition-colors"
                             >
                               Add
                             </button>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {f.departments.map((d) => (
-                              <span key={d.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gray-800 border border-gray-700 text-xs text-gray-300">
+                              <span key={d.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surfaceAlt border border-line text-xs text-textSecondary">
                                 {d.name}
                                 <button
                                   onClick={() => handleRemoveDepartment(d.id, d.name)}
-                                  className="text-gray-500 hover:text-red-400 transition-colors"
+                                  className="text-muted hover:text-red-400 transition-colors"
                                   title="Remove department"
                                 >
                                   ×
@@ -317,7 +317,7 @@ export default function InstitutionsPage() {
                               </span>
                             ))}
                             {f.departments.length === 0 && (
-                              <span className="text-xs text-gray-600">No departments yet.</span>
+                              <span className="text-xs text-muted">No departments yet.</span>
                             )}
                           </div>
                         </div>

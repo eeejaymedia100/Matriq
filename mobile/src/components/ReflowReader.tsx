@@ -50,7 +50,7 @@ export interface ReflowReaderHandle {
 
 const HIGHLIGHT_COLORS: Record<ReflowHighlight["color"], { bg: string; label: string }> = {
   lime: { bg: "rgba(198,255,61,0.28)", label: "Lime" },
-  brand: { bg: "rgba(123,75,196,0.22)", label: "Violet" },
+  brand: { bg: "rgba(23,24,26,0.16)", label: "Ink" },
   warning: { bg: "rgba(255,190,60,0.25)", label: "Amber" },
 };
 
@@ -319,7 +319,7 @@ export function ReflowReader({
             onPress={() => void highlightsAsNote()}
             style={[styles.noteButton, savedNote && styles.noteButtonDone]}
           >
-            <Icon name={savedNote ? "check" : "pen"} size={14} color="#170B26" />
+            <Icon name={savedNote ? "check" : "pen"} size={14} color="#17181A" />
             <Text style={styles.noteButtonText}>
               {savedNote ? "Saved" : `${highlights.length} → note`}
             </Text>
@@ -365,7 +365,7 @@ const makeStyles = (colors: any) =>
     },
     headingText: {
       color: colors.textPrimary,
-      fontFamily: "Fraunces_700Bold",
+      fontFamily: "PlayfairDisplay_700Bold",
       fontWeight: "700",
       lineHeight: 34,
     },
@@ -425,7 +425,7 @@ const makeStyles = (colors: any) =>
       backgroundColor: colors.brand + "1A",
     },
     agentButtonText: {
-      fontFamily: "PlusJakartaSans_700Bold",
+      fontFamily: "Inter_700Bold",
       fontSize: 12,
       color: colors.brand,
     },
@@ -439,7 +439,7 @@ const makeStyles = (colors: any) =>
       backgroundColor: colors.accent,
     },
     noteButtonDone: { backgroundColor: colors.success },
-    noteButtonText: { color: "#170B26", fontSize: 12, fontWeight: "700" },
+    noteButtonText: { color: "#17181A", fontSize: 12, fontWeight: "700" },
     emptyWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
     emptyText: { color: colors.textMuted, fontSize: 14 },
   });

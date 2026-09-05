@@ -7,6 +7,7 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { Surface } from "../../components/Surface";
@@ -260,9 +261,9 @@ export function FocusJourneyView({
         >
           <Text
             style={{
-              fontFamily: "PlusJakartaSans_700Bold",
+              fontFamily: "Inter_700Bold",
               fontSize: 11,
-              color: "#170B26",
+              color: "#17181A",
             }}
           >
             Journey
@@ -318,7 +319,7 @@ export function FocusJourneyView({
           >
             <Text
               style={{
-                fontFamily: "PlusJakartaSans_700Bold",
+                fontFamily: "Inter_700Bold",
                 fontSize: 11,
                 color: meta.color,
               }}
@@ -352,7 +353,7 @@ export function FocusJourneyView({
 
         {expanded ? (
           <Surface style={{ padding: 14, marginTop: 6, marginBottom: 0 }}>
-            <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 10, color: meta.color, letterSpacing: 0.9, textTransform: "uppercase" }}>
+            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: meta.color, letterSpacing: 0.9, textTransform: "uppercase" }}>
               {meta.label}
             </Text>
             <Text
@@ -481,7 +482,7 @@ export function FocusJourneyView({
                 backgroundColor: colors.accent,
               }}
             >
-              <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
                 Review the map
               </Text>
             </Pressable>
@@ -518,9 +519,9 @@ export function FocusJourneyView({
                   ) : (
                     <Text
                       style={{
-                        fontFamily: "PlusJakartaSans_700Bold",
+                        fontFamily: "Inter_700Bold",
                         fontSize: 13,
-                        color: isCurrent ? "#170B26" : colors.textMuted,
+                        color: isCurrent ? "#17181A" : colors.textMuted,
                       }}
                     >
                       {i + 1}
@@ -599,9 +600,9 @@ export function FocusJourneyView({
                     >
                       <Text
                         style={{
-                          fontFamily: "PlusJakartaSans_700Bold",
+                          fontFamily: "Inter_700Bold",
                           fontSize: 13,
-                          color: readyForCheckpoint ? "#170B26" : colors.textMuted,
+                          color: readyForCheckpoint ? "#17181A" : colors.textMuted,
                         }}
                       >
                         {readyForCheckpoint ? "Take the check" : "Locked until you read all ideas"}
@@ -716,6 +717,9 @@ function CheckpointModal({
       navigationBarTranslucent
     >
       <View style={{ flex: 1, backgroundColor: colors.overlay, justifyContent: "flex-end" }}>
+        {/* KeyboardAvoidingView so the answer field is never covered by the
+            keyboard while typing. */}
+        <KeyboardAvoidingView behavior="padding">
         <View
           style={{
             backgroundColor: colors.surface,
@@ -809,13 +813,13 @@ function CheckpointModal({
                     }}
                   >
                     {evaluating ? (
-                      <ActivityIndicator size="small" color="#170B26" />
+                      <ActivityIndicator size="small" color={colors.onAccent} />
                     ) : (
                       <Text
                         style={{
-                          fontFamily: "PlusJakartaSans_700Bold",
+                          fontFamily: theme.typography.captionBold.fontFamily,
                           fontSize: 13,
-                          color: answer.trim() && sessionId ? "#170B26" : colors.textMuted,
+                          color: answer.trim() && sessionId ? colors.onAccent : colors.textMuted,
                         }}
                       >
                         Check my answer
@@ -875,13 +879,13 @@ function CheckpointModal({
                 </View>
                 {!verdict.passed && verdict.misconception ? (
                   <Text style={[theme.typography.caption, { color: colors.textSecondary, marginTop: 12, lineHeight: 19 }]}>
-                    <Text style={{ fontFamily: "PlusJakartaSans_700Bold" }}>Missing: </Text>
+                    <Text style={[theme.typography.captionBold, { color: colors.error }]}>Missing: </Text>
                     {verdict.misconception}
                   </Text>
                 ) : null}
                 {!verdict.passed && verdict.suggestion ? (
                   <Text style={[theme.typography.caption, { color: colors.textSecondary, marginTop: 6, lineHeight: 19 }]}>
-                    <Text style={{ fontFamily: "PlusJakartaSans_700Bold" }}>Review: </Text>
+                    <Text style={[theme.typography.captionBold, { color: colors.error }]}>Review: </Text>
                     {verdict.suggestion}
                   </Text>
                 ) : null}
@@ -900,7 +904,7 @@ function CheckpointModal({
                         borderColor: colors.borderStrong,
                       }}
                     >
-                      <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                      <Text style={[theme.typography.captionBold, { fontSize: 13, color: colors.onAccent }]}>
                         Continue the journey
                       </Text>
                     </Pressable>
@@ -921,7 +925,7 @@ function CheckpointModal({
                           borderColor: colors.borderStrong,
                         }}
                       >
-                        <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+                        <Text style={[theme.typography.captionBold, { fontSize: 13, color: colors.onAccent }]}>
                           Try again
                         </Text>
                       </Pressable>
@@ -951,6 +955,7 @@ function CheckpointModal({
             )}
           </ScrollView>
         </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );

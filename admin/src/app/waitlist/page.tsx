@@ -82,40 +82,40 @@ export default function WaitlistPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">Waitlist</h1>
-        <span className="text-sm text-gray-400">
+        <h1 className="text-2xl font-bold text-text">Waitlist</h1>
+        <span className="text-sm text-muted">
           {entries.length} shown
         </span>
       </div>
 
       {/* Stats strip */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Total Signups</p>
-          <p className="text-2xl font-bold text-purple-400 mt-1">
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Total Signups</p>
+          <p className="text-2xl font-bold text-lime mt-1">
             {stats?.total ?? "—"}
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Today</p>
-          <p className="text-2xl font-bold text-white mt-1">
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Today</p>
+          <p className="text-2xl font-bold text-text mt-1">
             {stats?.today ?? "—"}
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Pending</p>
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Pending</p>
           <p className="text-2xl font-bold text-yellow-400 mt-1">
             {stats?.pending ?? "—"}
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Invited</p>
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Invited</p>
           <p className="text-2xl font-bold text-blue-400 mt-1">
             {stats?.invited ?? "—"}
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Joined</p>
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Joined</p>
           <p className="text-2xl font-bold text-green-400 mt-1">
             {stats?.joined ?? "—"}
           </p>
@@ -126,19 +126,19 @@ export default function WaitlistPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-16 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : entries.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">No waitlist signups yet</p>
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">No waitlist signups yet</p>
         </div>
       ) : (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div className="bg-surface rounded-xl border border-line overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-800">
+                <tr className="text-left text-muted border-b border-line">
                   <th className="py-3 px-4 font-medium">Email</th>
                   <th className="py-3 px-4 font-medium">Name</th>
                   <th className="py-3 px-4 font-medium">Source</th>
@@ -150,23 +150,23 @@ export default function WaitlistPage() {
                 {entries.map((e) => (
                   <tr
                     key={e.id}
-                    className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors"
+                    className="border-b border-line/50 hover:bg-surfaceAlt/30 transition-colors"
                   >
-                    <td className="py-3 px-4 text-gray-200">{e.email}</td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-text">{e.email}</td>
+                    <td className="py-3 px-4 text-muted">
                       {e.fullName || "—"}
                     </td>
-                    <td className="py-3 px-4 text-gray-400">{e.source}</td>
+                    <td className="py-3 px-4 text-muted">{e.source}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                          STATUS_COLORS[e.status] ?? "bg-gray-100 text-gray-700"
+                          STATUS_COLORS[e.status] ?? "bg-surfaceAlt text-textSecondary"
                         }`}
                       >
                         {e.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-muted">
                       {new Date(e.createdAt).toLocaleDateString()}{" "}
                       {new Date(e.createdAt).toLocaleTimeString([], {
                         hour: "2-digit",
@@ -179,10 +179,10 @@ export default function WaitlistPage() {
             </table>
           </div>
           {hasMore && (
-            <div className="p-4 border-t border-gray-800 flex justify-center">
+            <div className="p-4 border-t border-line flex justify-center">
               <button
                 onClick={() => goToPage(cursor)}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-200 hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-surfaceAlt text-text hover:bg-surfaceAlt transition-colors"
               >
                 Load more
               </button>

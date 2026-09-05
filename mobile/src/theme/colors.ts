@@ -2,25 +2,25 @@
 // Light-mode accent corrected per production-directive.md: #2E6B00, not raw neon
 
 export const colors = {
-  // Primary palette
-  primary: "#6C3BAA",
-  primaryLight: "#8B5CF6",
-  primaryDark: "#4C1D95",
+  // Primary palette — the brand is black + lime; chrome is ink, not purple.
+  primary: "#17181A",
+  primaryLight: "#3A3C40",
+  primaryDark: "#000000",
 
   // Accent (corrected for light-mode contrast)
   accent: "#2E6B00",
   accentLight: "#4CAF50",
 
-  // Neutrals
-  bg: "#F8F6FC",
+  // Neutrals — warm paper, zero purple tint
+  bg: "#F6F5F2",
   surface: "#FFFFFF",
-  surfaceAlt: "#F3F0FA",
-  border: "#E8E0F0",
+  surfaceAlt: "#F0EEE9",
+  border: "#E3E1DC",
 
   // Text
-  textPrimary: "#0D0620",
-  textSecondary: "#5C4D82",
-  textMuted: "#8B7AAE",
+  textPrimary: "#17181A",
+  textSecondary: "#56585A",
+  textMuted: "#8C8E90",
   textOnPrimary: "#FFFFFF",
   textOnAccent: "#FFFFFF",
 
@@ -39,15 +39,15 @@ export const colors = {
   live: "#2E6B00",
   suspended: "#DC2626",
 
-  // Dark mode overrides
+  // Dark mode overrides — void blacks
   dark: {
-    bg: "#0D0620",
-    surface: "#1A1033",
-    surfaceAlt: "#241A3D",
-    border: "#2D1F4A",
-    textPrimary: "#F8F6FC",
-    textSecondary: "#C4B5E8",
-    textMuted: "#8B7AAE",
+    bg: "#0A0A0A",
+    surface: "#161618",
+    surfaceAlt: "#1F1F22",
+    border: "#2A2A2E",
+    textPrimary: "#F5F4F1",
+    textSecondary: "#C8C6C1",
+    textMuted: "#8E8C88",
   },
 } as const;
 

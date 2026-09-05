@@ -8,10 +8,11 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as Application from "expo-application";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { ProfileAvatar } from "../../components/ProfileAvatar";
-import { Card, Button, Input } from "../../components";
+import { Card, Button, Field } from "../../components";
 import { useAuth } from "../../contexts/AuthContext";
 import { api } from "../../api/client";
 import { optimizeImageForUpload } from "../../utils/imageOptimize";
@@ -151,19 +152,6 @@ export function ProfileScreen() {
     }
   };
 
-  const setupMfa = async () => {
-    try {
-      await api.post<{ qrCodeDataUrl: string }>("/auth/mfa/enroll", {});
-      Alert.alert(
-        "MFA Setup",
-        "Scan the QR code with your authenticator app, then enter the code to verify.",
-        [{ text: "OK" }],
-      );
-    } catch (err) {
-      Alert.alert("Error", err instanceof Error ? err.message : "MFA setup failed");
-    }
-  };
-
   return (
     <KeyboardScreen
       padding={0}
@@ -195,7 +183,7 @@ export function ProfileScreen() {
                       right: 0,
                       bottom: 0,
                       borderRadius: 999,
-                      backgroundColor: "rgba(13,6,32,0.55)",
+                      backgroundColor: "rgba(10,10,10,0.55)",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
@@ -233,22 +221,22 @@ export function ProfileScreen() {
           <Card title="Profile Information">
             {editing ? (
               <>
-                <Input
+                <Field
                   label="Full Name"
                   value={profile.fullName ?? user?.fullName ?? ""}
                   onChangeText={(v) => setProfile((p) => ({ ...p, fullName: v }))}
                 />
-                <Input
+                <Field
                   label="Department"
                   value={profile.department ?? user?.department ?? ""}
                   onChangeText={(v) => setProfile((p) => ({ ...p, department: v }))}
                 />
-                <Input
+                <Field
                   label="Faculty"
                   value={profile.faculty ?? user?.faculty ?? ""}
                   onChangeText={(v) => setProfile((p) => ({ ...p, faculty: v }))}
                 />
-                <Input
+                <Field
                   label="Level"
                   value={profile.level ?? user?.level ?? ""}
                   onChangeText={(v) => setProfile((p) => ({ ...p, level: v }))}
@@ -318,18 +306,18 @@ export function ProfileScreen() {
               </Text>
             </View>
             {!user?.mfaEnabled && (
-              <Button
-                title="Set Up Two-Factor Auth"
-                onPress={setupMfa}
-                variant="outline"
-                size="sm"
-              />
+              <Text style={styles.notifHint}>
+                Two-factor auth is coming to Matriq. Your account is protected
+                by your device passcode and verified email for now.
+              </Text>
             )}
           </Card>
 
           {/* Logout */}
           <Button title="Sign Out" onPress={logout} variant="ghost" />
-          <Text style={styles.version}>Matriq v0.1.0</Text>
+          <Text style={styles.version}>
+            Matriq v{Application.nativeApplicationVersion ?? "2.0.0"}
+          </Text>
     </KeyboardScreen>
   );
 }

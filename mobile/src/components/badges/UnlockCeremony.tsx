@@ -255,7 +255,7 @@ export function UnlockCeremony({
                   backgroundColor: glass ? "rgba(24,12,44,0.97)" : colors.surface,
                   borderColor: colors.border,
                   ...(pop
-                    ? { borderWidth: 2, borderColor: brand.ink, boxShadow: "5px 5px 0 #170B26" }
+                    ? { borderWidth: 2, borderColor: brand.ink, boxShadow: "5px 5px 0 #17181A" }
                     : { borderWidth: 1 }),
                 },
                 cardStyle,

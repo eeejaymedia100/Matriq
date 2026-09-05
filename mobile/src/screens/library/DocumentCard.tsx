@@ -144,7 +144,7 @@ function saveIndicator(
         backgroundColor: saved ? colors.accent : colors.overlay,
       }}
     >
-      <Icon name={saved ? "check" : "book"} size={12} color={saved ? "#170B26" : "#fff"} />
+      <Icon name={saved ? "check" : "book"} size={12} color={saved ? "#17181A" : "#fff"} />
     </View>
   );
 }

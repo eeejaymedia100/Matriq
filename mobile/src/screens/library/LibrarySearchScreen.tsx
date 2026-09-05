@@ -177,7 +177,7 @@ export function LibrarySearchScreen({
               borderColor: type === t.id ? "transparent" : colors.border,
             }}
           >
-            <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 12, color: type === t.id ? "#170B26" : colors.textPrimary }}>
+            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 12, color: type === t.id ? "#17181A" : colors.textPrimary }}>
               {t.label}
             </Text>
           </Pressable>
@@ -199,7 +199,7 @@ export function LibrarySearchScreen({
               borderColor: level === lvl ? "transparent" : colors.border,
             }}
           >
-            <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 11, color: level === lvl ? "#170B26" : colors.textSecondary }}>
+            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 11, color: level === lvl ? "#17181A" : colors.textSecondary }}>
               {lvl || "All levels"}
             </Text>
           </Pressable>

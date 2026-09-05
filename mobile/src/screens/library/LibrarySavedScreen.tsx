@@ -81,7 +81,7 @@ export function LibrarySavedScreen({
             onPress={() => navigation.navigate("Library", {})}
             style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
           >
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>Browse the library</Text>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>Browse the library</Text>
           </Pressable>
         </View>
       ) : (

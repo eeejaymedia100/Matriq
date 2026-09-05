@@ -6,7 +6,7 @@ import { useSession } from "@/components/SessionProvider";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-purple-50" />}>
+    <Suspense fallback={<div className="min-h-screen bg-void" />}>
       <LoginForm />
     </Suspense>
   );
@@ -55,21 +55,27 @@ function LoginForm() {
       const next = searchParams.get("next") || "/dashboard";
       router.push(next);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Verification failed",
-      );
+      setError(err instanceof Error ? err.message : "Verification failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-void p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+        <div className="bg-surface rounded-2xl border border-line p-8">
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-purple-900 mb-1">Matriq</h1>
-            <p className="text-gray-500 text-sm">
+            {/* Brand mark — the official uploaded logo */}
+            <img
+              src="/matriq-mark.png"
+              alt="Matriq"
+              className="w-14 h-14 mx-auto mb-4"
+            />
+            <h1 className="text-2xl font-serif font-semibold text-text mb-1">
+              Matriq
+            </h1>
+            <p className="text-muted text-sm">
               {challengeToken
                 ? "Two-factor authentication"
                 : "Association Dashboard"}
@@ -81,7 +87,7 @@ function LoginForm() {
               <div>
                 <label
                   htmlFor="code"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-textSecondary mb-1"
                 >
                   Authentication code
                 </label>
@@ -97,16 +103,16 @@ function LoginForm() {
                   }
                   required
                   autoFocus
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm text-center text-lg tracking-[0.5em] font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-shadow"
+                  className="w-full px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-center text-lg tracking-[0.5em] font-mono text-text placeholder:text-muted focus:border-lime outline-none transition-colors"
                   placeholder="••••••"
                 />
-                <p className="text-xs text-gray-400 mt-2">
+                <p className="text-xs text-muted mt-2">
                   Enter the 6-digit code from your authenticator app.
                 </p>
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                <div className="bg-errorBg border border-error/30 text-error text-sm rounded-lg px-4 py-3">
                   {error}
                 </div>
               )}
@@ -114,7 +120,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading || code.length !== 6}
-                className="w-full py-2.5 bg-purple-700 hover:bg-purple-800 disabled:bg-purple-400 text-white font-medium rounded-lg transition-colors"
+                className="w-full py-2.5 bg-lime hover:brightness-110 disabled:opacity-40 text-ink font-semibold rounded-lg transition"
               >
                 {loading ? "Verifying..." : "Verify & Sign In"}
               </button>
@@ -124,7 +130,7 @@ function LoginForm() {
                   setChallengeToken(null);
                   setCode("");
                 }}
-                className="w-full text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="w-full text-sm text-muted hover:text-text transition"
               >
                 ← Back
               </button>
@@ -134,7 +140,7 @@ function LoginForm() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-textSecondary mb-1"
                 >
                   Email
                 </label>
@@ -144,7 +150,7 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-shadow"
+                  className="w-full px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none transition-colors"
                   placeholder="executive@example.com"
                 />
               </div>
@@ -152,7 +158,7 @@ function LoginForm() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium text-textSecondary mb-1"
                 >
                   Password
                 </label>
@@ -162,13 +168,13 @@ function LoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition-shadow"
+                  className="w-full px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none transition-colors"
                   placeholder="••••••••"
                 />
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+                <div className="bg-errorBg border border-error/30 text-error text-sm rounded-lg px-4 py-3">
                   {error}
                 </div>
               )}
@@ -176,7 +182,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 bg-purple-700 hover:bg-purple-800 disabled:bg-purple-400 text-white font-medium rounded-lg transition-colors"
+                className="w-full py-2.5 bg-lime hover:brightness-110 disabled:opacity-40 text-ink font-semibold rounded-lg transition"
               >
                 {loading ? "Signing in..." : "Sign In"}
               </button>

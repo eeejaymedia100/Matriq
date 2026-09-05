@@ -26,11 +26,11 @@ interface BlobSpec {
 }
 
 /**
- * The Glass signature: 2–3 large, slow-drifting blurred blobs (lime, violet,
- * a whisper of magenta) behind everything, giving the frosted surfaces
- * something to refract. Rendered as radial-gradient SVG circles (works on
- * Android/iOS/web) with a very slow reanimated drift. Respects
- * prefers-reduced-motion (blobs render static).
+ * The Glass signature: 2–3 large, slow-drifting blurred blobs (lime, a
+ * white whisper, a whisper of warm magenta) behind everything, giving the
+ * frosted surfaces something to refract. Rendered as radial-gradient SVG
+ * circles (works on Android/iOS/web) with a very slow reanimated drift.
+ * Respects prefers-reduced-motion (blobs render static).
  */
 export function AmbientBlobs() {
   const { isGlass } = useTheme();
@@ -51,9 +51,8 @@ function BlobsInner() {
     };
   }, []);
 
-  // Round-2 QA §10: the reference image's glow presence is richer/more
-  // luminous than the original spec — these opacities are the calibration
-  // target (brighter lime + violet, a stronger magenta whisper).
+  // Black + lime calibration: the lime glow leads; the white blob is a
+  // quiet luminosity layer; the warm magenta whisper stays under 12%.
   const blobs: BlobSpec[] = [
     {
       key: "lime",
@@ -68,12 +67,12 @@ function BlobsInner() {
       scaleTo: 1.15,
     },
     {
-      key: "violet",
-      color: "#7B4BC4",
-      size: 360,
+      key: "white",
+      color: "#F5F4F1",
+      size: 340,
       x: 190,
       y: 120,
-      opacity: 0.32,
+      opacity: 0.1,
       duration: 30000,
       driftX: -70,
       driftY: 90,

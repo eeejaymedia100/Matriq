@@ -108,9 +108,9 @@ export function DeadlineTrackerScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "PlusJakartaSans_600SemiBold",
+                      fontFamily: "Inter_600SemiBold",
                       fontSize: 12,
-                      color: dueDays === q.days ? "#170B26" : colors.textPrimary,
+                      color: dueDays === q.days ? "#17181A" : colors.textPrimary,
                     }}
                   >
                     {q.label}
@@ -133,7 +133,7 @@ export function DeadlineTrackerScreen() {
                 borderColor: colors.borderStrong,
               }}
             >
-              <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: "#170B26" }}>Add deadline</Text>
+              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>Add deadline</Text>
             </Pressable>
           </View>
 
@@ -169,7 +169,7 @@ export function DeadlineTrackerScreen() {
                         justifyContent: "center",
                       }}
                     >
-                      {d.done ? <Icon name="check" size={14} color="#170B26" /> : null}
+                      {d.done ? <Icon name="check" size={14} color="#17181A" /> : null}
                     </Pressable>
                     <View style={{ flex: 1 }}>
                       <Text
@@ -218,7 +218,7 @@ function field(colors: import("../../theme/themes").MatriqThemeColors, radii: { 
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "PlusJakartaSans_400Regular",
+    fontFamily: "Inter_400Regular",
     fontSize: 15,
     paddingHorizontal: 12,
     paddingVertical: 11,

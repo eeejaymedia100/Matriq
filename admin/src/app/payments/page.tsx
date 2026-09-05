@@ -16,8 +16,8 @@ const STATUS_COLORS: Record<string, string> = {
   processing: "bg-blue-100 text-blue-800",
   successful: "bg-green-100 text-green-800",
   failed: "bg-red-100 text-red-800",
-  cancelled: "bg-gray-100 text-gray-600",
-  refunded: "bg-purple-100 text-purple-800",
+  cancelled: "bg-surfaceAlt text-textSecondary",
+  refunded: "bg-limeSoft text-lime",
   disputed: "bg-orange-100 text-orange-800",
 };
 
@@ -70,15 +70,15 @@ export default function PaymentsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">Payments</h1>
+      <h1 className="text-2xl font-bold text-text mb-6">Payments</h1>
 
       {/* Association drill-down (platform-wide default, per-association view) */}
       <div className="flex items-center gap-3 mb-6">
-        <label className="text-sm text-gray-400">Association</label>
+        <label className="text-sm text-muted">Association</label>
         <select
           value={assocFilter}
           onChange={(e) => setAssocFilter(e.target.value)}
-          className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:ring-2 focus:ring-purple-500 outline-none"
+          className="px-4 py-2 bg-surfaceAlt border border-line rounded-lg text-sm text-text focus:border-lime outline-none"
         >
           <option value="">All associations</option>
           {associations.map((a) => (
@@ -88,7 +88,7 @@ export default function PaymentsPage() {
           ))}
         </select>
         {assocFilter ? (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-muted">
             Showing {associations.find((a) => a.id === assocFilter)?.name ?? "this association"} only
           </span>
         ) : null}
@@ -96,38 +96,38 @@ export default function PaymentsPage() {
 
       {/* Summary strip */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Total Collected</p>
-          <p className="text-2xl font-bold text-purple-400 mt-1">
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Total Collected</p>
+          <p className="text-2xl font-bold text-lime mt-1">
             ₦{(totalCollected / 100).toLocaleString()}
           </p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Successful Payments</p>
-          <p className="text-2xl font-bold text-white mt-1">{totalPaidCount}</p>
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Successful Payments</p>
+          <p className="text-2xl font-bold text-text mt-1">{totalPaidCount}</p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Active Fees</p>
-          <p className="text-2xl font-bold text-white mt-1">{fees.length}</p>
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Active Fees</p>
+          <p className="text-2xl font-bold text-text mt-1">{fees.length}</p>
         </div>
-        <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-          <p className="text-sm text-gray-400">Total Fee Value</p>
-          <p className="text-2xl font-bold text-white mt-1">
+        <div className="bg-surface rounded-xl border border-line p-5">
+          <p className="text-sm text-muted">Total Fee Value</p>
+          <p className="text-2xl font-bold text-text mt-1">
             ₦{(fees.reduce((s, f) => s + f.amountKobo, 0) / 100).toLocaleString()}
           </p>
         </div>
       </div>
 
       {/* Fees table */}
-      <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-8">
-        <h2 className="font-semibold text-white mb-4">Fees across associations</h2>
+      <div className="bg-surface rounded-xl border border-line p-6 mb-8">
+        <h2 className="font-semibold text-text mb-4">Fees across associations</h2>
         {fees.length === 0 ? (
-          <p className="text-gray-500 text-sm">No fees yet</p>
+          <p className="text-muted text-sm">No fees yet</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-800">
+                <tr className="text-left text-muted border-b border-line">
                   <th className="py-2 pr-4 font-medium">Fee</th>
                   <th className="py-2 pr-4 font-medium">Association</th>
                   <th className="py-2 pr-4 font-medium">Amount</th>
@@ -138,21 +138,21 @@ export default function PaymentsPage() {
               </thead>
               <tbody>
                 {fees.map((f) => (
-                  <tr key={f.id} className="border-b border-gray-800/50">
-                    <td className="py-3 pr-4 text-gray-200">{f.name}</td>
-                    <td className="py-3 pr-4 text-gray-400">
+                  <tr key={f.id} className="border-b border-line/50">
+                    <td className="py-3 pr-4 text-text">{f.name}</td>
+                    <td className="py-3 pr-4 text-muted">
                       {f.association.name}
                     </td>
-                    <td className="py-3 pr-4 text-gray-200">
+                    <td className="py-3 pr-4 text-text">
                       ₦{(f.amountKobo / 100).toLocaleString()}
                     </td>
-                    <td className="py-3 pr-4 text-gray-400">
+                    <td className="py-3 pr-4 text-muted">
                       {new Date(f.dueDate).toLocaleDateString()}
                     </td>
-                    <td className="py-3 pr-4 text-gray-200">
+                    <td className="py-3 pr-4 text-text">
                       {f.paidCount}/{f.paymentCount || "—"}
                     </td>
-                    <td className="py-3 text-purple-400">
+                    <td className="py-3 text-lime">
                       ₦{(f.collectedKobo / 100).toLocaleString()}
                     </td>
                   </tr>
@@ -165,7 +165,7 @@ export default function PaymentsPage() {
 
       {/* Payments list */}
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-semibold text-white">Recent payments</h2>
+        <h2 className="font-semibold text-text">Recent payments</h2>
         <div className="flex gap-2">
           {["", "pending", "processing", "successful", "failed", "refunded", "disputed"].map(
             (s) => (
@@ -174,8 +174,8 @@ export default function PaymentsPage() {
                 onClick={() => setFilter(s)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   filter === s
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    ? "bg-lime text-ink"
+                    : "bg-surfaceAlt text-muted hover:bg-surfaceAlt"
                 }`}
               >
                 {s === "" ? "All" : s}
@@ -188,19 +188,19 @@ export default function PaymentsPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-20 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : payments.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">No payments match the filter</p>
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">No payments match the filter</p>
         </div>
       ) : (
-        <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div className="bg-surface rounded-xl border border-line overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-800">
+                <tr className="text-left text-muted border-b border-line">
                   <th className="py-3 px-4 font-medium">Student</th>
                   <th className="py-3 px-4 font-medium">Fee</th>
                   <th className="py-3 px-4 font-medium">Association</th>
@@ -211,28 +211,28 @@ export default function PaymentsPage() {
               </thead>
               <tbody>
                 {payments.map((p) => (
-                  <tr key={p.id} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                  <tr key={p.id} className="border-b border-line/50 hover:bg-surfaceAlt/30 transition-colors">
                     <td className="py-3 px-4">
-                      <p className="text-gray-200">{p.user.fullName}</p>
-                      <p className="text-xs text-gray-500">{p.user.email}</p>
+                      <p className="text-text">{p.user.fullName}</p>
+                      <p className="text-xs text-muted">{p.user.email}</p>
                     </td>
-                    <td className="py-3 px-4 text-gray-300">{p.fee.name}</td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-textSecondary">{p.fee.name}</td>
+                    <td className="py-3 px-4 text-muted">
                       {p.fee.association.name}
                     </td>
-                    <td className="py-3 px-4 text-gray-200">
+                    <td className="py-3 px-4 text-text">
                       ₦{(p.amountKobo / 100).toLocaleString()}
                     </td>
                     <td className="py-3 px-4">
                       <span
                         className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${
-                          STATUS_COLORS[p.status] ?? "bg-gray-100 text-gray-700"
+                          STATUS_COLORS[p.status] ?? "bg-surfaceAlt text-textSecondary"
                         }`}
                       >
                         {p.status}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-400">
+                    <td className="py-3 px-4 text-muted">
                       {new Date(p.createdAt).toLocaleDateString()}
                     </td>
                   </tr>

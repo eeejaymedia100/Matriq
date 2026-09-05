@@ -5,6 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "./SessionProvider";
 
+/**
+ * Association Dashboard shell — the Matriq dark system.
+ *
+ * One idea: this is the same product as the phone app. Void-black surfaces,
+ * one lime accent, Inter for data, Playfair for the wordmark. No purple, no
+ * emoji icons, no stock SaaS look. Every color comes from the tokens in
+ * globals.css — nothing hard-coded here.
+ */
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { status, user, executives, associationId, selectAssociation, logout } =
@@ -12,14 +20,14 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white border-b border-gray-200 h-16" />
+      <div className="min-h-screen bg-void">
+        <nav className="bg-surface border-b border-line h-16" />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-48" />
+            <div className="h-8 bg-line rounded w-48" />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded-xl" />
+                <div key={i} className="h-32 bg-line rounded-xl" />
               ))}
             </div>
           </div>
@@ -30,12 +38,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (status === "unauthenticated") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-void">
         <div className="text-center">
-          <p className="text-gray-500 mb-4">Your session has expired.</p>
+          <p className="text-muted mb-4">Your session has expired.</p>
           <Link
             href="/login"
-            className="px-4 py-2 bg-purple-700 text-white rounded-lg text-sm font-medium hover:bg-purple-800 transition-colors"
+            className="px-4 py-2 bg-lime text-ink rounded-lg text-sm font-semibold hover:brightness-110 transition"
           >
             Sign in again
           </Link>
@@ -47,15 +55,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   // Multiple executive roles but no association selected → picker.
   if (executives.length > 1 && !associationId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-white p-4">
+      <div className="min-h-screen flex items-center justify-center bg-void p-4">
         <div className="w-full max-w-md">
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+          <div className="bg-surface rounded-2xl border border-line p-8">
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-purple-900 mb-1">
+              <h1 className="text-2xl font-semibold text-text mb-1 font-serif">
                 Select association
               </h1>
-              <p className="text-gray-500 text-sm">
-                You are an executive of multiple associations. Pick one to
+              <p className="text-muted text-sm">
+                You're an executive of multiple associations. Pick one to
                 continue.
               </p>
             </div>
@@ -64,23 +72,21 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 <button
                   key={e.id}
                   onClick={() => selectAssociation(e.associationId)}
-                  className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-4 rounded-xl border border-line hover:border-lime/40 hover:bg-surfaceAlt transition text-left"
                 >
                   <div>
-                    <p className="font-medium text-gray-900">
-                      {e.associationName}
-                    </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="font-medium text-text">{e.associationName}</p>
+                    <p className="text-xs text-muted">
                       {e.shortCode} · {e.role}
                     </p>
                   </div>
-                  <span className="text-purple-700">→</span>
+                  <span className="text-lime">→</span>
                 </button>
               ))}
             </div>
             <button
               onClick={logout}
-              className="w-full mt-6 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              className="w-full mt-6 text-sm text-muted hover:text-text transition"
             >
               Sign out
             </button>
@@ -91,15 +97,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   const navItems = [
-    { href: "/dashboard", label: "Overview", icon: "📊" },
-    { href: "/members", label: "Members", icon: "👥" },
-    { href: "/fees", label: "Dues", icon: "💳" },
-    { href: "/verification", label: "Verification", icon: "🪪" },
-    { href: "/announcements", label: "Announcements", icon: "📢" },
-    { href: "/events", label: "Events", icon: "🎟️" },
-    { href: "/checkin", label: "Check-in", icon: "📱" },
-    { href: "/timetable", label: "Timetable", icon: "🕐" },
-    { href: "/transparency", label: "Transparency", icon: "💰" },
+    { href: "/dashboard", label: "Overview" },
+    { href: "/members", label: "Members" },
+    { href: "/fees", label: "Dues" },
+    { href: "/verification", label: "Verification" },
+    { href: "/announcements", label: "Announcements" },
+    { href: "/events", label: "Events" },
+    { href: "/checkin", label: "Check-in" },
+    { href: "/timetable", label: "Timetable" },
+    { href: "/transparency", label: "Transparency" },
   ];
 
   const currentAssociation = executives.find(
@@ -107,29 +113,34 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div className="min-h-screen bg-void">
+      <nav className="bg-surface/95 backdrop-blur border-b border-line sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center gap-8">
-              <Link
-                href="/dashboard"
-                className="text-xl font-bold text-purple-900"
-              >
-                Matriq
+            <div className="flex items-center gap-6">
+              <Link href="/dashboard" className="flex items-center gap-2.5">
+                {/* Brand mark — the official uploaded logo */}
+                <img
+                  src="/matriq-mark.png"
+                  alt=""
+                  className="w-7 h-7"
+                  aria-hidden
+                />
+                <span className="text-lg font-serif font-semibold text-text">
+                  Matriq
+                </span>
               </Link>
-              <div className="hidden sm:flex gap-1">
+              <div className="hidden lg:flex gap-0.5">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition ${
                       pathname.startsWith(item.href)
-                        ? "bg-purple-100 text-purple-900"
-                        : "text-gray-600 hover:bg-gray-100"
+                        ? "bg-surfaceAlt text-lime"
+                        : "text-muted hover:text-text hover:bg-surfaceAlt"
                     }`}
                   >
-                    <span className="mr-1.5">{item.icon}</span>
                     {item.label}
                   </Link>
                 ))}
@@ -137,11 +148,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
             <div className="flex items-center gap-4">
               <div className="hidden md:block text-right">
-                <p className="text-sm font-medium text-gray-800">
-                  {user?.fullName}
-                </p>
+                <p className="text-sm font-medium text-text">{user?.fullName}</p>
                 {currentAssociation && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-muted">
                     {currentAssociation.associationName}
                   </p>
                 )}
@@ -149,7 +158,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               {executives.length > 1 && associationId && (
                 <button
                   onClick={() => selectAssociation("")}
-                  className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                  className="text-sm text-muted hover:text-text transition"
                   title="Switch association"
                 >
                   Switch
@@ -157,9 +166,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               )}
               <button
                 onClick={logout}
-                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                className="text-sm text-muted hover:text-text transition"
               >
-                Logout
+                Sign out
               </button>
             </div>
           </div>

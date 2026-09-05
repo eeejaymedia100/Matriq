@@ -371,9 +371,9 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               >
                 <Text
                   style={{
-                    fontFamily: "PlusJakartaSans_600SemiBold",
+                    fontFamily: "Inter_600SemiBold",
                     fontSize: 13,
-                    color: type === t.id ? "#170B26" : colors.textPrimary,
+                    color: type === t.id ? "#17181A" : colors.textPrimary,
                   }}
                 >
                   {t.label}
@@ -485,7 +485,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
                   marginTop: 1,
                 }}
               >
-                {termsAccepted ? <Icon name="check" size={13} color="#170B26" /> : null}
+                {termsAccepted ? <Icon name="check" size={13} color="#17181A" /> : null}
               </View>
               <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1, lineHeight: 19 }]}>
                 First upload: by contributing, you agree to the{" "}
@@ -543,9 +543,9 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
           >
             {uploading ? (
               <View style={{ alignItems: "center" }}>
-                <ActivityIndicator size="small" color="#170B26" />
+                <ActivityIndicator size="small" color="#17181A" />
                 {largeFile ? (
-                  <Text style={{ fontFamily: "PlusJakartaSans_600SemiBold", fontSize: 11, color: "#170B26", marginTop: 6 }}>
+                  <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 11, color: "#17181A", marginTop: 6 }}>
                     Uploading {Math.round(progress * 100)}%
                   </Text>
                 ) : null}
@@ -553,9 +553,9 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             ) : (
               <Text
                 style={{
-                  fontFamily: "PlusJakartaSans_700Bold",
+                  fontFamily: "Inter_700Bold",
                   fontSize: 15,
-                  color: canSubmit ? "#170B26" : colors.textMuted,
+                  color: canSubmit ? "#17181A" : colors.textMuted,
                 }}
               >
                 {firstUpload ? "Accept terms & upload" : "Upload to the Library"}
@@ -603,7 +603,7 @@ function inputStyle(
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "PlusJakartaSans_400Regular",
+    fontFamily: "Inter_400Regular",
     fontSize: 15,
     paddingHorizontal: 14,
     paddingVertical: 12,

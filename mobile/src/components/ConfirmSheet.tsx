@@ -59,7 +59,7 @@ export function ConfirmSheet({
       />
         <View
           style={{
-            backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.96)" : colors.surface,
+            backgroundColor: theme.mode === "glass" ? "rgba(24,24,26,0.96)" : colors.surface,
             borderTopLeftRadius: 28,
             borderTopRightRadius: 28,
             padding: 24,
@@ -111,14 +111,14 @@ export function ConfirmSheet({
                 borderRadius: theme.radii.md,
                 backgroundColor: destructive ? colors.error : colors.accent,
                 ...(theme.mode === "pop"
-                  ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "3px 3px 0 #170B26" }
+                  ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "3px 3px 0 #17181A" }
                   : {}),
               }}
             >
               <Text
                 style={[
                   theme.typography.bodyBold,
-                  { color: destructive ? "#FFFFFF" : "#170B26" },
+                  { color: destructive ? "#FFFFFF" : "#17181A" },
                 ]}
               >
                 {confirmLabel}

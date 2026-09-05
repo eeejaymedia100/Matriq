@@ -1,4 +1,11 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from "class-validator";
 
 export class RegisterStayliteDto {
   @IsEmail()
@@ -31,6 +38,14 @@ export class RegisterStayliteDto {
 
   @IsString()
   institutionId?: string;
+
+  // Optional referral share code from an existing student's invite link.
+  // Stored as pendingReferralCode and only credited once the invitee
+  // verifies their email — see AuthService.consumePendingReferral.
+  @IsOptional()
+  @IsString()
+  @MaxLength(64)
+  referralCode?: string;
 
   // Legal consent: which versions the user is accepting during registration
   @IsString()

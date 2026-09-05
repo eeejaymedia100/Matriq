@@ -38,6 +38,7 @@ import {
 import { JsonWebTokenError } from "jsonwebtoken";
 import { AuthService } from "./auth.service";
 import { MfaService } from "./mfa.service";
+import { ActivityService } from "../activity/activity.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EmailService } from "../email/email.service";
 import { StorageService } from "../storage/storage.service";
@@ -46,6 +47,7 @@ describe("AuthService", () => {
   let service: AuthService;
   let prisma: PrismaService;
   let jwtService: JwtService;
+  let activity: ActivityService;
 
   const verifiedUser = {
     id: "uuid-1",
@@ -119,6 +121,10 @@ describe("AuthService", () => {
       payment: {
         findMany: jest.fn().mockResolvedValue([]),
       },
+      referral: {
+        update: jest.fn().mockResolvedValue({ id: "referral-1" }),
+      },
+      $queryRaw: jest.fn().mockResolvedValue([]),
       refreshTokenFamily: {
         create: jest.fn().mockResolvedValue(tokenFamily),
         findMany: jest.fn().mockResolvedValue([]),
@@ -163,6 +169,10 @@ describe("AuthService", () => {
       remove: jest.fn().mockResolvedValue(true),
     };
 
+    const mockActivityService = {
+      journal: jest.fn().mockResolvedValue(true),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -171,6 +181,7 @@ describe("AuthService", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MfaService, useValue: mockMfaService },
         { provide: StorageService, useValue: mockStorageService },
+        { provide: ActivityService, useValue: mockActivityService },
         EmailService,
       ],
     }).compile();
@@ -178,6 +189,7 @@ describe("AuthService", () => {
     service = module.get<AuthService>(AuthService);
     prisma = module.get<PrismaService>(PrismaService);
     jwtService = module.get<JwtService>(JwtService);
+    activity = module.get<ActivityService>(ActivityService);
   });
 
   // ── Login ─────────────────────────────────────────────────
@@ -593,6 +605,53 @@ describe("AuthService", () => {
       expect(result.message).toContain("verify");
     });
 
+    it("persists a referral code captured at registration", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.user.create as jest.Mock).mockResolvedValue(verifiedUser);
+
+      await service.registerStaylite(
+        {
+          email: "new@example.com",
+          fullName: "New User",
+          password: "password123",
+          matricNumber: "MAT456",
+          faculty: "Science",
+          department: "CS",
+          level: "300",
+          privacyPolicyVersion: "1.0",
+          termsVersion: "1.0",
+          referralCode: "https://matriq.app/r/abc12345",
+        },
+        "127.0.0.1",
+      );
+
+      const data = (prisma.user.create as jest.Mock).mock.calls[0][0].data;
+      expect(data.pendingReferralCode).toBe("abc12345");
+    });
+
+    it("does not store an empty referral code", async () => {
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
+      (prisma.user.create as jest.Mock).mockResolvedValue(verifiedUser);
+
+      await service.registerStaylite(
+        {
+          email: "new@example.com",
+          fullName: "New User",
+          password: "password123",
+          matricNumber: "MAT456",
+          faculty: "Science",
+          department: "CS",
+          level: "300",
+          privacyPolicyVersion: "1.0",
+          termsVersion: "1.0",
+        },
+        "127.0.0.1",
+      );
+
+      const data = (prisma.user.create as jest.Mock).mock.calls[0][0].data;
+      expect(data.pendingReferralCode).toBeNull();
+    });
+
     it("should NOT delete the existing account when the email budget is exhausted", async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue({
         ...unverifiedUser,
@@ -712,6 +771,86 @@ describe("AuthService", () => {
       expect(result).toHaveProperty("accessToken");
       expect(result).toHaveProperty("refreshToken");
       expect(result.user.email).toBe("test@example.com");
+    });
+
+    it("credits a valid referral on verification and journals referral_verified", async () => {
+      const pendingUser = {
+        ...unverifiedUser,
+        pendingReferralCode: "abc12345",
+      };
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(pendingUser);
+      (prisma.user.update as jest.Mock).mockResolvedValue({
+        ...verifiedUser,
+        pendingReferralCode: null,
+      });
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue([
+        {
+          id: "abc12345-0000-0000-0000-000000000000",
+          referrer_id: "referrer-1",
+          referred_user_id: null,
+        },
+      ]);
+
+      const result = await service.verifyEmail("test-token-123");
+
+      expect(result).toHaveProperty("accessToken");
+      expect(prisma.referral.update).toHaveBeenCalledWith({
+        where: { id: "abc12345-0000-0000-0000-000000000000" },
+        data: { referredUserId: "uuid-1" },
+      });
+      expect(activity.journal).toHaveBeenCalledWith(
+        "uuid-1",
+        "referral_verified",
+        "abc12345-0000-0000-0000-000000000000",
+      );
+    });
+
+    it("rejects self-referral at verification (nothing credited)", async () => {
+      const pendingUser = {
+        ...unverifiedUser,
+        pendingReferralCode: "abc12345",
+      };
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(pendingUser);
+      (prisma.user.update as jest.Mock).mockResolvedValue(verifiedUser);
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue([
+        {
+          id: "abc12345-0000-0000-0000-000000000000",
+          referrer_id: "uuid-1", // the invitee themselves
+          referred_user_id: null,
+        },
+      ]);
+
+      await service.verifyEmail("test-token-123");
+
+      expect(prisma.referral.update).not.toHaveBeenCalled();
+      expect(activity.journal).not.toHaveBeenCalled();
+      // The pending code is still cleared so verification can't replay it.
+      expect(prisma.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ pendingReferralCode: null }),
+        }),
+      );
+    });
+
+    it("is a no-op when the referral is already converted (double-conversion guard)", async () => {
+      const pendingUser = {
+        ...unverifiedUser,
+        pendingReferralCode: "abc12345",
+      };
+      (prisma.user.findUnique as jest.Mock).mockResolvedValue(pendingUser);
+      (prisma.user.update as jest.Mock).mockResolvedValue(verifiedUser);
+      (prisma.$queryRaw as jest.Mock).mockResolvedValue([
+        {
+          id: "abc12345-0000-0000-0000-000000000000",
+          referrer_id: "referrer-1",
+          referred_user_id: "someone-else",
+        },
+      ]);
+
+      await service.verifyEmail("test-token-123");
+
+      expect(prisma.referral.update).not.toHaveBeenCalled();
+      expect(activity.journal).not.toHaveBeenCalled();
     });
   });
 

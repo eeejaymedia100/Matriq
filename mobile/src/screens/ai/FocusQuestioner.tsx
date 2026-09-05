@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Pressable,
+  ScrollView,
   Text,
   TextInput,
   View,
@@ -174,7 +176,7 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
             backgroundColor: colors.accent,
           }}
         >
-          <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 13, color: "#170B26" }}>
+          <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
             Build the map anyway
           </Text>
         </Pressable>
@@ -228,8 +230,21 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
         />
       </View>
 
-      {/* One question per screen */}
-      <View key={q.id} style={{ flex: 1, paddingHorizontal: 24, justifyContent: "center" }}>
+      {/* One question per screen. KeyboardAvoidingView + ScrollView so the
+          free-text escape hatch is never covered by the keyboard. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      <ScrollView
+        key={q.id}
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingHorizontal: 24,
+          justifyContent: "center",
+          paddingVertical: 32,
+        }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Text
           style={[
             theme.serif.editorial,
@@ -269,9 +284,9 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
               >
                 <Text
                   style={{
-                    fontFamily: "PlusJakartaSans_600SemiBold",
+                    fontFamily: "Inter_600SemiBold",
                     fontSize: 15,
-                    color: active ? "#170B26" : colors.textPrimary,
+                    color: active ? "#17181A" : colors.textPrimary,
                   }}
                 >
                   {option}
@@ -332,9 +347,9 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
                 >
                   <Text
                     style={{
-                      fontFamily: "PlusJakartaSans_700Bold",
+                      fontFamily: "Inter_700Bold",
                       fontSize: 12,
-                      color: custom.trim() ? "#170B26" : colors.textMuted,
+                      color: custom.trim() ? "#17181A" : colors.textMuted,
                     }}
                   >
                     Use
@@ -354,7 +369,8 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
             )
           ) : null}
         </View>
-      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Bottom controls */}
       <View

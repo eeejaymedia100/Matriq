@@ -105,7 +105,7 @@ export default function AdminSecurityPage() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">Security</h1>
+      <h1 className="text-2xl font-bold text-text mb-6">Security</h1>
 
       {message && (
         <div
@@ -119,11 +119,11 @@ export default function AdminSecurityPage() {
         </div>
       )}
 
-      <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 max-w-2xl">
+      <div className="bg-surface rounded-xl border border-line p-6 max-w-2xl">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="font-semibold text-white">Two-factor authentication</h2>
-            <p className="text-sm text-gray-400 mt-1">
+            <h2 className="font-semibold text-text">Two-factor authentication</h2>
+            <p className="text-sm text-muted mt-1">
               TOTP — works with Google Authenticator, Authy or any standard
               authenticator app. Once enabled, every admin sign-in requires the
               code from your phone.
@@ -141,7 +141,7 @@ export default function AdminSecurityPage() {
         </div>
 
         {loading ? (
-          <div className="h-10 bg-gray-800 rounded-lg animate-pulse" />
+          <div className="h-10 bg-surfaceAlt rounded-lg animate-pulse" />
         ) : mfaEnabled && !enroll ? (
           <button
             onClick={() => void turnOff()}
@@ -153,16 +153,16 @@ export default function AdminSecurityPage() {
         ) : !mfaEnabled && !enroll ? (
           <button
             onClick={() => void startEnroll()}
-            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+            className="px-4 py-2 bg-lime hover:brightness-110 text-ink rounded-lg text-sm font-medium transition-colors"
           >
             Set up two-factor
           </button>
         ) : null}
 
         {enroll && (
-          <div className="mt-6 border-t border-gray-800 pt-6">
-            <h3 className="font-semibold text-white mb-2">Scan with your authenticator app</h3>
-            <p className="text-sm text-gray-400 mb-4">
+          <div className="mt-6 border-t border-line pt-6">
+            <h3 className="font-semibold text-text mb-2">Scan with your authenticator app</h3>
+            <p className="text-sm text-muted mb-4">
               Open your authenticator app, add an account by scanning the QR code
               below (or entering the secret manually), then enter the 6-digit code.
             </p>
@@ -172,7 +172,7 @@ export default function AdminSecurityPage() {
               alt="TOTP QR code"
               className="w-56 h-56 bg-white rounded-xl p-2 mx-auto"
             />
-            <p className="text-center text-xs text-gray-500 mt-3 break-all font-mono">
+            <p className="text-center text-xs text-muted mt-3 break-all font-mono">
               {enroll.secret}
             </p>
             <div className="flex gap-3 mt-5">
@@ -182,18 +182,18 @@ export default function AdminSecurityPage() {
                 maxLength={6}
                 inputMode="numeric"
                 placeholder="000000"
-                className="w-40 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white tracking-widest text-center placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+                className="w-40 px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text tracking-widest text-center placeholder:text-muted focus:border-lime outline-none"
               />
               <button
                 onClick={() => void confirmEnroll()}
                 disabled={verifying || code.length !== 6}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 text-white rounded-lg text-sm font-medium transition-colors"
+                className="px-4 py-2 bg-lime hover:brightness-110 text-ink disabled:opacity-40 text-text rounded-lg text-sm font-medium transition-colors"
               >
                 {verifying ? "Verifying…" : "Verify & enable"}
               </button>
               <button
                 onClick={() => setEnroll(null)}
-                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                className="px-4 py-2 text-sm text-muted hover:text-textSecondary transition-colors"
               >
                 Cancel
               </button>

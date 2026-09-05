@@ -207,7 +207,7 @@ export function DocumentReaderScreen({
                     style={{
                       fontSize: 11,
                       fontWeight: "700",
-                      color: mode === m ? "#170B26" : colors.textSecondary,
+                      color: mode === m ? "#17181A" : colors.textSecondary,
                     }}
                   >
                     {m === "reflow" ? "Mobile" : "A4"}
@@ -286,7 +286,7 @@ export function DocumentReaderScreen({
                   }}
                 >
                   <Icon name="image" size={15} color={colors.textSecondary} />
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: colors.textSecondary }}>
+                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: colors.textSecondary }}>
                     Image to Text
                   </Text>
                 </Pressable>
@@ -302,8 +302,8 @@ export function DocumentReaderScreen({
                     backgroundColor: colors.accent,
                   }}
                 >
-                  <Icon name="sparkle" size={15} color="#170B26" />
-                  <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                  <Icon name="sparkle" size={15} color="#17181A" />
+                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                     Deep Read
                   </Text>
                 </Pressable>
@@ -374,8 +374,8 @@ export function DocumentReaderScreen({
                   backgroundColor: savedNote ? colors.success : colors.accent,
                 }}
               >
-                <Icon name="pen" size={14} color="#170B26" />
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                <Icon name="pen" size={14} color="#17181A" />
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                   {savedNote ? "Saved to Notes" : "Save as note"}
                 </Text>
               </Pressable>

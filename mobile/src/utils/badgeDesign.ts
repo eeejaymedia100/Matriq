@@ -43,7 +43,7 @@ const PARTICLE_THEMES: Record<AchievementRarity, ParticleTheme> = {
     gravity: 0.3,
   },
   rare: {
-    colors: ["#B48CFF", "#6C3BAA", "#E3D2FF"],
+    colors: ["#6FD9E8", "#2A7A94", "#D2F1F8"],
     count: 46,
     lifetime: 1.6,
     speed: 260,

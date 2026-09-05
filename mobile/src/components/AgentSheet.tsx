@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
+  KeyboardAvoidingView,
   StyleSheet,
 } from "react-native";
 import { useTheme } from "../theme/ThemeContext";
@@ -93,6 +94,11 @@ export function AgentSheet({
       navigationBarTranslucent
     >
       <Pressable style={styles.overlay} onPress={onClose}>
+        {/* KeyboardAvoidingView so the composer rides above the keyboard —
+            text fields must never be covered while typing. On Android the
+            app is edge-to-edge (no window resize), so padding is required
+            here exactly as on iOS. */}
+        <KeyboardAvoidingView style={styles.sheetStack} behavior="padding">
         <Pressable style={styles.sheet} onPress={() => {}}>
           <View style={styles.handleRow}>
             <View style={styles.handle} />
@@ -188,6 +194,7 @@ export function AgentSheet({
             </Pressable>
           </View>
         </Pressable>
+        </KeyboardAvoidingView>
       </Pressable>
     </Modal>
   );
@@ -198,6 +205,10 @@ const makeStyles = (colors: any) =>
     overlay: {
       flex: 1,
       backgroundColor: colors.overlay,
+      justifyContent: "flex-end",
+    },
+    sheetStack: {
+      flex: 1,
       justifyContent: "flex-end",
     },
     sheet: {
@@ -225,7 +236,7 @@ const makeStyles = (colors: any) =>
     },
     title: {
       flex: 1,
-      fontFamily: "PlusJakartaSans_700Bold",
+      fontFamily: "Inter_700Bold",
       fontSize: 16,
       color: colors.textPrimary,
     },
@@ -238,7 +249,7 @@ const makeStyles = (colors: any) =>
       borderColor: colors.border,
     },
     contextLabel: {
-      fontFamily: "PlusJakartaSans_700Bold",
+      fontFamily: "Inter_700Bold",
       fontSize: 10,
       letterSpacing: 1,
       textTransform: "uppercase",
@@ -270,7 +281,7 @@ const makeStyles = (colors: any) =>
     },
     toolChipText: {
       fontSize: 11,
-      fontFamily: "PlusJakartaSans_700Bold",
+      fontFamily: "Inter_700Bold",
       color: colors.brand,
     },
     errorBox: {

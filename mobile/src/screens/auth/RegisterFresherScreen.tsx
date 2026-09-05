@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Platform } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
-import { Input, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
+import { Field, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth, type FresherData } from "../../contexts/AuthContext";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
@@ -141,7 +141,7 @@ export function RegisterFresherScreen({ navigation }: Props) {
 
           {error ? <ErrorBanner error={error} /> : null}
 
-          <Input
+          <Field
             label="Full Name"
             placeholder="Jane Doe"
             autoCapitalize="words"
@@ -151,7 +151,7 @@ export function RegisterFresherScreen({ navigation }: Props) {
             error={fieldError("fullName")}
             valid={!fieldError("fullName")}
           />
-          <Input
+          <Field
             label="Email"
             placeholder="you@example.com"
             keyboardType="email-address"
@@ -163,7 +163,7 @@ export function RegisterFresherScreen({ navigation }: Props) {
             error={fieldError("email")}
             valid={!fieldError("email")}
           />
-          <Input
+          <Field
             label="JAMB Registration Number"
             placeholder="12345678AB"
             autoCapitalize="characters"
@@ -182,7 +182,7 @@ export function RegisterFresherScreen({ navigation }: Props) {
             }
             hint={INSTITUTION_HINT}
           />
-          <Input
+          <Field
             label="Password"
             placeholder="Min. 8 characters"
             secureTextEntry

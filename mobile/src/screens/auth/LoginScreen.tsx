@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
-import { Input, Button, ErrorBanner, OtpInput } from "../../components";
+import { Field, Button, ErrorBanner, OtpInput } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../api/client";
@@ -174,7 +174,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
             </View>
           ) : (
             <View style={{ gap: 8 }}>
-              <Input
+              <Field
                 label="Email"
                 placeholder="you@example.com"
                 keyboardType="email-address"
@@ -189,7 +189,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 error={emailError}
                 valid={!emailError && isRequired(email)}
               />
-              <Input
+              <Field
                 label="Password"
                 placeholder="Enter your password"
                 secureTextEntry

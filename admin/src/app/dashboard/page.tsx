@@ -65,10 +65,10 @@ export default function AdminDashboardPage() {
     return (
       <AdminLayout>
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-800 rounded w-48" />
+          <div className="h-8 bg-surfaceAlt rounded w-48" />
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-28 bg-gray-800 rounded-xl" />
+              <div key={i} className="h-28 bg-surfaceAlt rounded-xl" />
             ))}
           </div>
         </div>
@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">Admin Overview</h1>
+      <h1 className="text-2xl font-bold text-text mb-6">Admin Overview</h1>
 
       {data && (
         <>
@@ -106,26 +106,26 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Growth over time (spec §1) */}
-          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-8">
+          <div className="bg-surface rounded-xl border border-line p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="font-semibold text-white">
+                <h2 className="font-semibold text-text">
                   Active-user trend
                 </h2>
-                <p className="text-sm text-gray-400 mt-1">
+                <p className="text-sm text-muted mt-1">
                   New student signups — last 6 weeks
                 </p>
               </div>
               <div className="flex gap-4 text-sm">
-                <span className="text-gray-400">
+                <span className="text-muted">
                   7 days:{" "}
-                  <span className="font-semibold text-white">
+                  <span className="font-semibold text-text">
                     {data.signupsLast7Days}
                   </span>
                 </span>
-                <span className="text-gray-400">
+                <span className="text-muted">
                   30 days:{" "}
-                  <span className="font-semibold text-white">
+                  <span className="font-semibold text-text">
                     {data.signupsLast30Days}
                   </span>
                 </span>
@@ -140,14 +140,14 @@ export default function AdminDashboardPage() {
                 const h = Math.round((w.count / max) * 100);
                 return (
                   <div key={w.weekStart} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-xs text-gray-400 font-medium">
+                    <span className="text-xs text-muted font-medium">
                       {w.count}
                     </span>
                     <div
-                      className="w-full rounded-t-md bg-purple-500/80"
+                      className="w-full rounded-t-md bg-lime/80"
                       style={{ height: `${Math.max(h, 4)}%` }}
                     />
-                    <span className="text-[10px] text-gray-500">
+                    <span className="text-[10px] text-muted">
                       {new Date(w.weekStart + "T00:00:00").toLocaleDateString(
                         undefined,
                         { month: "short", day: "numeric" },
@@ -161,34 +161,34 @@ export default function AdminDashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {/* Association breakdown */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-              <h2 className="font-semibold text-white mb-4">
+            <div className="bg-surface rounded-xl border border-line p-6">
+              <h2 className="font-semibold text-text mb-4">
                 Association Breakdown
               </h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-800">
-                      <th className="text-left py-2 text-gray-400 font-medium">Name</th>
-                      <th className="text-left py-2 text-gray-400 font-medium">Code</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">Members</th>
-                      <th className="text-right py-2 text-gray-400 font-medium">Collected</th>
+                    <tr className="border-b border-line">
+                      <th className="text-left py-2 text-muted font-medium">Name</th>
+                      <th className="text-left py-2 text-muted font-medium">Code</th>
+                      <th className="text-right py-2 text-muted font-medium">Members</th>
+                      <th className="text-right py-2 text-muted font-medium">Collected</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.associations.length === 0 ? (
                       <tr>
-                        <td colSpan={4} className="py-4 text-gray-500 text-center">
+                        <td colSpan={4} className="py-4 text-muted text-center">
                           No active associations yet.
                         </td>
                       </tr>
                     ) : (
                       data.associations.map((a) => (
-                        <tr key={a.id} className="border-b border-gray-800/50">
-                          <td className="py-3 text-gray-200">{a.name}</td>
-                          <td className="py-3 text-gray-400">{a.shortCode}</td>
-                          <td className="py-3 text-right text-gray-300">{a.memberCount}</td>
-                          <td className="py-3 text-right text-purple-400 font-medium">
+                        <tr key={a.id} className="border-b border-line/50">
+                          <td className="py-3 text-text">{a.name}</td>
+                          <td className="py-3 text-muted">{a.shortCode}</td>
+                          <td className="py-3 text-right text-textSecondary">{a.memberCount}</td>
+                          <td className="py-3 text-right text-lime font-medium">
                             ₦{(a.totalCollected / 100).toLocaleString()}
                           </td>
                         </tr>
@@ -200,11 +200,11 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* Broadcast composer (spec §1) */}
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-              <h2 className="font-semibold text-white mb-1">
+            <div className="bg-surface rounded-xl border border-line p-6">
+              <h2 className="font-semibold text-text mb-1">
                 Platform Broadcast
               </h2>
-              <p className="text-sm text-gray-400 mb-4">
+              <p className="text-sm text-muted mb-4">
                 Goes to every student's in-app notification feed — outages, new
                 features, anything app-wide.
               </p>
@@ -214,7 +214,7 @@ export default function AdminDashboardPage() {
                   onChange={(e) => setBcTitle(e.target.value)}
                   placeholder="Title (e.g. Scheduled maintenance tonight)"
                   maxLength={140}
-                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+                  className="w-full px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none"
                 />
                 <textarea
                   value={bcBody}
@@ -222,12 +222,12 @@ export default function AdminDashboardPage() {
                   placeholder="Message"
                   maxLength={500}
                   rows={3}
-                  className="w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none resize-none"
+                  className="w-full px-4 py-2.5 bg-surfaceAlt border border-line rounded-lg text-sm text-text placeholder:text-muted focus:border-lime outline-none resize-none"
                 />
                 <button
                   onClick={() => void sendBroadcast()}
                   disabled={bcSending || !bcTitle.trim() || !bcBody.trim()}
-                  className="w-full py-2.5 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
+                  className="w-full py-2.5 bg-lime hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-ink font-medium rounded-lg transition-colors"
                 >
                   {bcSending ? "Sending…" : "Send broadcast"}
                 </button>
@@ -248,27 +248,27 @@ export default function AdminDashboardPage() {
 
           {/* Usage analytics (spec §1) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-              <h2 className="font-semibold text-white mb-4">
+            <div className="bg-surface rounded-xl border border-line p-6">
+              <h2 className="font-semibold text-text mb-4">
                 Most-Active Courses
               </h2>
               {data.topCourses.length === 0 ? (
-                <p className="text-sm text-gray-500">No Vault uploads yet.</p>
+                <p className="text-sm text-muted">No Vault uploads yet.</p>
               ) : (
                 <div className="space-y-3">
                   {data.topCourses.map((c) => (
                     <div key={c.courseCode} className="flex items-center justify-between">
                       <div>
-                        <p className="text-gray-200 text-sm font-medium">{c.courseCode}</p>
-                        <p className="text-gray-500 text-xs">
+                        <p className="text-text text-sm font-medium">{c.courseCode}</p>
+                        <p className="text-muted text-xs">
                           {c.uploads} upload{c.uploads === 1 ? "" : "s"} ·{" "}
                           {c.downloads} download{c.downloads === 1 ? "" : "s"}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="w-24 h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="w-24 h-1.5 bg-surfaceAlt rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-purple-500 rounded-full"
+                            className="h-full bg-lime rounded-full"
                             style={{
                               width: `${Math.min(
                                 100,
@@ -284,16 +284,16 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-            <div className="bg-gray-900 rounded-xl border border-gray-800 p-6">
-              <h2 className="font-semibold text-white mb-4">Vault Contribution Activity</h2>
+            <div className="bg-surface rounded-xl border border-line p-6">
+              <h2 className="font-semibold text-text mb-4">Vault Contribution Activity</h2>
               <div className="grid grid-cols-3 gap-4">
                 <VaultMiniStat label="Total" value={data.vaultActivity.totalUploads} />
                 <VaultMiniStat label="Pending review" value={data.vaultActivity.pendingModeration} />
                 <VaultMiniStat label="This week" value={data.vaultActivity.contributionsThisWeek} />
               </div>
-              <p className="text-sm text-gray-400 mt-4">
+              <p className="text-sm text-muted mt-4">
                 Moderate the queue from the{" "}
-                <a href="/vault-moderation" className="text-purple-400 hover:underline">
+                <a href="/vault-moderation" className="text-lime hover:underline">
                   Vault moderation page
                 </a>
                 .
@@ -316,19 +316,19 @@ function AdminStatCard({
   sub?: string;
 }) {
   return (
-    <div className="bg-gray-900 rounded-xl border border-gray-800 p-5">
-      <p className="text-sm text-gray-400 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-white">{value}</p>
-      {sub && <p className="text-xs text-gray-500 mt-1">{sub}</p>}
+    <div className="bg-surface rounded-xl border border-line p-5">
+      <p className="text-sm text-muted mb-1">{label}</p>
+      <p className="text-2xl font-bold text-text">{value}</p>
+      {sub && <p className="text-xs text-muted mt-1">{sub}</p>}
     </div>
   );
 }
 
 function VaultMiniStat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4 text-center">
-      <p className="text-2xl font-bold text-white">{value.toLocaleString()}</p>
-      <p className="text-xs text-gray-400 mt-1">{label}</p>
+    <div className="bg-surfaceAlt/50 rounded-lg p-4 text-center">
+      <p className="text-2xl font-bold text-text">{value.toLocaleString()}</p>
+      <p className="text-xs text-muted mt-1">{label}</p>
     </div>
   );
 }

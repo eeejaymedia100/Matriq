@@ -55,6 +55,7 @@ export type VaultItemMinAggregateOutputType = {
   originalName: string | null
   mimeType: string | null
   sizeBytes: number | null
+  contentHash: string | null
   companionSizeBytes: number | null
   companionMimeType: string | null
   moderationStatus: $Enums.ModerationStatus | null
@@ -90,6 +91,7 @@ export type VaultItemMaxAggregateOutputType = {
   originalName: string | null
   mimeType: string | null
   sizeBytes: number | null
+  contentHash: string | null
   companionSizeBytes: number | null
   companionMimeType: string | null
   moderationStatus: $Enums.ModerationStatus | null
@@ -125,6 +127,7 @@ export type VaultItemCountAggregateOutputType = {
   originalName: number
   mimeType: number
   sizeBytes: number
+  contentHash: number
   companionSizeBytes: number
   companionMimeType: number
   moderationStatus: number
@@ -178,6 +181,7 @@ export type VaultItemMinAggregateInputType = {
   originalName?: true
   mimeType?: true
   sizeBytes?: true
+  contentHash?: true
   companionSizeBytes?: true
   companionMimeType?: true
   moderationStatus?: true
@@ -213,6 +217,7 @@ export type VaultItemMaxAggregateInputType = {
   originalName?: true
   mimeType?: true
   sizeBytes?: true
+  contentHash?: true
   companionSizeBytes?: true
   companionMimeType?: true
   moderationStatus?: true
@@ -248,6 +253,7 @@ export type VaultItemCountAggregateInputType = {
   originalName?: true
   mimeType?: true
   sizeBytes?: true
+  contentHash?: true
   companionSizeBytes?: true
   companionMimeType?: true
   moderationStatus?: true
@@ -370,6 +376,7 @@ export type VaultItemGroupByOutputType = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash: string | null
   companionSizeBytes: number | null
   companionMimeType: string | null
   moderationStatus: $Enums.ModerationStatus
@@ -428,6 +435,7 @@ export type VaultItemWhereInput = {
   originalName?: Prisma.StringFilter<"VaultItem"> | string
   mimeType?: Prisma.StringFilter<"VaultItem"> | string
   sizeBytes?: Prisma.IntFilter<"VaultItem"> | number
+  contentHash?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   companionSizeBytes?: Prisma.IntNullableFilter<"VaultItem"> | number | null
   companionMimeType?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   moderationStatus?: Prisma.EnumModerationStatusFilter<"VaultItem"> | $Enums.ModerationStatus
@@ -469,6 +477,7 @@ export type VaultItemOrderByWithRelationInput = {
   originalName?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   companionMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
@@ -513,6 +522,7 @@ export type VaultItemWhereUniqueInput = Prisma.AtLeast<{
   originalName?: Prisma.StringFilter<"VaultItem"> | string
   mimeType?: Prisma.StringFilter<"VaultItem"> | string
   sizeBytes?: Prisma.IntFilter<"VaultItem"> | number
+  contentHash?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   companionSizeBytes?: Prisma.IntNullableFilter<"VaultItem"> | number | null
   companionMimeType?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   moderationStatus?: Prisma.EnumModerationStatusFilter<"VaultItem"> | $Enums.ModerationStatus
@@ -554,6 +564,7 @@ export type VaultItemOrderByWithAggregationInput = {
   originalName?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrderInput | Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   companionMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
@@ -597,6 +608,7 @@ export type VaultItemScalarWhereWithAggregatesInput = {
   originalName?: Prisma.StringWithAggregatesFilter<"VaultItem"> | string
   mimeType?: Prisma.StringWithAggregatesFilter<"VaultItem"> | string
   sizeBytes?: Prisma.IntWithAggregatesFilter<"VaultItem"> | number
+  contentHash?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
   companionSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"VaultItem"> | number | null
   companionMimeType?: Prisma.StringNullableWithAggregatesFilter<"VaultItem"> | string | null
   moderationStatus?: Prisma.EnumModerationStatusWithAggregatesFilter<"VaultItem"> | $Enums.ModerationStatus
@@ -630,6 +642,7 @@ export type VaultItemCreateInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -670,6 +683,7 @@ export type VaultItemUncheckedCreateInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -706,6 +720,7 @@ export type VaultItemUpdateInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -746,6 +761,7 @@ export type VaultItemUncheckedUpdateInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -784,6 +800,7 @@ export type VaultItemCreateManyInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -817,6 +834,7 @@ export type VaultItemUpdateManyMutationInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -851,6 +869,7 @@ export type VaultItemUncheckedUpdateManyInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -896,6 +915,7 @@ export type VaultItemCountOrderByAggregateInput = {
   originalName?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrder
   companionMimeType?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
@@ -939,6 +959,7 @@ export type VaultItemMaxOrderByAggregateInput = {
   originalName?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrder
   companionMimeType?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
@@ -974,6 +995,7 @@ export type VaultItemMinOrderByAggregateInput = {
   originalName?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
   sizeBytes?: Prisma.SortOrder
+  contentHash?: Prisma.SortOrder
   companionSizeBytes?: Prisma.SortOrder
   companionMimeType?: Prisma.SortOrder
   moderationStatus?: Prisma.SortOrder
@@ -1196,6 +1218,7 @@ export type VaultItemCreateWithoutInstitutionInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1235,6 +1258,7 @@ export type VaultItemUncheckedCreateWithoutInstitutionInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1301,6 +1325,7 @@ export type VaultItemScalarWhereInput = {
   originalName?: Prisma.StringFilter<"VaultItem"> | string
   mimeType?: Prisma.StringFilter<"VaultItem"> | string
   sizeBytes?: Prisma.IntFilter<"VaultItem"> | number
+  contentHash?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   companionSizeBytes?: Prisma.IntNullableFilter<"VaultItem"> | number | null
   companionMimeType?: Prisma.StringNullableFilter<"VaultItem"> | string | null
   moderationStatus?: Prisma.EnumModerationStatusFilter<"VaultItem"> | $Enums.ModerationStatus
@@ -1334,6 +1359,7 @@ export type VaultItemCreateWithoutUserInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1372,6 +1398,7 @@ export type VaultItemUncheckedCreateWithoutUserInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1434,6 +1461,7 @@ export type VaultItemCreateWithoutAssociationInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1472,6 +1500,7 @@ export type VaultItemUncheckedCreateWithoutAssociationInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1534,6 +1563,7 @@ export type VaultItemCreateWithoutLibrarySavesInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1573,6 +1603,7 @@ export type VaultItemUncheckedCreateWithoutLibrarySavesInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1624,6 +1655,7 @@ export type VaultItemUpdateWithoutLibrarySavesInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -1663,6 +1695,7 @@ export type VaultItemUncheckedUpdateWithoutLibrarySavesInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -1698,6 +1731,7 @@ export type VaultItemCreateWithoutLibraryViewsInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1737,6 +1771,7 @@ export type VaultItemUncheckedCreateWithoutLibraryViewsInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1788,6 +1823,7 @@ export type VaultItemUpdateWithoutLibraryViewsInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -1827,6 +1863,7 @@ export type VaultItemUncheckedUpdateWithoutLibraryViewsInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -1862,6 +1899,7 @@ export type VaultItemCreateWithoutLibraryReportsInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1901,6 +1939,7 @@ export type VaultItemUncheckedCreateWithoutLibraryReportsInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -1952,6 +1991,7 @@ export type VaultItemUpdateWithoutLibraryReportsInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -1991,6 +2031,7 @@ export type VaultItemUncheckedUpdateWithoutLibraryReportsInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2028,6 +2069,7 @@ export type VaultItemCreateManyInstitutionInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -2060,6 +2102,7 @@ export type VaultItemUpdateWithoutInstitutionInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2099,6 +2142,7 @@ export type VaultItemUncheckedUpdateWithoutInstitutionInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2136,6 +2180,7 @@ export type VaultItemUncheckedUpdateManyWithoutInstitutionInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2169,6 +2214,7 @@ export type VaultItemCreateManyUserInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -2202,6 +2248,7 @@ export type VaultItemUpdateWithoutUserInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2240,6 +2287,7 @@ export type VaultItemUncheckedUpdateWithoutUserInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2277,6 +2325,7 @@ export type VaultItemUncheckedUpdateManyWithoutUserInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2311,6 +2360,7 @@ export type VaultItemCreateManyAssociationInput = {
   originalName: string
   mimeType: string
   sizeBytes: number
+  contentHash?: string | null
   companionSizeBytes?: number | null
   companionMimeType?: string | null
   moderationStatus?: $Enums.ModerationStatus
@@ -2344,6 +2394,7 @@ export type VaultItemUpdateWithoutAssociationInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2382,6 +2433,7 @@ export type VaultItemUncheckedUpdateWithoutAssociationInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2419,6 +2471,7 @@ export type VaultItemUncheckedUpdateManyWithoutAssociationInput = {
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
   mimeType?: Prisma.StringFieldUpdateOperationsInput | string
   sizeBytes?: Prisma.IntFieldUpdateOperationsInput | number
+  contentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companionSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   companionMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   moderationStatus?: Prisma.EnumModerationStatusFieldUpdateOperationsInput | $Enums.ModerationStatus
@@ -2503,6 +2556,7 @@ export type VaultItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   originalName?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  contentHash?: boolean
   companionSizeBytes?: boolean
   companionMimeType?: boolean
   moderationStatus?: boolean
@@ -2545,6 +2599,7 @@ export type VaultItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   originalName?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  contentHash?: boolean
   companionSizeBytes?: boolean
   companionMimeType?: boolean
   moderationStatus?: boolean
@@ -2583,6 +2638,7 @@ export type VaultItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   originalName?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  contentHash?: boolean
   companionSizeBytes?: boolean
   companionMimeType?: boolean
   moderationStatus?: boolean
@@ -2621,6 +2677,7 @@ export type VaultItemSelectScalar = {
   originalName?: boolean
   mimeType?: boolean
   sizeBytes?: boolean
+  contentHash?: boolean
   companionSizeBytes?: boolean
   companionMimeType?: boolean
   moderationStatus?: boolean
@@ -2643,7 +2700,7 @@ export type VaultItemSelectScalar = {
   hidden?: boolean
 }
 
-export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt" | "level" | "session" | "institutionId" | "faculty" | "department" | "courseTitle" | "description" | "opens" | "savesCount" | "hidden", ExtArgs["result"]["vaultItem"]>
+export type VaultItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "associationId" | "courseCode" | "title" | "type" | "visibility" | "storageRef" | "companionRef" | "originalName" | "mimeType" | "sizeBytes" | "contentHash" | "companionSizeBytes" | "companionMimeType" | "moderationStatus" | "rejectionReason" | "reviewedByAdmin" | "reviewedAt" | "downloads" | "createdAt" | "updatedAt" | "deletedAt" | "level" | "session" | "institutionId" | "faculty" | "department" | "courseTitle" | "description" | "opens" | "savesCount" | "hidden", ExtArgs["result"]["vaultItem"]>
 export type VaultItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   association?: boolean | Prisma.AssociationDefaultArgs<ExtArgs>
@@ -2687,6 +2744,7 @@ export type $VaultItemPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     originalName: string
     mimeType: string
     sizeBytes: number
+    contentHash: string | null
     companionSizeBytes: number | null
     companionMimeType: string | null
     moderationStatus: $Enums.ModerationStatus
@@ -3148,6 +3206,7 @@ export interface VaultItemFieldRefs {
   readonly originalName: Prisma.FieldRef<"VaultItem", 'String'>
   readonly mimeType: Prisma.FieldRef<"VaultItem", 'String'>
   readonly sizeBytes: Prisma.FieldRef<"VaultItem", 'Int'>
+  readonly contentHash: Prisma.FieldRef<"VaultItem", 'String'>
   readonly companionSizeBytes: Prisma.FieldRef<"VaultItem", 'Int'>
   readonly companionMimeType: Prisma.FieldRef<"VaultItem", 'String'>
   readonly moderationStatus: Prisma.FieldRef<"VaultItem", 'ModerationStatus'>

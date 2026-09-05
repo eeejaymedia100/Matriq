@@ -179,6 +179,10 @@ model User {
   // dashboard (scroll-picker UI in the app). Nullable: legacy accounts are
   // prompted to complete their profile on next launch.
   dateOfBirth     DateTime?         @map("date_of_birth")
+  // Referral invite code captured at registration, consumed (and cleared) on
+  // email verification — the moment the invitee is provably a genuine new
+  // student. Self-referral and double-conversion are rejected at consume time.
+  pendingReferralCode String?        @map("pending_referral_code")
   // Profile picture: S3 object key when object storage is enabled, otherwise
   // a base64 data-URI (vault-style fallback). Null = no photo set.
   profilePhotoUrl  String?          @map("profile_photo_url")
@@ -219,6 +223,8 @@ model User {
   libraryReports       LibraryReport[]
   achievementUnlocks   AchievementUnlock[]
   deepReadJobs         DeepReadJob[]
+  activityJournal      ActivityJournalEntry[]
+  masteryPasses        MasteryCheckpointPass[]
 
   @@map("users")
 }
@@ -577,7 +583,10 @@ model VaultItem {
   companionRef      String?         @map("companion_ref")
   originalName      String          @map("original_name")
   mimeType          String          @map("mime_type")
-  sizeBytes         Int             @map("size_bytes")
+  sizeBytes         Int                 @map("size_bytes")
+  // SHA-256 of the original file bytes — upload-dedupe key. Null for legacy
+  // items or clients that didn't supply content (data-URI fallbacks).
+  contentHash       String?             @map("content_hash")
   companionSizeBytes Int?           @map("companion_size_bytes")
   companionMimeType String?         @map("companion_mime_type")
   // Public uploads require admin approval before they're visible to others;
@@ -631,6 +640,7 @@ model VaultItem {
   @@index([visibility, moderationStatus, createdAt])
   @@index([institutionId, moderationStatus, visibility])
   @@index([faculty, department])
+  @@index([contentHash])
   @@map("vault_items")
 }
 
@@ -1032,4 +1042,49 @@ model RefreshToken {
   @@index([tokenHash])
   @@index([familyId])
   @@map("refresh_tokens")
+}
+
+// ── Meaningful-activity journal (achievements §) ────────────────
+// Server-authoritative record of activities that count toward streaks,
+// First Spark, Deep Thinker, Knowledge Explorer and the rest. Every entry is
+// idempotent: (userId, eventKey) is unique, so replays, retries and racing
+// clients can never double-credit. A day only counts for streaks when it has
+// at least one journal entry — app launches are never journaled.
+model ActivityJournalEntry {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  // focus_map | mastery_pass | note_save | task_complete | upload |
+  // library_save | ai_generation | deep_read | referral_verified
+  kind         String   @map("kind")
+  // "{kind}:{naturalId}" — e.g. "focus_map:f3c2..." — the idempotency key.
+  // Natural ids are the underlying record ids, so replaying the same event
+  // (retry, double-tap, re-sync) lands on the same key and is a no-op.
+  eventKey     String   @map("event_key")
+  // UTC calendar day (midnight) this entry counts toward.
+  activityDate DateTime @map("activity_date")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventKey])
+  @@index([userId, activityDate])
+  @@map("activity_journal")
+}
+
+// ── Focus Mode mastery checkpoints ─────────────────────────────
+// One row per passed checkpoint, keyed to the map + session it came from so
+// the same checkpoint can never be passed twice, by retry or replay.
+model MasteryCheckpointPass {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  focusSessionId String   @map("focus_session_id") @db.Uuid
+  mapId          String   @map("map_id") @db.Uuid
+  score          Int      @default(0)
+  passedAt       DateTime @default(now()) @map("passed_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, focusSessionId, mapId])
+  @@index([userId])
+  @@map("mastery_checkpoint_passes")
 }

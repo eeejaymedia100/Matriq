@@ -74,7 +74,7 @@ export function FocusTimerScreen() {
           </Text>
 
           <View style={{ marginTop: 28, alignItems: "center" }}>
-            <Text style={{ fontFamily: "PlusJakartaSans_800ExtraBold", fontSize: 76, color: colors.textPrimary, fontVariant: ["tabular-nums"] }}>
+            <Text style={{ fontFamily: "Inter_800ExtraBold", fontSize: 76, color: colors.textPrimary, fontVariant: ["tabular-nums"] }}>
               {mins}:{secs.toString().padStart(2, "0")}
             </Text>
             <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
@@ -118,8 +118,8 @@ export function FocusTimerScreen() {
                 borderColor: colors.borderStrong,
               }}
             >
-              <Icon name={running ? "x" : "zap"} size={18} color="#170B26" />
-              <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 15, color: "#170B26" }}>
+              <Icon name={running ? "x" : "zap"} size={18} color="#17181A" />
+              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>
                 {running ? "Pause" : "Start"}
               </Text>
             </Pressable>

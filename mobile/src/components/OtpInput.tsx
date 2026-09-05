@@ -168,7 +168,7 @@ const DigitBox = React.forwardRef<TextInput, DigitBoxProps>(function DigitBox(
           height: "100%",
           textAlign: "center",
           fontSize: 22,
-          fontFamily: "PlusJakartaSans_700Bold",
+          fontFamily: "Inter_700Bold",
           color: colors.text,
           padding: 0,
         }}

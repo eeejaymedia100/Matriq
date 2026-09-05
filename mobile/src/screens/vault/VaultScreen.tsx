@@ -456,7 +456,7 @@ export function VaultScreen({ navigation }: Props) {
                 }}
               >
                 <Icon name="book" size={15} color={colors.textPrimary} />
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: colors.textPrimary }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: colors.textPrimary }}>
                   Discover
                 </Text>
               </Pressable>
@@ -474,8 +474,8 @@ export function VaultScreen({ navigation }: Props) {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Icon name="plus" size={15} color="#170B26" />
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                <Icon name="plus" size={15} color="#17181A" />
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                   Upload
                 </Text>
               </Pressable>
@@ -514,9 +514,9 @@ export function VaultScreen({ navigation }: Props) {
               >
                 <Text
                   style={{
-                    fontFamily: "PlusJakartaSans_700Bold",
+                    fontFamily: "Inter_700Bold",
                     fontSize: 12,
-                    color: tab === t.id ? "#170B26" : colors.textPrimary,
+                    color: tab === t.id ? "#17181A" : colors.textPrimary,
                   }}
                 >
                   {t.label}
@@ -524,7 +524,7 @@ export function VaultScreen({ navigation }: Props) {
                 <Text
                   style={[
                     theme.typography.small,
-                    { color: tab === t.id ? "#170B26" : colors.textMuted, marginTop: 1 },
+                    { color: tab === t.id ? "#17181A" : colors.textMuted, marginTop: 1 },
                   ]}
                 >
                   {t.hint}
@@ -593,9 +593,9 @@ export function VaultScreen({ navigation }: Props) {
                   >
                     <Text
                       style={{
-                        fontFamily: "PlusJakartaSans_600SemiBold",
+                        fontFamily: "Inter_600SemiBold",
                         fontSize: 12,
-                        color: filter === f.id ? "#170B26" : colors.textPrimary,
+                        color: filter === f.id ? "#17181A" : colors.textPrimary,
                       }}
                     >
                       {f.label}
@@ -621,9 +621,9 @@ export function VaultScreen({ navigation }: Props) {
                   >
                     <Text
                       style={{
-                        fontFamily: "PlusJakartaSans_600SemiBold",
+                        fontFamily: "Inter_600SemiBold",
                         fontSize: 11,
-                        color: levelFilter === lvl ? "#170B26" : colors.textSecondary,
+                        color: levelFilter === lvl ? "#17181A" : colors.textSecondary,
                       }}
                     >
                       {lvl || "All levels"}
@@ -705,7 +705,7 @@ export function VaultScreen({ navigation }: Props) {
                       onPress={() => stackNav?.navigate("VaultUpload")}
                       style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
                     >
-                      <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                      <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                         Be the first to contribute
                       </Text>
                     </Pressable>
@@ -731,7 +731,7 @@ export function VaultScreen({ navigation }: Props) {
                     onPress={() => stackNav?.navigate("VaultUpload")}
                     style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
                   >
-                    <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+                    <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
                       Upload a file
                     </Text>
                   </Pressable>
@@ -801,7 +801,7 @@ export function VaultScreen({ navigation }: Props) {
             borderWidth: 1.5,
             borderColor: renameError ? colors.error : colors.borderStrong,
             color: colors.textPrimary,
-            fontFamily: "PlusJakartaSans_400Regular",
+            fontFamily: "Inter_400Regular",
             fontSize: 15,
             paddingHorizontal: 14,
             paddingVertical: 12,

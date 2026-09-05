@@ -66,7 +66,7 @@ export default function AiModerationPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">AI Study Material</h1>
+        <h1 className="text-2xl font-bold text-text">AI Study Material</h1>
         <div className="flex gap-2">
           {["pending", "approved", "rejected", "all"].map((f) => (
             <button
@@ -74,8 +74,8 @@ export default function AiModerationPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  ? "bg-lime text-ink"
+                  : "bg-surfaceAlt text-muted hover:bg-surfaceAlt"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -96,28 +96,28 @@ export default function AiModerationPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : documents.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">No {filter === "all" ? "" : filter} documents</p>
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">No {filter === "all" ? "" : filter} documents</p>
         </div>
       ) : (
         <div className="space-y-4">
           {documents.map((doc) => (
             <div
               key={doc.id}
-              className="bg-gray-900 rounded-xl border border-gray-800 p-5"
+              className="bg-surface rounded-xl border border-line p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-gray-700 text-gray-200">
+                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-surfaceAlt text-text">
                       {doc.sourceType}
                     </span>
                     {doc.courseCode && (
-                      <span className="text-sm font-semibold text-purple-300">
+                      <span className="text-sm font-semibold text-lime">
                         {doc.courseCode}
                       </span>
                     )}
@@ -133,11 +133,11 @@ export default function AiModerationPage() {
                       {doc.moderationStatus}
                     </span>
                   </div>
-                  <p className="text-gray-300 text-sm line-clamp-3 whitespace-pre-wrap">
+                  <p className="text-textSecondary text-sm line-clamp-3 whitespace-pre-wrap">
                     {doc.contentChunk.slice(0, 400)}
                     {doc.contentChunk.length > 400 ? "…" : ""}
                   </p>
-                  <p className="text-xs text-gray-500 mt-2">
+                  <p className="text-xs text-muted mt-2">
                     {doc.submitter?.fullName ?? "Unknown"} ·{" "}
                     {doc.submitter?.email ?? ""} ·{" "}
                     {doc.association?.name ?? "General"} ·{" "}
@@ -150,14 +150,14 @@ export default function AiModerationPage() {
                     <button
                       onClick={() => handleModerate(doc.id, "approved")}
                       disabled={actionId === doc.id}
-                      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-green-600 text-text rounded-lg hover:bg-green-700 disabled:bg-green-400 transition-colors"
                     >
                       {actionId === doc.id ? "..." : "Approve"}
                     </button>
                     <button
                       onClick={() => handleModerate(doc.id, "rejected")}
                       disabled={actionId === doc.id}
-                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-red-600 text-text rounded-lg hover:bg-red-700 disabled:bg-red-400 transition-colors"
                     >
                       Reject
                     </button>

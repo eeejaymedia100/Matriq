@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Platform } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
-import { Input, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
+import { Field, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
 import { Icon } from "../../components/icons";
 import { useAuth, type StayliteData } from "../../contexts/AuthContext";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
@@ -145,7 +145,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
 
           {error ? <ErrorBanner error={error} /> : null}
 
-          <Input
+          <Field
             label="Full Name"
             placeholder="John Doe"
             autoCapitalize="words"
@@ -155,7 +155,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
             error={fieldError("fullName")}
             valid={!fieldError("fullName")}
           />
-          <Input
+          <Field
             label="Email"
             placeholder="you@example.com"
             keyboardType="email-address"
@@ -167,7 +167,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
             error={fieldError("email")}
             valid={!fieldError("email")}
           />
-          <Input
+          <Field
             label="Matric Number"
             placeholder="ENG/2020/12345"
             autoCapitalize="characters"
@@ -186,7 +186,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
             }
             hint={INSTITUTION_HINT}
           />
-          <Input
+          <Field
             label="Level"
             placeholder="400"
             keyboardType="number-pad"
@@ -196,7 +196,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
             error={fieldError("level")}
             valid={!fieldError("level")}
           />
-          <Input
+          <Field
             label="Password"
             placeholder="Min. 8 characters"
             secureTextEntry

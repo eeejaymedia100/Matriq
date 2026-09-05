@@ -88,7 +88,7 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
             >
               <Text
                 style={{
-                  fontFamily: "PlusJakartaSans_800ExtraBold",
+                  fontFamily: "Inter_800ExtraBold",
                   fontSize: 30,
                   color: colors.accent,
                 }}

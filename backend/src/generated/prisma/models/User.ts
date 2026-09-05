@@ -53,6 +53,7 @@ export type UserMinAggregateOutputType = {
   verificationEmailCount: number | null
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  pendingReferralCode: string | null
   profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
@@ -81,6 +82,7 @@ export type UserMaxAggregateOutputType = {
   verificationEmailCount: number | null
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  pendingReferralCode: string | null
   profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
@@ -109,6 +111,7 @@ export type UserCountAggregateOutputType = {
   verificationEmailCount: number
   verificationEmailWindowStart: number
   dateOfBirth: number
+  pendingReferralCode: number
   profilePhotoUrl: number
   mfaEnabled: number
   mfaSecret: number
@@ -147,6 +150,7 @@ export type UserMinAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  pendingReferralCode?: true
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
@@ -175,6 +179,7 @@ export type UserMaxAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  pendingReferralCode?: true
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
@@ -203,6 +208,7 @@ export type UserCountAggregateInputType = {
   verificationEmailCount?: true
   verificationEmailWindowStart?: true
   dateOfBirth?: true
+  pendingReferralCode?: true
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
@@ -318,6 +324,7 @@ export type UserGroupByOutputType = {
   verificationEmailCount: number
   verificationEmailWindowStart: Date | null
   dateOfBirth: Date | null
+  pendingReferralCode: string | null
   profilePhotoUrl: string | null
   mfaEnabled: boolean
   mfaSecret: string | null
@@ -369,6 +376,7 @@ export type UserWhereInput = {
   verificationEmailCount?: Prisma.IntFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  pendingReferralCode?: Prisma.StringNullableFilter<"User"> | string | null
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
@@ -402,6 +410,8 @@ export type UserWhereInput = {
   libraryReports?: Prisma.LibraryReportListRelationFilter
   achievementUnlocks?: Prisma.AchievementUnlockListRelationFilter
   deepReadJobs?: Prisma.DeepReadJobListRelationFilter
+  activityJournal?: Prisma.ActivityJournalEntryListRelationFilter
+  masteryPasses?: Prisma.MasteryCheckpointPassListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -423,6 +433,7 @@ export type UserOrderByWithRelationInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingReferralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -456,6 +467,8 @@ export type UserOrderByWithRelationInput = {
   libraryReports?: Prisma.LibraryReportOrderByRelationAggregateInput
   achievementUnlocks?: Prisma.AchievementUnlockOrderByRelationAggregateInput
   deepReadJobs?: Prisma.DeepReadJobOrderByRelationAggregateInput
+  activityJournal?: Prisma.ActivityJournalEntryOrderByRelationAggregateInput
+  masteryPasses?: Prisma.MasteryCheckpointPassOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -480,6 +493,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   verificationEmailCount?: Prisma.IntFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  pendingReferralCode?: Prisma.StringNullableFilter<"User"> | string | null
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
@@ -513,6 +527,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   libraryReports?: Prisma.LibraryReportListRelationFilter
   achievementUnlocks?: Prisma.AchievementUnlockListRelationFilter
   deepReadJobs?: Prisma.DeepReadJobListRelationFilter
+  activityJournal?: Prisma.ActivityJournalEntryListRelationFilter
+  masteryPasses?: Prisma.MasteryCheckpointPassListRelationFilter
 }, "id" | "email" | "verificationToken">
 
 export type UserOrderByWithAggregationInput = {
@@ -534,6 +550,7 @@ export type UserOrderByWithAggregationInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  pendingReferralCode?: Prisma.SortOrderInput | Prisma.SortOrder
   profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -570,6 +587,7 @@ export type UserScalarWhereWithAggregatesInput = {
   verificationEmailCount?: Prisma.IntWithAggregatesFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+  pendingReferralCode?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   profilePhotoUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
@@ -597,6 +615,7 @@ export type UserCreateInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -630,6 +649,8 @@ export type UserCreateInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -651,6 +672,7 @@ export type UserUncheckedCreateInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -683,6 +705,8 @@ export type UserUncheckedCreateInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -703,6 +727,7 @@ export type UserUpdateInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -736,6 +761,8 @@ export type UserUpdateInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -757,6 +784,7 @@ export type UserUncheckedUpdateInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -789,6 +817,8 @@ export type UserUncheckedUpdateInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -810,6 +840,7 @@ export type UserCreateManyInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -837,6 +868,7 @@ export type UserUpdateManyMutationInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -865,6 +897,7 @@ export type UserUncheckedUpdateManyInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -903,6 +936,7 @@ export type UserCountOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  pendingReferralCode?: Prisma.SortOrder
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
@@ -935,6 +969,7 @@ export type UserMaxOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  pendingReferralCode?: Prisma.SortOrder
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
@@ -963,6 +998,7 @@ export type UserMinOrderByAggregateInput = {
   verificationEmailCount?: Prisma.SortOrder
   verificationEmailWindowStart?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
+  pendingReferralCode?: Prisma.SortOrder
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
@@ -1410,6 +1446,34 @@ export type UserUpdateOneRequiredWithoutRefreshTokenFamiliesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRefreshTokenFamiliesInput, Prisma.UserUpdateWithoutRefreshTokenFamiliesInput>, Prisma.UserUncheckedUpdateWithoutRefreshTokenFamiliesInput>
 }
 
+export type UserCreateNestedOneWithoutActivityJournalInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityJournalInput, Prisma.UserUncheckedCreateWithoutActivityJournalInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityJournalInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutActivityJournalNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutActivityJournalInput, Prisma.UserUncheckedCreateWithoutActivityJournalInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutActivityJournalInput
+  upsert?: Prisma.UserUpsertWithoutActivityJournalInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutActivityJournalInput, Prisma.UserUpdateWithoutActivityJournalInput>, Prisma.UserUncheckedUpdateWithoutActivityJournalInput>
+}
+
+export type UserCreateNestedOneWithoutMasteryPassesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMasteryPassesInput, Prisma.UserUncheckedCreateWithoutMasteryPassesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMasteryPassesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutMasteryPassesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutMasteryPassesInput, Prisma.UserUncheckedCreateWithoutMasteryPassesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutMasteryPassesInput
+  upsert?: Prisma.UserUpsertWithoutMasteryPassesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMasteryPassesInput, Prisma.UserUpdateWithoutMasteryPassesInput>, Prisma.UserUncheckedUpdateWithoutMasteryPassesInput>
+}
+
 export type UserCreateWithoutInstitutionInput = {
   id?: string
   fullName: string
@@ -1428,6 +1492,7 @@ export type UserCreateWithoutInstitutionInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1460,6 +1525,8 @@ export type UserCreateWithoutInstitutionInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutInstitutionInput = {
@@ -1480,6 +1547,7 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1512,6 +1580,8 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutInstitutionInput = {
@@ -1562,6 +1632,7 @@ export type UserScalarWhereInput = {
   verificationEmailCount?: Prisma.IntFilter<"User"> | number
   verificationEmailWindowStart?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  pendingReferralCode?: Prisma.StringNullableFilter<"User"> | string | null
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
@@ -1589,6 +1660,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1621,6 +1693,8 @@ export type UserCreateWithoutExecutiveRolesInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -1642,6 +1716,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1673,6 +1748,8 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutExecutiveRolesInput = {
@@ -1709,6 +1786,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1741,6 +1819,8 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -1762,6 +1842,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1793,6 +1874,8 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -1813,6 +1896,7 @@ export type UserCreateWithoutMembershipsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1845,6 +1929,8 @@ export type UserCreateWithoutMembershipsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1866,6 +1952,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -1897,6 +1984,8 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -1933,6 +2022,7 @@ export type UserUpdateWithoutMembershipsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1965,6 +2055,8 @@ export type UserUpdateWithoutMembershipsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1986,6 +2078,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2017,6 +2110,8 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVerificationRequestsInput = {
@@ -2037,6 +2132,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2069,6 +2165,8 @@ export type UserCreateWithoutVerificationRequestsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -2090,6 +2188,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2121,6 +2220,8 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationRequestsInput = {
@@ -2157,6 +2258,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2189,6 +2291,8 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -2210,6 +2314,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2241,6 +2346,8 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -2261,6 +2368,7 @@ export type UserCreateWithoutPaymentsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2293,6 +2401,8 @@ export type UserCreateWithoutPaymentsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -2314,6 +2424,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2345,6 +2456,8 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -2381,6 +2494,7 @@ export type UserUpdateWithoutPaymentsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2413,6 +2527,8 @@ export type UserUpdateWithoutPaymentsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -2434,6 +2550,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2465,6 +2582,8 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAnnouncementReadsInput = {
@@ -2485,6 +2604,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2517,6 +2637,8 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -2538,6 +2660,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2569,6 +2692,8 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAnnouncementReadsInput = {
@@ -2605,6 +2730,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2637,6 +2763,8 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -2658,6 +2786,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2689,6 +2818,8 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventRsvpsInput = {
@@ -2709,6 +2840,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2741,6 +2873,8 @@ export type UserCreateWithoutEventRsvpsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -2762,6 +2896,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2793,6 +2928,8 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventRsvpsInput = {
@@ -2829,6 +2966,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2861,6 +2999,8 @@ export type UserUpdateWithoutEventRsvpsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -2882,6 +3022,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2913,6 +3054,8 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventAttendanceInput = {
@@ -2933,6 +3076,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -2965,6 +3109,8 @@ export type UserCreateWithoutEventAttendanceInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventAttendanceInput = {
@@ -2986,6 +3132,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3017,6 +3164,8 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventAttendanceInput = {
@@ -3053,6 +3202,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3085,6 +3235,8 @@ export type UserUpdateWithoutEventAttendanceInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventAttendanceInput = {
@@ -3106,6 +3258,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3137,6 +3290,8 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReferralsGivenInput = {
@@ -3157,6 +3312,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3189,6 +3345,8 @@ export type UserCreateWithoutReferralsGivenInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -3210,6 +3368,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3241,6 +3400,8 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsGivenInput = {
@@ -3266,6 +3427,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3298,6 +3460,8 @@ export type UserCreateWithoutReferralsReceivedInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -3319,6 +3483,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3350,6 +3515,8 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -3386,6 +3553,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3418,6 +3586,8 @@ export type UserUpdateWithoutReferralsGivenInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -3439,6 +3609,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3470,6 +3641,8 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -3501,6 +3674,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3533,6 +3707,8 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -3554,6 +3730,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3585,6 +3762,8 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiDocumentsSubmittedInput = {
@@ -3605,6 +3784,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3637,6 +3817,8 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -3658,6 +3840,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3689,6 +3872,8 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiDocumentsSubmittedInput = {
@@ -3725,6 +3910,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3757,6 +3943,8 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -3778,6 +3966,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3809,6 +3998,8 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAiQueryLogsInput = {
@@ -3829,6 +4020,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3861,6 +4053,8 @@ export type UserCreateWithoutAiQueryLogsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -3882,6 +4076,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -3913,6 +4108,8 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAiQueryLogsInput = {
@@ -3949,6 +4146,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3981,6 +4179,8 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -4002,6 +4202,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4033,6 +4234,8 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutVaultItemsInput = {
@@ -4053,6 +4256,7 @@ export type UserCreateWithoutVaultItemsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4085,6 +4289,8 @@ export type UserCreateWithoutVaultItemsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutVaultItemsInput = {
@@ -4106,6 +4312,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4137,6 +4344,8 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutVaultItemsInput = {
@@ -4173,6 +4382,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4205,6 +4415,8 @@ export type UserUpdateWithoutVaultItemsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVaultItemsInput = {
@@ -4226,6 +4438,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4257,6 +4470,8 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibrarySavesInput = {
@@ -4277,6 +4492,7 @@ export type UserCreateWithoutLibrarySavesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4309,6 +4525,8 @@ export type UserCreateWithoutLibrarySavesInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibrarySavesInput = {
@@ -4330,6 +4548,7 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4361,6 +4580,8 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibrarySavesInput = {
@@ -4397,6 +4618,7 @@ export type UserUpdateWithoutLibrarySavesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4429,6 +4651,8 @@ export type UserUpdateWithoutLibrarySavesInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibrarySavesInput = {
@@ -4450,6 +4674,7 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4481,6 +4706,8 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibraryViewsInput = {
@@ -4501,6 +4728,7 @@ export type UserCreateWithoutLibraryViewsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4533,6 +4761,8 @@ export type UserCreateWithoutLibraryViewsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryViewsInput = {
@@ -4554,6 +4784,7 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4585,6 +4816,8 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryViewsInput = {
@@ -4621,6 +4854,7 @@ export type UserUpdateWithoutLibraryViewsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4653,6 +4887,8 @@ export type UserUpdateWithoutLibraryViewsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryViewsInput = {
@@ -4674,6 +4910,7 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4705,6 +4942,8 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLibraryReportsInput = {
@@ -4725,6 +4964,7 @@ export type UserCreateWithoutLibraryReportsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4757,6 +4997,8 @@ export type UserCreateWithoutLibraryReportsInput = {
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryReportsInput = {
@@ -4778,6 +5020,7 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4809,6 +5052,8 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryReportsInput = {
@@ -4845,6 +5090,7 @@ export type UserUpdateWithoutLibraryReportsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4877,6 +5123,8 @@ export type UserUpdateWithoutLibraryReportsInput = {
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryReportsInput = {
@@ -4898,6 +5146,7 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4929,6 +5178,8 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -4949,6 +5200,7 @@ export type UserCreateWithoutNotificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -4981,6 +5233,8 @@ export type UserCreateWithoutNotificationsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -5002,6 +5256,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5033,6 +5288,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -5069,6 +5326,7 @@ export type UserUpdateWithoutNotificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5101,6 +5359,8 @@ export type UserUpdateWithoutNotificationsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -5122,6 +5382,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5153,6 +5414,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPushDevicesInput = {
@@ -5173,6 +5436,7 @@ export type UserCreateWithoutPushDevicesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5205,6 +5469,8 @@ export type UserCreateWithoutPushDevicesInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPushDevicesInput = {
@@ -5226,6 +5492,7 @@ export type UserUncheckedCreateWithoutPushDevicesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5257,6 +5524,8 @@ export type UserUncheckedCreateWithoutPushDevicesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPushDevicesInput = {
@@ -5293,6 +5562,7 @@ export type UserUpdateWithoutPushDevicesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5325,6 +5595,8 @@ export type UserUpdateWithoutPushDevicesInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushDevicesInput = {
@@ -5346,6 +5618,7 @@ export type UserUncheckedUpdateWithoutPushDevicesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5377,6 +5650,8 @@ export type UserUncheckedUpdateWithoutPushDevicesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutLegalAcceptancesInput = {
@@ -5397,6 +5672,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5429,6 +5705,8 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -5450,6 +5728,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5481,6 +5760,8 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutLegalAcceptancesInput = {
@@ -5517,6 +5798,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5549,6 +5831,8 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -5570,6 +5854,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5601,6 +5886,8 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEntitlementsInput = {
@@ -5621,6 +5908,7 @@ export type UserCreateWithoutEntitlementsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5653,6 +5941,8 @@ export type UserCreateWithoutEntitlementsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEntitlementsInput = {
@@ -5674,6 +5964,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5705,6 +5996,8 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEntitlementsInput = {
@@ -5741,6 +6034,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5773,6 +6067,8 @@ export type UserUpdateWithoutEntitlementsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEntitlementsInput = {
@@ -5794,6 +6090,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5825,6 +6122,8 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFocusSessionsInput = {
@@ -5845,6 +6144,7 @@ export type UserCreateWithoutFocusSessionsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5877,6 +6177,8 @@ export type UserCreateWithoutFocusSessionsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusSessionsInput = {
@@ -5898,6 +6200,7 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -5929,6 +6232,8 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusSessionsInput = {
@@ -5965,6 +6270,7 @@ export type UserUpdateWithoutFocusSessionsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5997,6 +6303,8 @@ export type UserUpdateWithoutFocusSessionsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusSessionsInput = {
@@ -6018,6 +6326,7 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6049,6 +6358,8 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFocusClarificationsInput = {
@@ -6069,6 +6380,7 @@ export type UserCreateWithoutFocusClarificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6101,6 +6413,8 @@ export type UserCreateWithoutFocusClarificationsInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusClarificationsInput = {
@@ -6122,6 +6436,7 @@ export type UserUncheckedCreateWithoutFocusClarificationsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6153,6 +6468,8 @@ export type UserUncheckedCreateWithoutFocusClarificationsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusClarificationsInput = {
@@ -6189,6 +6506,7 @@ export type UserUpdateWithoutFocusClarificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6221,6 +6539,8 @@ export type UserUpdateWithoutFocusClarificationsInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
@@ -6242,6 +6562,7 @@ export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6273,6 +6594,8 @@ export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAchievementUnlocksInput = {
@@ -6293,6 +6616,7 @@ export type UserCreateWithoutAchievementUnlocksInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6325,6 +6649,8 @@ export type UserCreateWithoutAchievementUnlocksInput = {
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
@@ -6346,6 +6672,7 @@ export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6377,6 +6704,8 @@ export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAchievementUnlocksInput = {
@@ -6413,6 +6742,7 @@ export type UserUpdateWithoutAchievementUnlocksInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6445,6 +6775,8 @@ export type UserUpdateWithoutAchievementUnlocksInput = {
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
@@ -6466,6 +6798,7 @@ export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6497,6 +6830,8 @@ export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFocusUsageInput = {
@@ -6517,6 +6852,7 @@ export type UserCreateWithoutFocusUsageInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6549,6 +6885,8 @@ export type UserCreateWithoutFocusUsageInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusUsageInput = {
@@ -6570,6 +6908,7 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6601,6 +6940,8 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusUsageInput = {
@@ -6637,6 +6978,7 @@ export type UserUpdateWithoutFocusUsageInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6669,6 +7011,8 @@ export type UserUpdateWithoutFocusUsageInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusUsageInput = {
@@ -6690,6 +7034,7 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6721,6 +7066,8 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDeepReadJobsInput = {
@@ -6741,6 +7088,7 @@ export type UserCreateWithoutDeepReadJobsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6773,6 +7121,8 @@ export type UserCreateWithoutDeepReadJobsInput = {
   libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDeepReadJobsInput = {
@@ -6794,6 +7144,7 @@ export type UserUncheckedCreateWithoutDeepReadJobsInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6825,6 +7176,8 @@ export type UserUncheckedCreateWithoutDeepReadJobsInput = {
   libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDeepReadJobsInput = {
@@ -6861,6 +7214,7 @@ export type UserUpdateWithoutDeepReadJobsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6893,6 +7247,8 @@ export type UserUpdateWithoutDeepReadJobsInput = {
   libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
@@ -6914,6 +7270,7 @@ export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6945,6 +7302,8 @@ export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
   libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRefreshTokenFamiliesInput = {
@@ -6965,6 +7324,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -6997,6 +7357,8 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -7018,6 +7380,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -7049,6 +7412,8 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokenFamiliesInput = {
@@ -7085,6 +7450,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7117,6 +7483,8 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
@@ -7138,6 +7506,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7169,9 +7538,11 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
-export type UserCreateManyInstitutionInput = {
+export type UserCreateWithoutActivityJournalInput = {
   id?: string
   fullName: string
   email: string
@@ -7189,6 +7560,7 @@ export type UserCreateManyInstitutionInput = {
   verificationEmailCount?: number
   verificationEmailWindowStart?: Date | string | null
   dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
@@ -7196,9 +7568,107 @@ export type UserCreateManyInstitutionInput = {
   updatedAt?: Date | string
   deletedAt?: Date | string | null
   deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
+  entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
 }
 
-export type UserUpdateWithoutInstitutionInput = {
+export type UserUncheckedCreateWithoutActivityJournalInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutActivityJournalInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityJournalInput, Prisma.UserUncheckedCreateWithoutActivityJournalInput>
+}
+
+export type UserUpsertWithoutActivityJournalInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutActivityJournalInput, Prisma.UserUncheckedUpdateWithoutActivityJournalInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutActivityJournalInput, Prisma.UserUncheckedCreateWithoutActivityJournalInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutActivityJournalInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutActivityJournalInput, Prisma.UserUncheckedUpdateWithoutActivityJournalInput>
+}
+
+export type UserUpdateWithoutActivityJournalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -7216,6 +7686,7 @@ export type UserUpdateWithoutInstitutionInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7239,6 +7710,7 @@ export type UserUpdateWithoutInstitutionInput = {
   vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
   pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
   entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
   focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
   focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
@@ -7248,9 +7720,10 @@ export type UserUpdateWithoutInstitutionInput = {
   libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
 }
 
-export type UserUncheckedUpdateWithoutInstitutionInput = {
+export type UserUncheckedUpdateWithoutActivityJournalInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
@@ -7259,6 +7732,7 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   faculty?: Prisma.StringFieldUpdateOperationsInput | string
   department?: Prisma.StringFieldUpdateOperationsInput | string
   level?: Prisma.StringFieldUpdateOperationsInput | string
@@ -7268,6 +7742,7 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7300,6 +7775,381 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
   achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutMasteryPassesInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
+  entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutMasteryPassesInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutMasteryPassesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutMasteryPassesInput, Prisma.UserUncheckedCreateWithoutMasteryPassesInput>
+}
+
+export type UserUpsertWithoutMasteryPassesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutMasteryPassesInput, Prisma.UserUncheckedUpdateWithoutMasteryPassesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutMasteryPassesInput, Prisma.UserUncheckedCreateWithoutMasteryPassesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutMasteryPassesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutMasteryPassesInput, Prisma.UserUncheckedUpdateWithoutMasteryPassesInput>
+}
+
+export type UserUpdateWithoutMasteryPassesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutMasteryPassesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateManyInstitutionInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+}
+
+export type UserUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutInstitutionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutInstitutionInput = {
@@ -7320,6 +8170,7 @@ export type UserUncheckedUpdateManyWithoutInstitutionInput = {
   verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
   verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7359,6 +8210,8 @@ export type UserCountOutputType = {
   libraryReports: number
   achievementUnlocks: number
   deepReadJobs: number
+  activityJournal: number
+  masteryPasses: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7386,6 +8239,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   libraryReports?: boolean | UserCountOutputTypeCountLibraryReportsArgs
   achievementUnlocks?: boolean | UserCountOutputTypeCountAchievementUnlocksArgs
   deepReadJobs?: boolean | UserCountOutputTypeCountDeepReadJobsArgs
+  activityJournal?: boolean | UserCountOutputTypeCountActivityJournalArgs
+  masteryPasses?: boolean | UserCountOutputTypeCountMasteryPassesArgs
 }
 
 /**
@@ -7566,6 +8421,20 @@ export type UserCountOutputTypeCountDeepReadJobsArgs<ExtArgs extends runtime.Typ
   where?: Prisma.DeepReadJobWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountActivityJournalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ActivityJournalEntryWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountMasteryPassesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MasteryCheckpointPassWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -7586,6 +8455,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  pendingReferralCode?: boolean
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
@@ -7619,6 +8489,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   libraryReports?: boolean | Prisma.User$libraryReportsArgs<ExtArgs>
   achievementUnlocks?: boolean | Prisma.User$achievementUnlocksArgs<ExtArgs>
   deepReadJobs?: boolean | Prisma.User$deepReadJobsArgs<ExtArgs>
+  activityJournal?: boolean | Prisma.User$activityJournalArgs<ExtArgs>
+  masteryPasses?: boolean | Prisma.User$masteryPassesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -7641,6 +8513,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  pendingReferralCode?: boolean
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
@@ -7670,6 +8543,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  pendingReferralCode?: boolean
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
@@ -7699,6 +8573,7 @@ export type UserSelectScalar = {
   verificationEmailCount?: boolean
   verificationEmailWindowStart?: boolean
   dateOfBirth?: boolean
+  pendingReferralCode?: boolean
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
@@ -7708,7 +8583,7 @@ export type UserSelectScalar = {
   deletionScheduledAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "institutionId" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "institutionId" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "pendingReferralCode" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
@@ -7736,6 +8611,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   libraryReports?: boolean | Prisma.User$libraryReportsArgs<ExtArgs>
   achievementUnlocks?: boolean | Prisma.User$achievementUnlocksArgs<ExtArgs>
   deepReadJobs?: boolean | Prisma.User$deepReadJobsArgs<ExtArgs>
+  activityJournal?: boolean | Prisma.User$activityJournalArgs<ExtArgs>
+  masteryPasses?: boolean | Prisma.User$masteryPassesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -7774,6 +8651,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     libraryReports: Prisma.$LibraryReportPayload<ExtArgs>[]
     achievementUnlocks: Prisma.$AchievementUnlockPayload<ExtArgs>[]
     deepReadJobs: Prisma.$DeepReadJobPayload<ExtArgs>[]
+    activityJournal: Prisma.$ActivityJournalEntryPayload<ExtArgs>[]
+    masteryPasses: Prisma.$MasteryCheckpointPassPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -7794,6 +8673,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     verificationEmailCount: number
     verificationEmailWindowStart: Date | null
     dateOfBirth: Date | null
+    pendingReferralCode: string | null
     profilePhotoUrl: string | null
     mfaEnabled: boolean
     mfaSecret: string | null
@@ -8221,6 +9101,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   libraryReports<T extends Prisma.User$libraryReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$libraryReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   achievementUnlocks<T extends Prisma.User$achievementUnlocksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$achievementUnlocksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AchievementUnlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   deepReadJobs<T extends Prisma.User$deepReadJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$deepReadJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DeepReadJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  activityJournal<T extends Prisma.User$activityJournalArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$activityJournalArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ActivityJournalEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  masteryPasses<T extends Prisma.User$masteryPassesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$masteryPassesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MasteryCheckpointPassPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8268,6 +9150,7 @@ export interface UserFieldRefs {
   readonly verificationEmailCount: Prisma.FieldRef<"User", 'Int'>
   readonly verificationEmailWindowStart: Prisma.FieldRef<"User", 'DateTime'>
   readonly dateOfBirth: Prisma.FieldRef<"User", 'DateTime'>
+  readonly pendingReferralCode: Prisma.FieldRef<"User", 'String'>
   readonly profilePhotoUrl: Prisma.FieldRef<"User", 'String'>
   readonly mfaEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly mfaSecret: Prisma.FieldRef<"User", 'String'>
@@ -9287,6 +10170,54 @@ export type User$deepReadJobsArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.DeepReadJobScalarFieldEnum | Prisma.DeepReadJobScalarFieldEnum[]
+}
+
+/**
+ * User.activityJournal
+ */
+export type User$activityJournalArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ActivityJournalEntry
+   */
+  select?: Prisma.ActivityJournalEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ActivityJournalEntry
+   */
+  omit?: Prisma.ActivityJournalEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ActivityJournalEntryInclude<ExtArgs> | null
+  where?: Prisma.ActivityJournalEntryWhereInput
+  orderBy?: Prisma.ActivityJournalEntryOrderByWithRelationInput | Prisma.ActivityJournalEntryOrderByWithRelationInput[]
+  cursor?: Prisma.ActivityJournalEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ActivityJournalEntryScalarFieldEnum | Prisma.ActivityJournalEntryScalarFieldEnum[]
+}
+
+/**
+ * User.masteryPasses
+ */
+export type User$masteryPassesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MasteryCheckpointPass
+   */
+  select?: Prisma.MasteryCheckpointPassSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MasteryCheckpointPass
+   */
+  omit?: Prisma.MasteryCheckpointPassOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MasteryCheckpointPassInclude<ExtArgs> | null
+  where?: Prisma.MasteryCheckpointPassWhereInput
+  orderBy?: Prisma.MasteryCheckpointPassOrderByWithRelationInput | Prisma.MasteryCheckpointPassOrderByWithRelationInput[]
+  cursor?: Prisma.MasteryCheckpointPassWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MasteryCheckpointPassScalarFieldEnum | Prisma.MasteryCheckpointPassScalarFieldEnum[]
 }
 
 /**

@@ -705,7 +705,7 @@ export function FocusModeScreen() {
           <Icon name="sparkle" size={15} color={colors.accent} />
           <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1 }]}>
             Feature powered by cloud AI. You have{" "}
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", color: colors.textPrimary }}>
+            <Text style={{ fontFamily: "Inter_700Bold", color: colors.textPrimary }}>
               {ent.freeRemaining}
             </Text>{" "}
             free{" "}
@@ -773,9 +773,9 @@ export function FocusModeScreen() {
       >
         <Text
           style={{
-            fontFamily: "PlusJakartaSans_700Bold",
+            fontFamily: "Inter_700Bold",
             fontSize: 14,
-            color: topicInput.trim() ? "#170B26" : colors.textMuted,
+            color: topicInput.trim() ? "#17181A" : colors.textMuted,
           }}
         >
           Build my concept map
@@ -1022,7 +1022,7 @@ export function FocusModeScreen() {
               }}
             >
               <Text
-                style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 11, color: "#170B26" }}
+                style={{ fontFamily: "Inter_700Bold", fontSize: 11, color: "#17181A" }}
               >
                 Map
               </Text>
@@ -1362,12 +1362,12 @@ export function FocusModeScreen() {
                                 backgroundColor: colors.accent,
                               }}
                             >
-                              <Icon name="plus" size={13} color="#170B26" />
+                              <Icon name="plus" size={13} color="#17181A" />
                               <Text
                                 style={{
-                                  fontFamily: "PlusJakartaSans_700Bold",
+                                  fontFamily: "Inter_700Bold",
                                   fontSize: 12,
-                                  color: "#170B26",
+                                  color: "#17181A",
                                 }}
                               >
                                 Pin to map
@@ -1439,7 +1439,7 @@ function ZoomBtn({ label, onPress }: { label: string; onPress: () => void }) {
         elevation: 5,
       }}
     >
-      <Text style={{ fontSize: 18, color: colors.textPrimary, fontFamily: "PlusJakartaSans_700Bold" }}>
+      <Text style={{ fontSize: 18, color: colors.textPrimary, fontFamily: "Inter_700Bold" }}>
         {label}
       </Text>
     </Pressable>

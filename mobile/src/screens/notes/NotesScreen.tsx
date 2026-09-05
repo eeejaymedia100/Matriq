@@ -67,8 +67,8 @@ export function NotesScreen({
             borderColor: colors.borderStrong,
           }}
         >
-          <Icon name="plus" size={15} color="#170B26" />
-          <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+          <Icon name="plus" size={15} color="#17181A" />
+          <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
             New note
           </Text>
         </Pressable>
@@ -114,7 +114,7 @@ export function NotesScreen({
               backgroundColor: colors.accent,
             }}
           >
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
               Write your first note
             </Text>
           </Pressable>

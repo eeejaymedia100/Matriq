@@ -3,7 +3,7 @@ import { View, Text, Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE } from "../../theme/tokens";
-import { Button } from "../../components";
+import { Button, MatriqMark } from "../../components";
 import { Icon } from "../../components/icons";
 import { TERMS_URL, PRIVACY_URL } from "../../constants/legal";
 
@@ -29,28 +29,16 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
         <View style={{ alignItems: "center", gap: 16 }}>
           <View
             style={{
-              width: 84,
-              height: 84,
-              borderRadius: 24,
-              backgroundColor: colors.brand,
-              alignItems: "center",
-              justifyContent: "center",
               marginBottom: 8,
+              alignItems: "center" as const,
+              justifyContent: "center" as const,
               boxShadow:
                 theme.mode === "pop"
-                  ? "4px 4px 0 #170B26"
-                  : "0 0 60px rgba(123,75,196,0.4)",
+                  ? "4px 4px 0 rgba(23,24,26,0.14)"
+                  : "0 0 60px rgba(198,255,61,0.22)",
             }}
           >
-            <Text
-              style={{
-                fontSize: 38,
-                fontFamily: "PlusJakartaSans_800ExtraBold",
-                color: "#FFFFFF",
-              }}
-            >
-              M
-            </Text>
+            <MatriqMark size={84} />
           </View>
           <Text
             style={[
@@ -66,7 +54,7 @@ export function WelcomeScreen({ navigation }: WelcomeScreenProps) {
               { color: colors.textSecondary, textAlign: "center", lineHeight: 27 },
             ]}
           >
-            Your student association,{"\n"}simplified.
+            Past questions, offline AI and daily tools —{"\n"}the smart way through semester.
           </Text>
         </View>
 

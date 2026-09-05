@@ -82,10 +82,10 @@ export function LiquidTabBar({ state, navigation }: BottomTabBarProps) {
                     justifyContent: "center",
                     boxShadow: isGlass
                       ? "0 0 26px rgba(198,255,61,0.45)"
-                      : "3px 3px 0 #170B26",
+                      : "3px 3px 0 #17181A",
                   }}
                 >
-                  <Icon name={tab.icon} size={21} color="#170B26" />
+                  <Icon name={tab.icon} size={21} color="#17181A" />
                 </View>
               ) : (
                 <Icon

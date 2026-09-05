@@ -316,7 +316,7 @@ export function UpdateOverlay() {
               backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.98)" : colors.surface,
               borderColor: colors.border,
               ...(theme.mode === "pop"
-                ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "5px 5px 0 #170B26" }
+                ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "5px 5px 0 #17181A" }
                 : { borderWidth: 1 }),
             },
           ]}
@@ -332,7 +332,7 @@ export function UpdateOverlay() {
               marginBottom: 14,
             }}
           >
-            <Icon name="download" size={26} color="#170B26" />
+            <Icon name="download" size={26} color="#17181A" />
           </View>
           <Text style={[theme.typography.h2, { color: colors.textPrimary }]}>
             Update detected
@@ -378,9 +378,9 @@ export function UpdateOverlay() {
               }}
             >
               {installing ? (
-                <ActivityIndicator size="small" color="#170B26" />
+                <ActivityIndicator size="small" color="#17181A" />
               ) : (
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
                   Restart now
                 </Text>
               )}
@@ -410,7 +410,7 @@ export function UpdateOverlay() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 14, color: "#170B26" }}>
+                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
                   Download in browser
                 </Text>
               </Pressable>

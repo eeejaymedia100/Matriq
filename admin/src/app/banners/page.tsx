@@ -51,8 +51,8 @@ function toLocalInput(iso: string | null): string {
 }
 
 const inputCls =
-  "w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-purple-500";
-const labelCls = "block text-xs font-medium text-gray-400 mb-1";
+  "w-full bg-surfaceAlt border border-line rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-lime";
+const labelCls = "block text-xs font-medium text-muted mb-1";
 
 export default function BannersPage() {
   const router = useRouter();
@@ -192,8 +192,8 @@ export default function BannersPage() {
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Home Banners</h1>
-          <p className="text-sm text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-text">Home Banners</h1>
+          <p className="text-sm text-muted mt-1">
             Lightweight announcement strip shown on students' Home screen.
             Published banners appear in sort order, only inside their schedule
             window.
@@ -201,7 +201,7 @@ export default function BannersPage() {
         </div>
         <button
           onClick={openCreate}
-          className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-500 transition-colors"
+          className="px-4 py-2 rounded-lg text-sm font-medium bg-lime text-ink hover:brightness-110 transition-colors"
         >
           + New banner
         </button>
@@ -215,8 +215,8 @@ export default function BannersPage() {
 
       {/* Create / edit form */}
       {(editing || form.title || form.body || form.startsAt || form.endsAt) && (
-        <div className="mb-8 bg-gray-900 rounded-xl border border-gray-800 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">
+        <div className="mb-8 bg-surface rounded-xl border border-line p-6">
+          <h2 className="text-lg font-semibold text-text mb-4">
             {editing ? `Edit — ${editing.title}` : "New banner"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -276,12 +276,12 @@ export default function BannersPage() {
             </div>
           </div>
           <div className="flex items-center gap-6 mt-4">
-            <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer">
+            <label className="flex items-center gap-2 text-sm text-textSecondary cursor-pointer">
               <input
                 type="checkbox"
                 checked={form.published}
                 onChange={(e) => setForm({ ...form, published: e.target.checked })}
-                className="w-4 h-4 accent-purple-600"
+                className="w-4 h-4 accent-lime"
               />
               Published
             </label>
@@ -292,14 +292,14 @@ export default function BannersPage() {
                   setForm(EMPTY_FORM);
                   setFormError(null);
                 }}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-surfaceAlt text-textSecondary hover:bg-surfaceAlt transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={submit}
                 disabled={saving}
-                className="px-4 py-2 rounded-lg text-sm font-medium bg-purple-600 text-white hover:bg-purple-500 transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-lime text-ink hover:brightness-110 transition-colors disabled:opacity-50"
               >
                 {saving ? "Saving…" : editing ? "Save changes" : "Create banner"}
               </button>
@@ -315,26 +315,26 @@ export default function BannersPage() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2].map((i) => (
-            <div key={i} className="h-20 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-20 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : banners.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">No banners yet — create the first one.</p>
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">No banners yet — create the first one.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {banners.map((b, index) => (
             <div
               key={b.id}
-              className="bg-gray-900 rounded-xl border border-gray-800 p-4 flex items-start gap-4"
+              className="bg-surface rounded-xl border border-line p-4 flex items-start gap-4"
             >
               {/* Reorder */}
               <div className="flex flex-col gap-1 pt-1">
                 <button
                   onClick={() => move(index, -1)}
                   disabled={index === 0}
-                  className="w-7 h-7 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-30 text-sm"
+                  className="w-7 h-7 rounded-lg bg-surfaceAlt text-textSecondary hover:bg-surfaceAlt disabled:opacity-30 text-sm"
                   aria-label="Move up"
                 >
                   ↑
@@ -342,7 +342,7 @@ export default function BannersPage() {
                 <button
                   onClick={() => move(index, 1)}
                   disabled={index === banners.length - 1}
-                  className="w-7 h-7 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-30 text-sm"
+                  className="w-7 h-7 rounded-lg bg-surfaceAlt text-textSecondary hover:bg-surfaceAlt disabled:opacity-30 text-sm"
                   aria-label="Move down"
                 >
                   ↓
@@ -351,7 +351,7 @@ export default function BannersPage() {
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-white">{b.title}</span>
+                  <span className="font-semibold text-text">{b.title}</span>
                   {b.live ? (
                     <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                       Live
@@ -361,14 +361,14 @@ export default function BannersPage() {
                       Scheduled
                     </span>
                   ) : (
-                    <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-gray-700 text-gray-300">
+                    <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-medium bg-surfaceAlt text-textSecondary">
                       Draft
                     </span>
                   )}
-                  <span className="text-xs text-gray-500">order {b.sortOrder}</span>
+                  <span className="text-xs text-muted">order {b.sortOrder}</span>
                 </div>
-                <p className="text-sm text-gray-400 mt-1">{b.body}</p>
-                <p className="text-xs text-gray-600 mt-1">
+                <p className="text-sm text-muted mt-1">{b.body}</p>
+                <p className="text-xs text-muted mt-1">
                   {b.linkLabel && b.linkUrl
                     ? `${b.linkLabel} → ${b.linkUrl}`
                     : "No action"}
@@ -388,15 +388,15 @@ export default function BannersPage() {
                   onClick={() => togglePublish(b)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     b.published
-                      ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                      : "bg-green-700 text-white hover:bg-green-600"
+                      ? "bg-surfaceAlt text-textSecondary hover:bg-surfaceAlt"
+                      : "bg-green-700 text-text hover:bg-green-600"
                   }`}
                 >
                   {b.published ? "Unpublish" : "Publish"}
                 </button>
                 <button
                   onClick={() => openEdit(b)}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 hover:bg-gray-700 transition-colors"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-surfaceAlt text-textSecondary hover:bg-surfaceAlt transition-colors"
                 >
                   Edit
                 </button>

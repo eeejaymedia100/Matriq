@@ -32,7 +32,7 @@ export default function AdminAuditLogsPage() {
       <AdminLayout>
         <div className="space-y-3">
           {[1,2,3,4,5].map(i => (
-            <div key={i} className="h-12 bg-gray-800 rounded-lg animate-pulse" />
+            <div key={i} className="h-12 bg-surfaceAlt rounded-lg animate-pulse" />
           ))}
         </div>
       </AdminLayout>
@@ -41,40 +41,40 @@ export default function AdminAuditLogsPage() {
 
   return (
     <AdminLayout>
-      <h1 className="text-2xl font-bold text-white mb-6">Audit Logs</h1>
+      <h1 className="text-2xl font-bold text-text mb-6">Audit Logs</h1>
 
-      <div className="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+      <div className="bg-surface rounded-xl border border-line overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800">
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Action</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Actor</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">Target</th>
-              <th className="text-left py-3 px-4 text-gray-400 font-medium">IP</th>
-              <th className="text-right py-3 px-4 text-gray-400 font-medium">Time</th>
+            <tr className="border-b border-line">
+              <th className="text-left py-3 px-4 text-muted font-medium">Action</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Actor</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">Target</th>
+              <th className="text-left py-3 px-4 text-muted font-medium">IP</th>
+              <th className="text-right py-3 px-4 text-muted font-medium">Time</th>
             </tr>
           </thead>
           <tbody>
             {logs.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
+                <td colSpan={5} className="py-8 text-center text-muted">
                   No audit logs yet
                 </td>
               </tr>
             ) : (
               logs.map((log) => (
-                <tr key={log.id} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                <tr key={log.id} className="border-b border-line/50 hover:bg-surfaceAlt/30 transition-colors">
                   <td className="py-3 px-4">
-                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-purple-900/30 text-purple-400">
+                    <span className="inline-flex px-2 py-1 rounded-full text-xs font-medium bg-limeSoft text-lime">
                       {log.action}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-gray-300">
-                    {log.actorType} <span className="text-gray-500 text-xs">({log.actorId.slice(0, 8)}...)</span>
+                  <td className="py-3 px-4 text-textSecondary">
+                    {log.actorType} <span className="text-muted text-xs">({log.actorId.slice(0, 8)}...)</span>
                   </td>
-                  <td className="py-3 px-4 text-gray-400 text-xs">{log.targetType || "—"}</td>
-                  <td className="py-3 px-4 text-gray-500 text-xs font-mono">{log.ipAddress}</td>
-                  <td className="py-3 px-4 text-right text-gray-400 text-xs">
+                  <td className="py-3 px-4 text-muted text-xs">{log.targetType || "—"}</td>
+                  <td className="py-3 px-4 text-muted text-xs font-mono">{log.ipAddress}</td>
+                  <td className="py-3 px-4 text-right text-muted text-xs">
                     {new Date(log.createdAt).toLocaleString()}
                   </td>
                 </tr>

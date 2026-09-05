@@ -90,7 +90,9 @@ export const ModelName = {
   DeepReadJob: 'DeepReadJob',
   DeepReadPage: 'DeepReadPage',
   RefreshTokenFamily: 'RefreshTokenFamily',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  ActivityJournalEntry: 'ActivityJournalEntry',
+  MasteryCheckpointPass: 'MasteryCheckpointPass'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -160,6 +162,7 @@ export const UserScalarFieldEnum = {
   verificationEmailCount: 'verificationEmailCount',
   verificationEmailWindowStart: 'verificationEmailWindowStart',
   dateOfBirth: 'dateOfBirth',
+  pendingReferralCode: 'pendingReferralCode',
   profilePhotoUrl: 'profilePhotoUrl',
   mfaEnabled: 'mfaEnabled',
   mfaSecret: 'mfaSecret',
@@ -434,6 +437,7 @@ export const VaultItemScalarFieldEnum = {
   originalName: 'originalName',
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
+  contentHash: 'contentHash',
   companionSizeBytes: 'companionSizeBytes',
   companionMimeType: 'companionMimeType',
   moderationStatus: 'moderationStatus',
@@ -704,6 +708,30 @@ export const RefreshTokenScalarFieldEnum = {
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
+
+
+export const ActivityJournalEntryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  kind: 'kind',
+  eventKey: 'eventKey',
+  activityDate: 'activityDate',
+  createdAt: 'createdAt'
+} as const
+
+export type ActivityJournalEntryScalarFieldEnum = (typeof ActivityJournalEntryScalarFieldEnum)[keyof typeof ActivityJournalEntryScalarFieldEnum]
+
+
+export const MasteryCheckpointPassScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  focusSessionId: 'focusSessionId',
+  mapId: 'mapId',
+  score: 'score',
+  passedAt: 'passedAt'
+} as const
+
+export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPassScalarFieldEnum)[keyof typeof MasteryCheckpointPassScalarFieldEnum]
 
 
 export const SortOrder = {

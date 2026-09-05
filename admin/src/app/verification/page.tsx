@@ -92,7 +92,7 @@ export default function VerificationPage() {
   return (
     <AdminLayout>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-white">
+        <h1 className="text-2xl font-bold text-text">
           Identity Verification
         </h1>
         <div className="flex gap-2">
@@ -102,8 +102,8 @@ export default function VerificationPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === f
-                  ? "bg-purple-600 text-white"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  ? "bg-lime text-ink"
+                  : "bg-surfaceAlt text-muted hover:bg-surfaceAlt"
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -115,12 +115,12 @@ export default function VerificationPage() {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 bg-gray-800 rounded-xl animate-pulse" />
+            <div key={i} className="h-24 bg-surfaceAlt rounded-xl animate-pulse" />
           ))}
         </div>
       ) : requests.length === 0 ? (
-        <div className="text-center py-16 bg-gray-900 rounded-xl border border-gray-800">
-          <p className="text-gray-500">
+        <div className="text-center py-16 bg-surface rounded-xl border border-line">
+          <p className="text-muted">
             No {filter === "all" ? "" : filter} verification requests
           </p>
         </div>
@@ -129,12 +129,12 @@ export default function VerificationPage() {
           {requests.map((req) => (
             <div
               key={req.id}
-              className="bg-gray-900 rounded-xl border border-gray-800 p-5"
+              className="bg-surface rounded-xl border border-line p-5"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-2">
-                    <h3 className="font-semibold text-white truncate">
+                    <h3 className="font-semibold text-text truncate">
                       {req.user.fullName}
                     </h3>
                     <span
@@ -151,23 +151,23 @@ export default function VerificationPage() {
                   </div>
                   <button
                     onClick={() => void openDocument(req)}
-                    className="mt-1 px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg border border-gray-700 transition-colors"
+                    className="mt-1 px-3 py-1.5 text-xs bg-surfaceAlt hover:bg-surfaceAlt text-text rounded-lg border border-line transition-colors"
                   >
                     View document
                   </button>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-gray-500">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm text-muted">
                     <div>
-                      <span className="font-medium text-gray-400">
+                      <span className="font-medium text-muted">
                         Association:
                       </span>{" "}
                       {req.association.name}
                     </div>
                     <div>
-                      <span className="font-medium text-gray-400">Email:</span>{" "}
+                      <span className="font-medium text-muted">Email:</span>{" "}
                       {req.user.email}
                     </div>
                     <div>
-                      <span className="font-medium text-gray-400">
+                      <span className="font-medium text-muted">
                         {req.user.registrationType === "staylite"
                           ? "Matric:"
                           : "JAMB:"}
@@ -175,7 +175,7 @@ export default function VerificationPage() {
                       {req.user.matricNumber || req.user.jambNumber || "—"}
                     </div>
                     <div>
-                      <span className="font-medium text-gray-400">Dept:</span>{" "}
+                      <span className="font-medium text-muted">Dept:</span>{" "}
                       {req.user.department}
                     </div>
                   </div>
@@ -198,15 +198,15 @@ export default function VerificationPage() {
           onClick={closeDocument}
         >
           <div
-            className="bg-gray-900 rounded-xl border border-gray-800 max-w-2xl w-full max-h-[90vh] overflow-auto"
+            className="bg-surface rounded-xl border border-line max-w-2xl w-full max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-line">
               <div className="min-w-0">
-                <p className="text-white font-semibold truncate">
+                <p className="text-text font-semibold truncate">
                   {viewing.user.fullName}
                 </p>
-                <p className="text-xs text-gray-500 truncate">
+                <p className="text-xs text-muted truncate">
                   {docName ?? viewing.documentOriginalName} · {viewing.association.name}
                 </p>
               </div>
@@ -214,14 +214,14 @@ export default function VerificationPage() {
                 {docUrl && !docMime?.startsWith("image/") ? (
                   <button
                     onClick={downloadDocument}
-                    className="px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-sm bg-lime hover:brightness-110 text-ink rounded-lg transition-colors"
                   >
                     Download
                   </button>
                 ) : null}
                 <button
                   onClick={closeDocument}
-                  className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors"
+                  className="px-3 py-1.5 text-sm bg-surfaceAlt hover:bg-surfaceAlt text-textSecondary rounded-lg transition-colors"
                 >
                   Close
                 </button>
@@ -229,12 +229,12 @@ export default function VerificationPage() {
             </div>
             <div className="p-5">
               {docLoading ? (
-                <div className="h-64 bg-gray-800 rounded-lg animate-pulse" />
+                <div className="h-64 bg-surfaceAlt rounded-lg animate-pulse" />
               ) : docError ? (
                 <p className="text-sm text-red-400">{docError}</p>
               ) : docUrl ? (
                 docMime?.startsWith("image/") ? (
-                  <div className="bg-gray-950 rounded-lg p-2 flex justify-center">
+                  <div className="bg-void rounded-lg p-2 flex justify-center">
                     {/* eslint-disable-next-line @next/next/no-img-element -- blob URL can't use next/image */}
                     <img
                       src={docUrl}
@@ -244,12 +244,12 @@ export default function VerificationPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-sm text-gray-400 mb-4">
+                    <p className="text-sm text-muted mb-4">
                       This document isn&apos;t an image — download it to review.
                     </p>
                     <button
                       onClick={downloadDocument}
-                      className="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                      className="px-4 py-2 text-sm bg-lime hover:brightness-110 text-ink rounded-lg transition-colors"
                     >
                       Download {docName}
                     </button>

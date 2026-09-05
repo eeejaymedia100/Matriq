@@ -207,7 +207,7 @@ export function LibraryScreen({ navigation }: { navigation: Nav }) {
             onPress={() => navigation.navigate("VaultUpload", {})}
             style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
           >
-            <Text style={{ fontFamily: "PlusJakartaSans_700Bold", fontSize: 12, color: "#170B26" }}>
+            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
               Be the first to contribute
             </Text>
           </Pressable>
