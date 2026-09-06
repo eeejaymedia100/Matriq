@@ -1171,12 +1171,23 @@ export class ResourceAuditService {
     }
   }
 
-  /** Admin action: re-run a failed submission's pipeline. */
+  /**
+   * Admin action: re-run a submission's pipeline. Legal for `failed` rows,
+   * and for rows auto-rejected by deterministic validation (a validation
+   * rule change is exactly when those need re-judging). Rows a human
+   * actually rejected are NOT retryable — that decision stands.
+   */
   async retryStage(submissionId: string, requesterId: string) {
     const row = await this.prisma.resourceSubmission.findUnique({ where: { id: submissionId } });
     if (!row) throw new NotFoundException("Submission not found.");
-    if (row.auditStatus !== AUDIT_STATUS.failed) {
-      throw new ConflictException("Only failed submissions can be retried.");
+    const autoRejectedByValidation =
+      row.auditStatus === AUDIT_STATUS.rejected &&
+      row.humanDecision === null &&
+      row.failureReason === "validation_failed";
+    if (row.auditStatus !== AUDIT_STATUS.failed && !autoRejectedByValidation) {
+      throw new ConflictException(
+        "Only failed submissions — or validation auto-rejections with no human decision — can be retried.",
+      );
     }
     // `failed` is terminal in the machine — reopening is an explicit
     // administrative act, recorded in lastStageError for the audit trail.
