@@ -431,6 +431,7 @@ export type UserWhereInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionListRelationFilter
   resourceContributions?: Prisma.ResourceContributionListRelationFilter
   resourceRewards?: Prisma.ResourceRewardListRelationFilter
+  telegramParticipants?: Prisma.TelegramParticipantListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -493,6 +494,7 @@ export type UserOrderByWithRelationInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionOrderByRelationAggregateInput
   resourceContributions?: Prisma.ResourceContributionOrderByRelationAggregateInput
   resourceRewards?: Prisma.ResourceRewardOrderByRelationAggregateInput
+  telegramParticipants?: Prisma.TelegramParticipantOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -558,6 +560,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   resourceSubmissions?: Prisma.ResourceSubmissionListRelationFilter
   resourceContributions?: Prisma.ResourceContributionListRelationFilter
   resourceRewards?: Prisma.ResourceRewardListRelationFilter
+  telegramParticipants?: Prisma.TelegramParticipantListRelationFilter
 }, "id" | "email" | "verificationToken" | "telegramId">
 
 export type UserOrderByWithAggregationInput = {
@@ -689,6 +692,7 @@ export type UserCreateInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -750,6 +754,7 @@ export type UserUncheckedCreateInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUpdateInput = {
@@ -811,6 +816,7 @@ export type UserUpdateInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -872,6 +878,7 @@ export type UserUncheckedUpdateInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1545,12 +1552,30 @@ export type UserCreateNestedOneWithoutResourceSubmissionsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutResourceSubmissionsNestedInput = {
+export type UserUpdateOneWithoutResourceSubmissionsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutResourceSubmissionsInput, Prisma.UserUncheckedCreateWithoutResourceSubmissionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutResourceSubmissionsInput
   upsert?: Prisma.UserUpsertWithoutResourceSubmissionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResourceSubmissionsInput, Prisma.UserUpdateWithoutResourceSubmissionsInput>, Prisma.UserUncheckedUpdateWithoutResourceSubmissionsInput>
+}
+
+export type UserCreateNestedOneWithoutTelegramParticipantsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramParticipantsInput, Prisma.UserUncheckedCreateWithoutTelegramParticipantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramParticipantsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutTelegramParticipantsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTelegramParticipantsInput, Prisma.UserUncheckedCreateWithoutTelegramParticipantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTelegramParticipantsInput
+  upsert?: Prisma.UserUpsertWithoutTelegramParticipantsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTelegramParticipantsInput, Prisma.UserUpdateWithoutTelegramParticipantsInput>, Prisma.UserUncheckedUpdateWithoutTelegramParticipantsInput>
 }
 
 export type UserCreateNestedOneWithoutResourceContributionsInput = {
@@ -1559,10 +1584,12 @@ export type UserCreateNestedOneWithoutResourceContributionsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
-export type UserUpdateOneRequiredWithoutResourceContributionsNestedInput = {
+export type UserUpdateOneWithoutResourceContributionsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutResourceContributionsInput, Prisma.UserUncheckedCreateWithoutResourceContributionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutResourceContributionsInput
   upsert?: Prisma.UserUpsertWithoutResourceContributionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResourceContributionsInput, Prisma.UserUpdateWithoutResourceContributionsInput>, Prisma.UserUncheckedUpdateWithoutResourceContributionsInput>
 }
@@ -1639,6 +1666,7 @@ export type UserCreateWithoutInstitutionInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutInstitutionInput = {
@@ -1699,6 +1727,7 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutInstitutionInput = {
@@ -1819,6 +1848,7 @@ export type UserCreateWithoutExecutiveRolesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutExecutiveRolesInput = {
@@ -1879,6 +1909,7 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutExecutiveRolesInput = {
@@ -1955,6 +1986,7 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
@@ -2015,6 +2047,7 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -2075,6 +2108,7 @@ export type UserCreateWithoutMembershipsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -2135,6 +2169,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -2211,6 +2246,7 @@ export type UserUpdateWithoutMembershipsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -2271,6 +2307,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutVerificationRequestsInput = {
@@ -2331,6 +2368,7 @@ export type UserCreateWithoutVerificationRequestsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutVerificationRequestsInput = {
@@ -2391,6 +2429,7 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutVerificationRequestsInput = {
@@ -2467,6 +2506,7 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
@@ -2527,6 +2567,7 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutPaymentsInput = {
@@ -2587,6 +2628,7 @@ export type UserCreateWithoutPaymentsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutPaymentsInput = {
@@ -2647,6 +2689,7 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutPaymentsInput = {
@@ -2723,6 +2766,7 @@ export type UserUpdateWithoutPaymentsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPaymentsInput = {
@@ -2783,6 +2827,7 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutAnnouncementReadsInput = {
@@ -2843,6 +2888,7 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
@@ -2903,6 +2949,7 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutAnnouncementReadsInput = {
@@ -2979,6 +3026,7 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
@@ -3039,6 +3087,7 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutEventRsvpsInput = {
@@ -3099,6 +3148,7 @@ export type UserCreateWithoutEventRsvpsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutEventRsvpsInput = {
@@ -3159,6 +3209,7 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutEventRsvpsInput = {
@@ -3235,6 +3286,7 @@ export type UserUpdateWithoutEventRsvpsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventRsvpsInput = {
@@ -3295,6 +3347,7 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutEventAttendanceInput = {
@@ -3355,6 +3408,7 @@ export type UserCreateWithoutEventAttendanceInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutEventAttendanceInput = {
@@ -3415,6 +3469,7 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutEventAttendanceInput = {
@@ -3491,6 +3546,7 @@ export type UserUpdateWithoutEventAttendanceInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventAttendanceInput = {
@@ -3551,6 +3607,7 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutReferralsGivenInput = {
@@ -3611,6 +3668,7 @@ export type UserCreateWithoutReferralsGivenInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsGivenInput = {
@@ -3671,6 +3729,7 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsGivenInput = {
@@ -3736,6 +3795,7 @@ export type UserCreateWithoutReferralsReceivedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutReferralsReceivedInput = {
@@ -3796,6 +3856,7 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutReferralsReceivedInput = {
@@ -3872,6 +3933,7 @@ export type UserUpdateWithoutReferralsGivenInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsGivenInput = {
@@ -3932,6 +3994,7 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUpsertWithoutReferralsReceivedInput = {
@@ -4003,6 +4066,7 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
@@ -4063,6 +4127,7 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutAiDocumentsSubmittedInput = {
@@ -4123,6 +4188,7 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
@@ -4183,6 +4249,7 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutAiDocumentsSubmittedInput = {
@@ -4259,6 +4326,7 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
@@ -4319,6 +4387,7 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutAiQueryLogsInput = {
@@ -4379,6 +4448,7 @@ export type UserCreateWithoutAiQueryLogsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutAiQueryLogsInput = {
@@ -4439,6 +4509,7 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutAiQueryLogsInput = {
@@ -4515,6 +4586,7 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
@@ -4575,6 +4647,7 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutVaultItemsInput = {
@@ -4635,6 +4708,7 @@ export type UserCreateWithoutVaultItemsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutVaultItemsInput = {
@@ -4695,6 +4769,7 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutVaultItemsInput = {
@@ -4771,6 +4846,7 @@ export type UserUpdateWithoutVaultItemsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutVaultItemsInput = {
@@ -4831,6 +4907,7 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutLibrarySavesInput = {
@@ -4891,6 +4968,7 @@ export type UserCreateWithoutLibrarySavesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutLibrarySavesInput = {
@@ -4951,6 +5029,7 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutLibrarySavesInput = {
@@ -5027,6 +5106,7 @@ export type UserUpdateWithoutLibrarySavesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibrarySavesInput = {
@@ -5087,6 +5167,7 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutLibraryViewsInput = {
@@ -5147,6 +5228,7 @@ export type UserCreateWithoutLibraryViewsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryViewsInput = {
@@ -5207,6 +5289,7 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryViewsInput = {
@@ -5283,6 +5366,7 @@ export type UserUpdateWithoutLibraryViewsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryViewsInput = {
@@ -5343,6 +5427,7 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutLibraryReportsInput = {
@@ -5403,6 +5488,7 @@ export type UserCreateWithoutLibraryReportsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutLibraryReportsInput = {
@@ -5463,6 +5549,7 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutLibraryReportsInput = {
@@ -5539,6 +5626,7 @@ export type UserUpdateWithoutLibraryReportsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLibraryReportsInput = {
@@ -5599,6 +5687,7 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -5659,6 +5748,7 @@ export type UserCreateWithoutNotificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -5719,6 +5809,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -5795,6 +5886,7 @@ export type UserUpdateWithoutNotificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -5855,6 +5947,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutPushDevicesInput = {
@@ -5915,6 +6008,7 @@ export type UserCreateWithoutPushDevicesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutPushDevicesInput = {
@@ -5975,6 +6069,7 @@ export type UserUncheckedCreateWithoutPushDevicesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutPushDevicesInput = {
@@ -6051,6 +6146,7 @@ export type UserUpdateWithoutPushDevicesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPushDevicesInput = {
@@ -6111,6 +6207,7 @@ export type UserUncheckedUpdateWithoutPushDevicesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutLegalAcceptancesInput = {
@@ -6171,6 +6268,7 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
@@ -6231,6 +6329,7 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutLegalAcceptancesInput = {
@@ -6307,6 +6406,7 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
@@ -6367,6 +6467,7 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutEntitlementsInput = {
@@ -6427,6 +6528,7 @@ export type UserCreateWithoutEntitlementsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutEntitlementsInput = {
@@ -6487,6 +6589,7 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutEntitlementsInput = {
@@ -6563,6 +6666,7 @@ export type UserUpdateWithoutEntitlementsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEntitlementsInput = {
@@ -6623,6 +6727,7 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutFocusSessionsInput = {
@@ -6683,6 +6788,7 @@ export type UserCreateWithoutFocusSessionsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusSessionsInput = {
@@ -6743,6 +6849,7 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusSessionsInput = {
@@ -6819,6 +6926,7 @@ export type UserUpdateWithoutFocusSessionsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusSessionsInput = {
@@ -6879,6 +6987,7 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutFocusClarificationsInput = {
@@ -6939,6 +7048,7 @@ export type UserCreateWithoutFocusClarificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusClarificationsInput = {
@@ -6999,6 +7109,7 @@ export type UserUncheckedCreateWithoutFocusClarificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusClarificationsInput = {
@@ -7075,6 +7186,7 @@ export type UserUpdateWithoutFocusClarificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
@@ -7135,6 +7247,7 @@ export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutAchievementUnlocksInput = {
@@ -7195,6 +7308,7 @@ export type UserCreateWithoutAchievementUnlocksInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
@@ -7255,6 +7369,7 @@ export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutAchievementUnlocksInput = {
@@ -7331,6 +7446,7 @@ export type UserUpdateWithoutAchievementUnlocksInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
@@ -7391,6 +7507,7 @@ export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutFocusUsageInput = {
@@ -7451,6 +7568,7 @@ export type UserCreateWithoutFocusUsageInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutFocusUsageInput = {
@@ -7511,6 +7629,7 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutFocusUsageInput = {
@@ -7587,6 +7706,7 @@ export type UserUpdateWithoutFocusUsageInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFocusUsageInput = {
@@ -7647,6 +7767,7 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutDeepReadJobsInput = {
@@ -7707,6 +7828,7 @@ export type UserCreateWithoutDeepReadJobsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutDeepReadJobsInput = {
@@ -7767,6 +7889,7 @@ export type UserUncheckedCreateWithoutDeepReadJobsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutDeepReadJobsInput = {
@@ -7843,6 +7966,7 @@ export type UserUpdateWithoutDeepReadJobsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
@@ -7903,6 +8027,7 @@ export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutRefreshTokenFamiliesInput = {
@@ -7963,6 +8088,7 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
@@ -8023,6 +8149,7 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutRefreshTokenFamiliesInput = {
@@ -8099,6 +8226,7 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
@@ -8159,6 +8287,7 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutActivityJournalInput = {
@@ -8219,6 +8348,7 @@ export type UserCreateWithoutActivityJournalInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutActivityJournalInput = {
@@ -8279,6 +8409,7 @@ export type UserUncheckedCreateWithoutActivityJournalInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutActivityJournalInput = {
@@ -8355,6 +8486,7 @@ export type UserUpdateWithoutActivityJournalInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutActivityJournalInput = {
@@ -8415,6 +8547,7 @@ export type UserUncheckedUpdateWithoutActivityJournalInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutMasteryPassesInput = {
@@ -8475,6 +8608,7 @@ export type UserCreateWithoutMasteryPassesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutMasteryPassesInput = {
@@ -8535,6 +8669,7 @@ export type UserUncheckedCreateWithoutMasteryPassesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutMasteryPassesInput = {
@@ -8611,6 +8746,7 @@ export type UserUpdateWithoutMasteryPassesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMasteryPassesInput = {
@@ -8671,6 +8807,7 @@ export type UserUncheckedUpdateWithoutMasteryPassesInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutResourceSubmissionsInput = {
@@ -8731,6 +8868,7 @@ export type UserCreateWithoutResourceSubmissionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutResourceSubmissionsInput = {
@@ -8791,6 +8929,7 @@ export type UserUncheckedCreateWithoutResourceSubmissionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutResourceSubmissionsInput = {
@@ -8867,6 +9006,7 @@ export type UserUpdateWithoutResourceSubmissionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceSubmissionsInput = {
@@ -8925,6 +9065,267 @@ export type UserUncheckedUpdateWithoutResourceSubmissionsInput = {
   deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
   activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
+  resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
+}
+
+export type UserCreateWithoutTelegramParticipantsInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceCreateNestedManyWithoutUserInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutUsersInput
+  entitlements?: Prisma.MagicPlusEntitlementCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
+  resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
+  resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+}
+
+export type UserUncheckedCreateWithoutTelegramParticipantsInput = {
+  id?: string
+  fullName: string
+  email: string
+  passwordHash?: string | null
+  registrationType: $Enums.RegistrationType
+  matricNumber?: string | null
+  jambNumber?: string | null
+  matricStatus?: $Enums.MatricStatus | null
+  institutionId?: string | null
+  faculty: string
+  department: string
+  level: string
+  emailVerified?: boolean
+  verificationToken?: string | null
+  verificationCodeExpiresAt?: Date | string | null
+  verificationEmailCount?: number
+  verificationEmailWindowStart?: Date | string | null
+  dateOfBirth?: Date | string | null
+  pendingReferralCode?: string | null
+  profilePhotoUrl?: string | null
+  mfaEnabled?: boolean
+  mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  deletedAt?: Date | string | null
+  deletionScheduledAt?: Date | string | null
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutUserInput
+  referralsGiven?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferrerInput
+  referralsReceived?: Prisma.ReferralUncheckedCreateNestedManyWithoutReferredUserInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedCreateNestedManyWithoutUserInput
+  eventRsvps?: Prisma.EventRsvpUncheckedCreateNestedManyWithoutUserInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedCreateNestedManyWithoutUserInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedCreateNestedManyWithoutUserInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedCreateNestedManyWithoutUserInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedCreateNestedManyWithoutSubmitterInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedCreateNestedManyWithoutUserInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedCreateNestedManyWithoutUserInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedCreateNestedManyWithoutUserInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+  pushDevices?: Prisma.PushDeviceUncheckedCreateNestedManyWithoutUserInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedCreateNestedOneWithoutUserInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedCreateNestedManyWithoutUserInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedCreateNestedManyWithoutUserInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedCreateNestedManyWithoutUserInput
+  librarySaves?: Prisma.LibrarySaveUncheckedCreateNestedManyWithoutUserInput
+  libraryViews?: Prisma.LibraryViewUncheckedCreateNestedManyWithoutUserInput
+  libraryReports?: Prisma.LibraryReportUncheckedCreateNestedManyWithoutReporterInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedCreateNestedManyWithoutUserInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedCreateNestedManyWithoutUserInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedCreateNestedManyWithoutUserInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
+  resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+}
+
+export type UserCreateOrConnectWithoutTelegramParticipantsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramParticipantsInput, Prisma.UserUncheckedCreateWithoutTelegramParticipantsInput>
+}
+
+export type UserUpsertWithoutTelegramParticipantsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTelegramParticipantsInput, Prisma.UserUncheckedUpdateWithoutTelegramParticipantsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTelegramParticipantsInput, Prisma.UserUncheckedCreateWithoutTelegramParticipantsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTelegramParticipantsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTelegramParticipantsInput, Prisma.UserUncheckedUpdateWithoutTelegramParticipantsInput>
+}
+
+export type UserUpdateWithoutTelegramParticipantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUpdateManyWithoutUserNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutUsersNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
+  resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTelegramParticipantsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registrationType?: Prisma.EnumRegistrationTypeFieldUpdateOperationsInput | $Enums.RegistrationType
+  matricNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  jambNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  matricStatus?: Prisma.NullableEnumMatricStatusFieldUpdateOperationsInput | $Enums.MatricStatus | null
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.StringFieldUpdateOperationsInput | string
+  department?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  verificationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  verificationCodeExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  verificationEmailCount?: Prisma.IntFieldUpdateOperationsInput | number
+  verificationEmailWindowStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pendingReferralCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletionScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutUserNestedInput
+  referralsGiven?: Prisma.ReferralUncheckedUpdateManyWithoutReferrerNestedInput
+  referralsReceived?: Prisma.ReferralUncheckedUpdateManyWithoutReferredUserNestedInput
+  announcementReads?: Prisma.AnnouncementReadUncheckedUpdateManyWithoutUserNestedInput
+  eventRsvps?: Prisma.EventRsvpUncheckedUpdateManyWithoutUserNestedInput
+  executiveRoles?: Prisma.AssociationExecutiveUncheckedUpdateManyWithoutUserNestedInput
+  verificationRequests?: Prisma.VerificationRequestUncheckedUpdateManyWithoutUserNestedInput
+  aiQueryLogs?: Prisma.AiQueryLogUncheckedUpdateManyWithoutUserNestedInput
+  aiDocumentsSubmitted?: Prisma.AiDocumentUncheckedUpdateManyWithoutSubmitterNestedInput
+  legalAcceptances?: Prisma.LegalAcceptanceUncheckedUpdateManyWithoutUserNestedInput
+  refreshTokenFamilies?: Prisma.RefreshTokenFamilyUncheckedUpdateManyWithoutUserNestedInput
+  eventAttendance?: Prisma.EventAttendanceUncheckedUpdateManyWithoutUserNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+  pushDevices?: Prisma.PushDeviceUncheckedUpdateManyWithoutUserNestedInput
+  entitlements?: Prisma.MagicPlusEntitlementUncheckedUpdateOneWithoutUserNestedInput
+  focusSessions?: Prisma.FocusModeSessionUncheckedUpdateManyWithoutUserNestedInput
+  focusUsage?: Prisma.FocusModeUsageUncheckedUpdateManyWithoutUserNestedInput
+  focusClarifications?: Prisma.FocusClarificationUncheckedUpdateManyWithoutUserNestedInput
+  librarySaves?: Prisma.LibrarySaveUncheckedUpdateManyWithoutUserNestedInput
+  libraryViews?: Prisma.LibraryViewUncheckedUpdateManyWithoutUserNestedInput
+  libraryReports?: Prisma.LibraryReportUncheckedUpdateManyWithoutReporterNestedInput
+  achievementUnlocks?: Prisma.AchievementUnlockUncheckedUpdateManyWithoutUserNestedInput
+  deepReadJobs?: Prisma.DeepReadJobUncheckedUpdateManyWithoutUserNestedInput
+  activityJournal?: Prisma.ActivityJournalEntryUncheckedUpdateManyWithoutUserNestedInput
+  masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
 }
@@ -8987,6 +9388,7 @@ export type UserCreateWithoutResourceContributionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutResourceContributionsInput = {
@@ -9047,6 +9449,7 @@ export type UserUncheckedCreateWithoutResourceContributionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceRewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutResourceContributionsInput = {
@@ -9123,6 +9526,7 @@ export type UserUpdateWithoutResourceContributionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceContributionsInput = {
@@ -9183,6 +9587,7 @@ export type UserUncheckedUpdateWithoutResourceContributionsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateWithoutResourceRewardsInput = {
@@ -9243,6 +9648,7 @@ export type UserCreateWithoutResourceRewardsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassCreateNestedManyWithoutUserInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserUncheckedCreateWithoutResourceRewardsInput = {
@@ -9303,6 +9709,7 @@ export type UserUncheckedCreateWithoutResourceRewardsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedCreateNestedManyWithoutUserInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutStudentInput
   resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutStudentInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedCreateNestedManyWithoutLinkedUserInput
 }
 
 export type UserCreateOrConnectWithoutResourceRewardsInput = {
@@ -9379,6 +9786,7 @@ export type UserUpdateWithoutResourceRewardsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUpdateManyWithoutUserNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceRewardsInput = {
@@ -9439,6 +9847,7 @@ export type UserUncheckedUpdateWithoutResourceRewardsInput = {
   masteryPasses?: Prisma.MasteryCheckpointPassUncheckedUpdateManyWithoutUserNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserCreateManyInstitutionInput = {
@@ -9529,6 +9938,7 @@ export type UserUpdateWithoutInstitutionInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutInstitutionInput = {
@@ -9589,6 +9999,7 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentNestedInput
   resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput
   resourceRewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutStudentNestedInput
+  telegramParticipants?: Prisma.TelegramParticipantUncheckedUpdateManyWithoutLinkedUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutInstitutionInput = {
@@ -9656,6 +10067,7 @@ export type UserCountOutputType = {
   resourceSubmissions: number
   resourceContributions: number
   resourceRewards: number
+  telegramParticipants: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -9688,6 +10100,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   resourceSubmissions?: boolean | UserCountOutputTypeCountResourceSubmissionsArgs
   resourceContributions?: boolean | UserCountOutputTypeCountResourceContributionsArgs
   resourceRewards?: boolean | UserCountOutputTypeCountResourceRewardsArgs
+  telegramParticipants?: boolean | UserCountOutputTypeCountTelegramParticipantsArgs
 }
 
 /**
@@ -9903,6 +10316,13 @@ export type UserCountOutputTypeCountResourceRewardsArgs<ExtArgs extends runtime.
   where?: Prisma.ResourceRewardWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTelegramParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TelegramParticipantWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -9964,6 +10384,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   resourceSubmissions?: boolean | Prisma.User$resourceSubmissionsArgs<ExtArgs>
   resourceContributions?: boolean | Prisma.User$resourceContributionsArgs<ExtArgs>
   resourceRewards?: boolean | Prisma.User$resourceRewardsArgs<ExtArgs>
+  telegramParticipants?: boolean | Prisma.User$telegramParticipantsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -10095,6 +10516,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   resourceSubmissions?: boolean | Prisma.User$resourceSubmissionsArgs<ExtArgs>
   resourceContributions?: boolean | Prisma.User$resourceContributionsArgs<ExtArgs>
   resourceRewards?: boolean | Prisma.User$resourceRewardsArgs<ExtArgs>
+  telegramParticipants?: boolean | Prisma.User$telegramParticipantsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -10138,6 +10560,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     resourceSubmissions: Prisma.$ResourceSubmissionPayload<ExtArgs>[]
     resourceContributions: Prisma.$ResourceContributionPayload<ExtArgs>[]
     resourceRewards: Prisma.$ResourceRewardPayload<ExtArgs>[]
+    telegramParticipants: Prisma.$TelegramParticipantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -10593,6 +11016,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   resourceSubmissions<T extends Prisma.User$resourceSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceContributions<T extends Prisma.User$resourceContributionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceContributionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceRewards<T extends Prisma.User$resourceRewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceRewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceRewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  telegramParticipants<T extends Prisma.User$telegramParticipantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$telegramParticipantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TelegramParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11782,6 +12206,30 @@ export type User$resourceRewardsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ResourceRewardScalarFieldEnum | Prisma.ResourceRewardScalarFieldEnum[]
+}
+
+/**
+ * User.telegramParticipants
+ */
+export type User$telegramParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramParticipant
+   */
+  select?: Prisma.TelegramParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramParticipant
+   */
+  omit?: Prisma.TelegramParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramParticipantInclude<ExtArgs> | null
+  where?: Prisma.TelegramParticipantWhereInput
+  orderBy?: Prisma.TelegramParticipantOrderByWithRelationInput | Prisma.TelegramParticipantOrderByWithRelationInput[]
+  cursor?: Prisma.TelegramParticipantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TelegramParticipantScalarFieldEnum | Prisma.TelegramParticipantScalarFieldEnum[]
 }
 
 /**

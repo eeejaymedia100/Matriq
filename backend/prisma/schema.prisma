@@ -315,6 +315,7 @@ model User {
   resourceSubmissions   ResourceSubmission[]
   resourceContributions ResourceContribution[]
   resourceRewards       ResourceReward[]
+  telegramParticipants  TelegramParticipant[] @relation("TelegramParticipantLinkedUser")
 
   @@map("users")
 }
@@ -1188,8 +1189,11 @@ model MasteryCheckpointPass {
 // authoritative); the pipeline is driven by ResourceAuditService.advance().
 model ResourceSubmission {
   id                   String                @id @default(uuid()) @db.Uuid
-  studentId            String                @map("student_id") @db.Uuid
-  // Channel that delivered the submission (app now; telegram later).
+  // Owner of the submission: a Matriq account (app channel) OR a Telegram
+  // campaign participant (telegram channel). Exactly one is set.
+  studentId            String?               @map("student_id") @db.Uuid
+  participantId        String?               @map("participant_id") @db.Uuid
+  // Channel that delivered the submission (app or telegram).
   source               SubmissionSource      @default(app)
   // ── File facts (captured at submit time, immutable) ──
   fileName             String                @map("file_name")
@@ -1244,7 +1248,8 @@ model ResourceSubmission {
   // ── Human decision (authoritative) ──
   humanDecision        String?               @map("human_decision") // approved | rejected | needs_information
   decisionReason       String?               @map("decision_reason")
-  reviewerId           String?               @map("reviewer_id") @db.Uuid // admin account id
+  reviewerId           String?               @map("reviewer_id") // admin UUID, or "telegram:<id>" for chat reviews
+  reviewerSource       String?               @map("reviewer_source") // admin | telegram
   reviewedAt           DateTime?             @map("reviewed_at")
   // ── Reward + library processing ──
   rewardStatus         ResourceRewardStatus  @default(none) @map("reward_status")
@@ -1261,11 +1266,12 @@ model ResourceSubmission {
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
 
-  student     User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  institution Institution? @relation(fields: [institutionId], references: [id])
+  student     User?                   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  participant TelegramParticipant?    @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  institution Institution?            @relation(fields: [institutionId], references: [id])
 
   @@unique([studentId, fileHash, courseCode])
-  @@index([studentId, createdAt])
+  @@index([participantId, createdAt])
   @@index([auditStatus])
   @@index([fileHash])
   @@index([textFingerprint])
@@ -1274,13 +1280,43 @@ model ResourceSubmission {
   @@map("resource_submissions")
 }
 
+// ── Telegram campaign participants ──────────────────────────────────
+// Resource Hunt participants are NOT Matriq accounts. They exist in their
+// own table, identified by their Telegram user id, and carry the campaign
+// points/leaderboard totals. A Matriq account may optionally be linked
+// later (linkedUserId) — never required, never mixed into UUID columns.
+model TelegramParticipant {
+  id              String    @id @default(uuid()) @db.Uuid
+  telegramId      String    @unique @map("telegram_id") // numeric Telegram id as text
+  username        String?
+  firstName       String?   @map("first_name")
+  // Campaign state
+  verifiedAt      DateTime? @map("verified_at") // set when community membership was confirmed
+  university      String?
+  // Points + leaderboard cache (updated transactionally on approval)
+  points          Int       @default(0)
+  approvedCount   Int       @default(0) @map("approved_count")
+  // Optional future bridge to a real account — never used by the campaign.
+  linkedUserId    String?   @unique @map("linked_user_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  linkedUser    User?                  @relation("TelegramParticipantLinkedUser", fields: [linkedUserId], references: [id], onDelete: SetNull)
+  submissions   ResourceSubmission[]
+  contributions ResourceContribution[]
+
+  @@index([points])
+  @@map("telegram_participants")
+}
+
 // ── Reward engine (Part 5) ──────────────────────────────────────────
 // One row per APPROVED, QUALIFYING resource. Duplicates, junk, rejected and
 // unapproved documents never create contributions — the leaderboard counts
 // approved academic value, not upload volume.
 model ResourceContribution {
   id           String   @id @default(uuid()) @db.Uuid
-  studentId    String   @map("student_id") @db.Uuid
+  studentId    String?  @map("student_id") @db.Uuid
+  participantId String? @map("participant_id") @db.Uuid
   submissionId String   @unique @map("submission_id") @db.Uuid // one contribution per submission
   campaignId   String   @map("campaign_id")
   points       Int
@@ -1290,13 +1326,16 @@ model ResourceContribution {
   reason       String?  @map("reason") // why it qualified (or not)
   createdAt    DateTime @default(now()) @map("created_at")
 
-  student       User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student       User?                  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  participant   TelegramParticipant?   @relation(fields: [participantId], references: [id], onDelete: Cascade)
   rewards       ResourceReward[]
-  institution   Institution?     @relation(fields: [institutionId], references: [id])
-  institutionId String?          @db.Uuid
+  institution   Institution?           @relation(fields: [institutionId], references: [id])
+  institutionId String?                @db.Uuid
 
   @@index([campaignId, studentId])
+  @@index([campaignId, participantId])
   @@index([studentId, createdAt])
+  @@index([participantId, createdAt])
   @@map("resource_contributions")
 }
 

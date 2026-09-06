@@ -23,6 +23,7 @@ import { Request } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
+import { TelegramCampaignService } from "./telegram-campaign.service";
 import { AdminGuard } from "../admin/admin.guard";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import {
@@ -50,6 +51,7 @@ export class TelegramController {
     private readonly prisma: PrismaService,
     private readonly audit: ResourceAuditService,
     private readonly config: TelegramConfig,
+    private readonly campaign: TelegramCampaignService,
   ) {}
 
   // ── Webhook (Telegram → us) ──────────────────────────────────────
@@ -91,7 +93,7 @@ export class TelegramController {
       botUsername: this.config.botUsername,
       communityUrl: this.config.communityUrl,
       miniAppUrl: this.config.miniAppUrl,
-      communityGateEnabled: Boolean(this.config.communityId),
+      communityGateEnabled: true,
       botConfigured: this.config.isConfigured,
     };
   }
@@ -133,12 +135,16 @@ export class TelegramController {
       select: { id: true, fullName: true, email: true, faculty: true, department: true, level: true, institutionId: true },
     });
     const member = await this.gateCheck(session.telegramId);
+    const participant = await this.campaign.getParticipant(session.telegramId);
     return {
       telegramId: session.telegramId,
       username: session.telegramUsername,
       linkedAccount: user,
       communityMember: member,
-      canUpload: Boolean(user) && member,
+      verified: member && participant?.verifiedAt != null,
+      canUpload: member && participant?.verifiedAt != null,
+      points: participant?.points ?? 0,
+      approvedCount: participant?.approvedCount ?? 0,
       communityUrl: this.config.communityUrl,
       botUsername: this.config.botUsername,
     };
@@ -182,20 +188,13 @@ export class TelegramController {
   @Throttle({ default: { ttl: 3600000, limit: 5 } })
   async miniAppSubmit(
     @Req() req: MiniAppRequest,
-    @Body() body: { courseCode?: string; materialType?: string; academicSession?: string; rightsDeclared?: string },
+    @Body() body: { courseCode?: string; materialType?: string; academicSession?: string; level?: string; universityName?: string; rightsDeclared?: string },
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const session = req[MINIAPP_SESSION_KEY]!;
-    const user = await this.prisma.user.findFirst({
-      where: { telegramId: session.telegramId },
-      select: { id: true, institutionId: true },
-    });
-    if (!user) {
-      throw new ForbiddenException("Link your Matriq account first — send /link to the bot.");
-    }
-    const member = await this.gateCheck(session.telegramId);
-    if (!member) {
-      throw new ForbiddenException("Join the Matriq Telegram community first.");
+    const participant = await this.campaign.ensureParticipant({ id: session.telegramId });
+    if (!participant.verifiedAt) {
+      throw new ForbiddenException("Join the Matriq Telegram community first, then verify with the bot.");
     }
     if (!file) {
       throw new BadRequestException("A file is required.");
@@ -205,15 +204,15 @@ export class TelegramController {
     }
     try {
       const submission = await this.audit.submit({
-        studentId: user.id,
+        participantId: participant.id,
         fileName: file.originalname,
         buffer: file.buffer,
         courseCode: body.courseCode ?? "",
         materialType: body.materialType ?? "",
-        level: null,
+        level: body.level ?? null,
         academicSession: body.academicSession ?? null,
+        universityName: body.universityName ?? participant.university ?? null,
         rightsDeclared: true,
-        institutionId: user.institutionId,
         source: "telegram",
       });
       return { id: submission.id, auditStatus: submission.auditStatus };
@@ -230,20 +229,25 @@ export class TelegramController {
   @UseGuards(TelegramMiniAppGuard)
   async miniAppSubmissions(@Req() req: MiniAppRequest) {
     const session = req[MINIAPP_SESSION_KEY]!;
-    const user = await this.prisma.user.findFirst({ where: { telegramId: session.telegramId }, select: { id: true } });
-    if (!user) return { submissions: [] };
+    const participant = await this.campaign.getParticipant(session.telegramId);
+    if (!participant) return { submissions: [], points: 0, approvedCount: 0 };
     const rows = await this.prisma.resourceSubmission.findMany({
-      where: { studentId: user.id },
+      where: { participantId: participant.id },
       orderBy: { submittedAt: "desc" },
       take: 20,
       select: {
         id: true, fileName: true, courseCode: true, materialType: true,
-        auditStatus: true, aiRecommendation: true, aiConfidence: true,
-        humanDecision: true, rewardStatus: true, libraryStatus: true,
-        submittedAt: true, failureReason: true,
+        auditStatus: true, rewardStatus: true, submittedAt: true,
       },
     });
-    return { submissions: rows };
+    return { submissions: rows, points: participant.points, approvedCount: participant.approvedCount };
+  }
+
+  /** Campaign leaderboard for the Mini App. */
+  @Get("miniapp/leaderboard")
+  @UseGuards(TelegramMiniAppGuard)
+  async miniAppLeaderboard() {
+    return { items: await this.campaign.leaderboard(20) };
   }
 
   // ── Admin: webhook management ────────────────────────────────────

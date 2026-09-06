@@ -233,6 +233,11 @@ export type MasteryCheckpointPass = Prisma.MasteryCheckpointPassModel
  */
 export type ResourceSubmission = Prisma.ResourceSubmissionModel
 /**
+ * Model TelegramParticipant
+ * 
+ */
+export type TelegramParticipant = Prisma.TelegramParticipantModel
+/**
  * Model ResourceContribution
  * 
  */

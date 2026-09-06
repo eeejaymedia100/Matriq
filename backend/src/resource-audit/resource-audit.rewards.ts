@@ -106,7 +106,7 @@ export class ResourceRewardService {
    */
   async qualify(submission: {
     id: string;
-    studentId: string;
+    studentId: string | null;
     courseCode: string;
     materialType: string;
     aiAuditReport: unknown;
@@ -286,14 +286,14 @@ export class ResourceRewardService {
       take: limit,
     });
     const users = await this.prisma.user.findMany({
-      where: { id: { in: rows.map((r) => r.studentId) } },
+      where: { id: { in: rows.map((r) => r.studentId).filter((id): id is string => id !== null) } },
       select: { id: true, fullName: true },
     });
     const nameById = new Map(users.map((u) => [u.id, u.fullName]));
     return rows.map((r, i) => ({
       rank: i + 1,
       studentId: r.studentId,
-      name: nameById.get(r.studentId) ?? "Student",
+      name: (r.studentId ? nameById.get(r.studentId) : null) ?? "Student",
       points: r._sum.points ?? 0,
     }));
   }

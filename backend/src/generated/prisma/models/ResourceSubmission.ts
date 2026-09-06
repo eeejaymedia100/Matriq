@@ -45,6 +45,7 @@ export type ResourceSubmissionSumAggregateOutputType = {
 export type ResourceSubmissionMinAggregateOutputType = {
   id: string | null
   studentId: string | null
+  participantId: string | null
   source: $Enums.SubmissionSource | null
   fileName: string | null
   fileType: string | null
@@ -78,6 +79,7 @@ export type ResourceSubmissionMinAggregateOutputType = {
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
+  reviewerSource: string | null
   reviewedAt: Date | null
   rewardStatus: $Enums.ResourceRewardStatus | null
   rewardReason: string | null
@@ -94,6 +96,7 @@ export type ResourceSubmissionMinAggregateOutputType = {
 export type ResourceSubmissionMaxAggregateOutputType = {
   id: string | null
   studentId: string | null
+  participantId: string | null
   source: $Enums.SubmissionSource | null
   fileName: string | null
   fileType: string | null
@@ -127,6 +130,7 @@ export type ResourceSubmissionMaxAggregateOutputType = {
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
+  reviewerSource: string | null
   reviewedAt: Date | null
   rewardStatus: $Enums.ResourceRewardStatus | null
   rewardReason: string | null
@@ -143,6 +147,7 @@ export type ResourceSubmissionMaxAggregateOutputType = {
 export type ResourceSubmissionCountAggregateOutputType = {
   id: number
   studentId: number
+  participantId: number
   source: number
   fileName: number
   fileType: number
@@ -179,6 +184,7 @@ export type ResourceSubmissionCountAggregateOutputType = {
   humanDecision: number
   decisionReason: number
   reviewerId: number
+  reviewerSource: number
   reviewedAt: number
   rewardStatus: number
   rewardReason: number
@@ -213,6 +219,7 @@ export type ResourceSubmissionSumAggregateInputType = {
 export type ResourceSubmissionMinAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   source?: true
   fileName?: true
   fileType?: true
@@ -246,6 +253,7 @@ export type ResourceSubmissionMinAggregateInputType = {
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
+  reviewerSource?: true
   reviewedAt?: true
   rewardStatus?: true
   rewardReason?: true
@@ -262,6 +270,7 @@ export type ResourceSubmissionMinAggregateInputType = {
 export type ResourceSubmissionMaxAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   source?: true
   fileName?: true
   fileType?: true
@@ -295,6 +304,7 @@ export type ResourceSubmissionMaxAggregateInputType = {
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
+  reviewerSource?: true
   reviewedAt?: true
   rewardStatus?: true
   rewardReason?: true
@@ -311,6 +321,7 @@ export type ResourceSubmissionMaxAggregateInputType = {
 export type ResourceSubmissionCountAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   source?: true
   fileName?: true
   fileType?: true
@@ -347,6 +358,7 @@ export type ResourceSubmissionCountAggregateInputType = {
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
+  reviewerSource?: true
   reviewedAt?: true
   rewardStatus?: true
   rewardReason?: true
@@ -449,7 +461,8 @@ export type ResourceSubmissionGroupByArgs<ExtArgs extends runtime.Types.Extensio
 
 export type ResourceSubmissionGroupByOutputType = {
   id: string
-  studentId: string
+  studentId: string | null
+  participantId: string | null
   source: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -486,6 +499,7 @@ export type ResourceSubmissionGroupByOutputType = {
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
+  reviewerSource: string | null
   reviewedAt: Date | null
   rewardStatus: $Enums.ResourceRewardStatus
   rewardReason: string | null
@@ -524,7 +538,8 @@ export type ResourceSubmissionWhereInput = {
   OR?: Prisma.ResourceSubmissionWhereInput[]
   NOT?: Prisma.ResourceSubmissionWhereInput | Prisma.ResourceSubmissionWhereInput[]
   id?: Prisma.UuidFilter<"ResourceSubmission"> | string
-  studentId?: Prisma.UuidFilter<"ResourceSubmission"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   source?: Prisma.EnumSubmissionSourceFilter<"ResourceSubmission"> | $Enums.SubmissionSource
   fileName?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
@@ -560,7 +575,8 @@ export type ResourceSubmissionWhereInput = {
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
-  reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerSource?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFilter<"ResourceSubmission"> | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -572,13 +588,15 @@ export type ResourceSubmissionWhereInput = {
   reviewerNotes?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  participant?: Prisma.XOR<Prisma.TelegramParticipantNullableScalarRelationFilter, Prisma.TelegramParticipantWhereInput> | null
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }
 
 export type ResourceSubmissionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
+  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  participantId?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -615,6 +633,7 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerSource?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rewardStatus?: Prisma.SortOrder
   rewardReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -627,6 +646,7 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
+  participant?: Prisma.TelegramParticipantOrderByWithRelationInput
   institution?: Prisma.InstitutionOrderByWithRelationInput
 }
 
@@ -636,7 +656,8 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ResourceSubmissionWhereInput | Prisma.ResourceSubmissionWhereInput[]
   OR?: Prisma.ResourceSubmissionWhereInput[]
   NOT?: Prisma.ResourceSubmissionWhereInput | Prisma.ResourceSubmissionWhereInput[]
-  studentId?: Prisma.UuidFilter<"ResourceSubmission"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   source?: Prisma.EnumSubmissionSourceFilter<"ResourceSubmission"> | $Enums.SubmissionSource
   fileName?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
@@ -672,7 +693,8 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
-  reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerSource?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFilter<"ResourceSubmission"> | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -684,13 +706,15 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   reviewerNotes?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  participant?: Prisma.XOR<Prisma.TelegramParticipantNullableScalarRelationFilter, Prisma.TelegramParticipantWhereInput> | null
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }, "id" | "studentId_fileHash_courseCode">
 
 export type ResourceSubmissionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
+  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  participantId?: Prisma.SortOrderInput | Prisma.SortOrder
   source?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -727,6 +751,7 @@ export type ResourceSubmissionOrderByWithAggregationInput = {
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerSource?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rewardStatus?: Prisma.SortOrder
   rewardReason?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -750,7 +775,8 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   OR?: Prisma.ResourceSubmissionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ResourceSubmissionScalarWhereWithAggregatesInput | Prisma.ResourceSubmissionScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ResourceSubmission"> | string
-  studentId?: Prisma.UuidWithAggregatesFilter<"ResourceSubmission"> | string
+  studentId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  participantId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   source?: Prisma.EnumSubmissionSourceWithAggregatesFilter<"ResourceSubmission"> | $Enums.SubmissionSource
   fileName?: Prisma.StringWithAggregatesFilter<"ResourceSubmission"> | string
   fileType?: Prisma.StringWithAggregatesFilter<"ResourceSubmission"> | string
@@ -786,7 +812,8 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   duplicateSimilarity?: Prisma.IntNullableWithAggregatesFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
-  reviewerId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  reviewerId?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  reviewerSource?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResourceSubmission"> | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusWithAggregatesFilter<"ResourceSubmission"> | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
@@ -837,6 +864,7 @@ export type ResourceSubmissionCreateInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -848,13 +876,15 @@ export type ResourceSubmissionCreateInput = {
   reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
+  student?: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutSubmissionsInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceSubmissionsInput
 }
 
 export type ResourceSubmissionUncheckedCreateInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -891,6 +921,7 @@ export type ResourceSubmissionUncheckedCreateInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -941,6 +972,7 @@ export type ResourceSubmissionUpdateInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -952,13 +984,15 @@ export type ResourceSubmissionUpdateInput = {
   reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutResourceSubmissionsNestedInput
+  student?: Prisma.UserUpdateOneWithoutResourceSubmissionsNestedInput
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutSubmissionsNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutResourceSubmissionsNestedInput
 }
 
 export type ResourceSubmissionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -995,6 +1029,7 @@ export type ResourceSubmissionUncheckedUpdateInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1010,7 +1045,8 @@ export type ResourceSubmissionUncheckedUpdateInput = {
 
 export type ResourceSubmissionCreateManyInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -1047,6 +1083,7 @@ export type ResourceSubmissionCreateManyInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1097,6 +1134,7 @@ export type ResourceSubmissionUpdateManyMutationInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1112,7 +1150,8 @@ export type ResourceSubmissionUpdateManyMutationInput = {
 
 export type ResourceSubmissionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1149,6 +1188,7 @@ export type ResourceSubmissionUncheckedUpdateManyInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1181,6 +1221,7 @@ export type ResourceSubmissionStudentIdFileHashCourseCodeCompoundUniqueInput = {
 export type ResourceSubmissionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -1217,6 +1258,7 @@ export type ResourceSubmissionCountOrderByAggregateInput = {
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
+  reviewerSource?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   rewardStatus?: Prisma.SortOrder
   rewardReason?: Prisma.SortOrder
@@ -1241,6 +1283,7 @@ export type ResourceSubmissionAvgOrderByAggregateInput = {
 export type ResourceSubmissionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -1274,6 +1317,7 @@ export type ResourceSubmissionMaxOrderByAggregateInput = {
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
+  reviewerSource?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   rewardStatus?: Prisma.SortOrder
   rewardReason?: Prisma.SortOrder
@@ -1290,6 +1334,7 @@ export type ResourceSubmissionMaxOrderByAggregateInput = {
 export type ResourceSubmissionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   fileType?: Prisma.SortOrder
@@ -1323,6 +1368,7 @@ export type ResourceSubmissionMinOrderByAggregateInput = {
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
+  reviewerSource?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   rewardStatus?: Prisma.SortOrder
   rewardReason?: Prisma.SortOrder
@@ -1452,6 +1498,48 @@ export type EnumResourceLibraryStatusFieldUpdateOperationsInput = {
   set?: $Enums.ResourceLibraryStatus
 }
 
+export type ResourceSubmissionCreateNestedManyWithoutParticipantInput = {
+  create?: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceSubmissionCreateWithoutParticipantInput[] | Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput | Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput[]
+  createMany?: Prisma.ResourceSubmissionCreateManyParticipantInputEnvelope
+  connect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+}
+
+export type ResourceSubmissionUncheckedCreateNestedManyWithoutParticipantInput = {
+  create?: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceSubmissionCreateWithoutParticipantInput[] | Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput | Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput[]
+  createMany?: Prisma.ResourceSubmissionCreateManyParticipantInputEnvelope
+  connect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+}
+
+export type ResourceSubmissionUpdateManyWithoutParticipantNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceSubmissionCreateWithoutParticipantInput[] | Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput | Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput[]
+  upsert?: Prisma.ResourceSubmissionUpsertWithWhereUniqueWithoutParticipantInput | Prisma.ResourceSubmissionUpsertWithWhereUniqueWithoutParticipantInput[]
+  createMany?: Prisma.ResourceSubmissionCreateManyParticipantInputEnvelope
+  set?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  delete?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  connect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  update?: Prisma.ResourceSubmissionUpdateWithWhereUniqueWithoutParticipantInput | Prisma.ResourceSubmissionUpdateWithWhereUniqueWithoutParticipantInput[]
+  updateMany?: Prisma.ResourceSubmissionUpdateManyWithWhereWithoutParticipantInput | Prisma.ResourceSubmissionUpdateManyWithWhereWithoutParticipantInput[]
+  deleteMany?: Prisma.ResourceSubmissionScalarWhereInput | Prisma.ResourceSubmissionScalarWhereInput[]
+}
+
+export type ResourceSubmissionUncheckedUpdateManyWithoutParticipantNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceSubmissionCreateWithoutParticipantInput[] | Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput | Prisma.ResourceSubmissionCreateOrConnectWithoutParticipantInput[]
+  upsert?: Prisma.ResourceSubmissionUpsertWithWhereUniqueWithoutParticipantInput | Prisma.ResourceSubmissionUpsertWithWhereUniqueWithoutParticipantInput[]
+  createMany?: Prisma.ResourceSubmissionCreateManyParticipantInputEnvelope
+  set?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  disconnect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  delete?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  connect?: Prisma.ResourceSubmissionWhereUniqueInput | Prisma.ResourceSubmissionWhereUniqueInput[]
+  update?: Prisma.ResourceSubmissionUpdateWithWhereUniqueWithoutParticipantInput | Prisma.ResourceSubmissionUpdateWithWhereUniqueWithoutParticipantInput[]
+  updateMany?: Prisma.ResourceSubmissionUpdateManyWithWhereWithoutParticipantInput | Prisma.ResourceSubmissionUpdateManyWithWhereWithoutParticipantInput[]
+  deleteMany?: Prisma.ResourceSubmissionScalarWhereInput | Prisma.ResourceSubmissionScalarWhereInput[]
+}
+
 export type ResourceSubmissionCreateWithoutInstitutionInput = {
   id?: string
   source?: $Enums.SubmissionSource
@@ -1489,6 +1577,7 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1500,12 +1589,14 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
+  student?: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutSubmissionsInput
 }
 
 export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -1541,6 +1632,7 @@ export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1585,7 +1677,8 @@ export type ResourceSubmissionScalarWhereInput = {
   OR?: Prisma.ResourceSubmissionScalarWhereInput[]
   NOT?: Prisma.ResourceSubmissionScalarWhereInput | Prisma.ResourceSubmissionScalarWhereInput[]
   id?: Prisma.UuidFilter<"ResourceSubmission"> | string
-  studentId?: Prisma.UuidFilter<"ResourceSubmission"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   source?: Prisma.EnumSubmissionSourceFilter<"ResourceSubmission"> | $Enums.SubmissionSource
   fileName?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
@@ -1621,7 +1714,8 @@ export type ResourceSubmissionScalarWhereInput = {
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
-  reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerSource?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFilter<"ResourceSubmission"> | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -1672,6 +1766,7 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1683,11 +1778,13 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutSubmissionsInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceSubmissionsInput
 }
 
 export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   id?: string
+  participantId?: string | null
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -1724,6 +1821,7 @@ export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1763,9 +1861,8 @@ export type ResourceSubmissionUpdateManyWithWhereWithoutStudentInput = {
   data: Prisma.XOR<Prisma.ResourceSubmissionUpdateManyMutationInput, Prisma.ResourceSubmissionUncheckedUpdateManyWithoutStudentInput>
 }
 
-export type ResourceSubmissionCreateManyInstitutionInput = {
+export type ResourceSubmissionCreateWithoutParticipantInput = {
   id?: string
-  studentId: string
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -1801,6 +1898,141 @@ export type ResourceSubmissionCreateManyInstitutionInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
+  reviewedAt?: Date | string | null
+  rewardStatus?: $Enums.ResourceRewardStatus
+  rewardReason?: string | null
+  libraryStatus?: $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: string | null
+  attemptCount?: number
+  failureReason?: string | null
+  lastStageError?: string | null
+  reviewerNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  student?: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutResourceSubmissionsInput
+}
+
+export type ResourceSubmissionUncheckedCreateWithoutParticipantInput = {
+  id?: string
+  studentId?: string | null
+  source?: $Enums.SubmissionSource
+  fileName: string
+  fileType: string
+  fileSize: number
+  fileHash: string
+  pageCount?: number | null
+  storageRef: string
+  institutionId?: string | null
+  universityName?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseCode: string
+  level?: string | null
+  materialType?: $Enums.ResourceMaterialType
+  academicSession?: string | null
+  rightsDeclared: boolean
+  rightsVersion?: string | null
+  submittedAt?: Date | string
+  auditStatus?: $Enums.ResourceAuditStatus
+  extractedText?: string | null
+  aiRecommendation?: string | null
+  aiConfidence?: number | null
+  aiSummary?: string | null
+  aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
+  humanDecision?: string | null
+  decisionReason?: string | null
+  reviewerId?: string | null
+  reviewerSource?: string | null
+  reviewedAt?: Date | string | null
+  rewardStatus?: $Enums.ResourceRewardStatus
+  rewardReason?: string | null
+  libraryStatus?: $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: string | null
+  attemptCount?: number
+  failureReason?: string | null
+  lastStageError?: string | null
+  reviewerNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ResourceSubmissionCreateOrConnectWithoutParticipantInput = {
+  where: Prisma.ResourceSubmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput>
+}
+
+export type ResourceSubmissionCreateManyParticipantInputEnvelope = {
+  data: Prisma.ResourceSubmissionCreateManyParticipantInput | Prisma.ResourceSubmissionCreateManyParticipantInput[]
+  skipDuplicates?: boolean
+}
+
+export type ResourceSubmissionUpsertWithWhereUniqueWithoutParticipantInput = {
+  where: Prisma.ResourceSubmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ResourceSubmissionUpdateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedUpdateWithoutParticipantInput>
+  create: Prisma.XOR<Prisma.ResourceSubmissionCreateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedCreateWithoutParticipantInput>
+}
+
+export type ResourceSubmissionUpdateWithWhereUniqueWithoutParticipantInput = {
+  where: Prisma.ResourceSubmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ResourceSubmissionUpdateWithoutParticipantInput, Prisma.ResourceSubmissionUncheckedUpdateWithoutParticipantInput>
+}
+
+export type ResourceSubmissionUpdateManyWithWhereWithoutParticipantInput = {
+  where: Prisma.ResourceSubmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.ResourceSubmissionUpdateManyMutationInput, Prisma.ResourceSubmissionUncheckedUpdateManyWithoutParticipantInput>
+}
+
+export type ResourceSubmissionCreateManyInstitutionInput = {
+  id?: string
+  studentId?: string | null
+  participantId?: string | null
+  source?: $Enums.SubmissionSource
+  fileName: string
+  fileType: string
+  fileSize: number
+  fileHash: string
+  pageCount?: number | null
+  storageRef: string
+  universityName?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseCode: string
+  level?: string | null
+  materialType?: $Enums.ResourceMaterialType
+  academicSession?: string | null
+  rightsDeclared: boolean
+  rightsVersion?: string | null
+  submittedAt?: Date | string
+  auditStatus?: $Enums.ResourceAuditStatus
+  extractedText?: string | null
+  aiRecommendation?: string | null
+  aiConfidence?: number | null
+  aiSummary?: string | null
+  aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
+  humanDecision?: string | null
+  decisionReason?: string | null
+  reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -1851,6 +2083,7 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1862,12 +2095,14 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutResourceSubmissionsNestedInput
+  student?: Prisma.UserUpdateOneWithoutResourceSubmissionsNestedInput
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutSubmissionsNestedInput
 }
 
 export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1903,6 +2138,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1918,7 +2154,8 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
 
 export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1954,6 +2191,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1969,6 +2207,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
 
 export type ResourceSubmissionCreateManyStudentInput = {
   id?: string
+  participantId?: string | null
   source?: $Enums.SubmissionSource
   fileName: string
   fileType: string
@@ -2005,6 +2244,7 @@ export type ResourceSubmissionCreateManyStudentInput = {
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
+  reviewerSource?: string | null
   reviewedAt?: Date | string | null
   rewardStatus?: $Enums.ResourceRewardStatus
   rewardReason?: string | null
@@ -2055,6 +2295,7 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2066,11 +2307,13 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutSubmissionsNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutResourceSubmissionsNestedInput
 }
 
 export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2107,6 +2350,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2122,6 +2366,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
 
 export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2158,6 +2403,219 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
+  rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryStatus?: Prisma.EnumResourceLibraryStatusFieldUpdateOperationsInput | $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ResourceSubmissionCreateManyParticipantInput = {
+  id?: string
+  studentId?: string | null
+  source?: $Enums.SubmissionSource
+  fileName: string
+  fileType: string
+  fileSize: number
+  fileHash: string
+  pageCount?: number | null
+  storageRef: string
+  institutionId?: string | null
+  universityName?: string | null
+  faculty?: string | null
+  department?: string | null
+  courseCode: string
+  level?: string | null
+  materialType?: $Enums.ResourceMaterialType
+  academicSession?: string | null
+  rightsDeclared: boolean
+  rightsVersion?: string | null
+  submittedAt?: Date | string
+  auditStatus?: $Enums.ResourceAuditStatus
+  extractedText?: string | null
+  aiRecommendation?: string | null
+  aiConfidence?: number | null
+  aiSummary?: string | null
+  aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
+  humanDecision?: string | null
+  decisionReason?: string | null
+  reviewerId?: string | null
+  reviewerSource?: string | null
+  reviewedAt?: Date | string | null
+  rewardStatus?: $Enums.ResourceRewardStatus
+  rewardReason?: string | null
+  libraryStatus?: $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: string | null
+  attemptCount?: number
+  failureReason?: string | null
+  lastStageError?: string | null
+  reviewerNotes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ResourceSubmissionUpdateWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialType?: Prisma.EnumResourceMaterialTypeFieldUpdateOperationsInput | $Enums.ResourceMaterialType
+  academicSession?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rightsDeclared?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rightsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditStatus?: Prisma.EnumResourceAuditStatusFieldUpdateOperationsInput | $Enums.ResourceAuditStatus
+  extractedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiRecommendation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
+  rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryStatus?: Prisma.EnumResourceLibraryStatusFieldUpdateOperationsInput | $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneWithoutResourceSubmissionsNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutResourceSubmissionsNestedInput
+}
+
+export type ResourceSubmissionUncheckedUpdateWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialType?: Prisma.EnumResourceMaterialTypeFieldUpdateOperationsInput | $Enums.ResourceMaterialType
+  academicSession?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rightsDeclared?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rightsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditStatus?: Prisma.EnumResourceAuditStatusFieldUpdateOperationsInput | $Enums.ResourceAuditStatus
+  extractedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiRecommendation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
+  rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  libraryStatus?: Prisma.EnumResourceLibraryStatusFieldUpdateOperationsInput | $Enums.ResourceLibraryStatus
+  publishedVaultItemId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ResourceSubmissionUncheckedUpdateManyWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  source?: Prisma.EnumSubmissionSourceFieldUpdateOperationsInput | $Enums.SubmissionSource
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  fileType?: Prisma.StringFieldUpdateOperationsInput | string
+  fileSize?: Prisma.IntFieldUpdateOperationsInput | number
+  fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageRef?: Prisma.StringFieldUpdateOperationsInput | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  materialType?: Prisma.EnumResourceMaterialTypeFieldUpdateOperationsInput | $Enums.ResourceMaterialType
+  academicSession?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rightsDeclared?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rightsVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submittedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditStatus?: Prisma.EnumResourceAuditStatusFieldUpdateOperationsInput | $Enums.ResourceAuditStatus
+  extractedText?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiRecommendation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerSource?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rewardStatus?: Prisma.EnumResourceRewardStatusFieldUpdateOperationsInput | $Enums.ResourceRewardStatus
   rewardReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2176,6 +2634,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
 export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   source?: boolean
   fileName?: boolean
   fileType?: boolean
@@ -2212,6 +2671,7 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
+  reviewerSource?: boolean
   reviewedAt?: boolean
   rewardStatus?: boolean
   rewardReason?: boolean
@@ -2223,13 +2683,15 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["resourceSubmission"]>
 
 export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   source?: boolean
   fileName?: boolean
   fileType?: boolean
@@ -2266,6 +2728,7 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
+  reviewerSource?: boolean
   reviewedAt?: boolean
   rewardStatus?: boolean
   rewardReason?: boolean
@@ -2277,13 +2740,15 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["resourceSubmission"]>
 
 export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   source?: boolean
   fileName?: boolean
   fileType?: boolean
@@ -2320,6 +2785,7 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
+  reviewerSource?: boolean
   reviewedAt?: boolean
   rewardStatus?: boolean
   rewardReason?: boolean
@@ -2331,13 +2797,15 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["resourceSubmission"]>
 
 export type ResourceSubmissionSelectScalar = {
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   source?: boolean
   fileName?: boolean
   fileType?: boolean
@@ -2374,6 +2842,7 @@ export type ResourceSubmissionSelectScalar = {
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
+  reviewerSource?: boolean
   reviewedAt?: boolean
   rewardStatus?: boolean
   rewardReason?: boolean
@@ -2387,29 +2856,34 @@ export type ResourceSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
+export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewerSource" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
 export type ResourceSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }
 export type ResourceSubmissionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }
 export type ResourceSubmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
 }
 
 export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ResourceSubmission"
   objects: {
-    student: Prisma.$UserPayload<ExtArgs>
+    student: Prisma.$UserPayload<ExtArgs> | null
+    participant: Prisma.$TelegramParticipantPayload<ExtArgs> | null
     institution: Prisma.$InstitutionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    studentId: string
+    studentId: string | null
+    participantId: string | null
     source: $Enums.SubmissionSource
     fileName: string
     fileType: string
@@ -2446,6 +2920,7 @@ export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.
     humanDecision: string | null
     decisionReason: string | null
     reviewerId: string | null
+    reviewerSource: string | null
     reviewedAt: Date | null
     rewardStatus: $Enums.ResourceRewardStatus
     rewardReason: string | null
@@ -2851,7 +3326,8 @@ readonly fields: ResourceSubmissionFieldRefs;
  */
 export interface Prisma__ResourceSubmissionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  student<T extends Prisma.ResourceSubmission$studentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceSubmission$studentArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  participant<T extends Prisma.ResourceSubmission$participantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceSubmission$participantArgs<ExtArgs>>): Prisma.Prisma__TelegramParticipantClient<runtime.Types.Result.GetResult<Prisma.$TelegramParticipantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   institution<T extends Prisma.ResourceSubmission$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceSubmission$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2884,6 +3360,7 @@ export interface Prisma__ResourceSubmissionClient<T, Null = never, ExtArgs exten
 export interface ResourceSubmissionFieldRefs {
   readonly id: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly studentId: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly participantId: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly source: Prisma.FieldRef<"ResourceSubmission", 'SubmissionSource'>
   readonly fileName: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly fileType: Prisma.FieldRef<"ResourceSubmission", 'String'>
@@ -2920,6 +3397,7 @@ export interface ResourceSubmissionFieldRefs {
   readonly humanDecision: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly decisionReason: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly reviewerId: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly reviewerSource: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly reviewedAt: Prisma.FieldRef<"ResourceSubmission", 'DateTime'>
   readonly rewardStatus: Prisma.FieldRef<"ResourceSubmission", 'ResourceRewardStatus'>
   readonly rewardReason: Prisma.FieldRef<"ResourceSubmission", 'String'>
@@ -3329,6 +3807,44 @@ export type ResourceSubmissionDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many ResourceSubmissions to delete.
    */
   limit?: number
+}
+
+/**
+ * ResourceSubmission.student
+ */
+export type ResourceSubmission$studentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * ResourceSubmission.participant
+ */
+export type ResourceSubmission$participantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramParticipant
+   */
+  select?: Prisma.TelegramParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramParticipant
+   */
+  omit?: Prisma.TelegramParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramParticipantInclude<ExtArgs> | null
+  where?: Prisma.TelegramParticipantWhereInput
 }
 
 /**

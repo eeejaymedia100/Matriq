@@ -440,6 +440,7 @@ export const ModelName = {
   ActivityJournalEntry: 'ActivityJournalEntry',
   MasteryCheckpointPass: 'MasteryCheckpointPass',
   ResourceSubmission: 'ResourceSubmission',
+  TelegramParticipant: 'TelegramParticipant',
   ResourceContribution: 'ResourceContribution',
   ResourceReward: 'ResourceReward'
 } as const
@@ -457,7 +458,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass" | "resourceSubmission" | "resourceContribution" | "resourceReward"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass" | "resourceSubmission" | "telegramParticipant" | "resourceContribution" | "resourceReward"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3643,6 +3644,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TelegramParticipant: {
+      payload: Prisma.$TelegramParticipantPayload<ExtArgs>
+      fields: Prisma.TelegramParticipantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TelegramParticipantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TelegramParticipantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        findFirst: {
+          args: Prisma.TelegramParticipantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TelegramParticipantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        findMany: {
+          args: Prisma.TelegramParticipantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>[]
+        }
+        create: {
+          args: Prisma.TelegramParticipantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        createMany: {
+          args: Prisma.TelegramParticipantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TelegramParticipantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>[]
+        }
+        delete: {
+          args: Prisma.TelegramParticipantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        update: {
+          args: Prisma.TelegramParticipantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        deleteMany: {
+          args: Prisma.TelegramParticipantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TelegramParticipantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TelegramParticipantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>[]
+        }
+        upsert: {
+          args: Prisma.TelegramParticipantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TelegramParticipantPayload>
+        }
+        aggregate: {
+          args: Prisma.TelegramParticipantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTelegramParticipant>
+        }
+        groupBy: {
+          args: Prisma.TelegramParticipantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TelegramParticipantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TelegramParticipantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TelegramParticipantCountAggregateOutputType> | number
+        }
+      }
+    }
     ResourceContribution: {
       payload: Prisma.$ResourceContributionPayload<ExtArgs>
       fields: Prisma.ResourceContributionFieldRefs
@@ -4458,6 +4533,7 @@ export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPass
 export const ResourceSubmissionScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  participantId: 'participantId',
   source: 'source',
   fileName: 'fileName',
   fileType: 'fileType',
@@ -4494,6 +4570,7 @@ export const ResourceSubmissionScalarFieldEnum = {
   humanDecision: 'humanDecision',
   decisionReason: 'decisionReason',
   reviewerId: 'reviewerId',
+  reviewerSource: 'reviewerSource',
   reviewedAt: 'reviewedAt',
   rewardStatus: 'rewardStatus',
   rewardReason: 'rewardReason',
@@ -4510,9 +4587,27 @@ export const ResourceSubmissionScalarFieldEnum = {
 export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
 
 
+export const TelegramParticipantScalarFieldEnum = {
+  id: 'id',
+  telegramId: 'telegramId',
+  username: 'username',
+  firstName: 'firstName',
+  verifiedAt: 'verifiedAt',
+  university: 'university',
+  points: 'points',
+  approvedCount: 'approvedCount',
+  linkedUserId: 'linkedUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TelegramParticipantScalarFieldEnum = (typeof TelegramParticipantScalarFieldEnum)[keyof typeof TelegramParticipantScalarFieldEnum]
+
+
 export const ResourceContributionScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  participantId: 'participantId',
   submissionId: 'submissionId',
   campaignId: 'campaignId',
   points: 'points',
@@ -5178,6 +5273,7 @@ export type GlobalOmitConfig = {
   activityJournalEntry?: Prisma.ActivityJournalEntryOmit
   masteryCheckpointPass?: Prisma.MasteryCheckpointPassOmit
   resourceSubmission?: Prisma.ResourceSubmissionOmit
+  telegramParticipant?: Prisma.TelegramParticipantOmit
   resourceContribution?: Prisma.ResourceContributionOmit
   resourceReward?: Prisma.ResourceRewardOmit
 }

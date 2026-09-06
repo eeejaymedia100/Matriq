@@ -9,6 +9,8 @@ import { AUDITOR_PORT, DeepSeekAuditor, RuleBasedAuditor } from "./resource-audi
 import { ResourceRewardService } from "./resource-audit.rewards";
 import { StorageModule } from "../storage/storage.module";
 import { ToolsModule } from "../tools/tools.module";
+import { TelegramCampaignService } from "../telegram/telegram-campaign.service";
+import { TELEGRAM_CAMPAIGN_PORT } from "./resource-audit.service";
 
 /**
  * Resource Audit Engine — Part 1: submission + audit foundation.
@@ -25,6 +27,8 @@ import { ToolsModule } from "../tools/tools.module";
     ResourceAuditService,
     ResourceAuditStorage,
     ResourceRewardService,
+    TelegramCampaignService,
+    { provide: TELEGRAM_CAMPAIGN_PORT, useClass: TelegramCampaignService } as Provider,
     { provide: AUDIT_SCORER, useClass: RuleBasedScorer } as Provider,
     {
       // AI auditor (Part 3): DeepSeek when DEEPSEEK_API_KEY is set, the

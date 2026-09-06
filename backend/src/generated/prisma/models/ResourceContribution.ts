@@ -37,6 +37,7 @@ export type ResourceContributionSumAggregateOutputType = {
 export type ResourceContributionMinAggregateOutputType = {
   id: string | null
   studentId: string | null
+  participantId: string | null
   submissionId: string | null
   campaignId: string | null
   points: number | null
@@ -50,6 +51,7 @@ export type ResourceContributionMinAggregateOutputType = {
 export type ResourceContributionMaxAggregateOutputType = {
   id: string | null
   studentId: string | null
+  participantId: string | null
   submissionId: string | null
   campaignId: string | null
   points: number | null
@@ -63,6 +65,7 @@ export type ResourceContributionMaxAggregateOutputType = {
 export type ResourceContributionCountAggregateOutputType = {
   id: number
   studentId: number
+  participantId: number
   submissionId: number
   campaignId: number
   points: number
@@ -86,6 +89,7 @@ export type ResourceContributionSumAggregateInputType = {
 export type ResourceContributionMinAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   submissionId?: true
   campaignId?: true
   points?: true
@@ -99,6 +103,7 @@ export type ResourceContributionMinAggregateInputType = {
 export type ResourceContributionMaxAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   submissionId?: true
   campaignId?: true
   points?: true
@@ -112,6 +117,7 @@ export type ResourceContributionMaxAggregateInputType = {
 export type ResourceContributionCountAggregateInputType = {
   id?: true
   studentId?: true
+  participantId?: true
   submissionId?: true
   campaignId?: true
   points?: true
@@ -211,7 +217,8 @@ export type ResourceContributionGroupByArgs<ExtArgs extends runtime.Types.Extens
 
 export type ResourceContributionGroupByOutputType = {
   id: string
-  studentId: string
+  studentId: string | null
+  participantId: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -247,7 +254,8 @@ export type ResourceContributionWhereInput = {
   OR?: Prisma.ResourceContributionWhereInput[]
   NOT?: Prisma.ResourceContributionWhereInput | Prisma.ResourceContributionWhereInput[]
   id?: Prisma.UuidFilter<"ResourceContribution"> | string
-  studentId?: Prisma.UuidFilter<"ResourceContribution"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
   submissionId?: Prisma.UuidFilter<"ResourceContribution"> | string
   campaignId?: Prisma.StringFilter<"ResourceContribution"> | string
   points?: Prisma.IntFilter<"ResourceContribution"> | number
@@ -256,14 +264,16 @@ export type ResourceContributionWhereInput = {
   reason?: Prisma.StringNullableFilter<"ResourceContribution"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceContribution"> | Date | string
   institutionId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  participant?: Prisma.XOR<Prisma.TelegramParticipantNullableScalarRelationFilter, Prisma.TelegramParticipantWhereInput> | null
   rewards?: Prisma.ResourceRewardListRelationFilter
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }
 
 export type ResourceContributionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
+  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  participantId?: Prisma.SortOrderInput | Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   points?: Prisma.SortOrder
@@ -273,6 +283,7 @@ export type ResourceContributionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
+  participant?: Prisma.TelegramParticipantOrderByWithRelationInput
   rewards?: Prisma.ResourceRewardOrderByRelationAggregateInput
   institution?: Prisma.InstitutionOrderByWithRelationInput
 }
@@ -283,7 +294,8 @@ export type ResourceContributionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ResourceContributionWhereInput | Prisma.ResourceContributionWhereInput[]
   OR?: Prisma.ResourceContributionWhereInput[]
   NOT?: Prisma.ResourceContributionWhereInput | Prisma.ResourceContributionWhereInput[]
-  studentId?: Prisma.UuidFilter<"ResourceContribution"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
   campaignId?: Prisma.StringFilter<"ResourceContribution"> | string
   points?: Prisma.IntFilter<"ResourceContribution"> | number
   courseCode?: Prisma.StringFilter<"ResourceContribution"> | string
@@ -291,14 +303,16 @@ export type ResourceContributionWhereUniqueInput = Prisma.AtLeast<{
   reason?: Prisma.StringNullableFilter<"ResourceContribution"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceContribution"> | Date | string
   institutionId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
-  student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  student?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  participant?: Prisma.XOR<Prisma.TelegramParticipantNullableScalarRelationFilter, Prisma.TelegramParticipantWhereInput> | null
   rewards?: Prisma.ResourceRewardListRelationFilter
   institution?: Prisma.XOR<Prisma.InstitutionNullableScalarRelationFilter, Prisma.InstitutionWhereInput> | null
 }, "id" | "submissionId">
 
 export type ResourceContributionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  studentId?: Prisma.SortOrder
+  studentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  participantId?: Prisma.SortOrderInput | Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   points?: Prisma.SortOrder
@@ -319,7 +333,8 @@ export type ResourceContributionScalarWhereWithAggregatesInput = {
   OR?: Prisma.ResourceContributionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ResourceContributionScalarWhereWithAggregatesInput | Prisma.ResourceContributionScalarWhereWithAggregatesInput[]
   id?: Prisma.UuidWithAggregatesFilter<"ResourceContribution"> | string
-  studentId?: Prisma.UuidWithAggregatesFilter<"ResourceContribution"> | string
+  studentId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceContribution"> | string | null
+  participantId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceContribution"> | string | null
   submissionId?: Prisma.UuidWithAggregatesFilter<"ResourceContribution"> | string
   campaignId?: Prisma.StringWithAggregatesFilter<"ResourceContribution"> | string
   points?: Prisma.IntWithAggregatesFilter<"ResourceContribution"> | number
@@ -339,14 +354,16 @@ export type ResourceContributionCreateInput = {
   materialType: string
   reason?: string | null
   createdAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  student?: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutContributionsInput
   rewards?: Prisma.ResourceRewardCreateNestedManyWithoutContributionInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceContributionsInput
 }
 
 export type ResourceContributionUncheckedCreateInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -367,14 +384,16 @@ export type ResourceContributionUpdateInput = {
   materialType?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutResourceContributionsNestedInput
+  student?: Prisma.UserUpdateOneWithoutResourceContributionsNestedInput
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutContributionsNestedInput
   rewards?: Prisma.ResourceRewardUpdateManyWithoutContributionNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutResourceContributionsNestedInput
 }
 
 export type ResourceContributionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -388,7 +407,8 @@ export type ResourceContributionUncheckedUpdateInput = {
 
 export type ResourceContributionCreateManyInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -412,7 +432,8 @@ export type ResourceContributionUpdateManyMutationInput = {
 
 export type ResourceContributionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -436,6 +457,7 @@ export type ResourceContributionOrderByRelationAggregateInput = {
 export type ResourceContributionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   points?: Prisma.SortOrder
@@ -453,6 +475,7 @@ export type ResourceContributionAvgOrderByAggregateInput = {
 export type ResourceContributionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   points?: Prisma.SortOrder
@@ -466,6 +489,7 @@ export type ResourceContributionMaxOrderByAggregateInput = {
 export type ResourceContributionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   studentId?: Prisma.SortOrder
+  participantId?: Prisma.SortOrder
   submissionId?: Prisma.SortOrder
   campaignId?: Prisma.SortOrder
   points?: Prisma.SortOrder
@@ -569,6 +593,48 @@ export type ResourceContributionUncheckedUpdateManyWithoutStudentNestedInput = {
   deleteMany?: Prisma.ResourceContributionScalarWhereInput | Prisma.ResourceContributionScalarWhereInput[]
 }
 
+export type ResourceContributionCreateNestedManyWithoutParticipantInput = {
+  create?: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceContributionCreateWithoutParticipantInput[] | Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput | Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput[]
+  createMany?: Prisma.ResourceContributionCreateManyParticipantInputEnvelope
+  connect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+}
+
+export type ResourceContributionUncheckedCreateNestedManyWithoutParticipantInput = {
+  create?: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceContributionCreateWithoutParticipantInput[] | Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput | Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput[]
+  createMany?: Prisma.ResourceContributionCreateManyParticipantInputEnvelope
+  connect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+}
+
+export type ResourceContributionUpdateManyWithoutParticipantNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceContributionCreateWithoutParticipantInput[] | Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput | Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput[]
+  upsert?: Prisma.ResourceContributionUpsertWithWhereUniqueWithoutParticipantInput | Prisma.ResourceContributionUpsertWithWhereUniqueWithoutParticipantInput[]
+  createMany?: Prisma.ResourceContributionCreateManyParticipantInputEnvelope
+  set?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  disconnect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  delete?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  connect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  update?: Prisma.ResourceContributionUpdateWithWhereUniqueWithoutParticipantInput | Prisma.ResourceContributionUpdateWithWhereUniqueWithoutParticipantInput[]
+  updateMany?: Prisma.ResourceContributionUpdateManyWithWhereWithoutParticipantInput | Prisma.ResourceContributionUpdateManyWithWhereWithoutParticipantInput[]
+  deleteMany?: Prisma.ResourceContributionScalarWhereInput | Prisma.ResourceContributionScalarWhereInput[]
+}
+
+export type ResourceContributionUncheckedUpdateManyWithoutParticipantNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput> | Prisma.ResourceContributionCreateWithoutParticipantInput[] | Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput[]
+  connectOrCreate?: Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput | Prisma.ResourceContributionCreateOrConnectWithoutParticipantInput[]
+  upsert?: Prisma.ResourceContributionUpsertWithWhereUniqueWithoutParticipantInput | Prisma.ResourceContributionUpsertWithWhereUniqueWithoutParticipantInput[]
+  createMany?: Prisma.ResourceContributionCreateManyParticipantInputEnvelope
+  set?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  disconnect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  delete?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  connect?: Prisma.ResourceContributionWhereUniqueInput | Prisma.ResourceContributionWhereUniqueInput[]
+  update?: Prisma.ResourceContributionUpdateWithWhereUniqueWithoutParticipantInput | Prisma.ResourceContributionUpdateWithWhereUniqueWithoutParticipantInput[]
+  updateMany?: Prisma.ResourceContributionUpdateManyWithWhereWithoutParticipantInput | Prisma.ResourceContributionUpdateManyWithWhereWithoutParticipantInput[]
+  deleteMany?: Prisma.ResourceContributionScalarWhereInput | Prisma.ResourceContributionScalarWhereInput[]
+}
+
 export type ResourceContributionCreateNestedOneWithoutRewardsInput = {
   create?: Prisma.XOR<Prisma.ResourceContributionCreateWithoutRewardsInput, Prisma.ResourceContributionUncheckedCreateWithoutRewardsInput>
   connectOrCreate?: Prisma.ResourceContributionCreateOrConnectWithoutRewardsInput
@@ -592,13 +658,15 @@ export type ResourceContributionCreateWithoutInstitutionInput = {
   materialType: string
   reason?: string | null
   createdAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  student?: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutContributionsInput
   rewards?: Prisma.ResourceRewardCreateNestedManyWithoutContributionInput
 }
 
 export type ResourceContributionUncheckedCreateWithoutInstitutionInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -640,7 +708,8 @@ export type ResourceContributionScalarWhereInput = {
   OR?: Prisma.ResourceContributionScalarWhereInput[]
   NOT?: Prisma.ResourceContributionScalarWhereInput | Prisma.ResourceContributionScalarWhereInput[]
   id?: Prisma.UuidFilter<"ResourceContribution"> | string
-  studentId?: Prisma.UuidFilter<"ResourceContribution"> | string
+  studentId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
+  participantId?: Prisma.UuidNullableFilter<"ResourceContribution"> | string | null
   submissionId?: Prisma.UuidFilter<"ResourceContribution"> | string
   campaignId?: Prisma.StringFilter<"ResourceContribution"> | string
   points?: Prisma.IntFilter<"ResourceContribution"> | number
@@ -660,12 +729,14 @@ export type ResourceContributionCreateWithoutStudentInput = {
   materialType: string
   reason?: string | null
   createdAt?: Date | string
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutContributionsInput
   rewards?: Prisma.ResourceRewardCreateNestedManyWithoutContributionInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceContributionsInput
 }
 
 export type ResourceContributionUncheckedCreateWithoutStudentInput = {
   id?: string
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -703,6 +774,60 @@ export type ResourceContributionUpdateManyWithWhereWithoutStudentInput = {
   data: Prisma.XOR<Prisma.ResourceContributionUpdateManyMutationInput, Prisma.ResourceContributionUncheckedUpdateManyWithoutStudentInput>
 }
 
+export type ResourceContributionCreateWithoutParticipantInput = {
+  id?: string
+  submissionId: string
+  campaignId: string
+  points: number
+  courseCode: string
+  materialType: string
+  reason?: string | null
+  createdAt?: Date | string
+  student?: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  rewards?: Prisma.ResourceRewardCreateNestedManyWithoutContributionInput
+  institution?: Prisma.InstitutionCreateNestedOneWithoutResourceContributionsInput
+}
+
+export type ResourceContributionUncheckedCreateWithoutParticipantInput = {
+  id?: string
+  studentId?: string | null
+  submissionId: string
+  campaignId: string
+  points: number
+  courseCode: string
+  materialType: string
+  reason?: string | null
+  createdAt?: Date | string
+  institutionId?: string | null
+  rewards?: Prisma.ResourceRewardUncheckedCreateNestedManyWithoutContributionInput
+}
+
+export type ResourceContributionCreateOrConnectWithoutParticipantInput = {
+  where: Prisma.ResourceContributionWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput>
+}
+
+export type ResourceContributionCreateManyParticipantInputEnvelope = {
+  data: Prisma.ResourceContributionCreateManyParticipantInput | Prisma.ResourceContributionCreateManyParticipantInput[]
+  skipDuplicates?: boolean
+}
+
+export type ResourceContributionUpsertWithWhereUniqueWithoutParticipantInput = {
+  where: Prisma.ResourceContributionWhereUniqueInput
+  update: Prisma.XOR<Prisma.ResourceContributionUpdateWithoutParticipantInput, Prisma.ResourceContributionUncheckedUpdateWithoutParticipantInput>
+  create: Prisma.XOR<Prisma.ResourceContributionCreateWithoutParticipantInput, Prisma.ResourceContributionUncheckedCreateWithoutParticipantInput>
+}
+
+export type ResourceContributionUpdateWithWhereUniqueWithoutParticipantInput = {
+  where: Prisma.ResourceContributionWhereUniqueInput
+  data: Prisma.XOR<Prisma.ResourceContributionUpdateWithoutParticipantInput, Prisma.ResourceContributionUncheckedUpdateWithoutParticipantInput>
+}
+
+export type ResourceContributionUpdateManyWithWhereWithoutParticipantInput = {
+  where: Prisma.ResourceContributionScalarWhereInput
+  data: Prisma.XOR<Prisma.ResourceContributionUpdateManyMutationInput, Prisma.ResourceContributionUncheckedUpdateManyWithoutParticipantInput>
+}
+
 export type ResourceContributionCreateWithoutRewardsInput = {
   id?: string
   submissionId: string
@@ -712,13 +837,15 @@ export type ResourceContributionCreateWithoutRewardsInput = {
   materialType: string
   reason?: string | null
   createdAt?: Date | string
-  student: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  student?: Prisma.UserCreateNestedOneWithoutResourceContributionsInput
+  participant?: Prisma.TelegramParticipantCreateNestedOneWithoutContributionsInput
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceContributionsInput
 }
 
 export type ResourceContributionUncheckedCreateWithoutRewardsInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -754,13 +881,15 @@ export type ResourceContributionUpdateWithoutRewardsInput = {
   materialType?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutResourceContributionsNestedInput
+  student?: Prisma.UserUpdateOneWithoutResourceContributionsNestedInput
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutContributionsNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutResourceContributionsNestedInput
 }
 
 export type ResourceContributionUncheckedUpdateWithoutRewardsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -773,7 +902,8 @@ export type ResourceContributionUncheckedUpdateWithoutRewardsInput = {
 
 export type ResourceContributionCreateManyInstitutionInput = {
   id?: string
-  studentId: string
+  studentId?: string | null
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -792,13 +922,15 @@ export type ResourceContributionUpdateWithoutInstitutionInput = {
   materialType?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  student?: Prisma.UserUpdateOneRequiredWithoutResourceContributionsNestedInput
+  student?: Prisma.UserUpdateOneWithoutResourceContributionsNestedInput
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutContributionsNestedInput
   rewards?: Prisma.ResourceRewardUpdateManyWithoutContributionNestedInput
 }
 
 export type ResourceContributionUncheckedUpdateWithoutInstitutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -811,7 +943,8 @@ export type ResourceContributionUncheckedUpdateWithoutInstitutionInput = {
 
 export type ResourceContributionUncheckedUpdateManyWithoutInstitutionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  studentId?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -823,6 +956,7 @@ export type ResourceContributionUncheckedUpdateManyWithoutInstitutionInput = {
 
 export type ResourceContributionCreateManyStudentInput = {
   id?: string
+  participantId?: string | null
   submissionId: string
   campaignId: string
   points: number
@@ -842,12 +976,14 @@ export type ResourceContributionUpdateWithoutStudentInput = {
   materialType?: Prisma.StringFieldUpdateOperationsInput | string
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  participant?: Prisma.TelegramParticipantUpdateOneWithoutContributionsNestedInput
   rewards?: Prisma.ResourceRewardUpdateManyWithoutContributionNestedInput
   institution?: Prisma.InstitutionUpdateOneWithoutResourceContributionsNestedInput
 }
 
 export type ResourceContributionUncheckedUpdateWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -861,6 +997,61 @@ export type ResourceContributionUncheckedUpdateWithoutStudentInput = {
 
 export type ResourceContributionUncheckedUpdateManyWithoutStudentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  participantId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  points?: Prisma.IntFieldUpdateOperationsInput | number
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  materialType?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type ResourceContributionCreateManyParticipantInput = {
+  id?: string
+  studentId?: string | null
+  submissionId: string
+  campaignId: string
+  points: number
+  courseCode: string
+  materialType: string
+  reason?: string | null
+  createdAt?: Date | string
+  institutionId?: string | null
+}
+
+export type ResourceContributionUpdateWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  submissionId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  points?: Prisma.IntFieldUpdateOperationsInput | number
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  materialType?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  student?: Prisma.UserUpdateOneWithoutResourceContributionsNestedInput
+  rewards?: Prisma.ResourceRewardUpdateManyWithoutContributionNestedInput
+  institution?: Prisma.InstitutionUpdateOneWithoutResourceContributionsNestedInput
+}
+
+export type ResourceContributionUncheckedUpdateWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  submissionId?: Prisma.StringFieldUpdateOperationsInput | string
+  campaignId?: Prisma.StringFieldUpdateOperationsInput | string
+  points?: Prisma.IntFieldUpdateOperationsInput | number
+  courseCode?: Prisma.StringFieldUpdateOperationsInput | string
+  materialType?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rewards?: Prisma.ResourceRewardUncheckedUpdateManyWithoutContributionNestedInput
+}
+
+export type ResourceContributionUncheckedUpdateManyWithoutParticipantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  studentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   submissionId?: Prisma.StringFieldUpdateOperationsInput | string
   campaignId?: Prisma.StringFieldUpdateOperationsInput | string
   points?: Prisma.IntFieldUpdateOperationsInput | number
@@ -905,6 +1096,7 @@ export type ResourceContributionCountOutputTypeCountRewardsArgs<ExtArgs extends 
 export type ResourceContributionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   submissionId?: boolean
   campaignId?: boolean
   points?: boolean
@@ -913,7 +1105,8 @@ export type ResourceContributionSelect<ExtArgs extends runtime.Types.Extensions.
   reason?: boolean
   createdAt?: boolean
   institutionId?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   rewards?: boolean | Prisma.ResourceContribution$rewardsArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceContributionCountOutputTypeDefaultArgs<ExtArgs>
@@ -922,6 +1115,7 @@ export type ResourceContributionSelect<ExtArgs extends runtime.Types.Extensions.
 export type ResourceContributionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   submissionId?: boolean
   campaignId?: boolean
   points?: boolean
@@ -930,13 +1124,15 @@ export type ResourceContributionSelectCreateManyAndReturn<ExtArgs extends runtim
   reason?: boolean
   createdAt?: boolean
   institutionId?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["resourceContribution"]>
 
 export type ResourceContributionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   submissionId?: boolean
   campaignId?: boolean
   points?: boolean
@@ -945,13 +1141,15 @@ export type ResourceContributionSelectUpdateManyAndReturn<ExtArgs extends runtim
   reason?: boolean
   createdAt?: boolean
   institutionId?: boolean
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
 }, ExtArgs["result"]["resourceContribution"]>
 
 export type ResourceContributionSelectScalar = {
   id?: boolean
   studentId?: boolean
+  participantId?: boolean
   submissionId?: boolean
   campaignId?: boolean
   points?: boolean
@@ -962,32 +1160,37 @@ export type ResourceContributionSelectScalar = {
   institutionId?: boolean
 }
 
-export type ResourceContributionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "submissionId" | "campaignId" | "points" | "courseCode" | "materialType" | "reason" | "createdAt" | "institutionId", ExtArgs["result"]["resourceContribution"]>
+export type ResourceContributionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "submissionId" | "campaignId" | "points" | "courseCode" | "materialType" | "reason" | "createdAt" | "institutionId", ExtArgs["result"]["resourceContribution"]>
 export type ResourceContributionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   rewards?: boolean | Prisma.ResourceContribution$rewardsArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceContributionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResourceContributionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
 }
 export type ResourceContributionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  student?: boolean | Prisma.ResourceContribution$studentArgs<ExtArgs>
+  participant?: boolean | Prisma.ResourceContribution$participantArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceContribution$institutionArgs<ExtArgs>
 }
 
 export type $ResourceContributionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ResourceContribution"
   objects: {
-    student: Prisma.$UserPayload<ExtArgs>
+    student: Prisma.$UserPayload<ExtArgs> | null
+    participant: Prisma.$TelegramParticipantPayload<ExtArgs> | null
     rewards: Prisma.$ResourceRewardPayload<ExtArgs>[]
     institution: Prisma.$InstitutionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    studentId: string
+    studentId: string | null
+    participantId: string | null
     submissionId: string
     campaignId: string
     points: number
@@ -1390,7 +1593,8 @@ readonly fields: ResourceContributionFieldRefs;
  */
 export interface Prisma__ResourceContributionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  student<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  student<T extends Prisma.ResourceContribution$studentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceContribution$studentArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  participant<T extends Prisma.ResourceContribution$participantArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceContribution$participantArgs<ExtArgs>>): Prisma.Prisma__TelegramParticipantClient<runtime.Types.Result.GetResult<Prisma.$TelegramParticipantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   rewards<T extends Prisma.ResourceContribution$rewardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceContribution$rewardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceRewardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   institution<T extends Prisma.ResourceContribution$institutionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceContribution$institutionArgs<ExtArgs>>): Prisma.Prisma__InstitutionClient<runtime.Types.Result.GetResult<Prisma.$InstitutionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1424,6 +1628,7 @@ export interface Prisma__ResourceContributionClient<T, Null = never, ExtArgs ext
 export interface ResourceContributionFieldRefs {
   readonly id: Prisma.FieldRef<"ResourceContribution", 'String'>
   readonly studentId: Prisma.FieldRef<"ResourceContribution", 'String'>
+  readonly participantId: Prisma.FieldRef<"ResourceContribution", 'String'>
   readonly submissionId: Prisma.FieldRef<"ResourceContribution", 'String'>
   readonly campaignId: Prisma.FieldRef<"ResourceContribution", 'String'>
   readonly points: Prisma.FieldRef<"ResourceContribution", 'Int'>
@@ -1830,6 +2035,44 @@ export type ResourceContributionDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many ResourceContributions to delete.
    */
   limit?: number
+}
+
+/**
+ * ResourceContribution.student
+ */
+export type ResourceContribution$studentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * ResourceContribution.participant
+ */
+export type ResourceContribution$participantArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TelegramParticipant
+   */
+  select?: Prisma.TelegramParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TelegramParticipant
+   */
+  omit?: Prisma.TelegramParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TelegramParticipantInclude<ExtArgs> | null
+  where?: Prisma.TelegramParticipantWhereInput
 }
 
 /**

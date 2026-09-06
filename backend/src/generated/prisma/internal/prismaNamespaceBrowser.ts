@@ -94,6 +94,7 @@ export const ModelName = {
   ActivityJournalEntry: 'ActivityJournalEntry',
   MasteryCheckpointPass: 'MasteryCheckpointPass',
   ResourceSubmission: 'ResourceSubmission',
+  TelegramParticipant: 'TelegramParticipant',
   ResourceContribution: 'ResourceContribution',
   ResourceReward: 'ResourceReward'
 } as const
@@ -742,6 +743,7 @@ export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPass
 export const ResourceSubmissionScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  participantId: 'participantId',
   source: 'source',
   fileName: 'fileName',
   fileType: 'fileType',
@@ -778,6 +780,7 @@ export const ResourceSubmissionScalarFieldEnum = {
   humanDecision: 'humanDecision',
   decisionReason: 'decisionReason',
   reviewerId: 'reviewerId',
+  reviewerSource: 'reviewerSource',
   reviewedAt: 'reviewedAt',
   rewardStatus: 'rewardStatus',
   rewardReason: 'rewardReason',
@@ -794,9 +797,27 @@ export const ResourceSubmissionScalarFieldEnum = {
 export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
 
 
+export const TelegramParticipantScalarFieldEnum = {
+  id: 'id',
+  telegramId: 'telegramId',
+  username: 'username',
+  firstName: 'firstName',
+  verifiedAt: 'verifiedAt',
+  university: 'university',
+  points: 'points',
+  approvedCount: 'approvedCount',
+  linkedUserId: 'linkedUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TelegramParticipantScalarFieldEnum = (typeof TelegramParticipantScalarFieldEnum)[keyof typeof TelegramParticipantScalarFieldEnum]
+
+
 export const ResourceContributionScalarFieldEnum = {
   id: 'id',
   studentId: 'studentId',
+  participantId: 'participantId',
   submissionId: 'submissionId',
   campaignId: 'campaignId',
   points: 'points',

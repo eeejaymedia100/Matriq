@@ -42,21 +42,21 @@ export function jaccard(a: ShingleSet, b: ShingleSet): number {
 
 export interface DuplicateHit {
   submissionId: string;
-  studentId: string;
+  studentId: string | null;
   similarity: number; // 0-100
   kind: "exact" | "near";
 }
 
 export interface DuplicateCheckInput {
   selfId: string;
-  studentId: string;
+  studentId: string | null;
   fileHash: string;
   extractedText: string | null;
   fingerprint: string | null;
   /** Recent non-rejected rows with fingerprints or hashes (last 90 days). */
   candidates: Array<{
     id: string;
-    studentId: string;
+    studentId: string | null;
     fileHash: string;
     textFingerprint: string | null;
     extractedText: string | null;

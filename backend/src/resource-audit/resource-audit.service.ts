@@ -10,6 +10,7 @@ import {
   Inject,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { TelegramCampaignService } from "../telegram/telegram-campaign.service";
 import {
   Prisma,
   ResourceAuditStatus,
@@ -67,7 +68,10 @@ import pdfParse from "pdf-parse";
 const COURSE_CODE_RE = /^[A-Z]{2,4}\s?\d{3,4}[A-Z]?$/;
 
 export interface SubmitResourceInput {
-  studentId: string;
+  /** Matriq account id (app channel). Omit for Telegram participants. */
+  studentId?: string | null;
+  /** Telegram participant row id (telegram channel). Omit for app users. */
+  participantId?: string | null;
   fileName: string;
   buffer: Buffer;
   courseCode: string;
@@ -78,6 +82,8 @@ export interface SubmitResourceInput {
   institutionId?: string | null;
   faculty?: string | null;
   department?: string | null;
+  /** Denormalized university label (Telegram participants declare it in chat). */
+  universityName?: string | null;
   source?: SubmissionSource;
 }
 
@@ -86,6 +92,9 @@ export class SubmissionValidationError extends BadRequestException {
     super({ error: "submission_invalid", reason });
   }
 }
+
+/** DI port for the Telegram campaign ledger (optional — app-only deployments omit it). */
+export const TELEGRAM_CAMPAIGN_PORT = Symbol("TELEGRAM_CAMPAIGN_PORT");
 
 @Injectable()
 export class ResourceAuditService {
@@ -97,15 +106,18 @@ export class ResourceAuditService {
   private readonly auditor: ResourceAiAuditor;
   /** Per-student rolling-window cap (transport throttling is the Throttler's job). */
   private readonly recentSubmissions = new Map<string, number[]>();
+  /** Set by the Telegram module so approvals can message the participant. */
+  notifyParticipant?: (participantId: string, courseCode: string, points: number) => Promise<void>;
 
   constructor(
+    configService: ConfigService,
     private readonly prisma: PrismaService,
     private readonly storageAdapter: ResourceAuditStorage,
     private readonly tools: ToolsService,
     private readonly rewards: ResourceRewardService,
-    configService: ConfigService,
     @Inject(AUDIT_SCORER) private readonly scorer: AuditScorerProvider,
     @Optional() @Inject(AUDITOR_PORT) auditor?: ResourceAiAuditor,
+    @Optional() @Inject(TELEGRAM_CAMPAIGN_PORT) private readonly campaign?: TelegramCampaignService,
   ) {
     this.config = loadResourceAuditConfig(configService);
     this.thresholds = loadThresholds((key) => configService?.get<string>(key));
@@ -123,7 +135,15 @@ export class ResourceAuditService {
    * the caller gets the submission ID immediately and polls for status.
    */
   async submit(input: SubmitResourceInput) {
-    const studentId = input.studentId;
+    // Owner resolution: exactly one of studentId / participantId.
+    const studentId = input.studentId ?? null;
+    const participantId = input.participantId ?? null;
+    if (!studentId && !participantId) {
+      throw new SubmissionValidationError("A submission needs an owner (account or participant).");
+    }
+    if (studentId && participantId) {
+      throw new SubmissionValidationError("A submission has exactly one owner.");
+    }
 
     // 1. Rights declaration — non-negotiable.
     if (!input.rightsDeclared) {
@@ -176,17 +196,19 @@ export class ResourceAuditService {
       );
     }
 
-    // 6. Rate limit per student (config-driven rolling window).
-    this.enforceSubmissionRate(studentId);
+    // 6. Rate limit per owner (config-driven rolling window).
+    this.enforceSubmissionRate(studentId ?? participantId!);
 
-    // 7. Hash + exact-duplicate check (same student, same file, same course).
+    // 7. Hash + exact-duplicate check (same owner, same file, same course).
     const fileHash = this.storageAdapter.hash(input.buffer);
     const duplicate = await this.prisma.resourceSubmission.findFirst({
-      where: { studentId, fileHash, courseCode },
+      where: studentId
+        ? { studentId, fileHash, courseCode }
+        : { participantId: participantId!, fileHash, courseCode },
       select: { id: true },
     });
     if (duplicate) {
-      this.log("submit", null, studentId, "rejected: exact duplicate", {
+      this.log("submit", null, studentId ?? participantId, "rejected: exact duplicate", {
         duplicateId: duplicate.id,
       });
       throw new ConflictException({
@@ -196,20 +218,31 @@ export class ResourceAuditService {
       });
     }
 
-    // 8. Resolve the student's academic context from their profile.
-    const student = await this.prisma.user.findUnique({
-      where: { id: studentId },
-      select: {
-        id: true,
-        institutionId: true,
-        faculty: true,
-        department: true,
-        level: true,
-        deletedAt: true,
-      },
-    });
-    if (!student || student.deletedAt) {
-      throw new NotFoundException("Account not found.");
+    // 8. Owner context: app users get their profile; participants bring
+    //    their academic context through the conversation itself.
+    let student: {
+      id: string;
+      institutionId: string | null;
+      faculty: string | null;
+      department: string | null;
+      level: string | null;
+      deletedAt: Date | null;
+    } | null = null;
+    if (studentId) {
+      student = await this.prisma.user.findUnique({
+        where: { id: studentId },
+        select: {
+          id: true,
+          institutionId: true,
+          faculty: true,
+          department: true,
+          level: true,
+          deletedAt: true,
+        },
+      });
+      if (!student || student.deletedAt) {
+        throw new NotFoundException("Account not found.");
+      }
     }
 
     // 9. Generate the ID first, then persist the original untouched bytes
@@ -233,18 +266,19 @@ export class ResourceAuditService {
       data: {
         id: submissionId,
         studentId,
+        participantId,
         source: input.source ?? SubmissionSource.app,
         fileName: input.fileName.slice(0, 255),
         fileType: detected,
         fileSize: input.buffer.length,
         fileHash,
         storageRef,
-        institutionId: input.institutionId ?? student.institutionId,
-        universityName: null, // denormalized by a later enrichment pass
-        faculty: input.faculty ?? student.faculty,
-        department: input.department ?? student.department,
+        institutionId: input.institutionId ?? student?.institutionId ?? null,
+        universityName: input.universityName ?? null, // enrichment pass may refine
+        faculty: input.faculty ?? student?.faculty ?? null,
+        department: input.department ?? student?.department ?? null,
         courseCode,
-        level: input.level ?? student.level,
+        level: input.level ?? student?.level ?? null,
         materialType: this
           .materialTypeOrThrow(input.materialType)
           .valueOf() as never,
@@ -469,6 +503,7 @@ export class ResourceAuditService {
     reviewerId: string,
     decision: HumanDecision,
     reason?: string,
+    reviewerSource: "admin" | "telegram" = "admin",
   ) {
     if (decision !== "approved" && !reason?.trim()) {
       throw new BadRequestException(
@@ -496,6 +531,7 @@ export class ResourceAuditService {
         humanDecision: decision,
         decisionReason: reason?.trim() ?? null,
         reviewerId,
+        reviewerSource,
         reviewedAt: new Date(),
       },
     });
@@ -688,7 +724,7 @@ export class ResourceAuditService {
             });
             const dupResult = checkDuplicates({
               selfId: submissionId,
-              studentId: row.studentId,
+              studentId: row.studentId, // null when the owner is a participant
               fileHash: row.fileHash,
               extractedText: row.extractedText,
               fingerprint,
@@ -833,11 +869,43 @@ export class ResourceAuditService {
     }
     const pending = await this.prisma.resourceSubmission.findUnique({ where: { id: submissionId } });
     if (pending?.auditStatus === AUDIT_STATUS.reward_pending) {
+      if (pending.participantId) {
+        // ── Telegram campaign branch ─────────────────────────────────
+        // Participants never enter the app's Vault or the app reward
+        // ledger. Points go to the Telegram campaign, immediately and
+        // idempotently (the unique submissionId prevents double awards).
+        const award = await this.campaign!.awardForSubmission({
+          id: pending.id,
+          participantId: pending.participantId,
+          courseCode: pending.courseCode,
+          materialType: pending.materialType,
+        });
+        if (award.awarded) {
+          await this.prisma.resourceSubmission.update({
+            where: { id: submissionId },
+            data: {
+              rewardStatus: ResourceRewardStatus.eligible,
+              rewardReason: `+${award.points} pts (Resource Hunt)`,
+            },
+          });
+          await this.stageTransition(submissionId, AUDIT_STATUS.reward_pending, AUDIT_STATUS.reward_eligible);
+          await this.notifyParticipant?.(pending.participantId, pending.courseCode, award.points).catch(() => undefined);
+        } else {
+          await this.prisma.resourceSubmission.update({
+            where: { id: submissionId },
+            data: {
+              rewardStatus: ResourceRewardStatus.ineligible,
+              rewardReason: award.reason,
+            },
+          });
+          await this.stageTransition(submissionId, AUDIT_STATUS.reward_pending, AUDIT_STATUS.reward_ineligible);
+        }
+      } else {
       // Reward qualification (Part 5) is a SEPARATE decision from library
       // approval: duplicates, abuse-risk and campaign state gate it.
       const qualification = await this.rewards.qualify({
         id: pending.id,
-        studentId: pending.studentId,
+        studentId: pending.studentId!, // participant branch returned earlier
         courseCode: pending.courseCode,
         materialType: pending.materialType,
         aiAuditReport: pending.aiAuditReport,
@@ -853,7 +921,7 @@ export class ResourceAuditService {
         });
         await this.stageTransition(submissionId, AUDIT_STATUS.reward_pending, AUDIT_STATUS.reward_eligible);
         // Tier evaluation + leaderboard accrual happen after the ledger row.
-        await this.rewards.evaluateTiers(pending.studentId).catch((err) =>
+        await this.rewards.evaluateTiers(pending.studentId!).catch((err) =>
           this.logger.warn(
             JSON.stringify({ stage: "rewards", submissionId, msg: "tier evaluation failed", err: String(err).slice(0, 200) }),
           ),
@@ -872,11 +940,19 @@ export class ResourceAuditService {
           abuseScore: qualification.abuseScore,
         });
       }
+      }
     }
 
     // ── Library processing: publish into the shared Vault ────────────
     const pub = await this.prisma.resourceSubmission.findUnique({ where: { id: submissionId } });
     if (!pub) return;
+    // Participants' resources stay OUT of the app Vault — the campaign
+    // archive is reviewed material; publication into the app library is
+    // an app-channel concern only.
+    if (pub.participantId) {
+      this.log("processing_library", submissionId, pub.participantId, "participant submission: no vault publish (campaign archive)");
+      return;
+    }
     if (
       pub.auditStatus !== AUDIT_STATUS.reward_eligible &&
       pub.auditStatus !== AUDIT_STATUS.reward_ineligible &&
@@ -893,7 +969,7 @@ export class ResourceAuditService {
       // an honest "waiting" state that a later pass can re-enter — instead
       // of parking in processing_library forever.
       const membership = await this.prisma.membership.findFirst({
-        where: { userId: pub.studentId, status: "live" },
+        where: { userId: pub.studentId!, status: "live" },
         select: { associationId: true },
       });
       if (!membership) {
@@ -926,7 +1002,7 @@ export class ResourceAuditService {
 
       const vaultItem = await this.prisma.vaultItem.create({
         data: {
-          userId: pub.studentId,
+          userId: pub.studentId!,
           associationId: membership.associationId,
           courseCode: pub.courseCode,
           title: cleanTitle,
@@ -1120,7 +1196,7 @@ export class ResourceAuditService {
   /** Public projection — internal fields (extractedText, storageRef) never leak. */
   private toPublicSubmission(row: {
     id: string;
-    studentId: string;
+    studentId: string | null;
     source: SubmissionSource;
     fileName: string;
     fileType: string;

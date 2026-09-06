@@ -8,6 +8,7 @@ import { TelegramApi } from "./telegram.api";
 import { TelegramGate } from "./telegram-gate";
 import { TelegramMiniAppAuth } from "./telegram-miniapp-auth";
 import { TelegramMiniAppGuard } from "./telegram-miniapp.guard";
+import { TelegramCampaignService } from "./telegram-campaign.service";
 import { ResourceAuditModule } from "../resource-audit/resource-audit.module";
 
 /**
@@ -41,6 +42,7 @@ import { ResourceAuditModule } from "../resource-audit/resource-audit.module";
     TelegramGate,
     TelegramMiniAppAuth,
     TelegramMiniAppGuard,
+    TelegramCampaignService,
     TelegramBotService,
   ],
   exports: [TelegramBotService],
