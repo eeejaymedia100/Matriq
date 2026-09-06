@@ -1,6 +1,10 @@
 -- Resource Audit Engine Parts 2-6: validation/quality/duplicate fields,
 -- AI provider attribution + risk, reviewer notes, reward ledger.
 
+-- Enum types must exist before any column references them.
+CREATE TYPE "ResourceRiskLevel" AS ENUM ('green', 'yellow', 'red');
+CREATE TYPE "ResourceRewardState" AS ENUM ('pending', 'eligible', 'processing', 'paid', 'rejected', 'disputed');
+
 ALTER TABLE "resource_submissions"
   ADD COLUMN "ai_audit_report"          JSONB,
   ADD COLUMN "ai_provider"              TEXT,
@@ -12,9 +16,6 @@ ALTER TABLE "resource_submissions"
   ADD COLUMN "duplicate_similarity"     INTEGER,
   ADD COLUMN "reviewer_notes"           TEXT,
   ADD COLUMN "risk_level"               "ResourceRiskLevel";
-
-CREATE TYPE "ResourceRiskLevel" AS ENUM ('green', 'yellow', 'red');
-CREATE TYPE "ResourceRewardState" AS ENUM ('pending', 'eligible', 'processing', 'paid', 'rejected', 'disputed');
 
 CREATE INDEX "resource_submissions_text_fingerprint_idx" ON "resource_submissions"("text_fingerprint");
 CREATE INDEX "resource_submissions_risk_level_idx" ON "resource_submissions"("risk_level");
