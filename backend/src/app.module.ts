@@ -33,6 +33,7 @@ import { TimetableModule } from "./timetable/timetable.module";
 import { ActivityModule } from "./activity/activity.module";
 import { HealthModule } from "./health/health.module";
 import { EmailModule } from "./email/email.module";
+import { TelegramModule } from "./telegram/telegram.module";
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { EmailModule } from "./email/email.module";
     TimetableModule,
     HealthModule,
     EmailModule,
+    TelegramModule,
   ],
 })
 export class AppModule {}

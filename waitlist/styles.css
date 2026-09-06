@@ -594,3 +594,40 @@ footer {
   #count.pop { animation: none; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* ── Telegram strip ───────────────────────────────────────────── */
+
+.hero-tg {
+  margin-top: 18px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 14px;
+}
+.hero-tg svg { width: 17px; height: 17px; color: var(--lime); flex: none; }
+.hero-tg a { color: var(--text); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(198, 255, 61, 0.5); }
+.hero-tg a:hover { text-decoration-color: var(--lime); }
+
+.tg-strip {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 140% at 85% 0%, rgba(198, 255, 61, 0.08), transparent 55%),
+    var(--surface);
+  padding: clamp(28px, 5vw, 48px);
+}
+.tg-copy { max-width: 640px; }
+.tg-copy h2 { margin-bottom: 14px; }
+.tg-copy > p { color: var(--text-dim); line-height: 1.65; font-size: 15.5px; }
+
+.tg-points {
+  list-style: none; margin: 20px 0 24px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.tg-points li { display: flex; align-items: center; gap: 10px; font-size: 14.5px; }
+.tg-points svg { width: 17px; height: 17px; color: var(--lime); flex: none; }
+
+.tg-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 720px) {
+  .tg-strip { padding: 24px 20px; }
+  .tg-actions .btn { width: 100%; }
+}

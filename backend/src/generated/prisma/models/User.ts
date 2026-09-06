@@ -57,6 +57,8 @@ export type UserMinAggregateOutputType = {
   profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
+  telegramId: string | null
+  telegramLinkedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -86,6 +88,8 @@ export type UserMaxAggregateOutputType = {
   profilePhotoUrl: string | null
   mfaEnabled: boolean | null
   mfaSecret: string | null
+  telegramId: string | null
+  telegramLinkedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   deletedAt: Date | null
@@ -115,6 +119,8 @@ export type UserCountAggregateOutputType = {
   profilePhotoUrl: number
   mfaEnabled: number
   mfaSecret: number
+  telegramId: number
+  telegramLinkedAt: number
   createdAt: number
   updatedAt: number
   deletedAt: number
@@ -154,6 +160,8 @@ export type UserMinAggregateInputType = {
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
+  telegramId?: true
+  telegramLinkedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -183,6 +191,8 @@ export type UserMaxAggregateInputType = {
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
+  telegramId?: true
+  telegramLinkedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -212,6 +222,8 @@ export type UserCountAggregateInputType = {
   profilePhotoUrl?: true
   mfaEnabled?: true
   mfaSecret?: true
+  telegramId?: true
+  telegramLinkedAt?: true
   createdAt?: true
   updatedAt?: true
   deletedAt?: true
@@ -328,6 +340,8 @@ export type UserGroupByOutputType = {
   profilePhotoUrl: string | null
   mfaEnabled: boolean
   mfaSecret: string | null
+  telegramId: string | null
+  telegramLinkedAt: Date | null
   createdAt: Date
   updatedAt: Date
   deletedAt: Date | null
@@ -380,6 +394,8 @@ export type UserWhereInput = {
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramLinkedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -438,6 +454,8 @@ export type UserOrderByWithRelationInput = {
   profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramLinkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -477,6 +495,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   email?: string
   verificationToken?: string
+  telegramId?: string
   AND?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
@@ -499,6 +518,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramLinkedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -532,7 +552,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   activityJournal?: Prisma.ActivityJournalEntryListRelationFilter
   masteryPasses?: Prisma.MasteryCheckpointPassListRelationFilter
   resourceSubmissions?: Prisma.ResourceSubmissionListRelationFilter
-}, "id" | "email" | "verificationToken">
+}, "id" | "email" | "verificationToken" | "telegramId">
 
 export type UserOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -557,6 +577,8 @@ export type UserOrderByWithAggregationInput = {
   profilePhotoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramId?: Prisma.SortOrderInput | Prisma.SortOrder
+  telegramLinkedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -594,6 +616,8 @@ export type UserScalarWhereWithAggregatesInput = {
   profilePhotoUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telegramId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
+  telegramLinkedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -622,6 +646,8 @@ export type UserCreateInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -680,6 +706,8 @@ export type UserUncheckedCreateInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -736,6 +764,8 @@ export type UserUpdateInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -794,6 +824,8 @@ export type UserUncheckedUpdateInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -851,6 +883,8 @@ export type UserCreateManyInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -879,6 +913,8 @@ export type UserUpdateManyMutationInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -908,6 +944,8 @@ export type UserUncheckedUpdateManyInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -947,6 +985,8 @@ export type UserCountOrderByAggregateInput = {
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
+  telegramId?: Prisma.SortOrder
+  telegramLinkedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -980,6 +1020,8 @@ export type UserMaxOrderByAggregateInput = {
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
+  telegramId?: Prisma.SortOrder
+  telegramLinkedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1009,6 +1051,8 @@ export type UserMinOrderByAggregateInput = {
   profilePhotoUrl?: Prisma.SortOrder
   mfaEnabled?: Prisma.SortOrder
   mfaSecret?: Prisma.SortOrder
+  telegramId?: Prisma.SortOrder
+  telegramLinkedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -1517,6 +1561,8 @@ export type UserCreateWithoutInstitutionInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1573,6 +1619,8 @@ export type UserUncheckedCreateWithoutInstitutionInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1659,6 +1707,8 @@ export type UserScalarWhereInput = {
   profilePhotoUrl?: Prisma.StringNullableFilter<"User"> | string | null
   mfaEnabled?: Prisma.BoolFilter<"User"> | boolean
   mfaSecret?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramId?: Prisma.StringNullableFilter<"User"> | string | null
+  telegramLinkedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   deletedAt?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
@@ -1687,6 +1737,8 @@ export type UserCreateWithoutExecutiveRolesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1744,6 +1796,8 @@ export type UserUncheckedCreateWithoutExecutiveRolesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1815,6 +1869,8 @@ export type UserUpdateWithoutExecutiveRolesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1872,6 +1928,8 @@ export type UserUncheckedUpdateWithoutExecutiveRolesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1927,6 +1985,8 @@ export type UserCreateWithoutMembershipsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -1984,6 +2044,8 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2055,6 +2117,8 @@ export type UserUpdateWithoutMembershipsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2112,6 +2176,8 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2167,6 +2233,8 @@ export type UserCreateWithoutVerificationRequestsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2224,6 +2292,8 @@ export type UserUncheckedCreateWithoutVerificationRequestsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2295,6 +2365,8 @@ export type UserUpdateWithoutVerificationRequestsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2352,6 +2424,8 @@ export type UserUncheckedUpdateWithoutVerificationRequestsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2407,6 +2481,8 @@ export type UserCreateWithoutPaymentsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2464,6 +2540,8 @@ export type UserUncheckedCreateWithoutPaymentsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2535,6 +2613,8 @@ export type UserUpdateWithoutPaymentsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2592,6 +2672,8 @@ export type UserUncheckedUpdateWithoutPaymentsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2647,6 +2729,8 @@ export type UserCreateWithoutAnnouncementReadsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2704,6 +2788,8 @@ export type UserUncheckedCreateWithoutAnnouncementReadsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2775,6 +2861,8 @@ export type UserUpdateWithoutAnnouncementReadsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2832,6 +2920,8 @@ export type UserUncheckedUpdateWithoutAnnouncementReadsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2887,6 +2977,8 @@ export type UserCreateWithoutEventRsvpsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -2944,6 +3036,8 @@ export type UserUncheckedCreateWithoutEventRsvpsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3015,6 +3109,8 @@ export type UserUpdateWithoutEventRsvpsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3072,6 +3168,8 @@ export type UserUncheckedUpdateWithoutEventRsvpsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3127,6 +3225,8 @@ export type UserCreateWithoutEventAttendanceInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3184,6 +3284,8 @@ export type UserUncheckedCreateWithoutEventAttendanceInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3255,6 +3357,8 @@ export type UserUpdateWithoutEventAttendanceInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3312,6 +3416,8 @@ export type UserUncheckedUpdateWithoutEventAttendanceInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3367,6 +3473,8 @@ export type UserCreateWithoutReferralsGivenInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3424,6 +3532,8 @@ export type UserUncheckedCreateWithoutReferralsGivenInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3484,6 +3594,8 @@ export type UserCreateWithoutReferralsReceivedInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3541,6 +3653,8 @@ export type UserUncheckedCreateWithoutReferralsReceivedInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3612,6 +3726,8 @@ export type UserUpdateWithoutReferralsGivenInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3669,6 +3785,8 @@ export type UserUncheckedUpdateWithoutReferralsGivenInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3735,6 +3853,8 @@ export type UserUpdateWithoutReferralsReceivedInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3792,6 +3912,8 @@ export type UserUncheckedUpdateWithoutReferralsReceivedInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3847,6 +3969,8 @@ export type UserCreateWithoutAiDocumentsSubmittedInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3904,6 +4028,8 @@ export type UserUncheckedCreateWithoutAiDocumentsSubmittedInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -3975,6 +4101,8 @@ export type UserUpdateWithoutAiDocumentsSubmittedInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4032,6 +4160,8 @@ export type UserUncheckedUpdateWithoutAiDocumentsSubmittedInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4087,6 +4217,8 @@ export type UserCreateWithoutAiQueryLogsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4144,6 +4276,8 @@ export type UserUncheckedCreateWithoutAiQueryLogsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4215,6 +4349,8 @@ export type UserUpdateWithoutAiQueryLogsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4272,6 +4408,8 @@ export type UserUncheckedUpdateWithoutAiQueryLogsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4327,6 +4465,8 @@ export type UserCreateWithoutVaultItemsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4384,6 +4524,8 @@ export type UserUncheckedCreateWithoutVaultItemsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4455,6 +4597,8 @@ export type UserUpdateWithoutVaultItemsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4512,6 +4656,8 @@ export type UserUncheckedUpdateWithoutVaultItemsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4567,6 +4713,8 @@ export type UserCreateWithoutLibrarySavesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4624,6 +4772,8 @@ export type UserUncheckedCreateWithoutLibrarySavesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4695,6 +4845,8 @@ export type UserUpdateWithoutLibrarySavesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4752,6 +4904,8 @@ export type UserUncheckedUpdateWithoutLibrarySavesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4807,6 +4961,8 @@ export type UserCreateWithoutLibraryViewsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4864,6 +5020,8 @@ export type UserUncheckedCreateWithoutLibraryViewsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -4935,6 +5093,8 @@ export type UserUpdateWithoutLibraryViewsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -4992,6 +5152,8 @@ export type UserUncheckedUpdateWithoutLibraryViewsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5047,6 +5209,8 @@ export type UserCreateWithoutLibraryReportsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5104,6 +5268,8 @@ export type UserUncheckedCreateWithoutLibraryReportsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5175,6 +5341,8 @@ export type UserUpdateWithoutLibraryReportsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5232,6 +5400,8 @@ export type UserUncheckedUpdateWithoutLibraryReportsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5287,6 +5457,8 @@ export type UserCreateWithoutNotificationsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5344,6 +5516,8 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5415,6 +5589,8 @@ export type UserUpdateWithoutNotificationsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5472,6 +5648,8 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5527,6 +5705,8 @@ export type UserCreateWithoutPushDevicesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5584,6 +5764,8 @@ export type UserUncheckedCreateWithoutPushDevicesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5655,6 +5837,8 @@ export type UserUpdateWithoutPushDevicesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5712,6 +5896,8 @@ export type UserUncheckedUpdateWithoutPushDevicesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5767,6 +5953,8 @@ export type UserCreateWithoutLegalAcceptancesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5824,6 +6012,8 @@ export type UserUncheckedCreateWithoutLegalAcceptancesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -5895,6 +6085,8 @@ export type UserUpdateWithoutLegalAcceptancesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -5952,6 +6144,8 @@ export type UserUncheckedUpdateWithoutLegalAcceptancesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6007,6 +6201,8 @@ export type UserCreateWithoutEntitlementsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6064,6 +6260,8 @@ export type UserUncheckedCreateWithoutEntitlementsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6135,6 +6333,8 @@ export type UserUpdateWithoutEntitlementsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6192,6 +6392,8 @@ export type UserUncheckedUpdateWithoutEntitlementsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6247,6 +6449,8 @@ export type UserCreateWithoutFocusSessionsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6304,6 +6508,8 @@ export type UserUncheckedCreateWithoutFocusSessionsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6375,6 +6581,8 @@ export type UserUpdateWithoutFocusSessionsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6432,6 +6640,8 @@ export type UserUncheckedUpdateWithoutFocusSessionsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6487,6 +6697,8 @@ export type UserCreateWithoutFocusClarificationsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6544,6 +6756,8 @@ export type UserUncheckedCreateWithoutFocusClarificationsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6615,6 +6829,8 @@ export type UserUpdateWithoutFocusClarificationsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6672,6 +6888,8 @@ export type UserUncheckedUpdateWithoutFocusClarificationsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6727,6 +6945,8 @@ export type UserCreateWithoutAchievementUnlocksInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6784,6 +7004,8 @@ export type UserUncheckedCreateWithoutAchievementUnlocksInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -6855,6 +7077,8 @@ export type UserUpdateWithoutAchievementUnlocksInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6912,6 +7136,8 @@ export type UserUncheckedUpdateWithoutAchievementUnlocksInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -6967,6 +7193,8 @@ export type UserCreateWithoutFocusUsageInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7024,6 +7252,8 @@ export type UserUncheckedCreateWithoutFocusUsageInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7095,6 +7325,8 @@ export type UserUpdateWithoutFocusUsageInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7152,6 +7384,8 @@ export type UserUncheckedUpdateWithoutFocusUsageInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7207,6 +7441,8 @@ export type UserCreateWithoutDeepReadJobsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7264,6 +7500,8 @@ export type UserUncheckedCreateWithoutDeepReadJobsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7335,6 +7573,8 @@ export type UserUpdateWithoutDeepReadJobsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7392,6 +7632,8 @@ export type UserUncheckedUpdateWithoutDeepReadJobsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7447,6 +7689,8 @@ export type UserCreateWithoutRefreshTokenFamiliesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7504,6 +7748,8 @@ export type UserUncheckedCreateWithoutRefreshTokenFamiliesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7575,6 +7821,8 @@ export type UserUpdateWithoutRefreshTokenFamiliesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7632,6 +7880,8 @@ export type UserUncheckedUpdateWithoutRefreshTokenFamiliesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7687,6 +7937,8 @@ export type UserCreateWithoutActivityJournalInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7744,6 +7996,8 @@ export type UserUncheckedCreateWithoutActivityJournalInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7815,6 +8069,8 @@ export type UserUpdateWithoutActivityJournalInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7872,6 +8128,8 @@ export type UserUncheckedUpdateWithoutActivityJournalInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -7927,6 +8185,8 @@ export type UserCreateWithoutMasteryPassesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -7984,6 +8244,8 @@ export type UserUncheckedCreateWithoutMasteryPassesInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -8055,6 +8317,8 @@ export type UserUpdateWithoutMasteryPassesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8112,6 +8376,8 @@ export type UserUncheckedUpdateWithoutMasteryPassesInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8167,6 +8433,8 @@ export type UserCreateWithoutResourceSubmissionsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -8224,6 +8492,8 @@ export type UserUncheckedCreateWithoutResourceSubmissionsInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -8295,6 +8565,8 @@ export type UserUpdateWithoutResourceSubmissionsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8352,6 +8624,8 @@ export type UserUncheckedUpdateWithoutResourceSubmissionsInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8407,6 +8681,8 @@ export type UserCreateManyInstitutionInput = {
   profilePhotoUrl?: string | null
   mfaEnabled?: boolean
   mfaSecret?: string | null
+  telegramId?: string | null
+  telegramLinkedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   deletedAt?: Date | string | null
@@ -8435,6 +8711,8 @@ export type UserUpdateWithoutInstitutionInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8491,6 +8769,8 @@ export type UserUncheckedUpdateWithoutInstitutionInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8547,6 +8827,8 @@ export type UserUncheckedUpdateManyWithoutInstitutionInput = {
   profilePhotoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mfaEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mfaSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  telegramLinkedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8841,6 +9123,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
+  telegramId?: boolean
+  telegramLinkedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -8900,6 +9184,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
+  telegramId?: boolean
+  telegramLinkedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -8930,6 +9216,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
+  telegramId?: boolean
+  telegramLinkedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
@@ -8960,13 +9248,15 @@ export type UserSelectScalar = {
   profilePhotoUrl?: boolean
   mfaEnabled?: boolean
   mfaSecret?: boolean
+  telegramId?: boolean
+  telegramLinkedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   deletedAt?: boolean
   deletionScheduledAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "institutionId" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "pendingReferralCode" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "email" | "passwordHash" | "registrationType" | "matricNumber" | "jambNumber" | "matricStatus" | "institutionId" | "faculty" | "department" | "level" | "emailVerified" | "verificationToken" | "verificationCodeExpiresAt" | "verificationEmailCount" | "verificationEmailWindowStart" | "dateOfBirth" | "pendingReferralCode" | "profilePhotoUrl" | "mfaEnabled" | "mfaSecret" | "telegramId" | "telegramLinkedAt" | "createdAt" | "updatedAt" | "deletedAt" | "deletionScheduledAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   payments?: boolean | Prisma.User$paymentsArgs<ExtArgs>
@@ -9062,6 +9352,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     profilePhotoUrl: string | null
     mfaEnabled: boolean
     mfaSecret: string | null
+    telegramId: string | null
+    telegramLinkedAt: Date | null
     createdAt: Date
     updatedAt: Date
     deletedAt: Date | null
@@ -9540,6 +9832,8 @@ export interface UserFieldRefs {
   readonly profilePhotoUrl: Prisma.FieldRef<"User", 'String'>
   readonly mfaEnabled: Prisma.FieldRef<"User", 'Boolean'>
   readonly mfaSecret: Prisma.FieldRef<"User", 'String'>
+  readonly telegramId: Prisma.FieldRef<"User", 'String'>
+  readonly telegramLinkedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"User", 'DateTime'>

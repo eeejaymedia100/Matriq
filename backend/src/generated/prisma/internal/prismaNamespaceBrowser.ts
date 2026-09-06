@@ -167,6 +167,8 @@ export const UserScalarFieldEnum = {
   profilePhotoUrl: 'profilePhotoUrl',
   mfaEnabled: 'mfaEnabled',
   mfaSecret: 'mfaSecret',
+  telegramId: 'telegramId',
+  telegramLinkedAt: 'telegramLinkedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt',

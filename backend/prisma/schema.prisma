@@ -250,6 +250,11 @@ model User {
   profilePhotoUrl              String?          @map("profile_photo_url")
   mfaEnabled                   Boolean          @default(false) @map("mfa_enabled")
   mfaSecret                    String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
+  // Telegram interface: the user's numeric Telegram id once they link their
+  // account through the bot (email → 6-digit code → persist). Unique: one
+  // Telegram account maps to at most one Matriq account. Null = not linked.
+  telegramId                   String?          @unique @map("telegram_id")
+  telegramLinkedAt             DateTime?        @map("telegram_linked_at")
   createdAt                    DateTime         @default(now()) @map("created_at")
   updatedAt                    DateTime         @updatedAt @map("updated_at")
   deletedAt                    DateTime?        @map("deleted_at")

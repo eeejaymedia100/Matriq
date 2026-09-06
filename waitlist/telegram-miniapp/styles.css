@@ -1,0 +1,220 @@
+/* ═══════════════════════════════════════════════════════════════
+   Matriq Telegram Mini App — the Matriq dark system inside Telegram.
+   Void ground #0A0A0A, one lime accent, Inter + Playfair. Quiet by
+   default; motion is feedback only (view swaps, one toast).
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  --void: #0a0a0a;
+  --surface: #141416;
+  --surface-alt: #1d1d20;
+  --line: #2a2a2e;
+  --text: #f5f4f1;
+  --text-dim: #9b9aa0;
+  --lime: #c6ff3d;
+  --ink-on-lime: #0c0f04;
+  --danger: #ff6b6b;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--void);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+}
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+img { display: block; }
+
+/* ── Views ─────────────────────────────────────────────────────── */
+
+.view { max-width: 520px; margin: 0 auto; animation: rise 220ms ease both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view { animation: none; }
+}
+
+/* ── Boot ──────────────────────────────────────────────────────── */
+
+.boot-mark { width: 64px; height: 64px; margin: 18vh auto 20px; border-radius: 16px; overflow: hidden; }
+.boot-mark img { width: 100%; height: 100%; object-fit: cover; }
+.boot-line { text-align: center; color: var(--text-dim); font-size: 14px; }
+
+/* ── Home ──────────────────────────────────────────────────────── */
+
+.top { display: flex; align-items: flex-start; justify-content: space-between; margin: 8px 0 24px; }
+
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;
+}
+
+.display {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 34px; font-weight: 700; line-height: 1.05;
+}
+
+.top-mark { width: 44px; height: 44px; border-radius: 12px; }
+
+.gate {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px; margin-bottom: 20px;
+}
+.gate h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.gate p { font-size: 14px; color: var(--text-dim); line-height: 1.5; margin-bottom: 14px; }
+.gate-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.tile {
+  display: flex; flex-direction: column; gap: 10px; text-align: left;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+.tile:active { transform: scale(0.98); border-color: var(--line); }
+.tile:hover { border-color: #3a3a40; }
+
+.tile-icon { width: 28px; height: 28px; color: var(--lime); }
+.tile-icon svg { width: 100%; height: 100%; }
+
+.tile-name { font-size: 15px; font-weight: 600; }
+.tile-sub { font-size: 12px; color: var(--text-dim); }
+
+.foot { margin-top: 24px; font-size: 12px; color: var(--text-dim); text-align: center; line-height: 1.5; }
+
+/* ── Bars (inner screens) ──────────────────────────────────────── */
+
+.bar { display: flex; align-items: center; gap: 10px; margin: 4px 0 18px; }
+.bar-title { font-size: 20px; font-weight: 600; }
+
+.back {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--line); display: grid; place-items: center;
+  background: var(--surface);
+}
+.back svg { width: 18px; height: 18px; }
+
+/* ── Search ────────────────────────────────────────────────────── */
+
+.search {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
+}
+.search svg { width: 18px; height: 18px; color: var(--text-dim); flex: none; }
+.search input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font: inherit; font-size: 15px;
+}
+.search input::placeholder { color: var(--text-dim); }
+
+/* ── Lists (library + submissions) ─────────────────────────────── */
+
+.list { display: flex; flex-direction: column; gap: 10px; }
+
+.item {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 14px 16px;
+}
+.item-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.item-title { font-size: 15px; font-weight: 600; line-height: 1.35; }
+.item-code { font-size: 12px; font-weight: 600; color: var(--lime); flex: none; }
+.item-sub { margin-top: 4px; font-size: 12.5px; color: var(--text-dim); }
+.item-note { margin-top: 8px; font-size: 12.5px; color: var(--text-dim); line-height: 1.45; }
+
+.badge {
+  display: inline-block; margin-top: 8px; padding: 3px 9px;
+  font-size: 11px; font-weight: 600; border-radius: 999px;
+  background: var(--surface-alt); color: var(--text-dim);
+  border: 1px solid var(--line);
+}
+.badge.ok { color: var(--lime); border-color: rgba(198, 255, 61, 0.35); }
+.badge.warn { color: #ffd23d; border-color: rgba(255, 210, 61, 0.35); }
+.badge.bad { color: var(--danger); border-color: rgba(255, 107, 107, 0.35); }
+
+.empty { text-align: center; color: var(--text-dim); padding: 40px 12px; font-size: 14px; line-height: 1.6; }
+
+/* ── Forms ─────────────────────────────────────────────────────── */
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > span { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+.field > span em { font-style: normal; font-weight: 400; opacity: 0.7; }
+
+.field input, .field select {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 13px 14px;
+  color: var(--text); font: inherit; font-size: 15px; outline: none;
+  transition: border-color 120ms ease;
+}
+.field input:focus, .field select:focus { border-color: var(--lime); }
+.field input[type="file"] { padding: 11px 12px; font-size: 13px; }
+.field input[type="file"]::file-selector-button {
+  background: var(--surface-alt); color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 7px 12px; margin-right: 12px; font: inherit; font-size: 13px;
+  cursor: pointer;
+}
+
+.check { display: flex; gap: 10px; align-items: flex-start; font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.check input { margin-top: 2px; accent-color: var(--lime); width: 16px; height: 16px; flex: none; }
+
+.hint { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 12px; padding: 12px 18px;
+  font-size: 14px; font-weight: 600;
+  transition: transform 120ms ease, opacity 120ms ease;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn-primary { background: var(--lime); color: var(--ink-on-lime); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+
+.btn-ghost { background: var(--surface); border: 1px solid var(--line); color: var(--text); }
+
+.btn-block { width: 100%; }
+
+/* ── Success ───────────────────────────────────────────────────── */
+
+.success { text-align: center; padding: 32px 8px; }
+.success-icon {
+  width: 56px; height: 56px; margin: 0 auto 16px;
+  border-radius: 50%; display: grid; place-items: center;
+  background: rgba(198, 255, 61, 0.12); color: var(--lime);
+}
+.success-icon svg { width: 28px; height: 28px; }
+.success h2 { font-family: "Playfair Display", Georgia, serif; font-size: 24px; margin-bottom: 8px; }
+.success p { color: var(--text-dim); font-size: 14px; margin-bottom: 6px; }
+.success code { color: var(--lime); font-size: 13px; }
+.success .btn { margin-top: 14px; }
+
+/* ── Toast ─────────────────────────────────────────────────────── */
+
+#toast {
+  position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+  background: var(--surface-alt); color: var(--text);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 11px 18px; font-size: 13.5px; max-width: 90vw;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}

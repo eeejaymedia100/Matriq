@@ -55,6 +55,33 @@
   loadCount();
   setInterval(loadCount, 30000);
 
+  // ── Telegram interface CTAs ──────────────────────────────────
+  // One public-info call wires every Telegram link on the page. The bot
+  // link uses https://t.me/<username> (never a hard-coded token); the
+  // community URL comes straight from the API so ops can change it.
+  (function wireTelegram() {
+    var heroLink = document.getElementById("hero-tg-link");
+    var botCta = document.getElementById("tg-bot-cta");
+    var communityCta = document.getElementById("tg-community-cta");
+    if (!heroLink && !botCta && !communityCta) return;
+    fetch(API + "/telegram/public-info", { headers: { Accept: "application/json" } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (info) {
+        var botUrl = info && info.botUsername ? "https://t.me/" + info.botUsername : null;
+        var communityUrl = info && info.communityUrl ? info.communityUrl : null;
+        if (heroLink) {
+          if (communityUrl) heroLink.href = communityUrl;
+          else heroLink.parentElement.hidden = true;
+        }
+        if (botCta && botUrl) botCta.href = botUrl;
+        else if (botCta) botCta.hidden = true;
+        if (communityCta) communityCta.href = communityUrl || "#";
+      })
+      .catch(function () {
+        if (heroLink) heroLink.parentElement.hidden = true;
+      });
+  })();
+
   // ── Exec yes/no toggle (reveal level / department / faculty) ──
   var execToggle = document.getElementById("exec-toggle");
   var execFollowup = document.getElementById("exec-followup");
