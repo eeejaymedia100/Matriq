@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException, Logger } from "@nestjs/common";
 import { createWorker, type Worker } from "tesseract.js";
 import { spawn } from "child_process";
-import { mkdtemp, writeFile, rm } from "fs/promises";
+import { mkdtemp, writeFile, rm, readdir, readFile } from "fs/promises";
 import { tmpdir } from "os";
 import { join } from "path";
 import { unzipSync, strFromU8 } from "fflate";
@@ -140,6 +140,11 @@ export class ToolsService {
    *      to Tesseract's best effort, exactly like the old pipeline).
    */
   async ocrBuffer(buffer: Buffer, mimeType: string): Promise<OcrResult> {
+    // PDFs carry no pixels — render pages to images first (pdftoppm from
+    // poppler-utils in the Docker image), then OCR the page images.
+    if (mimeType === PDF_MIME) {
+      return this.ocrPdf(buffer);
+    }
     // Sharpen the input once (EXIF rotation, grayscale, contrast stretch,
     // upscale small text) — this is what makes Tesseract accurate on photos.
     const preprocessed = await this.preprocessForOcr(buffer);
@@ -320,6 +325,53 @@ export class ToolsService {
    * stretch contrast, and double the size of small text so Tesseract reads it
    * reliably. Best-effort — on any sharp failure we use the original buffer.
    */
+  /**
+   * OCR a PDF: render pages to images with `pdftoppm` (poppler-utils, in the
+   * Docker image), then run the standard image pipeline on each page. Only
+   * called for scanned/image-only PDFs — native-text PDFs never reach OCR.
+   * Pages are capped so a pathological 500-page scan can't pin the worker.
+   */
+  private static readonly PDF_OCR_MAX_PAGES = 30;
+
+  private async ocrPdf(buffer: Buffer): Promise<OcrResult> {
+    const dir = await mkdtemp(join(tmpdir(), "matriq-pdfocr-"));
+    try {
+      const outPrefix = join(dir, "page");
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(
+          "pdftoppm",
+          ["-r", "200", "-png", "-f", "1", "-l", String(ToolsService.PDF_OCR_MAX_PAGES), "-", outPrefix],
+          { stdio: ["pipe", "ignore", "pipe"] },
+        );
+        const stderr: string[] = [];
+        child.stderr.on("data", (d) => stderr.push(String(d)));
+        child.on("error", (err) => reject(err));
+        child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(stderr.join("").slice(0, 200) || `pdftoppm exited ${code}`))));
+      });
+      const pages = (await readdir(dir)).filter((f) => f.startsWith("page") && f.endsWith(".png")).sort();
+      if (pages.length === 0) {
+        return { text: "", confidence: 0, readable: false, engine: "tesseract" };
+      }
+      const texts: string[] = [];
+      let confSum = 0;
+      let confCount = 0;
+      for (const page of pages) {
+        const image = await readFile(join(dir, page));
+        const r = await this.ocrBuffer(image, "image/png");
+        if (r.text.trim()) texts.push(r.text.trim());
+        if (r.readable && r.confidence > 0) {
+          confSum += r.confidence;
+          confCount += 1;
+        }
+      }
+      const text = texts.join("\n\f\n").trim();
+      const confidence = confCount > 0 ? Math.round(confSum / confCount) : 0;
+      return { text, confidence, readable: text.length > 0, engine: "tesseract" };
+    } finally {
+      await rm(dir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  }
+
   private async preprocessForOcr(input: Buffer): Promise<Buffer> {
     try {
       const image = sharp(input).rotate();
