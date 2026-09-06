@@ -106,6 +106,67 @@ enum InstitutionType {
   college_of_education
 }
 
+// ── Resource Audit Engine ──────────────────────────────────────────
+// Lifecycle of a student-submitted academic resource on its way into the
+// shared library. The engine is interface-agnostic: the app, website, admin
+// tools and (future) Telegram bot all submit through the same internal API.
+// See src/resource-audit/README.md for the architecture and state machine.
+enum ResourceAuditStatus {
+  received
+  validating
+  duplicate_check
+  extracting
+  ocr_processing
+  auditing
+  pending_human_review
+  approved
+  rejected
+  needs_information
+  reward_pending
+  reward_eligible
+  reward_ineligible
+  processing_library
+  published
+  failed
+}
+
+// Reward evaluation outcome, tracked separately from the audit state so a
+// reward decision can change without moving the pipeline.
+enum ResourceRewardStatus {
+  none
+  pending
+  eligible
+  ineligible
+}
+
+// Downstream library publication status (into the shared Vault).
+enum ResourceLibraryStatus {
+  none
+  pending
+  processing
+  published
+  failed
+}
+
+// Where the submission came from. Telegram is a FUTURE channel — the engine
+// itself never talks to Telegram; a bot adapter will call the same API.
+enum SubmissionSource {
+  app
+  web
+  admin
+  telegram
+}
+
+// What kind of academic material this is (drives reviewer expectations).
+enum ResourceMaterialType {
+  past_question
+  lecture_note
+  handout
+  slide_deck
+  textbook_summary
+  other
+}
+
 // ── Tables ─────────────────────────────────────────────────────────
 
 // ── Academic hierarchy (institution → faculties → departments) ──────
@@ -113,17 +174,18 @@ enum InstitutionType {
 // association to a specific faculty or department. Names are the source of
 // truth for matching students to associations.
 model Institution {
-  id         String          @id @default(uuid()) @db.Uuid
-  name       String          @unique
-  shortName  String?         @map("short_name")
-  type       InstitutionType @default(university)
-  state      String?         // e.g. "Lagos", "Oyo"
-  createdAt  DateTime        @default(now()) @map("created_at")
+  id        String          @id @default(uuid()) @db.Uuid
+  name      String          @unique
+  shortName String?         @map("short_name")
+  type      InstitutionType @default(university)
+  state     String? // e.g. "Lagos", "Oyo"
+  createdAt DateTime        @default(now()) @map("created_at")
 
-  faculties    Faculty[]
-  users        User[]
-  associations Association[]
-  vaultItems   VaultItem[]
+  faculties           Faculty[]
+  users               User[]
+  associations        Association[]
+  vaultItems          VaultItem[]
+  resourceSubmissions ResourceSubmission[]
 
   @@map("institutions")
 }
@@ -134,7 +196,7 @@ model Faculty {
   name          String
   createdAt     DateTime @default(now()) @map("created_at")
 
-  institution Institution @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  institution Institution  @relation(fields: [institutionId], references: [id], onDelete: Cascade)
   departments Department[]
 
   @@unique([institutionId, name])
@@ -154,70 +216,70 @@ model Department {
 }
 
 model User {
-  id               String           @id @default(uuid()) @db.Uuid
-  fullName         String           @map("full_name")
-  email            String           @unique
-  passwordHash     String?          @map("password_hash") // null for accounts not yet fully registered
-  registrationType RegistrationType @map("registration_type")
-  matricNumber     String?          @map("matric_number")
-  jambNumber       String?          @map("jamb_number")
-  matricStatus     MatricStatus?    @map("matric_status")
-  institutionId    String?          @map("institution_id") @db.Uuid
-  faculty          String
-  department       String
-  level            String
-  emailVerified    Boolean          @default(false) @map("email_verified")
-  verificationToken String?         @unique @map("verification_token")
+  id                           String           @id @default(uuid()) @db.Uuid
+  fullName                     String           @map("full_name")
+  email                        String           @unique
+  passwordHash                 String?          @map("password_hash") // null for accounts not yet fully registered
+  registrationType             RegistrationType @map("registration_type")
+  matricNumber                 String?          @map("matric_number")
+  jambNumber                   String?          @map("jamb_number")
+  matricStatus                 MatricStatus?    @map("matric_status")
+  institutionId                String?          @map("institution_id") @db.Uuid
+  faculty                      String
+  department                   String
+  level                        String
+  emailVerified                Boolean          @default(false) @map("email_verified")
+  verificationToken            String?          @unique @map("verification_token")
   // 6-digit email verification code (stored in verificationToken). Expiry
   // guards against brute force — expired codes are rejected by verifyEmail.
-  verificationCodeExpiresAt DateTime? @map("verification_code_expires_at")
+  verificationCodeExpiresAt    DateTime?        @map("verification_code_expires_at")
   // Rolling 1-hour window for verification emails (register + resend). Cap of
   // 5 per hour per account — enforced in AuthService with a clear retry message.
-  verificationEmailCount     Int       @default(0) @map("verification_email_count")
-  verificationEmailWindowStart DateTime? @map("verification_email_window_start")
+  verificationEmailCount       Int              @default(0) @map("verification_email_count")
+  verificationEmailWindowStart DateTime?        @map("verification_email_window_start")
   // Optional date of birth — collected after email verification, before the
   // dashboard (scroll-picker UI in the app). Nullable: legacy accounts are
   // prompted to complete their profile on next launch.
-  dateOfBirth     DateTime?         @map("date_of_birth")
+  dateOfBirth                  DateTime?        @map("date_of_birth")
   // Referral invite code captured at registration, consumed (and cleared) on
   // email verification — the moment the invitee is provably a genuine new
   // student. Self-referral and double-conversion are rejected at consume time.
-  pendingReferralCode String?        @map("pending_referral_code")
+  pendingReferralCode          String?          @map("pending_referral_code")
   // Profile picture: S3 object key when object storage is enabled, otherwise
   // a base64 data-URI (vault-style fallback). Null = no photo set.
-  profilePhotoUrl  String?          @map("profile_photo_url")
-  mfaEnabled       Boolean          @default(false) @map("mfa_enabled")
-  mfaSecret        String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
-  createdAt        DateTime         @default(now()) @map("created_at")
-  updatedAt        DateTime         @updatedAt @map("updated_at")
-  deletedAt        DateTime?        @map("deleted_at")
+  profilePhotoUrl              String?          @map("profile_photo_url")
+  mfaEnabled                   Boolean          @default(false) @map("mfa_enabled")
+  mfaSecret                    String?          @map("mfa_secret") // TOTP secret, encrypted/encoded
+  createdAt                    DateTime         @default(now()) @map("created_at")
+  updatedAt                    DateTime         @updatedAt @map("updated_at")
+  deletedAt                    DateTime?        @map("deleted_at")
   // Spec §10: scheduled hard deletion. Set on request (6 months out), cleared
   // automatically by any login before the date; a background sweep hard-
   // deletes the account afterwards. A scheduled account is quietly hidden.
-  deletionScheduledAt DateTime?       @map("deletion_scheduled_at")
+  deletionScheduledAt          DateTime?        @map("deletion_scheduled_at")
 
   // Relations
-  memberships           Membership[]
-  payments              Payment[]
-  referralsGiven        Referral[]        @relation("Referrer")
-  referralsReceived     Referral[]        @relation("ReferredUser")
-  announcementReads     AnnouncementRead[]
-  eventRsvps            EventRsvp[]
-  executiveRoles        AssociationExecutive[]
-  verificationRequests  VerificationRequest[]
-  aiQueryLogs           AiQueryLog[]
-  aiDocumentsSubmitted  AiDocument[]      @relation("Submitter")
-  legalAcceptances      LegalAcceptance[]
-  refreshTokenFamilies  RefreshTokenFamily[]
-  eventAttendance       EventAttendance[]
-  vaultItems            VaultItem[]
-  notifications         Notification[]
-  pushDevices           PushDevice[]
-  institution   Institution?           @relation(fields: [institutionId], references: [id])
-  entitlements          MagicPlusEntitlement?
-  focusSessions         FocusModeSession[]
-  focusUsage            FocusModeUsage[]
-  focusClarifications   FocusClarification[]
+  memberships          Membership[]
+  payments             Payment[]
+  referralsGiven       Referral[]              @relation("Referrer")
+  referralsReceived    Referral[]              @relation("ReferredUser")
+  announcementReads    AnnouncementRead[]
+  eventRsvps           EventRsvp[]
+  executiveRoles       AssociationExecutive[]
+  verificationRequests VerificationRequest[]
+  aiQueryLogs          AiQueryLog[]
+  aiDocumentsSubmitted AiDocument[]            @relation("Submitter")
+  legalAcceptances     LegalAcceptance[]
+  refreshTokenFamilies RefreshTokenFamily[]
+  eventAttendance      EventAttendance[]
+  vaultItems           VaultItem[]
+  notifications        Notification[]
+  pushDevices          PushDevice[]
+  institution          Institution?            @relation(fields: [institutionId], references: [id])
+  entitlements         MagicPlusEntitlement?
+  focusSessions        FocusModeSession[]
+  focusUsage           FocusModeUsage[]
+  focusClarifications  FocusClarification[]
   librarySaves         LibrarySave[]
   libraryViews         LibraryView[]
   libraryReports       LibraryReport[]
@@ -225,6 +287,7 @@ model User {
   deepReadJobs         DeepReadJob[]
   activityJournal      ActivityJournalEntry[]
   masteryPasses        MasteryCheckpointPass[]
+  resourceSubmissions  ResourceSubmission[]
 
   @@map("users")
 }
@@ -235,26 +298,26 @@ model Association {
   shortCode      String            @unique @map("short_code")
   institutionId  String?           @map("institution_id") @db.Uuid
   faculty        String
-  department     String?           // null = faculty-wide; set = department-specific
+  department     String? // null = faculty-wide; set = department-specific
   whatsappNumber String            @map("whatsapp_number")
-  email          String?           @unique  // association dashboard login
+  email          String?           @unique // association dashboard login
   passwordHash   String?           @map("password_hash")
   status         AssociationStatus @default(active)
-  transparency   Json?             // president-editable "where dues go" breakdown
+  transparency   Json? // president-editable "where dues go" breakdown
   createdAt      DateTime          @default(now()) @map("created_at")
   updatedAt      DateTime          @updatedAt @map("updated_at")
 
   // Relations
-  executives       AssociationExecutive[]
-  memberships      Membership[]
-  fees             Fee[]
-  announcements    Announcement[]
-  events           Event[]
-  aiDocuments      AiDocument[]
+  executives           AssociationExecutive[]
+  memberships          Membership[]
+  fees                 Fee[]
+  announcements        Announcement[]
+  events               Event[]
+  aiDocuments          AiDocument[]
   verificationRequests VerificationRequest[]
-  vaultItems       VaultItem[]
-  timetableUpdates TimetableUpdate[]
-  institution   Institution?           @relation(fields: [institutionId], references: [id])
+  vaultItems           VaultItem[]
+  timetableUpdates     TimetableUpdate[]
+  institution          Institution?           @relation(fields: [institutionId], references: [id])
 
   @@map("associations")
 }
@@ -269,13 +332,13 @@ model AssociationExecutive {
   createdAt     DateTime      @default(now()) @map("created_at")
 
   // Relations
-  user         User?         @relation(fields: [userId], references: [id])
-  association  Association   @relation(fields: [associationId], references: [id])
-  announcements Announcement[]
-  eventsCreated Event[]      @relation("EventAuthor")
-  receiptVerified Receipt[]
+  user                User?                 @relation(fields: [userId], references: [id])
+  association         Association           @relation(fields: [associationId], references: [id])
+  announcements       Announcement[]
+  eventsCreated       Event[]               @relation("EventAuthor")
+  receiptVerified     Receipt[]
   verificationReviews VerificationRequest[] @relation("Reviewer")
-  timetableUpdates TimetableUpdate[]
+  timetableUpdates    TimetableUpdate[]
 
   @@unique([userId, associationId])
   @@map("association_executives")
@@ -297,22 +360,22 @@ model Membership {
 }
 
 model VerificationRequest {
-  id                  String             @id @default(uuid()) @db.Uuid
-  userId              String             @map("user_id") @db.Uuid
-  associationId       String             @map("association_id") @db.Uuid
-  documentStorageRef  String             @map("document_storage_ref") // GCS object path — private bucket
-  documentOriginalName String            @map("document_original_name")
-  documentMimeType    String             @map("document_mime_type")
-  status              VerificationStatus @default(pending)
-  reviewedBy          String?            @map("reviewed_by") @db.Uuid
-  reviewedAt          DateTime?          @map("reviewed_at")
-  rejectionReason     String?            @map("rejection_reason")
-  createdAt           DateTime           @default(now()) @map("created_at")
+  id                   String             @id @default(uuid()) @db.Uuid
+  userId               String             @map("user_id") @db.Uuid
+  associationId        String             @map("association_id") @db.Uuid
+  documentStorageRef   String             @map("document_storage_ref") // GCS object path — private bucket
+  documentOriginalName String             @map("document_original_name")
+  documentMimeType     String             @map("document_mime_type")
+  status               VerificationStatus @default(pending)
+  reviewedBy           String?            @map("reviewed_by") @db.Uuid
+  reviewedAt           DateTime?          @map("reviewed_at")
+  rejectionReason      String?            @map("rejection_reason")
+  createdAt            DateTime           @default(now()) @map("created_at")
 
   // Relations
   user        User                  @relation(fields: [userId], references: [id])
-  association Association            @relation(fields: [associationId], references: [id])
-  reviewer    AssociationExecutive?  @relation("Reviewer", fields: [reviewedBy], references: [id])
+  association Association           @relation(fields: [associationId], references: [id])
+  reviewer    AssociationExecutive? @relation("Reviewer", fields: [reviewedBy], references: [id])
 
   @@index([userId])
   @@index([associationId, status])
@@ -326,7 +389,7 @@ model Fee {
   amountKobo    Int      @map("amount_kobo") // integer minor units, never float
   currency      String   @default("NGN")
   dueDate       DateTime @map("due_date") @db.Date
-  session       String   // e.g. "2026/2027"
+  session       String // e.g. "2026/2027"
   createdAt     DateTime @default(now()) @map("created_at")
 
   // Relations
@@ -334,7 +397,8 @@ model Fee {
   payments    Payment[]
 
   @@map("fees")
-}model Payment {
+}
+model Payment {
   id                String        @id @default(uuid()) @db.Uuid
   // Nullable to support account hard-delete: payments are kept for financial
   // reconciliation (treasurer dashboards) but anonymised by nulling the link
@@ -365,29 +429,29 @@ model Fee {
 }
 
 model Receipt {
-  id                     String    @id @default(uuid()) @db.Uuid
-  paymentId              String    @unique @map("payment_id") @db.Uuid
-  receiptNumber          String    @unique @map("receipt_number")
-  qrPayload              String    @map("qr_payload") // signed/verifiable payload, not just display
-  issuedAt               DateTime  @default(now()) @map("issued_at")
-  verifiedByExecutiveId  String?   @map("verified_by_executive_id") @db.Uuid
-  verifiedAt             DateTime? @map("verified_at")
+  id                    String    @id @default(uuid()) @db.Uuid
+  paymentId             String    @unique @map("payment_id") @db.Uuid
+  receiptNumber         String    @unique @map("receipt_number")
+  qrPayload             String    @map("qr_payload") // signed/verifiable payload, not just display
+  issuedAt              DateTime  @default(now()) @map("issued_at")
+  verifiedByExecutiveId String?   @map("verified_by_executive_id") @db.Uuid
+  verifiedAt            DateTime? @map("verified_at")
 
   // Relations
-  payment           Payment                @relation(fields: [paymentId], references: [id])
+  payment             Payment               @relation(fields: [paymentId], references: [id])
   verifiedByExecutive AssociationExecutive? @relation(fields: [verifiedByExecutiveId], references: [id])
 
   @@map("receipts")
 }
 
 model Announcement {
-  id                 String   @id @default(uuid()) @db.Uuid
-  associationId      String   @map("association_id") @db.Uuid
-  authorExecutiveId  String   @map("author_executive_id") @db.Uuid
-  title              String
-  body               String
-  pinned             Boolean  @default(false)
-  createdAt          DateTime @default(now()) @map("created_at")
+  id                String   @id @default(uuid()) @db.Uuid
+  associationId     String   @map("association_id") @db.Uuid
+  authorExecutiveId String   @map("author_executive_id") @db.Uuid
+  title             String
+  body              String
+  pinned            Boolean  @default(false)
+  createdAt         DateTime @default(now()) @map("created_at")
 
   // Relations
   association Association          @relation(fields: [associationId], references: [id])
@@ -434,14 +498,14 @@ model Banner {
 }
 
 model Event {
-  id            String   @id @default(uuid()) @db.Uuid
-  associationId String   @map("association_id") @db.Uuid
-  authorExecutiveId String @map("author_executive_id") @db.Uuid
-  title         String
-  description   String
-  location      String
-  eventDate     DateTime @map("event_date")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id                String   @id @default(uuid()) @db.Uuid
+  associationId     String   @map("association_id") @db.Uuid
+  authorExecutiveId String   @map("author_executive_id") @db.Uuid
+  title             String
+  description       String
+  location          String
+  eventDate         DateTime @map("event_date")
+  createdAt         DateTime @default(now()) @map("created_at")
 
   // Relations
   association Association          @relation(fields: [associationId], references: [id])
@@ -483,14 +547,14 @@ model EventAttendance {
 }
 
 model Referral {
-  id              String    @id @default(uuid()) @db.Uuid
-  referrerId      String    @map("referrer_id") @db.Uuid
-  referredUserId  String?   @unique @map("referred_user_id") @db.Uuid // set only on actual signup
-  createdAt       DateTime  @default(now()) @map("created_at")
+  id             String   @id @default(uuid()) @db.Uuid
+  referrerId     String   @map("referrer_id") @db.Uuid
+  referredUserId String?  @unique @map("referred_user_id") @db.Uuid // set only on actual signup
+  createdAt      DateTime @default(now()) @map("created_at")
 
   // Relations
-  referrer       User  @relation("Referrer", fields: [referrerId], references: [id])
-  referredUser   User? @relation("ReferredUser", fields: [referredUserId], references: [id])
+  referrer     User  @relation("Referrer", fields: [referrerId], references: [id])
+  referredUser User? @relation("ReferredUser", fields: [referredUserId], references: [id])
 
   @@map("referrals")
 }
@@ -507,15 +571,15 @@ model AdminAccount {
 }
 
 model AuditLog {
-  id         String          @id @default(uuid()) @db.Uuid
-  actorType  AuditActorType  @map("actor_type")
-  actorId    String          @map("actor_id") @db.Uuid
-  action     String          // e.g. "announcement.created", "association.suspended"
-  targetType String?         @map("target_type")
-  targetId   String?         @map("target_id") @db.Uuid
-  ipAddress  String          @map("ip_address")
-  metadata   Json?           // before/after values, freeform
-  createdAt  DateTime        @default(now()) @map("created_at")
+  id         String         @id @default(uuid()) @db.Uuid
+  actorType  AuditActorType @map("actor_type")
+  actorId    String         @map("actor_id") @db.Uuid
+  action     String // e.g. "announcement.created", "association.suspended"
+  targetType String?        @map("target_type")
+  targetId   String?        @map("target_id") @db.Uuid
+  ipAddress  String         @map("ip_address")
+  metadata   Json? // before/after values, freeform
+  createdAt  DateTime       @default(now()) @map("created_at")
 
   @@index([actorType, actorId])
   @@index([action])
@@ -524,19 +588,19 @@ model AuditLog {
 }
 
 model AiDocument {
-  id               String           @id @default(uuid()) @db.Uuid
-  sourceType       String           @map("source_type") // past_question, handout, vault, deep_read
-  courseCode       String?          @map("course_code")
-  associationId    String?          @map("association_id") @db.Uuid
-  contentChunk     String           @map("content_chunk")
-  embedding        Unsupported("vector(1536)")? // pgvector — Ollama embeddings
-  moderationStatus ModerationStatus @default(pending) @map("moderation_status")
-  submittedByUserId String?         @map("submitted_by_user_id") @db.Uuid
+  id                String                       @id @default(uuid()) @db.Uuid
+  sourceType        String                       @map("source_type") // past_question, handout, vault, deep_read
+  courseCode        String?                      @map("course_code")
+  associationId     String?                      @map("association_id") @db.Uuid
+  contentChunk      String                       @map("content_chunk")
+  embedding         Unsupported("vector(1536)")? // pgvector — Ollama embeddings
+  moderationStatus  ModerationStatus             @default(pending) @map("moderation_status")
+  submittedByUserId String?                      @map("submitted_by_user_id") @db.Uuid
   // Idempotent ingestion: unique per-source locator ("vault:<itemId>:chunk3",
   // "deepread:<pageId>"). Re-ingesting the same source updates in place
   // instead of duplicating rows. Null = manually submitted material.
-  sourceRef        String?          @map("source_ref")
-  createdAt        DateTime         @default(now()) @map("created_at")
+  sourceRef         String?                      @map("source_ref")
+  createdAt         DateTime                     @default(now()) @map("created_at")
 
   // Relations
   association Association? @relation(fields: [associationId], references: [id])
@@ -549,17 +613,17 @@ model AiDocument {
 }
 
 model AiQueryLog {
-  id                    String    @id @default(uuid()) @db.Uuid
-  userId                String    @map("user_id") @db.Uuid
-  queryText             String    @map("query_text")
-  responseText          String    @map("response_text")
-  retrievedDocumentIds  String[]  @map("retrieved_document_ids") @db.Uuid
+  id                   String   @id @default(uuid()) @db.Uuid
+  userId               String   @map("user_id") @db.Uuid
+  queryText            String   @map("query_text")
+  responseText         String   @map("response_text")
+  retrievedDocumentIds String[] @map("retrieved_document_ids") @db.Uuid
   // True when the answer came from the Redis cache (zero model cost).
   // Quickie's free daily limit counts only real generations.
-  cached                Boolean   @default(false)
+  cached               Boolean  @default(false)
   // Which engine answered: ollama | deepseek | nvidia | gemini | placeholder
-  engine                String?
-  createdAt             DateTime  @default(now()) @map("created_at")
+  engine               String?
+  createdAt            DateTime @default(now()) @map("created_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id])
@@ -568,67 +632,67 @@ model AiQueryLog {
 }
 
 model VaultItem {
-  id                String          @id @default(uuid()) @db.Uuid
-  userId            String          @map("user_id") @db.Uuid
-  associationId     String          @map("association_id") @db.Uuid
-  courseCode        String          @map("course_code") // normalized uppercase, e.g. "CHM 101"
-  title             String
-  type              VaultItemType   @default(material)
-  visibility        VaultVisibility @default(public)
+  id                 String           @id @default(uuid()) @db.Uuid
+  userId             String           @map("user_id") @db.Uuid
+  associationId      String           @map("association_id") @db.Uuid
+  courseCode         String           @map("course_code") // normalized uppercase, e.g. "CHM 101"
+  title              String
+  type               VaultItemType    @default(material)
+  visibility         VaultVisibility  @default(public)
   // The original file (object key in the private bucket, or data-URI fallback)
-  storageRef        String          @map("storage_ref")
+  storageRef         String           @map("storage_ref")
   // Smart storage (spec §7): a lightweight companion generated automatically
   // on upload — image → lower-quality JPEG, anything else → zip. Null when
   // the companion wouldn't actually be smaller.
-  companionRef      String?         @map("companion_ref")
-  originalName      String          @map("original_name")
-  mimeType          String          @map("mime_type")
-  sizeBytes         Int                 @map("size_bytes")
+  companionRef       String?          @map("companion_ref")
+  originalName       String           @map("original_name")
+  mimeType           String           @map("mime_type")
+  sizeBytes          Int              @map("size_bytes")
   // SHA-256 of the original file bytes — upload-dedupe key. Null for legacy
   // items or clients that didn't supply content (data-URI fallbacks).
-  contentHash       String?             @map("content_hash")
-  companionSizeBytes Int?           @map("companion_size_bytes")
-  companionMimeType String?         @map("companion_mime_type")
+  contentHash        String?          @map("content_hash")
+  companionSizeBytes Int?             @map("companion_size_bytes")
+  companionMimeType  String?          @map("companion_mime_type")
   // Public uploads require admin approval before they're visible to others;
   // private uploads are immediately usable by their owner.
-  moderationStatus  ModerationStatus @default(pending) @map("moderation_status")
-  rejectionReason   String?         @map("rejection_reason")
-  reviewedByAdmin   String?         @map("reviewed_by_admin") @db.Uuid
-  reviewedAt        DateTime?       @map("reviewed_at")
-  downloads         Int             @default(0)
-  createdAt         DateTime        @default(now()) @map("created_at")
-  updatedAt         DateTime        @updatedAt @map("updated_at")
-  deletedAt         DateTime?       @map("deleted_at")
+  moderationStatus   ModerationStatus @default(pending) @map("moderation_status")
+  rejectionReason    String?          @map("rejection_reason")
+  reviewedByAdmin    String?          @map("reviewed_by_admin") @db.Uuid
+  reviewedAt         DateTime?        @map("reviewed_at")
+  downloads          Int              @default(0)
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  deletedAt          DateTime?        @map("deleted_at")
   // Discovery metadata (optional, set by the uploader): academic level the
   // material targets (e.g. "100") and the academic session (e.g. "2023/2024").
-  level             String?         @map("level")
-  session           String?         @map("session")
+  level              String?          @map("level")
+  session            String?          @map("session")
   // ── Netflix-style library metadata ─────────────────────────────
   // Cross-institution discovery fields (mirror the uploader's profile so the
   // resource can be surfaced by institution/faculty/department regardless of
   // which association it was uploaded under). courseTitle lets search match
   // the human course name, not just the code.
-  institutionId     String?         @map("institution_id") @db.Uuid
-  faculty           String?         @map("faculty")
-  department        String?         @map("department")
-  courseTitle       String?         @map("course_title")
-  description       String?         @map("description")
+  institutionId      String?          @map("institution_id") @db.Uuid
+  faculty            String?          @map("faculty")
+  department         String?          @map("department")
+  courseTitle        String?          @map("course_title")
+  description        String?          @map("description")
   // Public interactions (deduped, see LibraryView/LibrarySave) — kept on the
   // row as denormalised counters for cheap ordering in the popular/trending
   // queries without a GROUP BY every time.
-  opens             Int             @default(0) // cumulative (view tracked once/day per user)
-  savesCount        Int             @default(0) @map("saves_count")
+  opens              Int              @default(0) // cumulative (view tracked once/day per user)
+  savesCount         Int              @default(0) @map("saves_count")
   // Moderation states beyond the shared enum: active (approved), hidden
   // (removed from discovery after a report/flag), removed (soft-deleted).
-  hidden            Boolean         @default(false) @map("hidden")
+  hidden             Boolean          @default(false) @map("hidden")
 
   // Relations
-  user        User        @relation(fields: [userId], references: [id])
-  association Association @relation(fields: [associationId], references: [id])
-  institution Institution? @relation(fields: [institutionId], references: [id])
-  libraryViews    LibraryView[]
-  librarySaves    LibrarySave[]
-  libraryReports  LibraryReport[]
+  user           User            @relation(fields: [userId], references: [id])
+  association    Association     @relation(fields: [associationId], references: [id])
+  institution    Institution?    @relation(fields: [institutionId], references: [id])
+  libraryViews   LibraryView[]
+  librarySaves   LibrarySave[]
+  libraryReports LibraryReport[]
 
   @@index([associationId, courseCode])
   @@index([associationId, courseCode, level])
@@ -654,10 +718,10 @@ model VaultItem {
 // Saved/bookmarked public document (never duplicates the original file — it's
 // a reference so the student can find it again quickly). Private to the user.
 model LibrarySave {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  vaultItemId String  @map("vault_item_id") @db.Uuid
-  savedAt    DateTime @default(now()) @map("saved_at")
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  vaultItemId String   @map("vault_item_id") @db.Uuid
+  savedAt     DateTime @default(now()) @map("saved_at")
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
@@ -673,16 +737,16 @@ model LibrarySave {
 // but-genuine popularity (one open counted per user per day keeps the counters
 // from being inflated by a single student re-opening a file repeatedly).
 model LibraryView {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
-  vaultItemId String   @map("vault_item_id") @db.Uuid
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  vaultItemId  String   @map("vault_item_id") @db.Uuid
   lastViewedAt DateTime @default(now()) @map("last_viewed_at")
   // Opaque resume marker the client persists per document (e.g. scroll offset
   // or last-visible text anchor) so Continue Reading can jump back.
-  position    String?  @map("position")
-  progress    Float?   @default(0) // 0..1 fraction of the doc considered read
-  opens       Int      @default(1) // daily-deduplicated open counter
-  lastOpenDay String?  @map("last_open_day") // YYYY-MM-DD utc, for dedup
+  position     String?  @map("position")
+  progress     Float?   @default(0) // 0..1 fraction of the doc considered read
+  opens        Int      @default(1) // daily-deduplicated open counter
+  lastOpenDay  String?  @map("last_open_day") // YYYY-MM-DD utc, for dedup
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
@@ -697,15 +761,15 @@ model LibraryView {
 // row; admins resolve (content action) or dismiss (bad report). Reported
 // documents can be hidden from discovery while under review if serious.
 model LibraryReport {
-  id            String       @id @default(uuid()) @db.Uuid
-  vaultItemId   String       @map("vault_item_id") @db.Uuid
-  reporterUserId String      @map("reporter_user_id") @db.Uuid
-  reason        ReportReason @map("reason")
-  details       String?      @map("details") // free-text context, optional
-  status        ReportStatus @default(open) @map("status")
-  resolvedAt    DateTime?    @map("resolved_at")
-  resolvedByAdmin String?    @map("resolved_by_admin") @db.Uuid
-  createdAt     DateTime     @default(now()) @map("created_at")
+  id              String       @id @default(uuid()) @db.Uuid
+  vaultItemId     String       @map("vault_item_id") @db.Uuid
+  reporterUserId  String       @map("reporter_user_id") @db.Uuid
+  reason          ReportReason @map("reason")
+  details         String?      @map("details") // free-text context, optional
+  status          ReportStatus @default(open) @map("status")
+  resolvedAt      DateTime?    @map("resolved_at")
+  resolvedByAdmin String?      @map("resolved_by_admin") @db.Uuid
+  createdAt       DateTime     @default(now()) @map("created_at")
 
   vaultItem VaultItem @relation(fields: [vaultItemId], references: [id], onDelete: Cascade)
   reporter  User      @relation(fields: [reporterUserId], references: [id], onDelete: Cascade)
@@ -721,18 +785,18 @@ model LibraryReport {
 // server-side alongside the business event that triggers them; push (ntfy)
 // stays a separate, optional delivery channel on top.
 model Notification {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
   title     String
   body      String
   // verification | payment | dues | announcement | broadcast | vault |
   // timetable | update | general
-  type      String   @default("general")
+  type      String    @default("general")
   // Deep link target within the app when the student taps the row
   // (e.g. "VerificationStatus", "Fees", "Explore").
   link      String?
   readAt    DateTime? @map("read_at")
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -769,8 +833,8 @@ model TimetableUpdate {
   id                String   @id @default(uuid()) @db.Uuid
   associationId     String   @map("association_id") @db.Uuid
   authorExecutiveId String   @map("author_executive_id") @db.Uuid
-  department        String?  // null → all departments
-  level             String?  // null → all levels
+  department        String? // null → all departments
+  level             String? // null → all levels
   title             String
   body              String
   createdAt         DateTime @default(now()) @map("created_at")
@@ -801,21 +865,21 @@ model LegalAcceptance {
 // ── Public waitlist ─────────────────────────────────────────────
 
 model WaitlistEntry {
-  id        String   @id @default(uuid()) @db.Uuid
-  email     String   @unique
-  fullName  String?  @map("full_name")
-  source    String   @default("landing") // landing, referral, import, …
-  status    String   @default("pending") // pending | invited | joined
+  id                String   @id @default(uuid()) @db.Uuid
+  email             String   @unique
+  fullName          String?  @map("full_name")
+  source            String   @default("landing") // landing, referral, import, …
+  status            String   @default("pending") // pending | invited | joined
   // Growth survey (waitlist launch package §3): the honest market research
   // collected at signup + executive identification for the Founding Circle.
-  painPoint       String? @map("pain_point") // "most annoying part of studying"
-  isAssociationExec Boolean @default(false) @map("is_association_exec")
-  execLevel       String? @map("exec_level")
-  execDepartment  String? @map("exec_department")
-  execFaculty     String? @map("exec_faculty")
-  ipAddress String?  @map("ip_address")
-  userAgent String?  @map("user_agent")
-  createdAt DateTime @default(now()) @map("created_at")
+  painPoint         String?  @map("pain_point") // "most annoying part of studying"
+  isAssociationExec Boolean  @default(false) @map("is_association_exec")
+  execLevel         String?  @map("exec_level")
+  execDepartment    String?  @map("exec_department")
+  execFaculty       String?  @map("exec_faculty")
+  ipAddress         String?  @map("ip_address")
+  userAgent         String?  @map("user_agent")
+  createdAt         DateTime @default(now()) @map("created_at")
 
   @@index([status])
   @@index([createdAt])
@@ -830,21 +894,21 @@ model WaitlistEntry {
 // or migrated when real payment providers ship. Extended later with per-plan
 // quotas / fair-use policies without changing callers.
 model MagicPlusEntitlement {
-  id         String   @id @default(uuid()) @db.Uuid
-  userId     String   @unique @map("user_id") @db.Uuid
-  plan       String   @default("magic_plus")
-  status     String   @default("active") // active | suspended | expired | cancelled
-  source     String   @default("free_allowance") // free_allowance | subscription | pass | grant
+  id                  String    @id @default(uuid()) @db.Uuid
+  userId              String    @unique @map("user_id") @db.Uuid
+  plan                String    @default("magic_plus")
+  status              String    @default("active") // active | suspended | expired | cancelled
+  source              String    @default("free_allowance") // free_allowance | subscription | pass | grant
   // Every new user gets a starter allowance of free cloud Focus Mode
   // generations before Magic Plus is required. Both fields are configurable
   // (the default mirrors FOCUS_FREE_ALLOWANCE; a subscription sets an
   // unlimited/very large number for the paid path).
-  freeGenerationLimit Int  @default(10) @map("free_generation_limit")
-  freeGenerationsUsed Int  @default(0) @map("free_generations_used")
-  startedAt           DateTime @default(now()) @map("started_at")
+  freeGenerationLimit Int       @default(10) @map("free_generation_limit")
+  freeGenerationsUsed Int       @default(0) @map("free_generations_used")
+  startedAt           DateTime  @default(now()) @map("started_at")
   expiresAt           DateTime? @map("expires_at")
-  createdAt           DateTime @default(now()) @map("created_at")
-  updatedAt           DateTime @updatedAt @map("updated_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -883,13 +947,13 @@ model FocusModeSession {
 // linkage (a question set maps to one map session), and lets the student
 // re-open their answers later.
 model FocusClarification {
-  id          String   @id @default(uuid()) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
-  topic       String
-  questions   Json
-  answers     Json?
-  sessionMapId String? @map("session_map_id") @db.Uuid
-  createdAt   DateTime @default(now()) @map("created_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  topic        String
+  questions    Json
+  answers      Json?
+  sessionMapId String?  @map("session_map_id") @db.Uuid
+  createdAt    DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -922,22 +986,22 @@ model AchievementUnlock {
 // per-concept expansion so per-user abuse limits and unit economics are
 // auditable.
 model FocusModeUsage {
-  id               String   @id @default(uuid()) @db.Uuid
-  userId           String   @map("user_id") @db.Uuid
-  sessionId        String?  @map("session_id") @db.Uuid
-  operation        String   @default("generate") // generate | expand
-  provider         String   @default("deepseek")
-  model            String
-  promptVersion    Int      @default(1) @map("prompt_version")
-  promptTokens     Int      @default(0) @map("prompt_tokens")
-  completionTokens Int      @default(0) @map("completion_tokens")
-  totalTokens      Int      @default(0) @map("total_tokens")
-  latencyMs        Int      @default(0) @map("latency_ms")
-  estimatedCostMicros Int  @default(0) @map("estimated_cost_micros")
-  cached           Boolean  @default(false)
-  error            Boolean  @default(false)
-  errorKind        String?  @map("error_kind") // timeout | provider | schema | malformed_json | empty
-  createdAt        DateTime @default(now()) @map("created_at")
+  id                  String   @id @default(uuid()) @db.Uuid
+  userId              String   @map("user_id") @db.Uuid
+  sessionId           String?  @map("session_id") @db.Uuid
+  operation           String   @default("generate") // generate | expand
+  provider            String   @default("deepseek")
+  model               String
+  promptVersion       Int      @default(1) @map("prompt_version")
+  promptTokens        Int      @default(0) @map("prompt_tokens")
+  completionTokens    Int      @default(0) @map("completion_tokens")
+  totalTokens         Int      @default(0) @map("total_tokens")
+  latencyMs           Int      @default(0) @map("latency_ms")
+  estimatedCostMicros Int      @default(0) @map("estimated_cost_micros")
+  cached              Boolean  @default(false)
+  error               Boolean  @default(false)
+  errorKind           String?  @map("error_kind") // timeout | provider | schema | malformed_json | empty
+  createdAt           DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -955,23 +1019,23 @@ model FocusModeUsage {
 // Free tier gets a small daily allowance (DEEP_READ_FREE_DAILY);
 // Magic Plus users get DEEP_READ_PREMIUM_DAILY.
 model DeepReadJob {
-  id               String   @id @default(uuid()) @db.Uuid
-  userId           String   @map("user_id") @db.Uuid
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
   // queued | processing | done | failed | partially_failed
-  status           String   @default("queued")
+  status         String    @default("queued")
   // denormalized count for list views; true count = pages rows
-  pageCount        Int      @default(0) @map("page_count")
-  completedPages   Int      @default(0) @map("completed_pages")
-  failedPages      Int      @default(0) @map("failed_pages")
+  pageCount      Int       @default(0) @map("page_count")
+  completedPages Int       @default(0) @map("completed_pages")
+  failedPages    Int       @default(0) @map("failed_pages")
   // which engine produced the best result for the hardest page:
   // deep_read (pro model) | rescue (flash) | ocr (tesseract/mlkit)
-  bestEngine       String?  @map("best_engine")
+  bestEngine     String?   @map("best_engine")
   // optional title the student gave the batch ("BIO 201 notes, week 3")
-  title            String?
-  createdAt        DateTime @default(now()) @map("created_at")
-  completedAt      DateTime? @map("completed_at")
+  title          String?
+  createdAt      DateTime  @default(now()) @map("created_at")
+  completedAt    DateTime? @map("completed_at")
 
-  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   pages DeepReadPage[]
 
   @@index([userId, createdAt])
@@ -980,31 +1044,31 @@ model DeepReadJob {
 }
 
 model DeepReadPage {
-  id            String   @id @default(uuid()) @db.Uuid
-  jobId         String   @map("job_id") @db.Uuid
+  id           String    @id @default(uuid()) @db.Uuid
+  jobId        String    @map("job_id") @db.Uuid
   // 1-based position in the batch
-  pageNumber    Int      @map("page_number")
+  pageNumber   Int       @map("page_number")
   // object-storage key of the (preprocessed) page image; null when storage
   // is disabled (image stays in memory for the job only)
-  imageRef      String?  @map("image_ref")
+  imageRef     String?   @map("image_ref")
   // pending | processing | done | failed | empty (no legible text)
-  status        String   @default("pending")
-  engine        String?
+  status       String    @default("pending")
+  engine       String?
   // per-page transcription confidence estimate (0-100), null when unknown
-  confidence    Int?
+  confidence   Int?
   // SHA-256 of the raw upload — the OCR result cache key. Retries and
   // re-uploads of the same page never re-bill the vision API.
-  contentHash   String   @map("content_hash")
-  text          String?
+  contentHash  String    @map("content_hash")
+  text         String?
   // structured blocks extracted from `text` (headings/paragraphs/lists) —
   // feeds the Reflow reader directly
-  blocks        Json?
+  blocks       Json?
   // student corrected the transcription on the review screen
-  edited        Boolean  @default(false)
-  errorMessage  String?  @map("error_message")
-  latencyMs     Int      @default(0) @map("latency_ms")
-  createdAt     DateTime @default(now()) @map("created_at")
-  completedAt   DateTime? @map("completed_at")
+  edited       Boolean   @default(false)
+  errorMessage String?   @map("error_message")
+  latencyMs    Int       @default(0) @map("latency_ms")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
 
   job DeepReadJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
@@ -1028,13 +1092,13 @@ model RefreshTokenFamily {
 }
 
 model RefreshToken {
-  id         String    @id @default(uuid()) @db.Uuid
-  familyId   String    @map("family_id") @db.Uuid
-  tokenHash  String    @map("token_hash") // SHA-256 of the JWT refresh token
-  used       Boolean   @default(false)
-  replacedBy String?   @map("replaced_by") @db.Uuid
-  expiresAt  DateTime  @map("expires_at")
-  createdAt  DateTime  @default(now()) @map("created_at")
+  id         String   @id @default(uuid()) @db.Uuid
+  familyId   String   @map("family_id") @db.Uuid
+  tokenHash  String   @map("token_hash") // SHA-256 of the JWT refresh token
+  used       Boolean  @default(false)
+  replacedBy String?  @map("replaced_by") @db.Uuid
+  expiresAt  DateTime @map("expires_at")
+  createdAt  DateTime @default(now()) @map("created_at")
 
   // Relations
   family RefreshTokenFamily @relation(fields: [familyId], references: [id], onDelete: Cascade)
@@ -1087,4 +1151,74 @@ model MasteryCheckpointPass {
   @@unique([userId, focusSessionId, mapId])
   @@index([userId])
   @@map("mastery_checkpoint_passes")
+}
+
+// ── Resource Audit Engine — submission + audit record ───────────
+// One row per submitted resource. The original file is immutable in object
+// storage; every processing stage reads it fresh, which is what makes stages
+// retryable and idempotent. AI fields are advisory (the human decision is
+// authoritative); the pipeline is driven by ResourceAuditService.advance().
+model ResourceSubmission {
+  id                   String                @id @default(uuid()) @db.Uuid
+  studentId            String                @map("student_id") @db.Uuid
+  // Channel that delivered the submission (app now; telegram later).
+  source               SubmissionSource      @default(app)
+  // ── File facts (captured at submit time, immutable) ──
+  fileName             String                @map("file_name")
+  fileType             String                @map("file_type") // MIME type
+  fileSize             Int                   @map("file_size") // bytes
+  // SHA-256 of the original bytes — duplicate-detection key.
+  fileHash             String                @map("file_hash")
+  pageCount            Int?                  @map("page_count")
+  // Object-storage key of the ORIGINAL, untouched upload (private bucket).
+  storageRef           String                @map("storage_ref")
+  // ── Academic context (normalized at submit time) ──
+  institutionId        String?               @map("institution_id") @db.Uuid
+  universityName       String?               @map("university_name") // denormalized for display
+  faculty              String?
+  department           String?
+  courseCode           String                @map("course_code")
+  level                String?
+  materialType         ResourceMaterialType  @default(other) @map("material_type")
+  academicSession      String?               @map("academic_session") // e.g. "2023/2024"
+  // Student's rights declaration ("I have the right to share this") — the
+  // version records which agreement text they accepted.
+  rightsDeclared       Boolean               @map("rights_declared")
+  rightsVersion        String?               @map("rights_version")
+  submittedAt          DateTime              @default(now()) @map("submitted_at")
+  // ── Pipeline state ──
+  auditStatus          ResourceAuditStatus   @default(received) @map("audit_status")
+  // Extracted plain text (PDFs for now; OCR output later) — audit input.
+  extractedText        String?               @map("extracted_text")
+  // ── AI (advisory, never authoritative) ──
+  aiRecommendation     String?               @map("ai_recommendation") // approve | reject | needs_review | duplicate
+  aiConfidence         Int?                  @map("ai_confidence") // 0-100
+  aiSummary            String?               @map("ai_summary")
+  aiAuditedAt          DateTime?             @map("ai_audited_at")
+  // ── Human decision (authoritative) ──
+  humanDecision        String?               @map("human_decision") // approved | rejected | needs_information
+  decisionReason       String?               @map("decision_reason")
+  reviewerId           String?               @map("reviewer_id") @db.Uuid // admin account id
+  reviewedAt           DateTime?             @map("reviewed_at")
+  // ── Reward + library processing ──
+  rewardStatus         ResourceRewardStatus  @default(none) @map("reward_status")
+  rewardReason         String?               @map("reward_reason")
+  libraryStatus        ResourceLibraryStatus @default(none) @map("library_status")
+  publishedVaultItemId String?               @map("published_vault_item_id") @db.Uuid
+  // ── Failure/retry bookkeeping ──
+  attemptCount         Int                   @default(0) @map("attempt_count")
+  failureReason        String?               @map("failure_reason")
+  lastStageError       String?               @map("last_stage_error")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
+
+  student     User         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  institution Institution? @relation(fields: [institutionId], references: [id])
+
+  @@unique([studentId, fileHash, courseCode])
+  @@index([studentId, createdAt])
+  @@index([auditStatus])
+  @@index([fileHash])
+  @@index([institutionId, courseCode])
+  @@map("resource_submissions")
 }

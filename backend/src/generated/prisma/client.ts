@@ -249,3 +249,8 @@ export type ActivityJournalEntry = Prisma.ActivityJournalEntryModel
  * 
  */
 export type MasteryCheckpointPass = Prisma.MasteryCheckpointPassModel
+/**
+ * Model ResourceSubmission
+ * 
+ */
+export type ResourceSubmission = Prisma.ResourceSubmissionModel

@@ -140,3 +140,68 @@ export const InstitutionType = {
 } as const
 
 export type InstitutionType = (typeof InstitutionType)[keyof typeof InstitutionType]
+
+
+export const ResourceAuditStatus = {
+  received: 'received',
+  validating: 'validating',
+  duplicate_check: 'duplicate_check',
+  extracting: 'extracting',
+  ocr_processing: 'ocr_processing',
+  auditing: 'auditing',
+  pending_human_review: 'pending_human_review',
+  approved: 'approved',
+  rejected: 'rejected',
+  needs_information: 'needs_information',
+  reward_pending: 'reward_pending',
+  reward_eligible: 'reward_eligible',
+  reward_ineligible: 'reward_ineligible',
+  processing_library: 'processing_library',
+  published: 'published',
+  failed: 'failed'
+} as const
+
+export type ResourceAuditStatus = (typeof ResourceAuditStatus)[keyof typeof ResourceAuditStatus]
+
+
+export const ResourceRewardStatus = {
+  none: 'none',
+  pending: 'pending',
+  eligible: 'eligible',
+  ineligible: 'ineligible'
+} as const
+
+export type ResourceRewardStatus = (typeof ResourceRewardStatus)[keyof typeof ResourceRewardStatus]
+
+
+export const ResourceLibraryStatus = {
+  none: 'none',
+  pending: 'pending',
+  processing: 'processing',
+  published: 'published',
+  failed: 'failed'
+} as const
+
+export type ResourceLibraryStatus = (typeof ResourceLibraryStatus)[keyof typeof ResourceLibraryStatus]
+
+
+export const SubmissionSource = {
+  app: 'app',
+  web: 'web',
+  admin: 'admin',
+  telegram: 'telegram'
+} as const
+
+export type SubmissionSource = (typeof SubmissionSource)[keyof typeof SubmissionSource]
+
+
+export const ResourceMaterialType = {
+  past_question: 'past_question',
+  lecture_note: 'lecture_note',
+  handout: 'handout',
+  slide_deck: 'slide_deck',
+  textbook_summary: 'textbook_summary',
+  other: 'other'
+} as const
+
+export type ResourceMaterialType = (typeof ResourceMaterialType)[keyof typeof ResourceMaterialType]

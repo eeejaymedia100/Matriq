@@ -92,7 +92,8 @@ export const ModelName = {
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken',
   ActivityJournalEntry: 'ActivityJournalEntry',
-  MasteryCheckpointPass: 'MasteryCheckpointPass'
+  MasteryCheckpointPass: 'MasteryCheckpointPass',
+  ResourceSubmission: 'ResourceSubmission'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -732,6 +733,51 @@ export const MasteryCheckpointPassScalarFieldEnum = {
 } as const
 
 export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPassScalarFieldEnum)[keyof typeof MasteryCheckpointPassScalarFieldEnum]
+
+
+export const ResourceSubmissionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  source: 'source',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  fileHash: 'fileHash',
+  pageCount: 'pageCount',
+  storageRef: 'storageRef',
+  institutionId: 'institutionId',
+  universityName: 'universityName',
+  faculty: 'faculty',
+  department: 'department',
+  courseCode: 'courseCode',
+  level: 'level',
+  materialType: 'materialType',
+  academicSession: 'academicSession',
+  rightsDeclared: 'rightsDeclared',
+  rightsVersion: 'rightsVersion',
+  submittedAt: 'submittedAt',
+  auditStatus: 'auditStatus',
+  extractedText: 'extractedText',
+  aiRecommendation: 'aiRecommendation',
+  aiConfidence: 'aiConfidence',
+  aiSummary: 'aiSummary',
+  aiAuditedAt: 'aiAuditedAt',
+  humanDecision: 'humanDecision',
+  decisionReason: 'decisionReason',
+  reviewerId: 'reviewerId',
+  reviewedAt: 'reviewedAt',
+  rewardStatus: 'rewardStatus',
+  rewardReason: 'rewardReason',
+  libraryStatus: 'libraryStatus',
+  publishedVaultItemId: 'publishedVaultItemId',
+  attemptCount: 'attemptCount',
+  failureReason: 'failureReason',
+  lastStageError: 'lastStageError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
 
 
 export const SortOrder = {

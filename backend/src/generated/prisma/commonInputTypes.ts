@@ -640,6 +640,91 @@ export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonFilter<$PrismaModel>
 }
 
+export type EnumSubmissionSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubmissionSource | Prisma.EnumSubmissionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel> | $Enums.SubmissionSource
+}
+
+export type EnumResourceMaterialTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceMaterialType | Prisma.EnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel> | $Enums.ResourceMaterialType
+}
+
+export type EnumResourceAuditStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceAuditStatus | Prisma.EnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel> | $Enums.ResourceAuditStatus
+}
+
+export type EnumResourceRewardStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel> | $Enums.ResourceRewardStatus
+}
+
+export type EnumResourceLibraryStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceLibraryStatus | Prisma.EnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel> | $Enums.ResourceLibraryStatus
+}
+
+export type EnumSubmissionSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubmissionSource | Prisma.EnumSubmissionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubmissionSourceWithAggregatesFilter<$PrismaModel> | $Enums.SubmissionSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel>
+}
+
+export type EnumResourceMaterialTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceMaterialType | Prisma.EnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceMaterialTypeWithAggregatesFilter<$PrismaModel> | $Enums.ResourceMaterialType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel>
+}
+
+export type EnumResourceAuditStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceAuditStatus | Prisma.EnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceAuditStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceAuditStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
+}
+
+export type EnumResourceRewardStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRewardStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel>
+}
+
+export type EnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceLibraryStatus | Prisma.EnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceLibraryStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
+}
+
 export type NestedUuidFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -1208,6 +1293,91 @@ export type NestedJsonFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumSubmissionSourceFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubmissionSource | Prisma.EnumSubmissionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel> | $Enums.SubmissionSource
+}
+
+export type NestedEnumResourceMaterialTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceMaterialType | Prisma.EnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel> | $Enums.ResourceMaterialType
+}
+
+export type NestedEnumResourceAuditStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceAuditStatus | Prisma.EnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel> | $Enums.ResourceAuditStatus
+}
+
+export type NestedEnumResourceRewardStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel> | $Enums.ResourceRewardStatus
+}
+
+export type NestedEnumResourceLibraryStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceLibraryStatus | Prisma.EnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel> | $Enums.ResourceLibraryStatus
+}
+
+export type NestedEnumSubmissionSourceWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SubmissionSource | Prisma.EnumSubmissionSourceFieldRefInput<$PrismaModel>
+  in?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SubmissionSource[] | Prisma.ListEnumSubmissionSourceFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSubmissionSourceWithAggregatesFilter<$PrismaModel> | $Enums.SubmissionSource
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSubmissionSourceFilter<$PrismaModel>
+}
+
+export type NestedEnumResourceMaterialTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceMaterialType | Prisma.EnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceMaterialType[] | Prisma.ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceMaterialTypeWithAggregatesFilter<$PrismaModel> | $Enums.ResourceMaterialType
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceMaterialTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumResourceAuditStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceAuditStatus | Prisma.EnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceAuditStatus[] | Prisma.ListEnumResourceAuditStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceAuditStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceAuditStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumResourceRewardStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRewardStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRewardStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceLibraryStatus | Prisma.EnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceLibraryStatus[] | Prisma.ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel> | $Enums.ResourceLibraryStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
 }
 
 

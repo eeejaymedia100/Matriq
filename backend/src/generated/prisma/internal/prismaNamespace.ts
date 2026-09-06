@@ -438,7 +438,8 @@ export const ModelName = {
   RefreshTokenFamily: 'RefreshTokenFamily',
   RefreshToken: 'RefreshToken',
   ActivityJournalEntry: 'ActivityJournalEntry',
-  MasteryCheckpointPass: 'MasteryCheckpointPass'
+  MasteryCheckpointPass: 'MasteryCheckpointPass',
+  ResourceSubmission: 'ResourceSubmission'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -454,7 +455,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass" | "resourceSubmission"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3566,6 +3567,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ResourceSubmission: {
+      payload: Prisma.$ResourceSubmissionPayload<ExtArgs>
+      fields: Prisma.ResourceSubmissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResourceSubmissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResourceSubmissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        findFirst: {
+          args: Prisma.ResourceSubmissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResourceSubmissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        findMany: {
+          args: Prisma.ResourceSubmissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>[]
+        }
+        create: {
+          args: Prisma.ResourceSubmissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        createMany: {
+          args: Prisma.ResourceSubmissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResourceSubmissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>[]
+        }
+        delete: {
+          args: Prisma.ResourceSubmissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        update: {
+          args: Prisma.ResourceSubmissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResourceSubmissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResourceSubmissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResourceSubmissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResourceSubmissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceSubmissionPayload>
+        }
+        aggregate: {
+          args: Prisma.ResourceSubmissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResourceSubmission>
+        }
+        groupBy: {
+          args: Prisma.ResourceSubmissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceSubmissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResourceSubmissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceSubmissionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4228,6 +4303,51 @@ export const MasteryCheckpointPassScalarFieldEnum = {
 export type MasteryCheckpointPassScalarFieldEnum = (typeof MasteryCheckpointPassScalarFieldEnum)[keyof typeof MasteryCheckpointPassScalarFieldEnum]
 
 
+export const ResourceSubmissionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  source: 'source',
+  fileName: 'fileName',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  fileHash: 'fileHash',
+  pageCount: 'pageCount',
+  storageRef: 'storageRef',
+  institutionId: 'institutionId',
+  universityName: 'universityName',
+  faculty: 'faculty',
+  department: 'department',
+  courseCode: 'courseCode',
+  level: 'level',
+  materialType: 'materialType',
+  academicSession: 'academicSession',
+  rightsDeclared: 'rightsDeclared',
+  rightsVersion: 'rightsVersion',
+  submittedAt: 'submittedAt',
+  auditStatus: 'auditStatus',
+  extractedText: 'extractedText',
+  aiRecommendation: 'aiRecommendation',
+  aiConfidence: 'aiConfidence',
+  aiSummary: 'aiSummary',
+  aiAuditedAt: 'aiAuditedAt',
+  humanDecision: 'humanDecision',
+  decisionReason: 'decisionReason',
+  reviewerId: 'reviewerId',
+  reviewedAt: 'reviewedAt',
+  rewardStatus: 'rewardStatus',
+  rewardReason: 'rewardReason',
+  libraryStatus: 'libraryStatus',
+  publishedVaultItemId: 'publishedVaultItemId',
+  attemptCount: 'attemptCount',
+  failureReason: 'failureReason',
+  lastStageError: 'lastStageError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -4568,6 +4688,76 @@ export type EnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 export type ListEnumDocumentTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DocumentType[]'>
     
 
+
+/**
+ * Reference to a field of type 'SubmissionSource'
+ */
+export type EnumSubmissionSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubmissionSource'>
+    
+
+
+/**
+ * Reference to a field of type 'SubmissionSource[]'
+ */
+export type ListEnumSubmissionSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SubmissionSource[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceMaterialType'
+ */
+export type EnumResourceMaterialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceMaterialType'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceMaterialType[]'
+ */
+export type ListEnumResourceMaterialTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceMaterialType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceAuditStatus'
+ */
+export type EnumResourceAuditStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceAuditStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceAuditStatus[]'
+ */
+export type ListEnumResourceAuditStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceAuditStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceRewardStatus'
+ */
+export type EnumResourceRewardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRewardStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceRewardStatus[]'
+ */
+export type ListEnumResourceRewardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRewardStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceLibraryStatus'
+ */
+export type EnumResourceLibraryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceLibraryStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceLibraryStatus[]'
+ */
+export type ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceLibraryStatus[]'>
+    
+
 /**
  * Batch Payload for updateMany & deleteMany & createMany
  */
@@ -4761,6 +4951,7 @@ export type GlobalOmitConfig = {
   refreshToken?: Prisma.RefreshTokenOmit
   activityJournalEntry?: Prisma.ActivityJournalEntryOmit
   masteryCheckpointPass?: Prisma.MasteryCheckpointPassOmit
+  resourceSubmission?: Prisma.ResourceSubmissionOmit
 }
 
 /* Types for Logging */

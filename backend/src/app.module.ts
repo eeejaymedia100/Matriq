@@ -21,6 +21,7 @@ import { EntitlementModule } from "./entitlement/entitlement.module";
 import { VerificationModule } from "./verification/verification.module";
 import { FeesModule } from "./fees/fees.module";
 import { VaultModule } from "./vault/vault.module";
+import { ResourceAuditModule } from "./resource-audit/resource-audit.module";
 import { ToolsModule } from "./tools/tools.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { BannersModule } from "./banners/banners.module";
@@ -70,6 +71,7 @@ import { EmailModule } from "./email/email.module";
     VerificationModule,
     FeesModule,
     VaultModule,
+    ResourceAuditModule,
     ToolsModule,
     NotificationsModule,
     BannersModule,
