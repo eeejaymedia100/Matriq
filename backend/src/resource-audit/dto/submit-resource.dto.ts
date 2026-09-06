@@ -87,9 +87,69 @@ export class ReviewQueueQueryDto {
     "needs_information",
     "reward_pending",
     "reward_eligible",
+    "reward_ineligible",
     "processing_library",
     "published",
     "failed",
+    "received",
+    "validating",
+    "duplicate_check",
+    "extracting",
+    "ocr_processing",
+    "auditing",
   ])
   status?: string;
+
+  @IsOptional()
+  @IsIn(["green", "yellow", "red"])
+  risk?: string;
+
+  @IsOptional()
+  @IsIn(["approve", "reject", "review"])
+  aiRecommendation?: string;
+
+  @IsOptional()
+  @IsUUID()
+  institutionId?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 16)
+  courseCode?: string;
+
+  @IsOptional()
+  @IsIn(MATERIAL_TYPES)
+  materialType?: string;
+
+  @IsOptional()
+  @IsString()
+  take?: string;
+}
+
+export class ReopenDto {
+  @IsOptional()
+  @IsString()
+  @Length(0, 300)
+  note?: string;
+}
+
+export class NotesDto {
+  @IsString()
+  @Length(1, 2000)
+  notes!: string;
+}
+
+export class PayoutDto {
+  @IsIn(["airtime", "bank_transfer"])
+  payoutMethod!: "airtime" | "bank_transfer";
+
+  @IsString()
+  @Length(3, 120)
+  payoutRef!: string;
+}
+
+export class DisputeDto {
+  @IsString()
+  @Length(4, 300)
+  note!: string;
 }

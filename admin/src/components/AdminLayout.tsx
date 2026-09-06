@@ -17,6 +17,8 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     { href: "/verification", label: "Verification" },
     { href: "/ai-moderation", label: "AI Moderation" },
     { href: "/vault-moderation", label: "Vault" },
+    { href: "/resource-audit", label: "Resource Review" },
+    { href: "/resource-rewards", label: "Rewards" },
     { href: "/users", label: "Users" },
     { href: "/admins", label: "Admins" },
     { href: "/security", label: "Security" },

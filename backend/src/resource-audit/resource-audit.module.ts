@@ -1,9 +1,12 @@
 import { Module, Provider } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { ResourceAuditController } from "./resource-audit.controller";
 import { ResourceAuditService } from "./resource-audit.service";
 import { ResourceAuditStorage } from "./resource-audit.storage";
 import { RuleBasedScorer } from "./resource-audit.scorer";
 import { AUDIT_SCORER } from "./resource-audit.scorer";
+import { AUDITOR_PORT, DeepSeekAuditor, RuleBasedAuditor } from "./resource-audit.ai-auditor";
+import { ResourceRewardService } from "./resource-audit.rewards";
 import { StorageModule } from "../storage/storage.module";
 import { ToolsModule } from "../tools/tools.module";
 
@@ -21,7 +24,16 @@ import { ToolsModule } from "../tools/tools.module";
   providers: [
     ResourceAuditService,
     ResourceAuditStorage,
+    ResourceRewardService,
     { provide: AUDIT_SCORER, useClass: RuleBasedScorer } as Provider,
+    {
+      // AI auditor (Part 3): DeepSeek when DEEPSEEK_API_KEY is set, the
+      // deterministic rule auditor otherwise. Replaceable via AUDITOR_PORT.
+      provide: AUDITOR_PORT,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) =>
+        DeepSeekAuditor.fromEnv((key) => config.get<string>(key)) ?? new RuleBasedAuditor(),
+    } as Provider,
   ],
   exports: [ResourceAuditService],
 })

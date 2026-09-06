@@ -13,18 +13,24 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import type { Request } from "express";
+import { Res, StreamableFile } from "@nestjs/common";
+import type { Request, Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { AdminGuard } from "../admin/admin.guard";
 import { CurrentUser } from "../auth/decorators/current-user.decorator";
 import { JwtPayload } from "../auth/auth.service";
 import { ResourceAuditService } from "./resource-audit.service";
-import { ResourceAuditStatus } from "../generated/prisma/client";
+import { ResourceRewardService } from "./resource-audit.rewards";
+import { ResourceAuditStatus, ResourceRewardState } from "../generated/prisma/client";
 import {
   DecideSubmissionDto,
   ReviewQueueQueryDto,
   SubmitResourceDto,
+  ReopenDto,
+  NotesDto,
+  PayoutDto,
+  DisputeDto,
 } from "./dto/submit-resource.dto";
 
 /**
@@ -41,7 +47,10 @@ import {
  */
 @Controller("resource-audit")
 export class ResourceAuditController {
-  constructor(private readonly audit: ResourceAuditService) {}
+  constructor(
+    private readonly audit: ResourceAuditService,
+    private readonly rewardsService: ResourceRewardService,
+  ) {}
 
   // ── Student endpoints ──────────────────────────────────────────────
 
@@ -99,7 +108,118 @@ export class ResourceAuditController {
   @Get("admin/review-queue")
   @UseGuards(JwtAuthGuard, AdminGuard)
   reviewQueue(@Query() query: ReviewQueueQueryDto) {
-    return this.audit.reviewQueue(query.status as ResourceAuditStatus | undefined);
+    return this.audit.adminReviewQueue({
+      status: query.status,
+      risk: query.risk,
+      aiRecommendation: query.aiRecommendation,
+      institutionId: query.institutionId,
+      courseCode: query.courseCode,
+      materialType: query.materialType,
+      take: query.take ? Number(query.take) : undefined,
+    });
+  }
+
+  @Get("admin/submissions/:id/review")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  reviewDetail(@Param("id", ParseUUIDPipe) id: string) {
+    return this.audit.adminReviewDetail(id);
+  }
+
+  /** Streams the preserved ORIGINAL to an authorized reviewer. */
+  @Get("admin/submissions/:id/file")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async reviewFile(
+    @CurrentUser() user: JwtPayload,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const file = await this.audit.adminFile(id, user.sub);
+    res.setHeader("Content-Type", file.mimeType);
+    res.setHeader("Content-Disposition", `inline; filename="${file.fileName.replace(/"/g, "")}"`);
+    res.setHeader("Cache-Control", "private, no-store");
+    return new StreamableFile(file.buffer);
+  }
+
+  @Patch("admin/submissions/:id/reopen")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminReopen(
+    @CurrentUser() user: JwtPayload,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: ReopenDto,
+  ) {
+    return this.audit.adminReopen(id, user.sub, body.note);
+  }
+
+  @Patch("admin/submissions/:id/notes")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminNotes(
+    @CurrentUser() user: JwtPayload,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: NotesDto,
+  ) {
+    return this.audit.adminNotes(id, user.sub, body.notes);
+  }
+
+  /** AI-vs-human agreement, per risk level and per provider/model. */
+  @Get("admin/metrics")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminMetrics() {
+    return this.audit.adminMetrics();
+  }
+
+  // ── Reward administration (Part 5) ─────────────────────────────────
+
+  @Get("admin/rewards")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async adminRewards(@Query("state") state?: string) {
+    const valid = ["pending", "eligible", "processing", "paid", "rejected", "disputed"];
+    const parsed = state && valid.includes(state) ? (state as ResourceRewardState) : undefined;
+    return { items: await this.rewardsService.listRewards(parsed) };
+  }
+
+  @Post("admin/rewards/:id/paid")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminMarkPaid(
+    @CurrentUser() user: JwtPayload,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: PayoutDto,
+  ) {
+    return this.rewardsService.markPaid(id, user.sub, body.payoutMethod, body.payoutRef);
+  }
+
+  @Post("admin/rewards/:id/dispute")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminDispute(
+    @CurrentUser() user: JwtPayload,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body() body: DisputeDto,
+  ) {
+    return this.rewardsService.dispute(id, user.sub, body.note);
+  }
+
+  @Get("admin/leaderboard")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async adminLeaderboard(@Query("limit") limit?: string) {
+    return { items: await this.rewardsService.leaderboard(limit ? Math.min(Number(limit), 100) : 20) };
+  }
+
+  @Get("admin/campaign")
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  adminCampaign() {
+    const c = this.rewardsService.getConfig();
+    return {
+      id: c.id,
+      name: c.name,
+      active: c.active,
+      pointsPerApproved: c.pointsPerApprovedResource,
+      tiers: c.tiers.map((t) => ({
+        id: t.id,
+        label: t.label,
+        threshold: t.requiredPoints,
+        kind: t.kind,
+        value: t.valueDescription,
+      })),
+    };
   }
 
   @Patch("admin/submissions/:id/decide")

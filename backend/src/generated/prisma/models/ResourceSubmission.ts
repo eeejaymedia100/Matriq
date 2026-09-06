@@ -30,6 +30,7 @@ export type ResourceSubmissionAvgAggregateOutputType = {
   fileSize: number | null
   pageCount: number | null
   aiConfidence: number | null
+  duplicateSimilarity: number | null
   attemptCount: number | null
 }
 
@@ -37,6 +38,7 @@ export type ResourceSubmissionSumAggregateOutputType = {
   fileSize: number | null
   pageCount: number | null
   aiConfidence: number | null
+  duplicateSimilarity: number | null
   attemptCount: number | null
 }
 
@@ -67,6 +69,12 @@ export type ResourceSubmissionMinAggregateOutputType = {
   aiConfidence: number | null
   aiSummary: string | null
   aiAuditedAt: Date | null
+  aiProvider: string | null
+  aiModel: string | null
+  riskLevel: $Enums.ResourceRiskLevel | null
+  textFingerprint: string | null
+  duplicateOfId: string | null
+  duplicateSimilarity: number | null
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
@@ -78,6 +86,7 @@ export type ResourceSubmissionMinAggregateOutputType = {
   attemptCount: number | null
   failureReason: string | null
   lastStageError: string | null
+  reviewerNotes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -109,6 +118,12 @@ export type ResourceSubmissionMaxAggregateOutputType = {
   aiConfidence: number | null
   aiSummary: string | null
   aiAuditedAt: Date | null
+  aiProvider: string | null
+  aiModel: string | null
+  riskLevel: $Enums.ResourceRiskLevel | null
+  textFingerprint: string | null
+  duplicateOfId: string | null
+  duplicateSimilarity: number | null
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
@@ -120,6 +135,7 @@ export type ResourceSubmissionMaxAggregateOutputType = {
   attemptCount: number | null
   failureReason: string | null
   lastStageError: string | null
+  reviewerNotes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -151,6 +167,15 @@ export type ResourceSubmissionCountAggregateOutputType = {
   aiConfidence: number
   aiSummary: number
   aiAuditedAt: number
+  aiProvider: number
+  aiModel: number
+  riskLevel: number
+  aiAuditReport: number
+  validationResults: number
+  qualityMetrics: number
+  textFingerprint: number
+  duplicateOfId: number
+  duplicateSimilarity: number
   humanDecision: number
   decisionReason: number
   reviewerId: number
@@ -162,6 +187,7 @@ export type ResourceSubmissionCountAggregateOutputType = {
   attemptCount: number
   failureReason: number
   lastStageError: number
+  reviewerNotes: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -172,6 +198,7 @@ export type ResourceSubmissionAvgAggregateInputType = {
   fileSize?: true
   pageCount?: true
   aiConfidence?: true
+  duplicateSimilarity?: true
   attemptCount?: true
 }
 
@@ -179,6 +206,7 @@ export type ResourceSubmissionSumAggregateInputType = {
   fileSize?: true
   pageCount?: true
   aiConfidence?: true
+  duplicateSimilarity?: true
   attemptCount?: true
 }
 
@@ -209,6 +237,12 @@ export type ResourceSubmissionMinAggregateInputType = {
   aiConfidence?: true
   aiSummary?: true
   aiAuditedAt?: true
+  aiProvider?: true
+  aiModel?: true
+  riskLevel?: true
+  textFingerprint?: true
+  duplicateOfId?: true
+  duplicateSimilarity?: true
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
@@ -220,6 +254,7 @@ export type ResourceSubmissionMinAggregateInputType = {
   attemptCount?: true
   failureReason?: true
   lastStageError?: true
+  reviewerNotes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -251,6 +286,12 @@ export type ResourceSubmissionMaxAggregateInputType = {
   aiConfidence?: true
   aiSummary?: true
   aiAuditedAt?: true
+  aiProvider?: true
+  aiModel?: true
+  riskLevel?: true
+  textFingerprint?: true
+  duplicateOfId?: true
+  duplicateSimilarity?: true
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
@@ -262,6 +303,7 @@ export type ResourceSubmissionMaxAggregateInputType = {
   attemptCount?: true
   failureReason?: true
   lastStageError?: true
+  reviewerNotes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -293,6 +335,15 @@ export type ResourceSubmissionCountAggregateInputType = {
   aiConfidence?: true
   aiSummary?: true
   aiAuditedAt?: true
+  aiProvider?: true
+  aiModel?: true
+  riskLevel?: true
+  aiAuditReport?: true
+  validationResults?: true
+  qualityMetrics?: true
+  textFingerprint?: true
+  duplicateOfId?: true
+  duplicateSimilarity?: true
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
@@ -304,6 +355,7 @@ export type ResourceSubmissionCountAggregateInputType = {
   attemptCount?: true
   failureReason?: true
   lastStageError?: true
+  reviewerNotes?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -422,6 +474,15 @@ export type ResourceSubmissionGroupByOutputType = {
   aiConfidence: number | null
   aiSummary: string | null
   aiAuditedAt: Date | null
+  aiProvider: string | null
+  aiModel: string | null
+  riskLevel: $Enums.ResourceRiskLevel | null
+  aiAuditReport: runtime.JsonValue | null
+  validationResults: runtime.JsonValue | null
+  qualityMetrics: runtime.JsonValue | null
+  textFingerprint: string | null
+  duplicateOfId: string | null
+  duplicateSimilarity: number | null
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
@@ -433,6 +494,7 @@ export type ResourceSubmissionGroupByOutputType = {
   attemptCount: number
   failureReason: string | null
   lastStageError: string | null
+  reviewerNotes: string | null
   createdAt: Date
   updatedAt: Date
   _count: ResourceSubmissionCountAggregateOutputType | null
@@ -487,6 +549,15 @@ export type ResourceSubmissionWhereInput = {
   aiConfidence?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   aiSummary?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   aiAuditedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
+  aiProvider?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  aiModel?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  riskLevel?: Prisma.EnumResourceRiskLevelNullableFilter<"ResourceSubmission"> | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  validationResults?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  qualityMetrics?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -498,6 +569,7 @@ export type ResourceSubmissionWhereInput = {
   attemptCount?: Prisma.IntFilter<"ResourceSubmission"> | number
   failureReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   lastStageError?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerNotes?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -531,6 +603,15 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   aiConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
   aiSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   aiAuditedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiAuditReport?: Prisma.SortOrderInput | Prisma.SortOrder
+  validationResults?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualityMetrics?: Prisma.SortOrderInput | Prisma.SortOrder
+  textFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrderInput | Prisma.SortOrder
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -542,6 +623,7 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   attemptCount?: Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   lastStageError?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   student?: Prisma.UserOrderByWithRelationInput
@@ -579,6 +661,15 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   aiConfidence?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   aiSummary?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   aiAuditedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
+  aiProvider?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  aiModel?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  riskLevel?: Prisma.EnumResourceRiskLevelNullableFilter<"ResourceSubmission"> | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  validationResults?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  qualityMetrics?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -590,6 +681,7 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   attemptCount?: Prisma.IntFilter<"ResourceSubmission"> | number
   failureReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   lastStageError?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerNotes?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   student?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -623,6 +715,15 @@ export type ResourceSubmissionOrderByWithAggregationInput = {
   aiConfidence?: Prisma.SortOrderInput | Prisma.SortOrder
   aiSummary?: Prisma.SortOrderInput | Prisma.SortOrder
   aiAuditedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiProvider?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiModel?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  aiAuditReport?: Prisma.SortOrderInput | Prisma.SortOrder
+  validationResults?: Prisma.SortOrderInput | Prisma.SortOrder
+  qualityMetrics?: Prisma.SortOrderInput | Prisma.SortOrder
+  textFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateOfId?: Prisma.SortOrderInput | Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrderInput | Prisma.SortOrder
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -634,6 +735,7 @@ export type ResourceSubmissionOrderByWithAggregationInput = {
   attemptCount?: Prisma.SortOrder
   failureReason?: Prisma.SortOrderInput | Prisma.SortOrder
   lastStageError?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ResourceSubmissionCountOrderByAggregateInput
@@ -673,6 +775,15 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   aiConfidence?: Prisma.IntNullableWithAggregatesFilter<"ResourceSubmission"> | number | null
   aiSummary?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   aiAuditedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ResourceSubmission"> | Date | string | null
+  aiProvider?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  aiModel?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  riskLevel?: Prisma.EnumResourceRiskLevelNullableWithAggregatesFilter<"ResourceSubmission"> | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.JsonNullableWithAggregatesFilter<"ResourceSubmission">
+  validationResults?: Prisma.JsonNullableWithAggregatesFilter<"ResourceSubmission">
+  qualityMetrics?: Prisma.JsonNullableWithAggregatesFilter<"ResourceSubmission">
+  textFingerprint?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  duplicateOfId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  duplicateSimilarity?: Prisma.IntNullableWithAggregatesFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
@@ -684,6 +795,7 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   attemptCount?: Prisma.IntWithAggregatesFilter<"ResourceSubmission"> | number
   failureReason?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   lastStageError?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
+  reviewerNotes?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ResourceSubmission"> | Date | string
 }
@@ -713,6 +825,15 @@ export type ResourceSubmissionCreateInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -724,6 +845,7 @@ export type ResourceSubmissionCreateInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
@@ -757,6 +879,15 @@ export type ResourceSubmissionUncheckedCreateInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -768,6 +899,7 @@ export type ResourceSubmissionUncheckedCreateInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -797,6 +929,15 @@ export type ResourceSubmissionUpdateInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -808,6 +949,7 @@ export type ResourceSubmissionUpdateInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutResourceSubmissionsNestedInput
@@ -841,6 +983,15 @@ export type ResourceSubmissionUncheckedUpdateInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -852,6 +1003,7 @@ export type ResourceSubmissionUncheckedUpdateInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -883,6 +1035,15 @@ export type ResourceSubmissionCreateManyInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -894,6 +1055,7 @@ export type ResourceSubmissionCreateManyInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -923,6 +1085,15 @@ export type ResourceSubmissionUpdateManyMutationInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -934,6 +1105,7 @@ export type ResourceSubmissionUpdateManyMutationInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -965,6 +1137,15 @@ export type ResourceSubmissionUncheckedUpdateManyInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -976,6 +1157,7 @@ export type ResourceSubmissionUncheckedUpdateManyInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1023,6 +1205,15 @@ export type ResourceSubmissionCountOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSummary?: Prisma.SortOrder
   aiAuditedAt?: Prisma.SortOrder
+  aiProvider?: Prisma.SortOrder
+  aiModel?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
+  aiAuditReport?: Prisma.SortOrder
+  validationResults?: Prisma.SortOrder
+  qualityMetrics?: Prisma.SortOrder
+  textFingerprint?: Prisma.SortOrder
+  duplicateOfId?: Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrder
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
@@ -1034,6 +1225,7 @@ export type ResourceSubmissionCountOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   lastStageError?: Prisma.SortOrder
+  reviewerNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1042,6 +1234,7 @@ export type ResourceSubmissionAvgOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   pageCount?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
 }
 
@@ -1072,6 +1265,12 @@ export type ResourceSubmissionMaxOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSummary?: Prisma.SortOrder
   aiAuditedAt?: Prisma.SortOrder
+  aiProvider?: Prisma.SortOrder
+  aiModel?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
+  textFingerprint?: Prisma.SortOrder
+  duplicateOfId?: Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrder
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
@@ -1083,6 +1282,7 @@ export type ResourceSubmissionMaxOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   lastStageError?: Prisma.SortOrder
+  reviewerNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1114,6 +1314,12 @@ export type ResourceSubmissionMinOrderByAggregateInput = {
   aiConfidence?: Prisma.SortOrder
   aiSummary?: Prisma.SortOrder
   aiAuditedAt?: Prisma.SortOrder
+  aiProvider?: Prisma.SortOrder
+  aiModel?: Prisma.SortOrder
+  riskLevel?: Prisma.SortOrder
+  textFingerprint?: Prisma.SortOrder
+  duplicateOfId?: Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrder
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
@@ -1125,6 +1331,7 @@ export type ResourceSubmissionMinOrderByAggregateInput = {
   attemptCount?: Prisma.SortOrder
   failureReason?: Prisma.SortOrder
   lastStageError?: Prisma.SortOrder
+  reviewerNotes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1133,6 +1340,7 @@ export type ResourceSubmissionSumOrderByAggregateInput = {
   fileSize?: Prisma.SortOrder
   pageCount?: Prisma.SortOrder
   aiConfidence?: Prisma.SortOrder
+  duplicateSimilarity?: Prisma.SortOrder
   attemptCount?: Prisma.SortOrder
 }
 
@@ -1232,6 +1440,10 @@ export type EnumResourceAuditStatusFieldUpdateOperationsInput = {
   set?: $Enums.ResourceAuditStatus
 }
 
+export type NullableEnumResourceRiskLevelFieldUpdateOperationsInput = {
+  set?: $Enums.ResourceRiskLevel | null
+}
+
 export type EnumResourceRewardStatusFieldUpdateOperationsInput = {
   set?: $Enums.ResourceRewardStatus
 }
@@ -1265,6 +1477,15 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1276,6 +1497,7 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   student: Prisma.UserCreateNestedOneWithoutResourceSubmissionsInput
@@ -1307,6 +1529,15 @@ export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1318,6 +1549,7 @@ export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1378,6 +1610,15 @@ export type ResourceSubmissionScalarWhereInput = {
   aiConfidence?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   aiSummary?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   aiAuditedAt?: Prisma.DateTimeNullableFilter<"ResourceSubmission"> | Date | string | null
+  aiProvider?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  aiModel?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  riskLevel?: Prisma.EnumResourceRiskLevelNullableFilter<"ResourceSubmission"> | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  validationResults?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  qualityMetrics?: Prisma.JsonNullableFilter<"ResourceSubmission">
+  textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
+  duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -1389,6 +1630,7 @@ export type ResourceSubmissionScalarWhereInput = {
   attemptCount?: Prisma.IntFilter<"ResourceSubmission"> | number
   failureReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   lastStageError?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
+  reviewerNotes?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   createdAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ResourceSubmission"> | Date | string
 }
@@ -1418,6 +1660,15 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1429,6 +1680,7 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   institution?: Prisma.InstitutionCreateNestedOneWithoutResourceSubmissionsInput
@@ -1460,6 +1712,15 @@ export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1471,6 +1732,7 @@ export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1527,6 +1789,15 @@ export type ResourceSubmissionCreateManyInstitutionInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1538,6 +1809,7 @@ export type ResourceSubmissionCreateManyInstitutionInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1567,6 +1839,15 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1578,6 +1859,7 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   student?: Prisma.UserUpdateOneRequiredWithoutResourceSubmissionsNestedInput
@@ -1609,6 +1891,15 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1620,6 +1911,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1650,6 +1942,15 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1661,6 +1962,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1691,6 +1993,15 @@ export type ResourceSubmissionCreateManyStudentInput = {
   aiConfidence?: number | null
   aiSummary?: string | null
   aiAuditedAt?: Date | string | null
+  aiProvider?: string | null
+  aiModel?: string | null
+  riskLevel?: $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: string | null
+  duplicateOfId?: string | null
+  duplicateSimilarity?: number | null
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1702,6 +2013,7 @@ export type ResourceSubmissionCreateManyStudentInput = {
   attemptCount?: number
   failureReason?: string | null
   lastStageError?: string | null
+  reviewerNotes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1731,6 +2043,15 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1742,6 +2063,7 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   institution?: Prisma.InstitutionUpdateOneWithoutResourceSubmissionsNestedInput
@@ -1773,6 +2095,15 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1784,6 +2115,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1814,6 +2146,15 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   aiConfidence?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   aiSummary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   aiAuditedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  aiProvider?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  aiModel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskLevel?: Prisma.NullableEnumResourceRiskLevelFieldUpdateOperationsInput | $Enums.ResourceRiskLevel | null
+  aiAuditReport?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  validationResults?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  qualityMetrics?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1825,6 +2166,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
   failureReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   lastStageError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1858,6 +2200,15 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   aiConfidence?: boolean
   aiSummary?: boolean
   aiAuditedAt?: boolean
+  aiProvider?: boolean
+  aiModel?: boolean
+  riskLevel?: boolean
+  aiAuditReport?: boolean
+  validationResults?: boolean
+  qualityMetrics?: boolean
+  textFingerprint?: boolean
+  duplicateOfId?: boolean
+  duplicateSimilarity?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -1869,6 +2220,7 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   attemptCount?: boolean
   failureReason?: boolean
   lastStageError?: boolean
+  reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1902,6 +2254,15 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   aiConfidence?: boolean
   aiSummary?: boolean
   aiAuditedAt?: boolean
+  aiProvider?: boolean
+  aiModel?: boolean
+  riskLevel?: boolean
+  aiAuditReport?: boolean
+  validationResults?: boolean
+  qualityMetrics?: boolean
+  textFingerprint?: boolean
+  duplicateOfId?: boolean
+  duplicateSimilarity?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -1913,6 +2274,7 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   attemptCount?: boolean
   failureReason?: boolean
   lastStageError?: boolean
+  reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1946,6 +2308,15 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   aiConfidence?: boolean
   aiSummary?: boolean
   aiAuditedAt?: boolean
+  aiProvider?: boolean
+  aiModel?: boolean
+  riskLevel?: boolean
+  aiAuditReport?: boolean
+  validationResults?: boolean
+  qualityMetrics?: boolean
+  textFingerprint?: boolean
+  duplicateOfId?: boolean
+  duplicateSimilarity?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -1957,6 +2328,7 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   attemptCount?: boolean
   failureReason?: boolean
   lastStageError?: boolean
+  reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1990,6 +2362,15 @@ export type ResourceSubmissionSelectScalar = {
   aiConfidence?: boolean
   aiSummary?: boolean
   aiAuditedAt?: boolean
+  aiProvider?: boolean
+  aiModel?: boolean
+  riskLevel?: boolean
+  aiAuditReport?: boolean
+  validationResults?: boolean
+  qualityMetrics?: boolean
+  textFingerprint?: boolean
+  duplicateOfId?: boolean
+  duplicateSimilarity?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -2001,11 +2382,12 @@ export type ResourceSubmissionSelectScalar = {
   attemptCount?: boolean
   failureReason?: boolean
   lastStageError?: boolean
+  reviewerNotes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
+export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
 export type ResourceSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   institution?: boolean | Prisma.ResourceSubmission$institutionArgs<ExtArgs>
@@ -2052,6 +2434,15 @@ export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.
     aiConfidence: number | null
     aiSummary: string | null
     aiAuditedAt: Date | null
+    aiProvider: string | null
+    aiModel: string | null
+    riskLevel: $Enums.ResourceRiskLevel | null
+    aiAuditReport: runtime.JsonValue | null
+    validationResults: runtime.JsonValue | null
+    qualityMetrics: runtime.JsonValue | null
+    textFingerprint: string | null
+    duplicateOfId: string | null
+    duplicateSimilarity: number | null
     humanDecision: string | null
     decisionReason: string | null
     reviewerId: string | null
@@ -2063,6 +2454,7 @@ export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.
     attemptCount: number
     failureReason: string | null
     lastStageError: string | null
+    reviewerNotes: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["resourceSubmission"]>
@@ -2516,6 +2908,15 @@ export interface ResourceSubmissionFieldRefs {
   readonly aiConfidence: Prisma.FieldRef<"ResourceSubmission", 'Int'>
   readonly aiSummary: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly aiAuditedAt: Prisma.FieldRef<"ResourceSubmission", 'DateTime'>
+  readonly aiProvider: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly aiModel: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly riskLevel: Prisma.FieldRef<"ResourceSubmission", 'ResourceRiskLevel'>
+  readonly aiAuditReport: Prisma.FieldRef<"ResourceSubmission", 'Json'>
+  readonly validationResults: Prisma.FieldRef<"ResourceSubmission", 'Json'>
+  readonly qualityMetrics: Prisma.FieldRef<"ResourceSubmission", 'Json'>
+  readonly textFingerprint: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly duplicateOfId: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly duplicateSimilarity: Prisma.FieldRef<"ResourceSubmission", 'Int'>
   readonly humanDecision: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly decisionReason: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly reviewerId: Prisma.FieldRef<"ResourceSubmission", 'String'>
@@ -2527,6 +2928,7 @@ export interface ResourceSubmissionFieldRefs {
   readonly attemptCount: Prisma.FieldRef<"ResourceSubmission", 'Int'>
   readonly failureReason: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly lastStageError: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly reviewerNotes: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly createdAt: Prisma.FieldRef<"ResourceSubmission", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ResourceSubmission", 'DateTime'>
 }

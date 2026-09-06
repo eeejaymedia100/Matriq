@@ -232,3 +232,13 @@ export type MasteryCheckpointPass = Prisma.MasteryCheckpointPassModel
  * 
  */
 export type ResourceSubmission = Prisma.ResourceSubmissionModel
+/**
+ * Model ResourceContribution
+ * 
+ */
+export type ResourceContribution = Prisma.ResourceContributionModel
+/**
+ * Model ResourceReward
+ * 
+ */
+export type ResourceReward = Prisma.ResourceRewardModel

@@ -185,6 +185,27 @@ export const ResourceLibraryStatus = {
 export type ResourceLibraryStatus = (typeof ResourceLibraryStatus)[keyof typeof ResourceLibraryStatus]
 
 
+export const ResourceRiskLevel = {
+  green: 'green',
+  yellow: 'yellow',
+  red: 'red'
+} as const
+
+export type ResourceRiskLevel = (typeof ResourceRiskLevel)[keyof typeof ResourceRiskLevel]
+
+
+export const ResourceRewardState = {
+  pending: 'pending',
+  eligible: 'eligible',
+  processing: 'processing',
+  paid: 'paid',
+  rejected: 'rejected',
+  disputed: 'disputed'
+} as const
+
+export type ResourceRewardState = (typeof ResourceRewardState)[keyof typeof ResourceRewardState]
+
+
 export const SubmissionSource = {
   app: 'app',
   web: 'web',

@@ -243,3 +243,128 @@ export interface Banner {
   /** Computed server-side: published AND inside the schedule window now. */
   live: boolean;
 }
+
+// ── Resource Audit Engine (review console) ─────────────────────────
+
+export interface ResourceStudentBrief {
+  id: string;
+  fullName: string;
+  matricNumber: string | null;
+  email: string;
+  faculty?: string | null;
+  department?: string | null;
+  level?: string | null;
+}
+
+export interface ResourceQueueItem {
+  id: string;
+  studentId: string;
+  source: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  pageCount: number | null;
+  courseCode: string;
+  level: string | null;
+  materialType: string;
+  academicSession: string | null;
+  submittedAt: string;
+  auditStatus: string;
+  aiRecommendation: string | null;
+  aiConfidence: number | null;
+  aiSummary: string | null;
+  riskLevel: string | null;
+  duplicateOfId: string | null;
+  duplicateSimilarity: number | null;
+  rewardStatus: string;
+  libraryStatus: string;
+  student: ResourceStudentBrief;
+}
+
+export interface ResourceScoreSet {
+  academicRelevance: number;
+  readability: number;
+  completeness: number;
+  metadataMatch: number;
+  duplicateProbability: number;
+  copyrightRisk: number;
+  suspiciousContentRisk: number;
+  rewardAbuseRisk: number;
+}
+
+export interface ResourceReviewDetail extends ResourceQueueItem {
+  human: { decision: string | null; reason: string | null; reviewerId: string | null; reviewedAt: string | null };
+  failure: { attempts: number; reason: string | null; lastStageError: string | null };
+  student: ResourceStudentBrief;
+  validation: {
+    verdict: string;
+    formatOk: boolean;
+    encrypted: boolean;
+    pageCount: number | null;
+    emptyOrEffectivelyEmpty: boolean;
+    checks: Array<{ name: string; verdict: string; detail?: string }>;
+  } | null;
+  quality: {
+    pageCount: number;
+    blankPageRatio: number;
+    textDensityCharsPerPage: number;
+    repeatedPageRatio: number;
+    unreadablePageRatio: number;
+    suspiciouslyPadded: boolean;
+    screenshotHeavy: boolean;
+    junkVerdict: string;
+  } | null;
+  aiAuditReport: {
+    documentType?: string;
+    detected?: { title?: string | null; courseCode?: string | null; university?: string | null; academicSession?: string | null };
+    scores?: ResourceScoreSet;
+    contradictions?: string[];
+    reasons?: string[];
+    riskLevel?: string;
+    provider?: string;
+    model?: string;
+  } | null;
+  aiProvider: string | null;
+  aiModel: string | null;
+  reviewerNotes: string | null;
+  documentPreviewUrl: string;
+}
+
+export interface ResourceMetrics {
+  total: number;
+  withAi: number;
+  decided: number;
+  agreementRate: number | null;
+  perRisk: Record<string, { total: number; agree: number; disagree: number; agreementRate: number | null }>;
+  perModel: Record<string, { total: number; agree: number; disagree: number; agreementRate: number | null }>;
+}
+
+export interface ResourceRewardRow {
+  id: string;
+  studentId: string;
+  campaignId: string;
+  tierId: string;
+  state: string;
+  pointsAtEarn: number;
+  payoutRef: string | null;
+  payoutMethod: string | null;
+  paidAt: string | null;
+  note: string | null;
+  createdAt: string;
+  student: { id: string; fullName: string; email: string };
+}
+
+export interface ResourceLeaderboardRow {
+  rank: number;
+  studentId: string;
+  name: string;
+  points: number;
+}
+
+export interface ResourceCampaignConfig {
+  id: string;
+  name: string;
+  active: boolean;
+  pointsPerApproved: number;
+  tiers: Array<{ id: string; label: string; threshold: number; kind: string; value: string | null }>;
+}

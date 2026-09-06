@@ -661,6 +661,13 @@ export type EnumResourceAuditStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel> | $Enums.ResourceAuditStatus
 }
 
+export type EnumResourceRiskLevelNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRiskLevel | Prisma.EnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel> | $Enums.ResourceRiskLevel | null
+}
+
 export type EnumResourceRewardStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
@@ -705,6 +712,16 @@ export type EnumResourceAuditStatusWithAggregatesFilter<$PrismaModel = never> = 
   _max?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
 }
 
+export type EnumResourceRiskLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRiskLevel | Prisma.EnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumResourceRiskLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRiskLevel | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel>
+}
+
 export type EnumResourceRewardStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
@@ -723,6 +740,23 @@ export type EnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
+}
+
+export type EnumResourceRewardStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardState | Prisma.EnumResourceRewardStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel> | $Enums.ResourceRewardState
+}
+
+export type EnumResourceRewardStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardState | Prisma.EnumResourceRewardStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStateWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRewardState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel>
 }
 
 export type NestedUuidFilter<$PrismaModel = never> = {
@@ -1316,6 +1350,13 @@ export type NestedEnumResourceAuditStatusFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel> | $Enums.ResourceAuditStatus
 }
 
+export type NestedEnumResourceRiskLevelNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRiskLevel | Prisma.EnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel> | $Enums.ResourceRiskLevel | null
+}
+
 export type NestedEnumResourceRewardStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
@@ -1360,6 +1401,16 @@ export type NestedEnumResourceAuditStatusWithAggregatesFilter<$PrismaModel = nev
   _max?: Prisma.NestedEnumResourceAuditStatusFilter<$PrismaModel>
 }
 
+export type NestedEnumResourceRiskLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRiskLevel | Prisma.EnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ResourceRiskLevel[] | Prisma.ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumResourceRiskLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRiskLevel | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRiskLevelNullableFilter<$PrismaModel>
+}
+
 export type NestedEnumResourceRewardStatusWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.ResourceRewardStatus | Prisma.EnumResourceRewardStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ResourceRewardStatus[] | Prisma.ListEnumResourceRewardStatusFieldRefInput<$PrismaModel>
@@ -1378,6 +1429,23 @@ export type NestedEnumResourceLibraryStatusWithAggregatesFilter<$PrismaModel = n
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumResourceLibraryStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumResourceRewardStateFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardState | Prisma.EnumResourceRewardStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel> | $Enums.ResourceRewardState
+}
+
+export type NestedEnumResourceRewardStateWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ResourceRewardState | Prisma.EnumResourceRewardStateFieldRefInput<$PrismaModel>
+  in?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ResourceRewardState[] | Prisma.ListEnumResourceRewardStateFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumResourceRewardStateWithAggregatesFilter<$PrismaModel> | $Enums.ResourceRewardState
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumResourceRewardStateFilter<$PrismaModel>
 }
 
 

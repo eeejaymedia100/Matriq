@@ -195,6 +195,7 @@ export type InstitutionWhereInput = {
   associations?: Prisma.AssociationListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   resourceSubmissions?: Prisma.ResourceSubmissionListRelationFilter
+  resourceContributions?: Prisma.ResourceContributionListRelationFilter
 }
 
 export type InstitutionOrderByWithRelationInput = {
@@ -209,6 +210,7 @@ export type InstitutionOrderByWithRelationInput = {
   associations?: Prisma.AssociationOrderByRelationAggregateInput
   vaultItems?: Prisma.VaultItemOrderByRelationAggregateInput
   resourceSubmissions?: Prisma.ResourceSubmissionOrderByRelationAggregateInput
+  resourceContributions?: Prisma.ResourceContributionOrderByRelationAggregateInput
 }
 
 export type InstitutionWhereUniqueInput = Prisma.AtLeast<{
@@ -226,6 +228,7 @@ export type InstitutionWhereUniqueInput = Prisma.AtLeast<{
   associations?: Prisma.AssociationListRelationFilter
   vaultItems?: Prisma.VaultItemListRelationFilter
   resourceSubmissions?: Prisma.ResourceSubmissionListRelationFilter
+  resourceContributions?: Prisma.ResourceContributionListRelationFilter
 }, "id" | "name">
 
 export type InstitutionOrderByWithAggregationInput = {
@@ -264,6 +267,7 @@ export type InstitutionCreateInput = {
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateInput = {
@@ -278,6 +282,7 @@ export type InstitutionUncheckedCreateInput = {
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUpdateInput = {
@@ -292,6 +297,7 @@ export type InstitutionUpdateInput = {
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateInput = {
@@ -306,6 +312,7 @@ export type InstitutionUncheckedUpdateInput = {
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateManyInput = {
@@ -466,6 +473,22 @@ export type InstitutionUpdateOneWithoutResourceSubmissionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InstitutionUpdateToOneWithWhereWithoutResourceSubmissionsInput, Prisma.InstitutionUpdateWithoutResourceSubmissionsInput>, Prisma.InstitutionUncheckedUpdateWithoutResourceSubmissionsInput>
 }
 
+export type InstitutionCreateNestedOneWithoutResourceContributionsInput = {
+  create?: Prisma.XOR<Prisma.InstitutionCreateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedCreateWithoutResourceContributionsInput>
+  connectOrCreate?: Prisma.InstitutionCreateOrConnectWithoutResourceContributionsInput
+  connect?: Prisma.InstitutionWhereUniqueInput
+}
+
+export type InstitutionUpdateOneWithoutResourceContributionsNestedInput = {
+  create?: Prisma.XOR<Prisma.InstitutionCreateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedCreateWithoutResourceContributionsInput>
+  connectOrCreate?: Prisma.InstitutionCreateOrConnectWithoutResourceContributionsInput
+  upsert?: Prisma.InstitutionUpsertWithoutResourceContributionsInput
+  disconnect?: Prisma.InstitutionWhereInput | boolean
+  delete?: Prisma.InstitutionWhereInput | boolean
+  connect?: Prisma.InstitutionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.InstitutionUpdateToOneWithWhereWithoutResourceContributionsInput, Prisma.InstitutionUpdateWithoutResourceContributionsInput>, Prisma.InstitutionUncheckedUpdateWithoutResourceContributionsInput>
+}
+
 export type InstitutionCreateWithoutFacultiesInput = {
   id?: string
   name: string
@@ -477,6 +500,7 @@ export type InstitutionCreateWithoutFacultiesInput = {
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutFacultiesInput = {
@@ -490,6 +514,7 @@ export type InstitutionUncheckedCreateWithoutFacultiesInput = {
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutFacultiesInput = {
@@ -519,6 +544,7 @@ export type InstitutionUpdateWithoutFacultiesInput = {
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutFacultiesInput = {
@@ -532,6 +558,7 @@ export type InstitutionUncheckedUpdateWithoutFacultiesInput = {
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutUsersInput = {
@@ -545,6 +572,7 @@ export type InstitutionCreateWithoutUsersInput = {
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutUsersInput = {
@@ -558,6 +586,7 @@ export type InstitutionUncheckedCreateWithoutUsersInput = {
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutUsersInput = {
@@ -587,6 +616,7 @@ export type InstitutionUpdateWithoutUsersInput = {
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutUsersInput = {
@@ -600,6 +630,7 @@ export type InstitutionUncheckedUpdateWithoutUsersInput = {
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutAssociationsInput = {
@@ -613,6 +644,7 @@ export type InstitutionCreateWithoutAssociationsInput = {
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutAssociationsInput = {
@@ -626,6 +658,7 @@ export type InstitutionUncheckedCreateWithoutAssociationsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutAssociationsInput = {
@@ -655,6 +688,7 @@ export type InstitutionUpdateWithoutAssociationsInput = {
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutAssociationsInput = {
@@ -668,6 +702,7 @@ export type InstitutionUncheckedUpdateWithoutAssociationsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutVaultItemsInput = {
@@ -681,6 +716,7 @@ export type InstitutionCreateWithoutVaultItemsInput = {
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutVaultItemsInput = {
@@ -694,6 +730,7 @@ export type InstitutionUncheckedCreateWithoutVaultItemsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutVaultItemsInput = {
@@ -723,6 +760,7 @@ export type InstitutionUpdateWithoutVaultItemsInput = {
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutVaultItemsInput = {
@@ -736,6 +774,7 @@ export type InstitutionUncheckedUpdateWithoutVaultItemsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
   resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionCreateWithoutResourceSubmissionsInput = {
@@ -749,6 +788,7 @@ export type InstitutionCreateWithoutResourceSubmissionsInput = {
   users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionUncheckedCreateWithoutResourceSubmissionsInput = {
@@ -762,6 +802,7 @@ export type InstitutionUncheckedCreateWithoutResourceSubmissionsInput = {
   users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
   associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
   vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedCreateNestedManyWithoutInstitutionInput
 }
 
 export type InstitutionCreateOrConnectWithoutResourceSubmissionsInput = {
@@ -791,6 +832,7 @@ export type InstitutionUpdateWithoutResourceSubmissionsInput = {
   users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUpdateManyWithoutInstitutionNestedInput
 }
 
 export type InstitutionUncheckedUpdateWithoutResourceSubmissionsInput = {
@@ -804,6 +846,79 @@ export type InstitutionUncheckedUpdateWithoutResourceSubmissionsInput = {
   users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
   associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
   vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceContributions?: Prisma.ResourceContributionUncheckedUpdateManyWithoutInstitutionNestedInput
+}
+
+export type InstitutionCreateWithoutResourceContributionsInput = {
+  id?: string
+  name: string
+  shortName?: string | null
+  type?: $Enums.InstitutionType
+  state?: string | null
+  createdAt?: Date | string
+  faculties?: Prisma.FacultyCreateNestedManyWithoutInstitutionInput
+  users?: Prisma.UserCreateNestedManyWithoutInstitutionInput
+  associations?: Prisma.AssociationCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemCreateNestedManyWithoutInstitutionInput
+  resourceSubmissions?: Prisma.ResourceSubmissionCreateNestedManyWithoutInstitutionInput
+}
+
+export type InstitutionUncheckedCreateWithoutResourceContributionsInput = {
+  id?: string
+  name: string
+  shortName?: string | null
+  type?: $Enums.InstitutionType
+  state?: string | null
+  createdAt?: Date | string
+  faculties?: Prisma.FacultyUncheckedCreateNestedManyWithoutInstitutionInput
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutInstitutionInput
+  associations?: Prisma.AssociationUncheckedCreateNestedManyWithoutInstitutionInput
+  vaultItems?: Prisma.VaultItemUncheckedCreateNestedManyWithoutInstitutionInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUncheckedCreateNestedManyWithoutInstitutionInput
+}
+
+export type InstitutionCreateOrConnectWithoutResourceContributionsInput = {
+  where: Prisma.InstitutionWhereUniqueInput
+  create: Prisma.XOR<Prisma.InstitutionCreateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedCreateWithoutResourceContributionsInput>
+}
+
+export type InstitutionUpsertWithoutResourceContributionsInput = {
+  update: Prisma.XOR<Prisma.InstitutionUpdateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedUpdateWithoutResourceContributionsInput>
+  create: Prisma.XOR<Prisma.InstitutionCreateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedCreateWithoutResourceContributionsInput>
+  where?: Prisma.InstitutionWhereInput
+}
+
+export type InstitutionUpdateToOneWithWhereWithoutResourceContributionsInput = {
+  where?: Prisma.InstitutionWhereInput
+  data: Prisma.XOR<Prisma.InstitutionUpdateWithoutResourceContributionsInput, Prisma.InstitutionUncheckedUpdateWithoutResourceContributionsInput>
+}
+
+export type InstitutionUpdateWithoutResourceContributionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumInstitutionTypeFieldUpdateOperationsInput | $Enums.InstitutionType
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  faculties?: Prisma.FacultyUpdateManyWithoutInstitutionNestedInput
+  users?: Prisma.UserUpdateManyWithoutInstitutionNestedInput
+  associations?: Prisma.AssociationUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUpdateManyWithoutInstitutionNestedInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUpdateManyWithoutInstitutionNestedInput
+}
+
+export type InstitutionUncheckedUpdateWithoutResourceContributionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumInstitutionTypeFieldUpdateOperationsInput | $Enums.InstitutionType
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  faculties?: Prisma.FacultyUncheckedUpdateManyWithoutInstitutionNestedInput
+  users?: Prisma.UserUncheckedUpdateManyWithoutInstitutionNestedInput
+  associations?: Prisma.AssociationUncheckedUpdateManyWithoutInstitutionNestedInput
+  vaultItems?: Prisma.VaultItemUncheckedUpdateManyWithoutInstitutionNestedInput
+  resourceSubmissions?: Prisma.ResourceSubmissionUncheckedUpdateManyWithoutInstitutionNestedInput
 }
 
 
@@ -817,6 +932,7 @@ export type InstitutionCountOutputType = {
   associations: number
   vaultItems: number
   resourceSubmissions: number
+  resourceContributions: number
 }
 
 export type InstitutionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -825,6 +941,7 @@ export type InstitutionCountOutputTypeSelect<ExtArgs extends runtime.Types.Exten
   associations?: boolean | InstitutionCountOutputTypeCountAssociationsArgs
   vaultItems?: boolean | InstitutionCountOutputTypeCountVaultItemsArgs
   resourceSubmissions?: boolean | InstitutionCountOutputTypeCountResourceSubmissionsArgs
+  resourceContributions?: boolean | InstitutionCountOutputTypeCountResourceContributionsArgs
 }
 
 /**
@@ -872,6 +989,13 @@ export type InstitutionCountOutputTypeCountResourceSubmissionsArgs<ExtArgs exten
   where?: Prisma.ResourceSubmissionWhereInput
 }
 
+/**
+ * InstitutionCountOutputType without action
+ */
+export type InstitutionCountOutputTypeCountResourceContributionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ResourceContributionWhereInput
+}
+
 
 export type InstitutionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -885,6 +1009,7 @@ export type InstitutionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   associations?: boolean | Prisma.Institution$associationsArgs<ExtArgs>
   vaultItems?: boolean | Prisma.Institution$vaultItemsArgs<ExtArgs>
   resourceSubmissions?: boolean | Prisma.Institution$resourceSubmissionsArgs<ExtArgs>
+  resourceContributions?: boolean | Prisma.Institution$resourceContributionsArgs<ExtArgs>
   _count?: boolean | Prisma.InstitutionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["institution"]>
 
@@ -922,6 +1047,7 @@ export type InstitutionInclude<ExtArgs extends runtime.Types.Extensions.Internal
   associations?: boolean | Prisma.Institution$associationsArgs<ExtArgs>
   vaultItems?: boolean | Prisma.Institution$vaultItemsArgs<ExtArgs>
   resourceSubmissions?: boolean | Prisma.Institution$resourceSubmissionsArgs<ExtArgs>
+  resourceContributions?: boolean | Prisma.Institution$resourceContributionsArgs<ExtArgs>
   _count?: boolean | Prisma.InstitutionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InstitutionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -935,6 +1061,7 @@ export type $InstitutionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     associations: Prisma.$AssociationPayload<ExtArgs>[]
     vaultItems: Prisma.$VaultItemPayload<ExtArgs>[]
     resourceSubmissions: Prisma.$ResourceSubmissionPayload<ExtArgs>[]
+    resourceContributions: Prisma.$ResourceContributionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1342,6 +1469,7 @@ export interface Prisma__InstitutionClient<T, Null = never, ExtArgs extends runt
   associations<T extends Prisma.Institution$associationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$associationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssociationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vaultItems<T extends Prisma.Institution$vaultItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$vaultItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VaultItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceSubmissions<T extends Prisma.Institution$resourceSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$resourceSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resourceContributions<T extends Prisma.Institution$resourceContributionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Institution$resourceContributionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourceContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1887,6 +2015,30 @@ export type Institution$resourceSubmissionsArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.ResourceSubmissionScalarFieldEnum | Prisma.ResourceSubmissionScalarFieldEnum[]
+}
+
+/**
+ * Institution.resourceContributions
+ */
+export type Institution$resourceContributionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ResourceContribution
+   */
+  select?: Prisma.ResourceContributionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ResourceContribution
+   */
+  omit?: Prisma.ResourceContributionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ResourceContributionInclude<ExtArgs> | null
+  where?: Prisma.ResourceContributionWhereInput
+  orderBy?: Prisma.ResourceContributionOrderByWithRelationInput | Prisma.ResourceContributionOrderByWithRelationInput[]
+  cursor?: Prisma.ResourceContributionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ResourceContributionScalarFieldEnum | Prisma.ResourceContributionScalarFieldEnum[]
 }
 
 /**

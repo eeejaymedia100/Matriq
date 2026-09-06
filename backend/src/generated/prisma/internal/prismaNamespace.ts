@@ -439,7 +439,9 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   ActivityJournalEntry: 'ActivityJournalEntry',
   MasteryCheckpointPass: 'MasteryCheckpointPass',
-  ResourceSubmission: 'ResourceSubmission'
+  ResourceSubmission: 'ResourceSubmission',
+  ResourceContribution: 'ResourceContribution',
+  ResourceReward: 'ResourceReward'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -455,7 +457,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass" | "resourceSubmission"
+    modelProps: "institution" | "faculty" | "department" | "user" | "association" | "associationExecutive" | "membership" | "verificationRequest" | "fee" | "payment" | "receipt" | "announcement" | "announcementRead" | "banner" | "event" | "eventRsvp" | "eventAttendance" | "referral" | "adminAccount" | "auditLog" | "aiDocument" | "aiQueryLog" | "vaultItem" | "librarySave" | "libraryView" | "libraryReport" | "notification" | "pushDevice" | "timetableUpdate" | "legalAcceptance" | "waitlistEntry" | "magicPlusEntitlement" | "focusModeSession" | "focusClarification" | "achievementUnlock" | "focusModeUsage" | "deepReadJob" | "deepReadPage" | "refreshTokenFamily" | "refreshToken" | "activityJournalEntry" | "masteryCheckpointPass" | "resourceSubmission" | "resourceContribution" | "resourceReward"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3641,6 +3643,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ResourceContribution: {
+      payload: Prisma.$ResourceContributionPayload<ExtArgs>
+      fields: Prisma.ResourceContributionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResourceContributionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResourceContributionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        findFirst: {
+          args: Prisma.ResourceContributionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResourceContributionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        findMany: {
+          args: Prisma.ResourceContributionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>[]
+        }
+        create: {
+          args: Prisma.ResourceContributionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        createMany: {
+          args: Prisma.ResourceContributionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResourceContributionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>[]
+        }
+        delete: {
+          args: Prisma.ResourceContributionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        update: {
+          args: Prisma.ResourceContributionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResourceContributionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResourceContributionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResourceContributionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResourceContributionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceContributionPayload>
+        }
+        aggregate: {
+          args: Prisma.ResourceContributionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResourceContribution>
+        }
+        groupBy: {
+          args: Prisma.ResourceContributionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceContributionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResourceContributionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceContributionCountAggregateOutputType> | number
+        }
+      }
+    }
+    ResourceReward: {
+      payload: Prisma.$ResourceRewardPayload<ExtArgs>
+      fields: Prisma.ResourceRewardFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ResourceRewardFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ResourceRewardFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        findFirst: {
+          args: Prisma.ResourceRewardFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ResourceRewardFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        findMany: {
+          args: Prisma.ResourceRewardFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>[]
+        }
+        create: {
+          args: Prisma.ResourceRewardCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        createMany: {
+          args: Prisma.ResourceRewardCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ResourceRewardCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>[]
+        }
+        delete: {
+          args: Prisma.ResourceRewardDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        update: {
+          args: Prisma.ResourceRewardUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        deleteMany: {
+          args: Prisma.ResourceRewardDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ResourceRewardUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ResourceRewardUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>[]
+        }
+        upsert: {
+          args: Prisma.ResourceRewardUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ResourceRewardPayload>
+        }
+        aggregate: {
+          args: Prisma.ResourceRewardAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateResourceReward>
+        }
+        groupBy: {
+          args: Prisma.ResourceRewardGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceRewardGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ResourceRewardCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ResourceRewardCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -4332,6 +4482,15 @@ export const ResourceSubmissionScalarFieldEnum = {
   aiConfidence: 'aiConfidence',
   aiSummary: 'aiSummary',
   aiAuditedAt: 'aiAuditedAt',
+  aiProvider: 'aiProvider',
+  aiModel: 'aiModel',
+  riskLevel: 'riskLevel',
+  aiAuditReport: 'aiAuditReport',
+  validationResults: 'validationResults',
+  qualityMetrics: 'qualityMetrics',
+  textFingerprint: 'textFingerprint',
+  duplicateOfId: 'duplicateOfId',
+  duplicateSimilarity: 'duplicateSimilarity',
   humanDecision: 'humanDecision',
   decisionReason: 'decisionReason',
   reviewerId: 'reviewerId',
@@ -4343,11 +4502,48 @@ export const ResourceSubmissionScalarFieldEnum = {
   attemptCount: 'attemptCount',
   failureReason: 'failureReason',
   lastStageError: 'lastStageError',
+  reviewerNotes: 'reviewerNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
+
+
+export const ResourceContributionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  submissionId: 'submissionId',
+  campaignId: 'campaignId',
+  points: 'points',
+  courseCode: 'courseCode',
+  materialType: 'materialType',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  institutionId: 'institutionId'
+} as const
+
+export type ResourceContributionScalarFieldEnum = (typeof ResourceContributionScalarFieldEnum)[keyof typeof ResourceContributionScalarFieldEnum]
+
+
+export const ResourceRewardScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  campaignId: 'campaignId',
+  tierId: 'tierId',
+  state: 'state',
+  pointsAtEarn: 'pointsAtEarn',
+  payoutRef: 'payoutRef',
+  payoutMethod: 'payoutMethod',
+  paidAt: 'paidAt',
+  paidByAdmin: 'paidByAdmin',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  contributionId: 'contributionId'
+} as const
+
+export type ResourceRewardScalarFieldEnum = (typeof ResourceRewardScalarFieldEnum)[keyof typeof ResourceRewardScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -4734,6 +4930,20 @@ export type ListEnumResourceAuditStatusFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'ResourceRiskLevel'
+ */
+export type EnumResourceRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRiskLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceRiskLevel[]'
+ */
+export type ListEnumResourceRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRiskLevel[]'>
+    
+
+
+/**
  * Reference to a field of type 'ResourceRewardStatus'
  */
 export type EnumResourceRewardStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRewardStatus'>
@@ -4758,6 +4968,20 @@ export type EnumResourceLibraryStatusFieldRefInput<$PrismaModel> = FieldRefInput
  * Reference to a field of type 'ResourceLibraryStatus[]'
  */
 export type ListEnumResourceLibraryStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceLibraryStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceRewardState'
+ */
+export type EnumResourceRewardStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRewardState'>
+    
+
+
+/**
+ * Reference to a field of type 'ResourceRewardState[]'
+ */
+export type ListEnumResourceRewardStateFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ResourceRewardState[]'>
     
 
 /**
@@ -4954,6 +5178,8 @@ export type GlobalOmitConfig = {
   activityJournalEntry?: Prisma.ActivityJournalEntryOmit
   masteryCheckpointPass?: Prisma.MasteryCheckpointPassOmit
   resourceSubmission?: Prisma.ResourceSubmissionOmit
+  resourceContribution?: Prisma.ResourceContributionOmit
+  resourceReward?: Prisma.ResourceRewardOmit
 }
 
 /* Types for Logging */

@@ -148,6 +148,25 @@ enum ResourceLibraryStatus {
   failed
 }
 
+// AI-assigned risk classification (advisory): green = apparently normal,
+// yellow = uncertain, red = high risk. NEVER publish-promoting — in V1 every
+// submission reaches a human regardless of risk.
+enum ResourceRiskLevel {
+  green
+  yellow
+  red
+}
+
+// Lifecycle of a reward on an approved, qualifying contribution.
+enum ResourceRewardState {
+  pending
+  eligible
+  processing
+  paid
+  rejected
+  disputed
+}
+
 // Where the submission came from. Telegram is a FUTURE channel — the engine
 // itself never talks to Telegram; a bot adapter will call the same API.
 enum SubmissionSource {
@@ -181,11 +200,12 @@ model Institution {
   state     String? // e.g. "Lagos", "Oyo"
   createdAt DateTime        @default(now()) @map("created_at")
 
-  faculties           Faculty[]
-  users               User[]
-  associations        Association[]
-  vaultItems          VaultItem[]
-  resourceSubmissions ResourceSubmission[]
+  faculties             Faculty[]
+  users                 User[]
+  associations          Association[]
+  vaultItems            VaultItem[]
+  resourceSubmissions   ResourceSubmission[]
+  resourceContributions ResourceContribution[]
 
   @@map("institutions")
 }
@@ -264,35 +284,37 @@ model User {
   deletionScheduledAt          DateTime?        @map("deletion_scheduled_at")
 
   // Relations
-  memberships          Membership[]
-  payments             Payment[]
-  referralsGiven       Referral[]              @relation("Referrer")
-  referralsReceived    Referral[]              @relation("ReferredUser")
-  announcementReads    AnnouncementRead[]
-  eventRsvps           EventRsvp[]
-  executiveRoles       AssociationExecutive[]
-  verificationRequests VerificationRequest[]
-  aiQueryLogs          AiQueryLog[]
-  aiDocumentsSubmitted AiDocument[]            @relation("Submitter")
-  legalAcceptances     LegalAcceptance[]
-  refreshTokenFamilies RefreshTokenFamily[]
-  eventAttendance      EventAttendance[]
-  vaultItems           VaultItem[]
-  notifications        Notification[]
-  pushDevices          PushDevice[]
-  institution          Institution?            @relation(fields: [institutionId], references: [id])
-  entitlements         MagicPlusEntitlement?
-  focusSessions        FocusModeSession[]
-  focusUsage           FocusModeUsage[]
-  focusClarifications  FocusClarification[]
-  librarySaves         LibrarySave[]
-  libraryViews         LibraryView[]
-  libraryReports       LibraryReport[]
-  achievementUnlocks   AchievementUnlock[]
-  deepReadJobs         DeepReadJob[]
-  activityJournal      ActivityJournalEntry[]
-  masteryPasses        MasteryCheckpointPass[]
-  resourceSubmissions  ResourceSubmission[]
+  memberships           Membership[]
+  payments              Payment[]
+  referralsGiven        Referral[]              @relation("Referrer")
+  referralsReceived     Referral[]              @relation("ReferredUser")
+  announcementReads     AnnouncementRead[]
+  eventRsvps            EventRsvp[]
+  executiveRoles        AssociationExecutive[]
+  verificationRequests  VerificationRequest[]
+  aiQueryLogs           AiQueryLog[]
+  aiDocumentsSubmitted  AiDocument[]            @relation("Submitter")
+  legalAcceptances      LegalAcceptance[]
+  refreshTokenFamilies  RefreshTokenFamily[]
+  eventAttendance       EventAttendance[]
+  vaultItems            VaultItem[]
+  notifications         Notification[]
+  pushDevices           PushDevice[]
+  institution           Institution?            @relation(fields: [institutionId], references: [id])
+  entitlements          MagicPlusEntitlement?
+  focusSessions         FocusModeSession[]
+  focusUsage            FocusModeUsage[]
+  focusClarifications   FocusClarification[]
+  librarySaves          LibrarySave[]
+  libraryViews          LibraryView[]
+  libraryReports        LibraryReport[]
+  achievementUnlocks    AchievementUnlock[]
+  deepReadJobs          DeepReadJob[]
+  activityJournal       ActivityJournalEntry[]
+  masteryPasses         MasteryCheckpointPass[]
+  resourceSubmissions   ResourceSubmission[]
+  resourceContributions ResourceContribution[]
+  resourceRewards       ResourceReward[]
 
   @@map("users")
 }
@@ -403,6 +425,7 @@ model Fee {
 
   @@map("fees")
 }
+
 model Payment {
   id                String        @id @default(uuid()) @db.Uuid
   // Nullable to support account hard-delete: payments are kept for financial
@@ -1194,12 +1217,30 @@ model ResourceSubmission {
   // ── Pipeline state ──
   auditStatus          ResourceAuditStatus   @default(received) @map("audit_status")
   // Extracted plain text (PDFs for now; OCR output later) — audit input.
-  extractedText        String?               @map("extracted_text")
-  // ── AI (advisory, never authoritative) ──
-  aiRecommendation     String?               @map("ai_recommendation") // approve | reject | needs_review | duplicate
+  extractedText        String?               @map("extracted_text") // ── AI (advisory, never authoritative) ──
+  aiRecommendation     String?               @map("ai_recommendation") // approve | reject | review
   aiConfidence         Int?                  @map("ai_confidence") // 0-100
   aiSummary            String?               @map("ai_summary")
   aiAuditedAt          DateTime?             @map("ai_audited_at")
+  // Which provider/model produced the recommendation — required for later
+  // accuracy measurement (agreement rate per model).
+  aiProvider           String?               @map("ai_provider")
+  aiModel              String?               @map("ai_model")
+  // GREEN / YELLOW / RED advisory risk classification.
+  riskLevel            ResourceRiskLevel?    @map("risk_level")
+  // Full structured audit report from the AI auditor (scores, detected
+  // metadata, contradictions, reasons) — kept for reviewer + metrics.
+  aiAuditReport        Json?                 @map("ai_audit_report")
+  // ── Part 2: validation + quality + duplicates (deterministic layer) ──
+  // Full validation results (format ok, encrypted, page issues, quality
+  // metrics, junk verdict) — visible to the AI auditor and human reviewer.
+  validationResults    Json?                 @map("validation_results")
+  // Document quality pre-analysis (blank ratio, text density, padding…).
+  qualityMetrics       Json?                 @map("quality_metrics")
+  // Near-duplicate text fingerprint (token shingles hash) + similarity hits.
+  textFingerprint      String?               @map("text_fingerprint")
+  duplicateOfId        String?               @map("duplicate_of_id") @db.Uuid
+  duplicateSimilarity  Int?                  @map("duplicate_similarity") // 0-100
   // ── Human decision (authoritative) ──
   humanDecision        String?               @map("human_decision") // approved | rejected | needs_information
   decisionReason       String?               @map("decision_reason")
@@ -1214,6 +1255,9 @@ model ResourceSubmission {
   attemptCount         Int                   @default(0) @map("attempt_count")
   failureReason        String?               @map("failure_reason")
   lastStageError       String?               @map("last_stage_error")
+  // Reviewer notes (Part 4): private reviewer context, distinct from the
+  // student-facing decisionReason.
+  reviewerNotes        String?               @map("reviewer_notes")
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
 
@@ -1224,6 +1268,63 @@ model ResourceSubmission {
   @@index([studentId, createdAt])
   @@index([auditStatus])
   @@index([fileHash])
+  @@index([textFingerprint])
+  @@index([riskLevel])
   @@index([institutionId, courseCode])
   @@map("resource_submissions")
+}
+
+// ── Reward engine (Part 5) ──────────────────────────────────────────
+// One row per APPROVED, QUALIFYING resource. Duplicates, junk, rejected and
+// unapproved documents never create contributions — the leaderboard counts
+// approved academic value, not upload volume.
+model ResourceContribution {
+  id           String   @id @default(uuid()) @db.Uuid
+  studentId    String   @map("student_id") @db.Uuid
+  submissionId String   @unique @map("submission_id") @db.Uuid // one contribution per submission
+  campaignId   String   @map("campaign_id")
+  points       Int
+  // Snapshot of the submission facts at qualification time (display + audit).
+  courseCode   String   @map("course_code")
+  materialType String   @map("material_type")
+  reason       String?  @map("reason") // why it qualified (or not)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  student       User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  rewards       ResourceReward[]
+  institution   Institution?     @relation(fields: [institutionId], references: [id])
+  institutionId String?          @db.Uuid
+
+  @@index([campaignId, studentId])
+  @@index([studentId, createdAt])
+  @@map("resource_contributions")
+}
+
+// A student's claimable/awarded reward within a campaign. One row per
+// (student, campaign, tier) — the unique constraint makes double-claiming
+// impossible at the database level.
+model ResourceReward {
+  id           String              @id @default(uuid()) @db.Uuid
+  studentId    String              @map("student_id") @db.Uuid
+  campaignId   String              @map("campaign_id")
+  tierId       String              @map("tier_id")
+  state        ResourceRewardState @default(pending)
+  pointsAtEarn Int                 @map("points_at_earn")
+  // Manual processing (V1): airtime top-up or bank transfer reference.
+  payoutRef    String?             @map("payout_ref")
+  payoutMethod String?             @map("payout_method") // airtime | bank_transfer
+  paidAt       DateTime?           @map("paid_at")
+  paidByAdmin  String?             @map("paid_by_admin") @db.Uuid
+  note         String?
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  student        User                 @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  contribution   ResourceContribution @relation(fields: [contributionId], references: [id], onDelete: Cascade)
+  contributionId String               @map("contribution_id") @db.Uuid
+
+  @@unique([studentId, campaignId, tierId])
+  @@index([campaignId, state])
+  @@index([studentId])
+  @@map("resource_rewards")
 }

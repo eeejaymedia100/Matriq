@@ -457,3 +457,125 @@ export async function reorderBanners(
     body: JSON.stringify({ items }),
   });
 }
+
+// ── Resource Audit Engine (review console) ─────────────────────────
+
+export async function listResourceQueue(
+  token: string,
+  filters: { status?: string; risk?: string; aiRecommendation?: string; courseCode?: string; materialType?: string } = {},
+) {
+  const qs = new URLSearchParams();
+  if (filters.status) qs.set("status", filters.status);
+  if (filters.risk) qs.set("risk", filters.risk);
+  if (filters.aiRecommendation) qs.set("aiRecommendation", filters.aiRecommendation);
+  if (filters.courseCode) qs.set("courseCode", filters.courseCode);
+  if (filters.materialType) qs.set("materialType", filters.materialType);
+  const query = qs.toString();
+  return fetchApi<{ items: import("@/types/api").ResourceQueueItem[] }>(
+    `/resource-audit/admin/review-queue${query ? `?${query}` : ""}`,
+    { token },
+  );
+}
+
+export async function getResourceReviewDetail(token: string, id: string) {
+  return fetchApi<import("@/types/api").ResourceReviewDetail>(
+    `/resource-audit/admin/submissions/${id}/review`,
+    { token },
+  );
+}
+
+export async function decideResourceSubmission(
+  token: string,
+  id: string,
+  decision: "approved" | "rejected" | "needs_information",
+  reason: string,
+) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/submissions/${id}/decide`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ decision, reason }),
+  });
+}
+
+export async function reopenResourceSubmission(token: string, id: string, note: string) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/submissions/${id}/reopen`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function setResourceReviewerNotes(token: string, id: string, notes: string) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/submissions/${id}/notes`, {
+    method: "PATCH",
+    token,
+    body: JSON.stringify({ notes }),
+  });
+}
+
+export async function retryResourceSubmission(token: string, id: string) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/submissions/${id}/retry`, {
+    method: "POST",
+    token,
+  });
+}
+
+export async function fetchResourceFile(token: string, id: string) {
+  const res = await fetch(`${API_BASE}/resource-audit/admin/submissions/${id}/file`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`Failed to fetch file (${res.status})`);
+  const disposition = res.headers.get("Content-Disposition") ?? "";
+  const match = disposition.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/);
+  return {
+    blob: await res.blob(),
+    mimeType: res.headers.get("Content-Type") ?? "application/octet-stream",
+    fileName: decodeURIComponent(match?.[1] ?? match?.[2] ?? "file"),
+  };
+}
+
+export async function getResourceMetrics(token: string) {
+  return fetchApi<import("@/types/api").ResourceMetrics>("/resource-audit/admin/metrics", { token });
+}
+
+export async function listResourceRewards(token: string, state?: string) {
+  const qs = state ? `?state=${state}` : "";
+  return fetchApi<{ items: import("@/types/api").ResourceRewardRow[] }>(
+    `/resource-audit/admin/rewards${qs}`,
+    { token },
+  );
+}
+
+export async function markResourceRewardPaid(
+  token: string,
+  id: string,
+  payoutMethod: "airtime" | "bank_transfer",
+  payoutRef: string,
+) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/rewards/${id}/paid`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ payoutMethod, payoutRef }),
+  });
+}
+
+export async function disputeResourceReward(token: string, id: string, note: string) {
+  return fetchApi<{ message: string }>(`/resource-audit/admin/rewards/${id}/dispute`, {
+    method: "POST",
+    token,
+    body: JSON.stringify({ note }),
+  });
+}
+
+export async function getResourceLeaderboard(token: string, limit = 20) {
+  return fetchApi<{ items: import("@/types/api").ResourceLeaderboardRow[] }>(
+    `/resource-audit/admin/leaderboard?limit=${limit}`,
+    { token },
+  );
+}
+
+export async function getResourceCampaign(token: string) {
+  return fetchApi<import("@/types/api").ResourceCampaignConfig>("/resource-audit/admin/campaign", {
+    token,
+  });
+}

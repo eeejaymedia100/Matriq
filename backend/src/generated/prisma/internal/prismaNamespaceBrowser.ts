@@ -93,7 +93,9 @@ export const ModelName = {
   RefreshToken: 'RefreshToken',
   ActivityJournalEntry: 'ActivityJournalEntry',
   MasteryCheckpointPass: 'MasteryCheckpointPass',
-  ResourceSubmission: 'ResourceSubmission'
+  ResourceSubmission: 'ResourceSubmission',
+  ResourceContribution: 'ResourceContribution',
+  ResourceReward: 'ResourceReward'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -764,6 +766,15 @@ export const ResourceSubmissionScalarFieldEnum = {
   aiConfidence: 'aiConfidence',
   aiSummary: 'aiSummary',
   aiAuditedAt: 'aiAuditedAt',
+  aiProvider: 'aiProvider',
+  aiModel: 'aiModel',
+  riskLevel: 'riskLevel',
+  aiAuditReport: 'aiAuditReport',
+  validationResults: 'validationResults',
+  qualityMetrics: 'qualityMetrics',
+  textFingerprint: 'textFingerprint',
+  duplicateOfId: 'duplicateOfId',
+  duplicateSimilarity: 'duplicateSimilarity',
   humanDecision: 'humanDecision',
   decisionReason: 'decisionReason',
   reviewerId: 'reviewerId',
@@ -775,11 +786,48 @@ export const ResourceSubmissionScalarFieldEnum = {
   attemptCount: 'attemptCount',
   failureReason: 'failureReason',
   lastStageError: 'lastStageError',
+  reviewerNotes: 'reviewerNotes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ResourceSubmissionScalarFieldEnum = (typeof ResourceSubmissionScalarFieldEnum)[keyof typeof ResourceSubmissionScalarFieldEnum]
+
+
+export const ResourceContributionScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  submissionId: 'submissionId',
+  campaignId: 'campaignId',
+  points: 'points',
+  courseCode: 'courseCode',
+  materialType: 'materialType',
+  reason: 'reason',
+  createdAt: 'createdAt',
+  institutionId: 'institutionId'
+} as const
+
+export type ResourceContributionScalarFieldEnum = (typeof ResourceContributionScalarFieldEnum)[keyof typeof ResourceContributionScalarFieldEnum]
+
+
+export const ResourceRewardScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  campaignId: 'campaignId',
+  tierId: 'tierId',
+  state: 'state',
+  pointsAtEarn: 'pointsAtEarn',
+  payoutRef: 'payoutRef',
+  payoutMethod: 'payoutMethod',
+  paidAt: 'paidAt',
+  paidByAdmin: 'paidByAdmin',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  contributionId: 'contributionId'
+} as const
+
+export type ResourceRewardScalarFieldEnum = (typeof ResourceRewardScalarFieldEnum)[keyof typeof ResourceRewardScalarFieldEnum]
 
 
 export const SortOrder = {

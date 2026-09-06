@@ -7,6 +7,7 @@ import { ToolsService } from "../tools/tools.service";
 import { ConfigService } from "@nestjs/config";
 import { PrismaService } from "../prisma/prisma.service";
 import { AUDIT_SCORER, RuleBasedScorer } from "./resource-audit.scorer";
+import { ResourceRewardService } from "./resource-audit.rewards";
 import {
   AUDIT_STATUS,
   canTransition,
@@ -121,6 +122,25 @@ function makePrisma(initial?: ReturnType<typeof baseRow>) {
         Promise.resolve({ id: "vault-1", ...data }),
       ),
     },
+    resourceContribution: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      findFirst: jest.fn().mockResolvedValue(null),
+      create: jest.fn(({ data }: { data: Record<string, unknown> }) =>
+        Promise.resolve({ id: "contrib-1", ...data }),
+      ),
+      aggregate: jest.fn().mockResolvedValue({ _sum: { points: 1 } }),
+      groupBy: jest.fn().mockResolvedValue([]),
+    },
+    resourceReward: {
+      findUnique: jest.fn().mockResolvedValue(null),
+      findMany: jest.fn().mockResolvedValue([]),
+      create: jest.fn(({ data }: { data: Record<string, unknown> }) =>
+        Promise.resolve({ id: "reward-1", ...data }),
+      ),
+      update: jest.fn(({ data }: { data: Record<string, unknown> }) =>
+        Promise.resolve({ id: "reward-1", ...data }),
+      ),
+    },
   };
 }
 
@@ -146,6 +166,7 @@ function build(prismaMock: ReturnType<typeof makePrisma>, scorer = new RuleBased
   return Test.createTestingModule({
     providers: [
       ResourceAuditService,
+      ResourceRewardService,
       { provide: PrismaService, useValue: prismaMock },
       { provide: ResourceAuditStorage, useValue: storage },
       { provide: ToolsService, useValue: tools },
