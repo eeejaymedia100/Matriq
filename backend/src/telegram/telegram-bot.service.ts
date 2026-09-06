@@ -245,6 +245,8 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       else if (text.startsWith("/upload")) await this.beginUpload(telegramId, chatId);
       else if (text.startsWith("/status")) await this.onStatus(telegramId, chatId);
       else if (text.startsWith("/leaderboard")) await this.onLeaderboard(chatId);
+      // Announce to the community — admins only, targets the community chat.
+      else if (text.startsWith("/announce")) await this.onAnnounce(chatId, telegramId);
       else if (text.startsWith("/community")) await this.api.sendMessage(chatId, `The Matriq community lives here: ${this.config.communityUrl || "ask an admin for the invite link"}`);
       else if (text.startsWith("/cancel")) {
         await this.clearConversation(telegramId);
@@ -273,6 +275,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         "/upload — contribute a resource (+1 point when approved)",
         "/status — your submissions",
         "/leaderboard — campaign rankings",
+        "/announce — post the leaderboard to the community (admins)",
         "/community — the Matriq Telegram community",
         "/cancel — leave the current flow",
         "",
@@ -622,6 +625,50 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       return `${icon} ${name} — <b>${r.points}</b> pts (${r.approvedCount} approved)`;
     });
     await this.api!.sendMessage(chatId, ["<b>Resource Hunt — Leaderboard</b>", "", ...lines].join("\n"));
+  }
+
+  /**
+   * Post the leaderboard to the community itself. The numeric community id
+   * must be configured; without it there is nowhere to post. Text is free
+   * because this is an admin broadcast, not a participant flow — participants
+   * never reach this command (it no-ops for them, silently).
+   */
+  private async onAnnounce(fromChatId: number, fromId: number): Promise<void> {
+    if (!this.config.isTelegramAdmin(String(fromId))) return;
+    const communityId = this.config.communityId;
+    if (!communityId) {
+      await this.api!.sendMessage(
+        fromChatId,
+        "No community is configured (TELEGRAM_COMMUNITY_ID). Wire the gate first — then /announce has somewhere to post.",
+      );
+      return;
+    }
+    const rows = await this.campaign.leaderboard(10);
+    const header = "<b>Resource Hunt — Leaderboard</b>";
+    if (rows.length === 0) {
+      await this.api!.sendMessage(communityId, [
+        header,
+        "",
+        "The hunt is on — the leaderboard is waiting for its first entry.",
+        "Join, verify, then /upload a past question or note to claim the top spot.",
+        `New here? Start at ${this.config.communityUrl}`,
+      ].join("\n"));
+    } else {
+      const medals = ["🥇", "🥈", "🥉"];
+      const lines = rows.map((r, i) => {
+        const icon = medals[i] ?? `${r.rank}.`;
+        const name = r.username ? `@${r.username}` : r.name;
+        return `${icon} ${name} — <b>${r.points}</b> pts (${r.approvedCount} approved)`;
+      });
+      await this.api!.sendMessage(communityId, [
+        header,
+        "",
+        ...lines,
+        "",
+        `Every approved resource earns points. /upload to climb.`,
+      ].join("\n"));
+    }
+    await this.api!.sendMessage(fromChatId, "Posted to the community.");
   }
 
   // ── Callbacks ────────────────────────────────────────────────────
