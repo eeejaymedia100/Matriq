@@ -804,6 +804,8 @@ export const TelegramParticipantScalarFieldEnum = {
   firstName: 'firstName',
   verifiedAt: 'verifiedAt',
   university: 'university',
+  faculty: 'faculty',
+  department: 'department',
   points: 'points',
   approvedCount: 'approvedCount',
   linkedUserId: 'linkedUserId',

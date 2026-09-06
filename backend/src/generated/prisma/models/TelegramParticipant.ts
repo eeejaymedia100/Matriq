@@ -43,6 +43,8 @@ export type TelegramParticipantMinAggregateOutputType = {
   firstName: string | null
   verifiedAt: Date | null
   university: string | null
+  faculty: string | null
+  department: string | null
   points: number | null
   approvedCount: number | null
   linkedUserId: string | null
@@ -57,6 +59,8 @@ export type TelegramParticipantMaxAggregateOutputType = {
   firstName: string | null
   verifiedAt: Date | null
   university: string | null
+  faculty: string | null
+  department: string | null
   points: number | null
   approvedCount: number | null
   linkedUserId: string | null
@@ -71,6 +75,8 @@ export type TelegramParticipantCountAggregateOutputType = {
   firstName: number
   verifiedAt: number
   university: number
+  faculty: number
+  department: number
   points: number
   approvedCount: number
   linkedUserId: number
@@ -97,6 +103,8 @@ export type TelegramParticipantMinAggregateInputType = {
   firstName?: true
   verifiedAt?: true
   university?: true
+  faculty?: true
+  department?: true
   points?: true
   approvedCount?: true
   linkedUserId?: true
@@ -111,6 +119,8 @@ export type TelegramParticipantMaxAggregateInputType = {
   firstName?: true
   verifiedAt?: true
   university?: true
+  faculty?: true
+  department?: true
   points?: true
   approvedCount?: true
   linkedUserId?: true
@@ -125,6 +135,8 @@ export type TelegramParticipantCountAggregateInputType = {
   firstName?: true
   verifiedAt?: true
   university?: true
+  faculty?: true
+  department?: true
   points?: true
   approvedCount?: true
   linkedUserId?: true
@@ -226,6 +238,8 @@ export type TelegramParticipantGroupByOutputType = {
   firstName: string | null
   verifiedAt: Date | null
   university: string | null
+  faculty: string | null
+  department: string | null
   points: number
   approvedCount: number
   linkedUserId: string | null
@@ -263,6 +277,8 @@ export type TelegramParticipantWhereInput = {
   firstName?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"TelegramParticipant"> | Date | string | null
   university?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  faculty?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  department?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   points?: Prisma.IntFilter<"TelegramParticipant"> | number
   approvedCount?: Prisma.IntFilter<"TelegramParticipant"> | number
   linkedUserId?: Prisma.UuidNullableFilter<"TelegramParticipant"> | string | null
@@ -280,6 +296,8 @@ export type TelegramParticipantOrderByWithRelationInput = {
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   university?: Prisma.SortOrderInput | Prisma.SortOrder
+  faculty?: Prisma.SortOrderInput | Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
   points?: Prisma.SortOrder
   approvedCount?: Prisma.SortOrder
   linkedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -301,6 +319,8 @@ export type TelegramParticipantWhereUniqueInput = Prisma.AtLeast<{
   firstName?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"TelegramParticipant"> | Date | string | null
   university?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  faculty?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  department?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   points?: Prisma.IntFilter<"TelegramParticipant"> | number
   approvedCount?: Prisma.IntFilter<"TelegramParticipant"> | number
   createdAt?: Prisma.DateTimeFilter<"TelegramParticipant"> | Date | string
@@ -317,6 +337,8 @@ export type TelegramParticipantOrderByWithAggregationInput = {
   firstName?: Prisma.SortOrderInput | Prisma.SortOrder
   verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   university?: Prisma.SortOrderInput | Prisma.SortOrder
+  faculty?: Prisma.SortOrderInput | Prisma.SortOrder
+  department?: Prisma.SortOrderInput | Prisma.SortOrder
   points?: Prisma.SortOrder
   approvedCount?: Prisma.SortOrder
   linkedUserId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -339,6 +361,8 @@ export type TelegramParticipantScalarWhereWithAggregatesInput = {
   firstName?: Prisma.StringNullableWithAggregatesFilter<"TelegramParticipant"> | string | null
   verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"TelegramParticipant"> | Date | string | null
   university?: Prisma.StringNullableWithAggregatesFilter<"TelegramParticipant"> | string | null
+  faculty?: Prisma.StringNullableWithAggregatesFilter<"TelegramParticipant"> | string | null
+  department?: Prisma.StringNullableWithAggregatesFilter<"TelegramParticipant"> | string | null
   points?: Prisma.IntWithAggregatesFilter<"TelegramParticipant"> | number
   approvedCount?: Prisma.IntWithAggregatesFilter<"TelegramParticipant"> | number
   linkedUserId?: Prisma.UuidNullableWithAggregatesFilter<"TelegramParticipant"> | string | null
@@ -353,6 +377,8 @@ export type TelegramParticipantCreateInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -369,6 +395,8 @@ export type TelegramParticipantUncheckedCreateInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   linkedUserId?: string | null
@@ -385,6 +413,8 @@ export type TelegramParticipantUpdateInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -401,6 +431,8 @@ export type TelegramParticipantUncheckedUpdateInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   linkedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -417,6 +449,8 @@ export type TelegramParticipantCreateManyInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   linkedUserId?: string | null
@@ -431,6 +465,8 @@ export type TelegramParticipantUpdateManyMutationInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -444,6 +480,8 @@ export type TelegramParticipantUncheckedUpdateManyInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   linkedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -473,6 +511,8 @@ export type TelegramParticipantCountOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   university?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   points?: Prisma.SortOrder
   approvedCount?: Prisma.SortOrder
   linkedUserId?: Prisma.SortOrder
@@ -492,6 +532,8 @@ export type TelegramParticipantMaxOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   university?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   points?: Prisma.SortOrder
   approvedCount?: Prisma.SortOrder
   linkedUserId?: Prisma.SortOrder
@@ -506,6 +548,8 @@ export type TelegramParticipantMinOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   verifiedAt?: Prisma.SortOrder
   university?: Prisma.SortOrder
+  faculty?: Prisma.SortOrder
+  department?: Prisma.SortOrder
   points?: Prisma.SortOrder
   approvedCount?: Prisma.SortOrder
   linkedUserId?: Prisma.SortOrder
@@ -599,6 +643,8 @@ export type TelegramParticipantCreateWithoutLinkedUserInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -614,6 +660,8 @@ export type TelegramParticipantUncheckedCreateWithoutLinkedUserInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -658,6 +706,8 @@ export type TelegramParticipantScalarWhereInput = {
   firstName?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   verifiedAt?: Prisma.DateTimeNullableFilter<"TelegramParticipant"> | Date | string | null
   university?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  faculty?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
+  department?: Prisma.StringNullableFilter<"TelegramParticipant"> | string | null
   points?: Prisma.IntFilter<"TelegramParticipant"> | number
   approvedCount?: Prisma.IntFilter<"TelegramParticipant"> | number
   linkedUserId?: Prisma.UuidNullableFilter<"TelegramParticipant"> | string | null
@@ -672,6 +722,8 @@ export type TelegramParticipantCreateWithoutSubmissionsInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -687,6 +739,8 @@ export type TelegramParticipantUncheckedCreateWithoutSubmissionsInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   linkedUserId?: string | null
@@ -718,6 +772,8 @@ export type TelegramParticipantUpdateWithoutSubmissionsInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -733,6 +789,8 @@ export type TelegramParticipantUncheckedUpdateWithoutSubmissionsInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   linkedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -748,6 +806,8 @@ export type TelegramParticipantCreateWithoutContributionsInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -763,6 +823,8 @@ export type TelegramParticipantUncheckedCreateWithoutContributionsInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   linkedUserId?: string | null
@@ -794,6 +856,8 @@ export type TelegramParticipantUpdateWithoutContributionsInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -809,6 +873,8 @@ export type TelegramParticipantUncheckedUpdateWithoutContributionsInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   linkedUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -824,6 +890,8 @@ export type TelegramParticipantCreateManyLinkedUserInput = {
   firstName?: string | null
   verifiedAt?: Date | string | null
   university?: string | null
+  faculty?: string | null
+  department?: string | null
   points?: number
   approvedCount?: number
   createdAt?: Date | string
@@ -837,6 +905,8 @@ export type TelegramParticipantUpdateWithoutLinkedUserInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -852,6 +922,8 @@ export type TelegramParticipantUncheckedUpdateWithoutLinkedUserInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -867,6 +939,8 @@ export type TelegramParticipantUncheckedUpdateManyWithoutLinkedUserInput = {
   firstName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   university?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  faculty?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  department?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   points?: Prisma.IntFieldUpdateOperationsInput | number
   approvedCount?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -920,6 +994,8 @@ export type TelegramParticipantSelect<ExtArgs extends runtime.Types.Extensions.I
   firstName?: boolean
   verifiedAt?: boolean
   university?: boolean
+  faculty?: boolean
+  department?: boolean
   points?: boolean
   approvedCount?: boolean
   linkedUserId?: boolean
@@ -938,6 +1014,8 @@ export type TelegramParticipantSelectCreateManyAndReturn<ExtArgs extends runtime
   firstName?: boolean
   verifiedAt?: boolean
   university?: boolean
+  faculty?: boolean
+  department?: boolean
   points?: boolean
   approvedCount?: boolean
   linkedUserId?: boolean
@@ -953,6 +1031,8 @@ export type TelegramParticipantSelectUpdateManyAndReturn<ExtArgs extends runtime
   firstName?: boolean
   verifiedAt?: boolean
   university?: boolean
+  faculty?: boolean
+  department?: boolean
   points?: boolean
   approvedCount?: boolean
   linkedUserId?: boolean
@@ -968,6 +1048,8 @@ export type TelegramParticipantSelectScalar = {
   firstName?: boolean
   verifiedAt?: boolean
   university?: boolean
+  faculty?: boolean
+  department?: boolean
   points?: boolean
   approvedCount?: boolean
   linkedUserId?: boolean
@@ -975,7 +1057,7 @@ export type TelegramParticipantSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TelegramParticipantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "username" | "firstName" | "verifiedAt" | "university" | "points" | "approvedCount" | "linkedUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["telegramParticipant"]>
+export type TelegramParticipantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "telegramId" | "username" | "firstName" | "verifiedAt" | "university" | "faculty" | "department" | "points" | "approvedCount" | "linkedUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["telegramParticipant"]>
 export type TelegramParticipantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   linkedUser?: boolean | Prisma.TelegramParticipant$linkedUserArgs<ExtArgs>
   submissions?: boolean | Prisma.TelegramParticipant$submissionsArgs<ExtArgs>
@@ -1003,6 +1085,8 @@ export type $TelegramParticipantPayload<ExtArgs extends runtime.Types.Extensions
     firstName: string | null
     verifiedAt: Date | null
     university: string | null
+    faculty: string | null
+    department: string | null
     points: number
     approvedCount: number
     linkedUserId: string | null
@@ -1440,6 +1524,8 @@ export interface TelegramParticipantFieldRefs {
   readonly firstName: Prisma.FieldRef<"TelegramParticipant", 'String'>
   readonly verifiedAt: Prisma.FieldRef<"TelegramParticipant", 'DateTime'>
   readonly university: Prisma.FieldRef<"TelegramParticipant", 'String'>
+  readonly faculty: Prisma.FieldRef<"TelegramParticipant", 'String'>
+  readonly department: Prisma.FieldRef<"TelegramParticipant", 'String'>
   readonly points: Prisma.FieldRef<"TelegramParticipant", 'Int'>
   readonly approvedCount: Prisma.FieldRef<"TelegramParticipant", 'Int'>
   readonly linkedUserId: Prisma.FieldRef<"TelegramParticipant", 'String'>

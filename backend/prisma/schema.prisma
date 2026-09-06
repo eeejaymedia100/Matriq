@@ -1293,6 +1293,8 @@ model TelegramParticipant {
   // Campaign state
   verifiedAt      DateTime? @map("verified_at") // set when community membership was confirmed
   university      String?
+  faculty         String?
+  department      String?
   // Points + leaderboard cache (updated transactionally on approval)
   points          Int       @default(0)
   approvedCount   Int       @default(0) @map("approved_count")

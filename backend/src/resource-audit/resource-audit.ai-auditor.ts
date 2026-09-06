@@ -243,6 +243,71 @@ export class DeepSeekAuditor implements ResourceAiAuditor {
   }
 }
 
+// ── Ollama adapter (self-hosted, no API key) ─────────────────────────
+
+/**
+ * The on-server AI auditor — Ollama's native /api/chat with `format: "json"
+ * so the model is constrained to a single JSON object. Runs on the same VM
+ * as the backend: no per-call cost, no data leaves the server. Used when
+ * OLLAMA_HOST is configured; the DeepSeek cloud adapter (if keyed) sits
+ * behind it as the escalation path, with the rule auditor last.
+ */
+export class OllamaAuditor implements ResourceAiAuditor {
+  readonly provider = "ollama";
+  readonly model: string;
+
+  constructor(
+    private readonly host: string,
+    model?: string,
+    private readonly timeoutMs = 180_000,
+  ) {
+    this.model = model || "llama3.2:3b";
+  }
+
+  static fromEnv(get: (key: string) => string | undefined): OllamaAuditor | null {
+    const host = get("OLLAMA_HOST");
+    if (!host) return null;
+    return new OllamaAuditor(host, get("RESOURCE_AUDIT_AI_MODEL"));
+  }
+
+  async audit(input: AuditorInput): Promise<StructuredAudit> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    try {
+      const res = await fetch(`${this.host.replace(/\/$/, "")}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: this.model,
+          stream: false,
+          format: "json",
+          options: { temperature: 0.1 },
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: buildUserPrompt(input) },
+          ],
+        }),
+      });
+      if (!res.ok) {
+        throw new Error(`ollama audit failed: HTTP ${res.status}`);
+      }
+      const body = (await res.json()) as { message?: { content?: string } };
+      const content = body.message?.content;
+      if (!content) throw new Error("ollama audit returned no content");
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        throw new Error("ollama audit returned non-JSON content");
+      }
+      return parseStructuredAudit(parsed, this.provider, this.model);
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+}
+
 // ── Rule-based fallback auditor ──────────────────────────────────────
 
 /**

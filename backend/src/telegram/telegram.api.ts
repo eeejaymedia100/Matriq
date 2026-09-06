@@ -163,6 +163,48 @@ export class TelegramApi {
     });
   }
 
+  /**
+   * Send a file to a chat — multipart upload of raw bytes. Used to hand the
+   * reviewer the actual document (not just a reference) when a submission
+   * reaches human review.
+   */
+  async sendDocument(
+    chatId: number | string,
+    file: { filename: string; buffer: Buffer; mimeType?: string },
+    caption?: string,
+    replyMarkup?: TgReplyMarkup,
+  ): Promise<TgMessage | null> {
+    try {
+      const form = new FormData();
+      form.append("chat_id", String(chatId));
+      if (caption) {
+        form.append("caption", caption.slice(0, 1000));
+        form.append("parse_mode", "HTML");
+      }
+      if (replyMarkup) form.append("reply_markup", JSON.stringify(replyMarkup));
+      form.append(
+        "document",
+        new Blob([new Uint8Array(file.buffer)], { type: file.mimeType ?? "application/octet-stream" }),
+        file.filename,
+      );
+      const res = await fetch(`${API_ROOT}/bot${this.botToken}/sendDocument`, {
+        method: "POST",
+        body: form,
+      });
+      const json = (await res.json()) as ApiResponse<TgMessage>;
+      if (!json.ok) {
+        throw new TelegramApiError(
+          `sendDocument failed: ${json.description ?? "unknown"} (${json.error_code ?? res.status})`,
+          json.error_code,
+        );
+      }
+      return json.result as TgMessage;
+    } catch (err) {
+      this.log(`telegram safe-call failed: sendDocument: ${String(err)}`);
+      return null;
+    }
+  }
+
   async answerCallbackQuery(id: string, text?: string): Promise<void> {
     await this.safe("answerCallbackQuery", {
       callback_query_id: id,

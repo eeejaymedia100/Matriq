@@ -45,8 +45,23 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   private static readonly UPLOAD_RATE_MAX = 5;
   private static readonly UPLOAD_RATE_WINDOW_SEC = 3600;
 
-  /** Common universities (buttons) — free text via "Other…" for the rest. */
-  private static readonly UNIVERSITIES = [
+  /** Delta State universities first — the campaign's home state. Buttons;
+   *  free text via "Other…" for anything not listed. */
+  private static readonly DELTA_UNIVERSITIES = [
+    "Federal University of Petroleum Resources, Effurun",
+    "Delta State University, Abraka",
+    "Delta State University of Science and Technology, Ozoro",
+    "Dennis Osadebay University, Asaba",
+    "University of Delta, Agbor",
+    "Nigerian Maritime University, Okerenkoko",
+    "Novena University, Ogume",
+    "Western Delta University, Oghara",
+    "Edwin Clark University, Kiagbodo",
+    "Admiralty University of Nigeria, Ibusa",
+  ];
+
+  /** The wider national list, one "More…" tap away. */
+  private static readonly MORE_UNIVERSITIES = [
     "University of Benin",
     "University of Lagos",
     "University of Ibadan",
@@ -55,6 +70,21 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     "Obafemi Awolowo University",
     "University of Nigeria, Nsukka",
     "Covenant University",
+  ];
+
+  /** Common faculties (buttons) — "Other…" for the rest. */
+  private static readonly FACULTIES = [
+    "Agriculture",
+    "Arts",
+    "Education",
+    "Engineering",
+    "Environmental Studies",
+    "Law",
+    "Management Sciences",
+    "Medical Sciences",
+    "Pharmacy",
+    "Science",
+    "Social Sciences",
   ];
 
   private static readonly MATERIAL_TYPES: Array<{ label: string; value: string }> = [
@@ -68,6 +98,86 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   private static readonly LEVELS = ["100", "200", "300", "400", "500"];
 
   private static readonly SESSIONS = ["2023/2024", "2024/2025", "2025/2026"];
+
+  /** Common departments per faculty — the wizard's button options. Free
+   *  text via "Other…" keeps this list from ever blocking anyone. */
+  private static readonly DEPARTMENTS_BY_FACULTY: Record<string, string[]> = {
+    Agriculture: [
+      "Agricultural Economics",
+      "Agricultural Extension",
+      "Agronomy",
+      "Animal Science",
+      "Fisheries",
+      "Forestry and Wildlife",
+      "Soil Science",
+    ],
+    Arts: [
+      "English and Literary Studies",
+      "History",
+      "Linguistics",
+      "Philosophy",
+      "Religious Studies",
+      "Theatre Arts",
+    ],
+    Education: [
+      "Arts Education",
+      "Science Education",
+      "Educational Foundations",
+      "Guidance and Counselling",
+      "Physical and Health Education",
+      "Vocational Education",
+    ],
+    Engineering: [
+      "Chemical Engineering",
+      "Civil Engineering",
+      "Electrical Engineering",
+      "Mechanical Engineering",
+      "Petroleum Engineering",
+      "Computer Engineering",
+    ],
+    "Environmental Studies": [
+      "Architecture",
+      "Building",
+      "Estate Management",
+      "Quantity Surveying",
+      "Urban and Regional Planning",
+    ],
+    Law: ["Law"],
+    "Management Sciences": [
+      "Accounting",
+      "Banking and Finance",
+      "Business Administration",
+      "Marketing",
+      "Public Administration",
+    ],
+    "Medical Sciences": [
+      "Anatomy",
+      "Medicine and Surgery",
+      "Nursing Science",
+      "Physiology",
+      "Radiography",
+    ],
+    Pharmacy: ["Pharmacy"],
+    Science: [
+      "Biochemistry",
+      "Biology",
+      "Chemistry",
+      "Computer Science",
+      "Geology",
+      "Mathematics",
+      "Microbiology",
+      "Physics",
+      "Statistics",
+    ],
+    "Social Sciences": [
+      "Economics",
+      "Geography",
+      "Mass Communication",
+      "Political Science",
+      "Psychology",
+      "Sociology",
+    ],
+  };
 
   constructor(
     private readonly config: TelegramConfig,
@@ -94,6 +204,55 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     // approved (runtime property — avoids a circular module dependency).
     this.audit.notifyParticipant = (participantId, courseCode, points) =>
       this.notifyParticipantApproval(participantId, courseCode, points);
+    // And hand the reviewer the actual document + AI verdict when a
+    // submission reaches human review — review the file, not a reference.
+    this.audit.notifyReviewReady = async (payload) => {
+      for (const adminId of this.config.adminIds) {
+        const riskIcon = payload.riskLevel === "red" ? "🔴" : payload.riskLevel === "yellow" ? "🟡" : "🟢";
+        const caption = [
+          `<b>Resource Hunt — needs your review</b> ${riskIcon}`,
+          "",
+          `File: ${payload.fileName}`,
+          `Course: ${payload.courseCode}`,
+          payload.universityName ? `University: ${payload.universityName}` : null,
+          `AI (${payload.aiRecommendation}, ${payload.aiConfidence ?? "?"}% confident):`,
+          payload.aiSummary ?? "no summary",
+          payload.duplicateOfId ? `⚠️ Possible duplicate of <code>${payload.duplicateOfId.slice(0, 8)}</code>` : null,
+          `Ref: <code>${payload.submissionId}</code>`,
+        ]
+          .filter((l) => l !== null)
+          .join("\n");
+        const sent =
+          payload.buffer.length > 0
+            ? await this.api.sendDocument(
+                Number(adminId),
+                { filename: payload.fileName, buffer: payload.buffer, mimeType: payload.mimeType },
+                caption,
+                {
+                  inline_keyboard: [
+                    [
+                      { text: "Approve", callback_data: `ra:approve:${payload.submissionId}` },
+                      { text: "Reject", callback_data: `ra:reject:${payload.submissionId}` },
+                    ],
+                    [{ text: "Needs info", callback_data: `ra:info:${payload.submissionId}` }],
+                  ],
+                },
+              )
+            : null;
+        // Document delivery failed (size/network) — fall back to the text
+        // notification so the submission is still reviewable.
+        if (!sent) {
+          await this.api.sendMessage(Number(adminId), caption, {
+            inline_keyboard: [
+              [
+                { text: "Approve", callback_data: `ra:approve:${payload.submissionId}` },
+                { text: "Reject", callback_data: `ra:reject:${payload.submissionId}` },
+              ],
+            ],
+          });
+        }
+      }
+    };
     try {
       const me = await this.api.getMe();
       this.logger.log(`Telegram bot online as @${me.username}`);
@@ -363,10 +522,45 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   }
 
   private universityKeyboard(): Array<Array<{ text: string; callback_data: string }>> {
-    const rows = TelegramBotService.UNIVERSITIES.map((u) => [
+    const rows = TelegramBotService.DELTA_UNIVERSITIES.map((u) => [
+      { text: u, callback_data: `uni:${u}` },
+    ]);
+    rows.push([{ text: "More universities…", callback_data: "uni:__more__" }]);
+    rows.push([{ text: "Other (type it)", callback_data: "uni:__other__" }]);
+    return rows;
+  }
+
+  private moreUniversitiesKeyboard(): Array<Array<{ text: string; callback_data: string }>> {
+    const rows = TelegramBotService.MORE_UNIVERSITIES.map((u) => [
       { text: u, callback_data: `uni:${u}` },
     ]);
     rows.push([{ text: "Other (type it)", callback_data: "uni:__other__" }]);
+    return rows;
+  }
+
+  private departmentKeyboard(faculty: string): Array<Array<{ text: string; callback_data: string }>> {
+    const options = TelegramBotService.DEPARTMENTS_BY_FACULTY[faculty] ?? [];
+    const rows: Array<Array<{ text: string; callback_data: string }>> = [];
+    for (let i = 0; i < options.length; i += 2) {
+      rows.push(options.slice(i, i + 2).map((d) => ({ text: d, callback_data: `dept:${d}` })));
+    }
+    // Always offer free text — unknown faculty names and rare departments
+    // must never dead-end the wizard (and empty keyboards are invalid).
+    rows.push([{ text: "Other (type it)", callback_data: "dept:__other__" }]);
+    return rows;
+  }
+
+  private facultyKeyboard(): Array<Array<{ text: string; callback_data: string }>> {
+    const rows: Array<Array<{ text: string; callback_data: string }>> = [];
+    for (let i = 0; i < TelegramBotService.FACULTIES.length; i += 2) {
+      rows.push(
+        TelegramBotService.FACULTIES.slice(i, i + 2).map((f) => ({
+          text: f,
+          callback_data: `faculty:${f}`,
+        })),
+      );
+    }
+    rows.push([{ text: "Other (type it)", callback_data: "faculty:__other__" }]);
     return rows;
   }
 
@@ -433,12 +627,13 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     }
     await this.setConversation(telegramId, {
       ...conv,
-      step: "course",
+      step: "faculty",
       pendingFile: { fileId: doc.file_id, fileName: doc.file_name ?? "upload" },
     });
     await this.api.sendMessage(
       chatId,
-      `Got <b>${doc.file_name ?? "your file"}</b>. What course is it for? e.g. <code>CHM 101</code>`,
+      `Got <b>${doc.file_name ?? "your file"}</b>. Which faculty is it from?`,
+      { inline_keyboard: this.facultyKeyboard() },
     );
   }
 
@@ -459,10 +654,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     }
     await this.setConversation(telegramId, {
       ...conv,
-      step: "course",
+      step: "faculty",
       pendingFile: { fileId: best.file_id, fileName: `scan-${Date.now()}.jpg` },
     });
-    await this.api.sendMessage(chatId, "Got the scan. What course is it for? e.g. <code>CHM 101</code>");
+    await this.api.sendMessage(chatId, "Got the scan. Which faculty is it from?", {
+      inline_keyboard: this.facultyKeyboard(),
+    });
   }
 
   // ── Conversation state (Redis) ───────────────────────────────────
@@ -514,6 +711,33 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     }
 
     const step = conv.step as string;
+    if (step === "faculty_text") {
+      // Reached only through the faculty "Other…" button. Text IS the input
+      // here — accept it and move on to department.
+      const faculty = text.trim().slice(0, 120);
+      if (faculty.length < 3) {
+        await this.api!.sendMessage(chatId, "That's too short — type the faculty's full name, or /cancel.");
+        return;
+      }
+      await this.setConversation(telegramId, { ...conv, faculty, step: "department" });
+      await this.api!.sendMessage(chatId, "Department?", {
+        inline_keyboard: this.departmentKeyboard(faculty),
+      });
+      return;
+    }
+    if (step === "department_text") {
+      const department = text.trim().slice(0, 120);
+      if (department.length < 3) {
+        await this.api!.sendMessage(chatId, "That's too short — type the department's full name, or /cancel.");
+        return;
+      }
+      await this.setConversation(telegramId, { ...conv, department, step: "course" });
+      await this.api!.sendMessage(
+        chatId,
+        `Got it — <b>${conv.faculty as string}</b> / <b>${department}</b>.\n\nWhat course is the resource for? e.g. <code>CHM 101</code>`,
+      );
+      return;
+    }
     if (step === "course") {
       // Course code: validated server-side too; keep the input lenient here.
       const course = text.trim().toUpperCase().slice(0, 20);
@@ -528,31 +752,6 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           2,
         ),
       });
-      return;
-    }
-    if (step === "description") {
-      const description = text.trim().slice(0, 500);
-      if (description.length < 10) {
-        await this.api!.sendMessage(chatId, "Tell me a little more — at least a sentence about what the document contains and why it's useful. Or /cancel.");
-        return;
-      }
-      await this.setConversation(telegramId, { ...conv, step: "rights", description });
-      await this.api!.sendMessage(
-        chatId,
-        [
-          "<b>Rights declaration</b>",
-          "",
-          "You confirm you have the right to share this material and that it may be published in the Matriq library with credit to contributors.",
-        ].join("\n"),
-        {
-          inline_keyboard: [
-            [
-              { text: "I confirm — submit", callback_data: "rights:yes" },
-              { text: "Cancel", callback_data: "rights:no" },
-            ],
-          ],
-        },
-      );
       return;
     }
     // Any unexpected text at a button-step: nudge back to buttons.
@@ -693,7 +892,54 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         await this.api.sendMessage(chatId, "Type your university's name:");
         return;
       }
+      if (value === "__more__") {
+        await this.api.sendMessage(chatId, "Other universities:", {
+          inline_keyboard: this.moreUniversitiesKeyboard(),
+        });
+        return;
+      }
       await this.finishUniversity(telegramId, chatId, value);
+      return;
+    }
+    // Faculty selection (wizard step)
+    if (data.startsWith("faculty:")) {
+      await this.api.answerCallbackQuery(callbackId);
+      const conv = await this.getConversation(telegramId);
+      if (!conv || conv.flow !== "upload" || conv.step !== "faculty") {
+        await this.api.answerCallbackQuery(callbackId, "This flow expired — /upload to start again.");
+        return;
+      }
+      const value = data.slice(8);
+      if (value === "__other__") {
+        await this.setConversation(telegramId, { ...conv, step: "faculty_text" });
+        await this.api.sendMessage(chatId, "Type your faculty's name:");
+        return;
+      }
+      await this.setConversation(telegramId, { ...conv, faculty: value, step: "department" });
+      await this.api.sendMessage(chatId, "Department?", {
+        inline_keyboard: this.departmentKeyboard(value),
+      });
+      return;
+    }
+    // Department selection (wizard step)
+    if (data.startsWith("dept:")) {
+      await this.api.answerCallbackQuery(callbackId);
+      const conv = await this.getConversation(telegramId);
+      if (!conv || conv.flow !== "upload" || conv.step !== "department") {
+        await this.api.answerCallbackQuery(callbackId, "This flow expired — /upload to start again.");
+        return;
+      }
+      const value = data.slice(5);
+      if (value === "__other__") {
+        await this.setConversation(telegramId, { ...conv, step: "department_text" });
+        await this.api.sendMessage(chatId, "Type your department's name:");
+        return;
+      }
+      await this.setConversation(telegramId, { ...conv, department: value, step: "course" });
+      await this.api.sendMessage(
+        chatId,
+        `Got it — <b>${conv.faculty as string}</b> / <b>${value}</b>.\n\nWhat course is the resource for? e.g. <code>CHM 101</code>`,
+      );
       return;
     }
     // Menu shortcuts
@@ -757,12 +1003,24 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const value = data.slice(8);
       await this.setConversation(telegramId, {
         ...conv,
-        step: "description",
+        step: "rights",
         academicSession: value === "__skip__" ? null : value,
       });
       await this.api.sendMessage(
         chatId,
-        "Last question: <b>describe the document</b> — what does it contain, and why would another student find it useful? (1–3 sentences)",
+        [
+          "<b>Rights declaration</b>",
+          "",
+          "You confirm you have the right to share this material and that it may be published in the Matriq library with credit to contributors.",
+        ].join("\n"),
+        {
+          inline_keyboard: [
+            [
+              { text: "I confirm — submit", callback_data: "rights:yes" },
+              { text: "Cancel", callback_data: "rights:no" },
+            ],
+          ],
+        },
       );
       return;
     }
@@ -856,12 +1114,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         materialType: conv.materialType as string,
         level: (conv.level as string | null) ?? null,
         academicSession: (conv.academicSession as string | null) ?? null,
+        faculty: (conv.faculty as string | null) ?? null,
+        department: (conv.department as string | null) ?? null,
         universityName: participant.university,
         rightsDeclared: true,
         source: "telegram",
       });
-      // Description is campaign metadata, not an engine field — append to
-      // the admin notification instead of forcing it into the schema.
       await this.clearConversation(telegramId);
       await this.api.sendMessage(
         chatId,
@@ -879,7 +1137,6 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         pending.fileName,
         conv.courseCode as string,
         participant.university,
-        (conv.description as string) ?? "",
       );
     } catch (err) {
       if (err instanceof SubmissionValidationError) {
@@ -900,7 +1157,6 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     fileName: string,
     courseCode: string,
     university: string | null,
-    description: string,
   ): Promise<void> {
     if (!this.config.isConfigured) return;
     for (const adminId of this.config.adminIds) {
@@ -912,7 +1168,6 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           `File: ${fileName}`,
           `Course: ${courseCode}`,
           university ? `University: ${university}` : null,
-          description ? `About: ${description}` : null,
           `Reference: <code>${submissionId}</code>`,
         ]
           .filter((l) => l !== null)

@@ -181,32 +181,34 @@ describe("TelegramBotService — Resource Hunt flow", () => {
     } as never;
     await b.handleDocument(docMessage);
 
-    // 3. Course code (the only free-text academic step besides description)
-    let conv = JSON.parse((await import("ioredis")).default.prototype ? "{}" : "{}") as Record<string, unknown>; // placeholder, replaced below
-    // Fetch conversation through the bot's redis store via getConversation
+    // 3. Faculty via button, department via button
+    let conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
+    expect(conv.step).toBe("faculty");
+    await b.onCallback("cbF", USER_A, "faculty:Science");
+
+    conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
+    expect(conv.step).toBe("department");
+    await b.onCallback("cbD", USER_A, "dept:Chemistry");
+
+    // 4. Course code (free text)
     conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
     expect(conv.step).toBe("course");
     await b.continueConversation(111, 111, "chm 101", conv);
 
-    // 4. Type via button
+    // 5. Type via button
     conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
     expect(conv.step).toBe("type");
     await b.onCallback("cb1", USER_A, "type:past_question");
 
-    // 5. Level via button
+    // 6. Level via button
     conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
     expect(conv.step).toBe("level");
     await b.onCallback("cb2", USER_A, "level:300");
 
-    // 6. Session via button
+    // 7. Session via button → rights directly (no description step)
     conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
     expect(conv.step).toBe("session");
     await b.onCallback("cb3", USER_A, "session:2024/2025");
-
-    // 7. Description (free text — genuinely participant-specific)
-    conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
-    expect(conv.step).toBe("description");
-    await b.continueConversation(111, 111, "First semester exam paper covering atomic structure; good for revision.", conv);
 
     // 8. Rights via button → submit
     conv = await (bot as unknown as { getConversation: (t: number) => Promise<Record<string, unknown>> }).getConversation(111);
@@ -221,6 +223,8 @@ describe("TelegramBotService — Resource Hunt flow", () => {
     expect(submitArg.materialType).toBe("past_question");
     expect(submitArg.level).toBe("300");
     expect(submitArg.academicSession).toBe("2024/2025");
+    expect(submitArg.faculty).toBe("Science");
+    expect(submitArg.department).toBe("Chemistry");
     expect(submitArg.source).toBe("telegram");
 
     // Participant sees a simple status, no AI internals.

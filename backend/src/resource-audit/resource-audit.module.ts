@@ -5,7 +5,7 @@ import { ResourceAuditService } from "./resource-audit.service";
 import { ResourceAuditStorage } from "./resource-audit.storage";
 import { RuleBasedScorer } from "./resource-audit.scorer";
 import { AUDIT_SCORER } from "./resource-audit.scorer";
-import { AUDITOR_PORT, DeepSeekAuditor, RuleBasedAuditor } from "./resource-audit.ai-auditor";
+import { AUDITOR_PORT, DeepSeekAuditor, OllamaAuditor, RuleBasedAuditor } from "./resource-audit.ai-auditor";
 import { ResourceRewardService } from "./resource-audit.rewards";
 import { StorageModule } from "../storage/storage.module";
 import { ToolsModule } from "../tools/tools.module";
@@ -35,8 +35,12 @@ import { TELEGRAM_CAMPAIGN_PORT } from "./resource-audit.service";
       // deterministic rule auditor otherwise. Replaceable via AUDITOR_PORT.
       provide: AUDITOR_PORT,
       inject: [ConfigService],
+      // Priority: the self-hosted Ollama model first (free, on-server, real
+      // AI), then the DeepSeek cloud escalation when keyed, then rules.
       useFactory: (config: ConfigService) =>
-        DeepSeekAuditor.fromEnv((key) => config.get<string>(key)) ?? new RuleBasedAuditor(),
+        OllamaAuditor.fromEnv((key) => config.get<string>(key)) ??
+        DeepSeekAuditor.fromEnv((key) => config.get<string>(key)) ??
+        new RuleBasedAuditor(),
     } as Provider,
   ],
   exports: [ResourceAuditService],

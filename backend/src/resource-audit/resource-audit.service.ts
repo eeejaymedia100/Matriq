@@ -109,6 +109,26 @@ export class ResourceAuditService {
   /** Set by the Telegram module so approvals can message the participant. */
   notifyParticipant?: (participantId: string, courseCode: string, points: number) => Promise<void>;
 
+  /**
+   * Review-console bridge: set by the Telegram module at boot. The engine
+   * calls it when a submission reaches pending_human_review, handing the
+   * reviewer the original document bytes plus the audit verdict — review
+   * happens on the real file, never on a bare reference.
+   */
+  notifyReviewReady?: (payload: {
+    submissionId: string;
+    fileName: string;
+    courseCode: string;
+    universityName: string | null;
+    buffer: Buffer;
+    mimeType: string;
+    aiRecommendation: string;
+    aiConfidence: number | null;
+    aiSummary: string | null;
+    riskLevel: string | null;
+    duplicateOfId: string | null;
+  }) => Promise<void>;
+
   constructor(
     configService: ConfigService,
     private readonly prisma: PrismaService,
@@ -631,6 +651,21 @@ export class ResourceAuditService {
               const data = await pdfParse(new Uint8Array(buffer) as unknown as Buffer);
               extractedText = (data.text ?? "").replace(/\s+/g, " ").trim().slice(0, 50_000) || null;
               pageCount = data.numpages ?? null;
+              // No text layer → a scan or image-only PDF. Route through the
+              // same OCR engine images use (renders pages via pdftoppm, then
+              // Tesseract + the Gemini vision rescue). A scan is a valid
+              // academic document, never a rejection reason.
+              if (!extractedText) {
+                usedOcr = true;
+                const ocr = await this.tools.ocrBuffer(buffer, "application/pdf");
+                if (ocr.readable && ocr.text) {
+                  extractedText = ocr.text.replace(/\s+/g, " ").trim().slice(0, 50_000);
+                }
+                this.log("extracting", submissionId, row.studentId, "scanned PDF routed through OCR", {
+                  ocrChars: extractedText?.length ?? 0,
+                  engine: ocr.engine,
+                });
+              }
             } else {
               // Image submission: route through the existing Tesseract OCR
               // engine (same one /tools/ocr and the Vault use).
@@ -767,7 +802,13 @@ export class ResourceAuditService {
               },
               fileName: row.fileName,
               extractedText: row.extractedText,
-              usedOcr: false,
+              // A zero-text-layer document whose pipeline text came out of
+              // the OCR stage — the text is a transcription, not a native
+              // layer, and the auditor should weigh OCR confidence honestly.
+              usedOcr:
+                report.quality !== null &&
+                report.quality.textDensityCharsPerPage === 0 &&
+                (row.extractedText?.length ?? 0) > 0,
               validation: report.quality
                 ? {
                     verdict: report.verdict,
@@ -827,6 +868,28 @@ export class ResourceAuditService {
               duplicateAction: dupResult.action,
               maxSimilarity: dupResult.maxSimilarity,
             });
+
+            // 5. Hand the reviewer the real document + the verdict. Fire and
+            // forget — a delivery failure never blocks the pipeline.
+            try {
+              await this.notifyReviewReady?.({
+                submissionId,
+                fileName: row.fileName,
+                courseCode: row.courseCode,
+                universityName: row.universityName,
+                buffer: original ?? Buffer.alloc(0),
+                mimeType: row.fileType,
+                aiRecommendation: audit.recommendation,
+                aiConfidence: audit.overallConfidence,
+                aiSummary: audit.reasons.slice(0, 3).join(" · "),
+                riskLevel: audit.riskLevel,
+                duplicateOfId: dupResult.exactOf,
+              });
+            } catch (notifyErr) {
+              this.log("auditing", submissionId, row.studentId, "review notification failed", {
+                err: String(notifyErr).slice(0, 160),
+              });
+            }
             return;
           } catch (err) {
             await this.failStage(submissionId, "auditing", String(err));

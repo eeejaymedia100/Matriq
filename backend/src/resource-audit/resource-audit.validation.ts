@@ -110,9 +110,10 @@ function analyzeQuality(pages: string[], thresholds: ValidationThresholds): Qual
 
   const suspiciouslyPadded =
     pageCount >= 4 && (blankPageRatio > thresholds.blankPageRatioMax || repeatedPageRatio > thresholds.repeatedPageRatioMax);
-
   const unreadable = pages.filter((p) => p.replace(/[^A-Za-z0-9]/g, "").length < 3).length;
-  const unreadablePageRatio = unreadable / pageCount;
+  // Re-assigned by the scanned-PDF branch below — text-derived signals are
+  // meaningless without a text layer, and those documents route to OCR.
+  let unreadablePageRatio = unreadable / pageCount;
 
   // Screenshot-heavy: image-based PDFs whose OCR-able text is negligible
   // relative to size (checked later against OCR output for image files).
@@ -204,14 +205,24 @@ export async function validateFile(
         const pages = splitPdfPages(rawText, pageCount);
         quality = analyzeQuality(pages, thresholds);
         push("structure", "ok", `${pageCount} pages parsed`);
-        if (rawText.replace(/\s/g, "").length < thresholds.minTextChars) {
+        const textChars = rawText.replace(/\s/g, "").length;
+        if (textChars < thresholds.minTextChars) {
           push(
             "text_content",
             "warning",
-            `very little extractable text (${rawText.replace(/\s/g, "").length} chars) — likely scanned or image-based`,
+            textChars === 0
+              ? "no text layer — image-based PDF, routing through OCR"
+              : `very little extractable text (${textChars} chars) — likely scanned or image-based`,
           );
         }
-        if (quality.junkVerdict !== "ok") {
+        if (textChars === 0) {
+          // Zero-text PDF: every text-derived signal (blank ratio, density,
+          // padding) is UNKNOWN, not bad — a photographed exam paper looks
+          // identical to a blank junk file until OCR reads it. Never
+          // auto-reject here; the OCR stage decides with actual pixels.
+          if (quality.junkVerdict === "bad") quality.junkVerdict = "warning";
+          push("junk", "warning", "text signals unavailable (image-based) — OCR decides");
+        } else if (quality.junkVerdict !== "ok") {
           push(
             "junk",
             quality.junkVerdict,

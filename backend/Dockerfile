@@ -41,7 +41,8 @@ COPY --from=builder --chown=matriq:matriq /app/package.json ./
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     tesseract-ocr \
-    tesseract-ocr-eng && \
+    tesseract-ocr-eng \
+    poppler-utils && \
     rm -rf /var/lib/apt/lists/*
 
 USER matriq
