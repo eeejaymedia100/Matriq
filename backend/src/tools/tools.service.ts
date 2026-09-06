@@ -345,8 +345,26 @@ export class ToolsService {
         );
         const stderr: string[] = [];
         child.stderr.on("data", (d) => stderr.push(String(d)));
-        child.on("error", (err) => reject(err));
-        child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(stderr.join("").slice(0, 200) || `pdftoppm exited ${code}`))));
+        const kill = setTimeout(() => {
+          child.kill("SIGKILL");
+          reject(new Error("pdftoppm timed out after 120s"));
+        }, 120_000);
+        child.on("error", (err) => {
+          clearTimeout(kill);
+          reject(err);
+        });
+        child.on("close", (code) => {
+          clearTimeout(kill);
+          code === 0
+            ? resolve()
+            : reject(new Error(stderr.join("").slice(0, 200) || `pdftoppm exited ${code}`));
+        });
+        // Feed the PDF on stdin and close it. Without this, pdftoppm waits
+        // for input forever and the promise never settles — the bug that
+        // stranded scanned-PDF submissions in `extracting` for hours.
+        // ("error" handler swallows EPIPE when pdftoppm exits early.)
+        child.stdin.on("error", () => undefined);
+        child.stdin.end(buffer);
       });
       const pages = (await readdir(dir)).filter((f) => f.startsWith("page") && f.endsWith(".png")).sort();
       if (pages.length === 0) {

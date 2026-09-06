@@ -147,6 +147,62 @@ export class ResourceAuditService {
       new RuleBasedAuditor();
   }
 
+  /**
+   * Boot-time crash recovery. If the process dies mid-pipeline (deploy,
+   * OOM), in-flight rows would sit in a processing state forever — nothing
+   * would ever touch them again. On startup, requeue anything stranded.
+   * runPipeline is idempotent: duplicate detection re-checks the hash and
+   * every stage transition is a guarded compare, so re-running from the
+   * top is safe even with several workers recovering concurrently.
+   */
+  onModuleInit(): void {
+    // Delay past boot: the migrate service may still be applying schema.
+    setTimeout(() => {
+      void this.recoverStrandedPipelines().catch((err) =>
+        this.logger.warn(
+          `pipeline recovery sweep failed: ${err instanceof Error ? err.message : String(err)}`,
+        ),
+      );
+    }, 20_000).unref();
+  }
+
+  private async recoverStrandedPipelines(): Promise<void> {
+    const cutoff = new Date(Date.now() - 10 * 60_000);
+    const stranded = await this.prisma.resourceSubmission.findMany({
+      where: {
+        auditStatus: {
+          in: [
+            AUDIT_STATUS.received,
+            AUDIT_STATUS.validating,
+            AUDIT_STATUS.duplicate_check,
+            AUDIT_STATUS.extracting,
+            AUDIT_STATUS.ocr_processing,
+            AUDIT_STATUS.auditing,
+          ],
+        },
+        updatedAt: { lt: cutoff },
+      },
+      select: { id: true, auditStatus: true },
+    });
+    if (stranded.length === 0) return;
+    this.logger.warn(
+      `recovery: requeueing ${stranded.length} stranded pipeline submission(s)`,
+    );
+    for (const row of stranded) {
+      try {
+        if (row.auditStatus !== AUDIT_STATUS.received) {
+          await this.prisma.resourceSubmission.update({
+            where: { id: row.id, auditStatus: row.auditStatus },
+            data: { auditStatus: AUDIT_STATUS.received, attemptCount: 0 },
+          });
+        }
+        void this.runPipeline(row.id).catch(() => undefined);
+      } catch {
+        // Another worker claimed the row first — skip it.
+      }
+    }
+  }
+
   // ── Submission ─────────────────────────────────────────────────────
 
   /**
