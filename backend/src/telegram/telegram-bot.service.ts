@@ -406,6 +406,8 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       else if (text.startsWith("/leaderboard")) await this.onLeaderboard(chatId);
       // Announce to the community — admins only, targets the community chat.
       else if (text.startsWith("/announce")) await this.onAnnounce(chatId, telegramId);
+      // Review queue — admins only: pending submissions with get-document buttons.
+      else if (text.startsWith("/review")) await this.onReview(chatId, telegramId);
       else if (text.startsWith("/community")) await this.api.sendMessage(chatId, `The Matriq community lives here: ${this.config.communityUrl || "ask an admin for the invite link"}`);
       else if (text.startsWith("/cancel")) {
         await this.clearConversation(telegramId);
@@ -870,6 +872,29 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     await this.api!.sendMessage(fromChatId, "Posted to the community.");
   }
 
+  /**
+   * /review — the review pocket in chat. Lists pending submissions with
+   * per-item "Get document" buttons; the document arrives with its Approve /
+   * Reject / Needs info keyboard attached, so everything is reviewable
+   * without leaving Telegram.
+   */
+  private async onReview(fromChatId: number, fromId: number): Promise<void> {
+    if (!this.config.isTelegramAdmin(String(fromId))) return;
+    const queue = await this.audit.adminReviewQueue({ take: 10 });
+    if (queue.length === 0) {
+      await this.api!.sendMessage(fromChatId, "Nothing waiting for review — the queue is clear.");
+      return;
+    }
+    const lines: string[] = [`<b>${queue.length} submission${queue.length === 1 ? "" : "s"} waiting for review</b>`, ""];
+    const buttons: Array<Array<{ text: string; callback_data: string }>> = [];
+    for (const row of queue) {
+      const risk = row.riskLevel === "red" ? "🔴" : row.riskLevel === "yellow" ? "🟡" : row.riskLevel === "green" ? "🟢" : "·";
+      lines.push(`${risk} <b>${row.courseCode}</b> — ${row.fileName}\n   AI: ${row.aiRecommendation ?? "?"}${row.aiConfidence != null ? ` (${row.aiConfidence}%)` : ""}${row.universityName ? ` · ${row.universityName}` : ""}\n   <code>${row.id}</code>`);
+      buttons.push([{ text: `📄 ${row.courseCode} — ${row.fileName.slice(0, 24)}`, callback_data: `rq:doc:${row.id}` }]);
+    }
+    await this.api!.sendMessage(fromChatId, lines.join("\n"), { inline_keyboard: buttons });
+  }
+
   // ── Callbacks ────────────────────────────────────────────────────
 
   private async onCallback(callbackId: string, from: TgUser, data: string): Promise<void> {
@@ -953,6 +978,8 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     // Admin review callbacks — checked before any conversation lookup so a
     // reviewer with an expired wizard state can still act on submissions.
     const reviewMatch = /^ra:(approve|reject|info):([0-9a-f-]{36})$/i.exec(data);
+    // /review "get document" button — same early-dispatch treatment.
+    const docMatch = /^rq:doc:([0-9a-f-]{36})$/i.exec(data);
 
     // Upload wizard button steps
     const conv = await this.getConversation(telegramId);
@@ -961,11 +988,19 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         await this.handleAdminReview(callbackId, from, reviewMatch[1], reviewMatch[2]);
         return;
       }
+      if (docMatch) {
+        await this.sendReviewDocument(callbackId, from, docMatch[1]);
+        return;
+      }
       await this.api.answerCallbackQuery(callbackId, "This flow expired — /upload to start again.");
       return;
     }
     if (reviewMatch) {
       await this.handleAdminReview(callbackId, from, reviewMatch[1], reviewMatch[2]);
+      return;
+    }
+    if (docMatch) {
+      await this.sendReviewDocument(callbackId, from, docMatch[1]);
       return;
     }
     const step = conv.step as string;
@@ -1068,6 +1103,57 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     await this.api.answerCallbackQuery(callbackId);
     await this.setConversation(from.id, { flow: "admin_reason", action, submissionId });
     await this.api.sendMessage(from.id, `Send the reason for <b>${action === "reject" ? "rejection" : "information needed"}</b> on <code>${submissionId.slice(0, 8)}</code>.`);
+  }
+
+  /**
+   * /review button handler: fetch the preserved original from storage and
+   * send it with the AI verdict + decision keyboard — the same message the
+   * automatic review notification delivers, on demand.
+   */
+  private async sendReviewDocument(callbackId: string, from: TgUser, submissionId: string): Promise<void> {
+    if (!this.config.isTelegramAdmin(String(from.id))) {
+      await this.api.answerCallbackQuery(callbackId, "Not allowed.");
+      return;
+    }
+    try {
+      const row = await this.prisma.resourceSubmission.findUnique({ where: { id: submissionId } });
+      if (!row) {
+        await this.api.answerCallbackQuery(callbackId, "Submission not found.");
+        return;
+      }
+      const { buffer } = await this.audit.adminFile(submissionId, `telegram:${from.id}`);
+      const risk = row.riskLevel === "red" ? "🔴" : row.riskLevel === "yellow" ? "🟡" : row.riskLevel === "green" ? "🟢" : "·";
+      const caption = [
+        `<b>Resource Hunt — needs your review</b> ${risk}`,
+        "",
+        `File: ${row.fileName}`,
+        `Course: ${row.courseCode}`,
+        row.universityName ? `University: ${row.universityName}` : null,
+        `AI (${row.aiRecommendation ?? "?"}, ${row.aiConfidence ?? "?"}% confident):`,
+        row.aiSummary ?? "no summary",
+        `Ref: <code>${row.id}</code>`,
+      ]
+        .filter((l) => l !== null)
+        .join("\n");
+      await this.api.sendDocument(
+        Number(from.id),
+        { filename: row.fileName, buffer, mimeType: row.fileType },
+        caption,
+        {
+          inline_keyboard: [
+            [
+              { text: "Approve", callback_data: `ra:approve:${submissionId}` },
+              { text: "Reject", callback_data: `ra:reject:${submissionId}` },
+            ],
+            [{ text: "Needs info", callback_data: `ra:info:${submissionId}` }],
+          ],
+        },
+      );
+      await this.api.answerCallbackQuery(callbackId);
+    } catch (err) {
+      await this.api.answerCallbackQuery(callbackId, "Couldn't fetch the file.");
+      await this.api.sendMessage(Number(from.id), `Couldn't send that document: ${String(err instanceof Error ? err.message : err)}`);
+    }
   }
 
   private choiceKeyboard(
