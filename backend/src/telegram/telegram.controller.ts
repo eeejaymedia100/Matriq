@@ -39,7 +39,7 @@ interface MiniAppRequest extends Request {
   [MINIAPP_SESSION_KEY]?: MiniAppSession;
 }
 
-@Controller("telegram")
+@Controller("v1/telegram")
 export class TelegramController {
   private readonly logger = new Logger(TelegramController.name);
 

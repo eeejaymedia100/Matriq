@@ -101,6 +101,25 @@ services:
       - FOCUS_DAILY_LIMIT=${FOCUS_DAILY_LIMIT:-25}
       - FOCUS_CACHE_TTL_HOURS=${FOCUS_CACHE_TTL_HOURS:-48}
       - FOCUS_FALLBACK_TIMEOUT_MS=${FOCUS_FALLBACK_TIMEOUT_MS:-45000}
+      # ── Telegram interface (bot + Mini App) ────────────────────────
+      # The bot is fully disabled unless TELEGRAM_BOT_TOKEN is set, so
+      # dev machines without Telegram config keep working unchanged.
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME:-MatriqBot}
+      # Community gate: empty = uploads open (dev posture). Set to the
+      # community chat id in production to enforce membership.
+      - TELEGRAM_COMMUNITY_ID=${TELEGRAM_COMMUNITY_ID:-}
+      - TELEGRAM_COMMUNITY_URL=${TELEGRAM_COMMUNITY_URL:-}
+      - TELEGRAM_ADMIN_IDS=${TELEGRAM_ADMIN_IDS:-}
+      # Webhook mode: URL+secret set → webhook self-registers on boot.
+      # Without them the bot falls back to Redis-locked long-polling.
+      - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET:-}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
+      - TELEGRAM_MINIAPP_ORIGINS=${TELEGRAM_MINIAPP_ORIGINS:-}
+      # Resource Audit Engine (optional overrides; deterministic rules run
+      # with zero config, the AI auditor activates when a key is present).
+      - RESOURCE_AUDIT_AI_KEY=${RESOURCE_AUDIT_AI_KEY:-}
+      - RESOURCE_AUDIT_AI_MODEL=${RESOURCE_AUDIT_AI_MODEL:-}
     expose:
       - "3000" # internal only — caddy routes via Docker network
     networks:

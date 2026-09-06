@@ -97,7 +97,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     if (!this.api || !this.config.webhookUrl || !this.config.webhookSecret) {
       return { ok: false, message: "webhook URL/secret not configured" };
     }
-    const url = `${this.config.webhookUrl.replace(/\/$/, "")}/telegram/webhook/${this.config.webhookSecret}`;
+    const url = `${this.config.webhookUrl.replace(/\/$/, "")}/v1/telegram/webhook/${this.config.webhookSecret}`;
     try {
       await this.api.setWebhook(url, this.config.webhookSecret);
       this.stopPolling();
