@@ -116,6 +116,9 @@ services:
       - TELEGRAM_WEBHOOK_SECRET=${TELEGRAM_WEBHOOK_SECRET:-}
       - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
       - TELEGRAM_MINIAPP_ORIGINS=${TELEGRAM_MINIAPP_ORIGINS:-}
+      # Full URL the bot's "Open Matriq" button opens (the CORS list in
+      # TELEGRAM_MINIAPP_ORIGINS stays origin-only by necessity).
+      - TELEGRAM_MINIAPP_URL=${TELEGRAM_MINIAPP_URL:-}
       # Resource Audit Engine (optional overrides; deterministic rules run
       # with zero config, the AI auditor activates when a key is present).
       - RESOURCE_AUDIT_AI_KEY=${RESOURCE_AUDIT_AI_KEY:-}

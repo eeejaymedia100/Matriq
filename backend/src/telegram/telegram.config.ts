@@ -60,7 +60,15 @@ export class TelegramConfig {
   }
 
   get miniAppUrl(): string {
-    return this.miniAppOrigins[0] ?? "https://matriq.com.ng/telegram-miniapp/";
+    // Explicit button URL wins; otherwise derive the Mini App page from the
+    // first allowed origin (the ORIGIN header carries no path, so the CORS
+    // list keeps bare origins while the button needs the full path).
+    const override = this.configService.get<string>("TELEGRAM_MINIAPP_URL");
+    if (override && override.length > 0) return override;
+    const origin = this.miniAppOrigins[0];
+    return origin
+      ? `${origin.replace(/\/$/, "")}/telegram-miniapp/`
+      : "https://matriq.com.ng/telegram-miniapp/";
   }
 
   get isConfigured(): boolean {
