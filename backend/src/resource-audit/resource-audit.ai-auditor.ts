@@ -264,10 +264,10 @@ export class OllamaAuditor implements ResourceAiAuditor {
     this.model = model || "llama3.2:3b";
   }
 
-  static fromEnv(get: (key: string) => string | undefined): OllamaAuditor | null {
+  static fromEnv(get: (key: string) => string | undefined, timeoutMs?: number): OllamaAuditor | null {
     const host = get("OLLAMA_HOST");
     if (!host) return null;
-    return new OllamaAuditor(host, get("RESOURCE_AUDIT_AI_MODEL"));
+    return new OllamaAuditor(host, get("RESOURCE_AUDIT_AI_MODEL"), timeoutMs);
   }
 
   async audit(input: AuditorInput): Promise<StructuredAudit> {
@@ -323,21 +323,37 @@ export class RuleBasedAuditor implements ResourceAiAuditor {
   async audit(input: AuditorInput): Promise<StructuredAudit> {
     const text = input.extractedText ?? "";
     const textUpper = text.toUpperCase();
-    const declaredCourse = input.declared.courseCode.replace(/\s+/g, "");
+    // Course-code matching must survive the shapes Nigerian universities
+    // actually use: "D/AGE 217" on a cover sheet, "AGE 217" in the paper,
+    // "AGE217" in a header. Compare on the alphanumerics only.
+    const alnum = (s: string) => s.toUpperCase().replace(/[^A-Z0-9]/g, "");
+    const declaredNorm = alnum(input.declared.courseCode);
+    // A "D/AGE 217" declaration matches text that shows "AGE 217" — drop
+    // prefix segments before the slash when building match variants.
+    const declaredVariants = new Set<string>([
+      declaredNorm,
+      ...input.declared.courseCode.split("/").map((seg) => alnum(seg)),
+    ]);
 
-    // Course-code contradiction sweep: find other course codes in the text.
+    // Course-code sweep: find other course codes in the text (slashed forms
+    // included). Codes that reduce to a declared variant are not foreign.
     const foundCodes = new Set<string>();
-    const codeRe = /\b([A-Z]{2,4})\s?(\d{3,4}[A-Z]?)\b/g;
+    const codeRe = /\b([A-Z]{1,6}(?:\/[A-Z]{1,6})?)\s?(\d{3,4}[A-Z]?)\b/g;
     let m: RegExpExecArray | null;
     while ((m = codeRe.exec(textUpper)) !== null) {
-      const candidate = `${m[1]}${m[2]}`;
-      if (candidate !== declaredCourse) foundCodes.add(candidate);
+      const candidateNorm = alnum(`${m[1]}${m[2]}`);
+      if (![...declaredVariants].some((v) => v.length >= 4 && candidateNorm.includes(v) || v.includes(candidateNorm))) {
+        foundCodes.add(candidateNorm);
+      }
       if (foundCodes.size >= 5) break;
     }
     const contradictions: string[] = [];
-    if (foundCodes.size > 0 && !textUpper.includes(declaredCourse)) {
+    const declaredPresent = [...declaredVariants].some(
+      (v) => v.length >= 4 && textUpper.replace(/[^A-Z0-9]/g, "").includes(v),
+    );
+    if (foundCodes.size > 0 && !declaredPresent) {
       contradictions.push(
-        `Declared ${input.declared.courseCode} but the document mentions ${[...foundCodes].slice(0, 3).join(", ")} and never mentions ${input.declared.courseCode}.`,
+        `Declared ${input.declared.courseCode} but the document mentions ${[...foundCodes].slice(0, 3).join(", ")} and never mentions it.`,
       );
     }
 
@@ -370,11 +386,10 @@ export class RuleBasedAuditor implements ResourceAiAuditor {
       lengthComponent + (pageCount ? Math.min(pageCount / 6, 1) * 60 : 25),
     );
 
-    // Metadata match: declared course appears in the text? Check both the
-    // spaced ("CHM 101") and unspaced ("CHM101") forms — documents use both.
-    const courseMentioned =
-      textUpper.includes(declaredCourse) ||
-      textUpper.includes(input.declared.courseCode.toUpperCase());
+    // Metadata match: declared course appears in the text? Compare on
+    // alphanumerics so "D/AGE 217", "AGE 217" and "AGE217" all match.
+    const textAlnum = textUpper.replace(/[^A-Z0-9]/g, "");
+    const courseMentioned = declaredPresent || [...declaredVariants].some((v) => v.length >= 4 && textAlnum.includes(v));
     const metadataMatch = clampScore(courseMentioned ? 85 : contradictions.length > 0 ? 15 : 45);
 
     const duplicateProbability = clampScore(input.duplicateEvidence?.maxSimilarity ?? 0);
@@ -487,6 +502,7 @@ You MUST reply with a single JSON object, no prose, matching exactly this schema
 }
 
 Guidelines:
+- Nigerian universities customize NUC course codes — department prefixes like "D/AGE 217" or "D/ANS 318" are normal. NEVER reject or flag a submission merely because a course code is unfamiliar to you or missing from any registry; judge the document's content, not the code.
 - metadataMatch: how well the declared course/type/level agree with the document evidence. A declared course code that never appears while other codes dominate is a contradiction — list it in "contradictions".
 - judge ACADEMIC VALUE, not length. A genuine 2-page course outline is valuable; a 40-page padded scan of blank pages is junk.
 - duplicateProbability comes mostly from the supplied duplicate evidence, not your own guess.

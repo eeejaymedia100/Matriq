@@ -113,6 +113,7 @@ function makeBot(overrides: Record<string, unknown> = {}) {
     audit as unknown as ResourceAuditService,
     gate as unknown as TelegramGate,
     api as unknown as TelegramApi,
+    { pdfPreviewPages: jest.fn().mockResolvedValue([]) } as never,
     { get: jest.fn().mockReturnValue("redis://fake") } as never,
   );
   return { bot, config, prisma, campaign, audit, gate, api };

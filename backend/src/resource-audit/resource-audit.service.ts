@@ -64,8 +64,16 @@ import {
 } from "./resource-audit.ai-auditor";
 import pdfParse from "pdf-parse";
 
-/** Course-code shape: 2–4 letters, optional separator letters, 3–4 digits. */
-const COURSE_CODE_RE = /^[A-Z]{2,4}\s?\d{3,4}[A-Z]?$/;
+/**
+ * Course-code shape — the campaign rule, taught to participants in plain
+ * language: LETTERS first (optionally a department prefix with a slash, e.g.
+ * "D/AGE"), then 3–4 digits, with or without a space between them.
+ *   CHM 101 · CHM101 · PHY 307 · D/AGE 217 · D/ANS 318
+ * There is deliberately NO whitelist: universities customize NUC course
+ * codes, so any well-formed code is accepted and the AI auditor judges the
+ * document's actual content instead.
+ */
+export const COURSE_CODE_RE = /^[A-Z]{1,6}(?:\/[A-Z]{1,6})?\s?\d{3,4}[A-Z]?$/;
 
 export interface SubmitResourceInput {
   /** Matriq account id (app channel). Omit for Telegram participants. */
@@ -233,7 +241,7 @@ export class ResourceAuditService {
     const courseCode = input.courseCode.trim().toUpperCase().replace(/\s+/g, " ");
     if (!COURSE_CODE_RE.test(courseCode)) {
       throw new SubmissionValidationError(
-        `Course code "${courseCode}" doesn't look valid (expected e.g. CHM 101).`,
+        `Course code "${courseCode}" doesn't look right. Format: the subject letters, then the 3-digit number — like CHM 101, PHY 307 or D/AGE 217. The space is optional (CHM101 works too).`,
       );
     }
 

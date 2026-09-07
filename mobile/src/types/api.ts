@@ -23,6 +23,19 @@ export interface User {
    * Null = no photo uploaded yet.
    */
   profilePhotoUrl: string | null;
+  /**
+   * Executive roles held in associations (president / treasurer / pro).
+   * Populated by GET /auth/me for accounts with dashboard authority; absent
+   * for plain students. Gates the in-app dashboard entry points — a student
+   * profile never sees the association or admin consoles.
+   */
+  executive?: Array<{
+    id: string;
+    associationId: string;
+    role: "president" | "treasurer" | "pro";
+    associationName: string;
+    shortCode: string;
+  }>;
 }
 
 export interface AuthResponse {

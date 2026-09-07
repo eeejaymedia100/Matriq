@@ -10,6 +10,8 @@ import { TelegramMiniAppAuth } from "./telegram-miniapp-auth";
 import { TelegramMiniAppGuard } from "./telegram-miniapp.guard";
 import { TelegramCampaignService } from "./telegram-campaign.service";
 import { ResourceAuditModule } from "../resource-audit/resource-audit.module";
+import { ToolsModule } from "../tools/tools.module";
+import { ToolsService } from "../tools/tools.service";
 
 /**
  * The Telegram interface — chat bot + Mini App on top of the Resource Audit
@@ -20,6 +22,7 @@ import { ResourceAuditModule } from "../resource-audit/resource-audit.module";
 @Module({
   imports: [
     ConfigModule,
+    ToolsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -43,6 +46,7 @@ import { ResourceAuditModule } from "../resource-audit/resource-audit.module";
     TelegramMiniAppAuth,
     TelegramMiniAppGuard,
     TelegramCampaignService,
+    ToolsService,
     TelegramBotService,
   ],
   exports: [TelegramBotService],

@@ -333,6 +333,62 @@ export class ToolsService {
    */
   private static readonly PDF_OCR_MAX_PAGES = 30;
 
+  /**
+   * Render the first N pages of a PDF to JPEG bytes for inline preview —
+   * Telegram photo messages, admin-console <img> tags, etc. Separate from
+   * the OCR path: lower DPI (readable on a phone screen, ~10× smaller),
+   * fewer pages (3), no OCR. Best effort — throws only if pdftoppm fails.
+   */
+  private static readonly PDF_PREVIEW_MAX_PAGES = 3;
+  private static readonly PDF_PREVIEW_DPI = 110;
+
+  async pdfPreviewPages(buffer: Buffer, maxPages = ToolsService.PDF_PREVIEW_MAX_PAGES): Promise<Buffer[]> {
+    const dir = await mkdtemp(join(tmpdir(), "matriq-pdfpreview-"));
+    try {
+      const outPrefix = join(dir, "page");
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(
+          "pdftoppm",
+          [
+            "-r", String(ToolsService.PDF_PREVIEW_DPI),
+            "-jpeg",
+            "-f", "1",
+            "-l", String(Math.min(maxPages, ToolsService.PDF_PREVIEW_MAX_PAGES)),
+            "-",
+            outPrefix,
+          ],
+          { stdio: ["pipe", "ignore", "pipe"] },
+        );
+        const stderr: string[] = [];
+        child.stderr.on("data", (d) => stderr.push(String(d)));
+        const kill = setTimeout(() => {
+          child.kill("SIGKILL");
+          reject(new Error("pdftoppm preview timed out after 60s"));
+        }, 60_000);
+        child.on("error", (err) => {
+          clearTimeout(kill);
+          reject(err);
+        });
+        child.on("close", (code) => {
+          clearTimeout(kill);
+          code === 0
+            ? resolve()
+            : reject(new Error(stderr.join("").slice(0, 200) || `pdftoppm exited ${code}`));
+        });
+        child.stdin.on("error", () => undefined);
+        child.stdin.end(buffer);
+      });
+      const pages = (await readdir(dir))
+        .filter((f) => f.startsWith("page") && f.endsWith(".jpg"))
+        .sort();
+      const buffers: Buffer[] = [];
+      for (const page of pages) buffers.push(await readFile(join(dir, page)));
+      return buffers;
+    } finally {
+      await rm(dir, { recursive: true, force: true }).catch(() => undefined);
+    }
+  }
+
   private async ocrPdf(buffer: Buffer): Promise<OcrResult> {
     const dir = await mkdtemp(join(tmpdir(), "matriq-pdfocr-"));
     try {
@@ -341,7 +397,11 @@ export class ToolsService {
         const child = spawn(
           "pdftoppm",
           ["-r", "200", "-png", "-f", "1", "-l", String(ToolsService.PDF_OCR_MAX_PAGES), "-", outPrefix],
-          { stdio: ["pipe", "ignore", "pipe"] },
+          // OMP_THREAD_LIMIT=1: tesseract 5's OpenMP thread pool thrashes
+          // against container CPU quotas and times out; single-threaded WASM
+          // (tesseract.js) outruns it. One env var makes the system binary
+          // usable and ~3× faster per page.
+          { stdio: ["pipe", "ignore", "pipe"], env: { ...process.env, OMP_THREAD_LIMIT: "1" } },
         );
         const stderr: string[] = [];
         child.stderr.on("data", (d) => stderr.push(String(d)));

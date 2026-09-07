@@ -205,6 +205,49 @@ export class TelegramApi {
     }
   }
 
+  /**
+   * Send an image to a chat — multipart upload, same contract as
+   * sendDocument. Photos render INLINE in every Telegram client: a reviewer
+   * can read the first pages of a submitted PDF right in the chat, without
+   * tapping (downloading) the original file.
+   */
+  async sendPhoto(
+    chatId: number | string,
+    file: { filename: string; buffer: Buffer; mimeType?: string },
+    caption?: string,
+    replyMarkup?: TgReplyMarkup,
+  ): Promise<TgMessage | null> {
+    try {
+      const form = new FormData();
+      form.append("chat_id", String(chatId));
+      if (caption) {
+        form.append("caption", caption.slice(0, 1000));
+        form.append("parse_mode", "HTML");
+      }
+      if (replyMarkup) form.append("reply_markup", JSON.stringify(replyMarkup));
+      form.append(
+        "photo",
+        new Blob([new Uint8Array(file.buffer)], { type: file.mimeType ?? "image/jpeg" }),
+        file.filename,
+      );
+      const res = await fetch(`${API_ROOT}/bot${this.botToken}/sendPhoto`, {
+        method: "POST",
+        body: form,
+      });
+      const json = (await res.json()) as ApiResponse<TgMessage>;
+      if (!json.ok) {
+        throw new TelegramApiError(
+          `sendPhoto failed: ${json.description ?? "unknown"} (${json.error_code ?? res.status})`,
+          json.error_code,
+        );
+      }
+      return json.result as TgMessage;
+    } catch (err) {
+      this.log(`telegram safe-call failed: sendPhoto: ${String(err)}`);
+      return null;
+    }
+  }
+
   async answerCallbackQuery(id: string, text?: string): Promise<void> {
     await this.safe("answerCallbackQuery", {
       callback_query_id: id,

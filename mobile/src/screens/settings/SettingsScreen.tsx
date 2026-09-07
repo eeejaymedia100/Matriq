@@ -48,6 +48,13 @@ export function SettingsScreen({ navigation }: Props) {
   const stackNav = navigation.getParent() as { navigate: (s: string) => void } | undefined;
   const go = (s: string) => stackNav?.navigate(s);
 
+  // Dashboard authority: only association executives get the association
+  // dashboard; only the platform admin account (hard-coded, verified against
+  // the profile's email) gets the admin console. Plain student profiles
+  // never see either row — the gate is structural, not cosmetic.
+  const isExecutive = (user?.executive?.length ?? 0) > 0;
+  const isAdmin = user?.email === "admin@matriq.com.ng";
+
   const startThemeSwitch = () => {
     if (themeFx) return;
     setThemeFx(mode === "glass" ? "pop" : "glass");
@@ -167,6 +174,33 @@ export function SettingsScreen({ navigation }: Props) {
           icon: "fileText",
           onPress: () => go("MyMaterials"),
         },
+      ],
+    },
+    {
+      title: "Dashboards",
+      rows: [
+        ...(isExecutive
+          ? [
+              {
+                id: "assoc-dash",
+                label: "Association dashboard",
+                hint: "Members, dues, announcements & events",
+                icon: "layers" as IconName,
+                onPress: () => go("AssociationDashboard"),
+              },
+            ]
+          : []),
+        ...(isAdmin
+          ? [
+              {
+                id: "admin-console",
+                label: "Admin console",
+                hint: "Platform administration",
+                icon: "shield" as IconName,
+                onPress: () => go("AdminConsole"),
+              },
+            ]
+          : []),
       ],
     },
     {

@@ -16,7 +16,7 @@ REMOTE=matriq
 MAX_WAIT_MIN=480
 
 # ── Per-release copy (edit this line each release) ──────────────
-RELEASE_NOTES="${RELEASE_NOTES:-Update: the on-screen keyboard no longer covers what you type (inputs lift above it) and the offline AI chat no longer repeats words mid-answer.}"
+RELEASE_NOTES="${RELEASE_NOTES:-Update: association and admin dashboards are now built in for authorized accounts, course codes with department prefixes (D/AGE 217) are accepted, and submitted documents show inline page previews for review.}"
 
 log() { echo "[finalize $(date '+%F %T')] $*"; }
 

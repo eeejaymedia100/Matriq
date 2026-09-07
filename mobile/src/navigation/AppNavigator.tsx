@@ -57,6 +57,7 @@ import { NotesScreen } from "../screens/notes/NotesScreen";
 import { NoteEditorScreen } from "../screens/notes/NoteEditorScreen";
 import { DocumentReaderScreen } from "../screens/vault/DocumentReaderScreen";
 import { ImageToPdfScreen } from "../screens/tools/ImageToPdfScreen";
+import { DashboardWebViewScreen } from "../screens/dashboard/DashboardWebViewScreen";
 import { VaultUploadScreen } from "../screens/vault/VaultUploadScreen";
 import { TimetableScreen } from "../screens/study/TimetableScreen";
 import { MyMaterialsScreen } from "../screens/study/MyMaterialsScreen";
@@ -181,6 +182,16 @@ function MainNavigator() {
       <MainStack.Screen name="NoteEditor" component={NoteEditorScreen} options={{ title: "Note" }} />
       <MainStack.Screen name="DocumentReader" component={DocumentReaderScreen} options={{ title: "Read" }} />
       <MainStack.Screen name="ImageToPdf" component={ImageToPdfScreen} options={{ title: "Image to PDF" }} />
+      <MainStack.Screen
+        name="AssociationDashboard"
+        component={DashboardWebViewScreen}
+        options={{ title: "Association dashboard" }}
+      />
+      <MainStack.Screen
+        name="AdminConsole"
+        component={DashboardWebViewScreen}
+        options={{ title: "Admin console" }}
+      />
       <MainStack.Screen name="VaultUpload" component={VaultUploadScreen} options={{ title: "Add to the Library" }} />
       <MainStack.Screen name="Timetable" component={TimetableScreen} options={{ title: "Timetable" }} />
       <MainStack.Screen name="MyMaterials" component={MyMaterialsScreen} options={{ title: "My Materials" }} />

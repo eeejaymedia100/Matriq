@@ -10,6 +10,7 @@ import { TelegramCampaignService } from "./telegram-campaign.service";
 import { TelegramApi, TgMessage, TgUpdate, TgUser } from "./telegram.api";
 import { TelegramConfig } from "./telegram.config";
 import { TelegramGate } from "./telegram-gate";
+import { ToolsService } from "../tools/tools.service";
 
 /**
  * The Matriq Resource Hunt bot.
@@ -186,6 +187,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     private readonly audit: ResourceAuditService,
     private readonly gate: TelegramGate,
     private readonly api: TelegramApi,
+    private readonly tools: ToolsService,
     configService: ConfigService,
   ) {
     const redisUrl = configService.get<string>("REDIS_URL");
@@ -224,20 +226,29 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           .join("\n");
         const sent =
           payload.buffer.length > 0
-            ? await this.api.sendDocument(
-                Number(adminId),
-                { filename: payload.fileName, buffer: payload.buffer, mimeType: payload.mimeType },
-                caption,
-                {
-                  inline_keyboard: [
-                    [
-                      { text: "Approve", callback_data: `ra:approve:${payload.submissionId}` },
-                      { text: "Reject", callback_data: `ra:reject:${payload.submissionId}` },
+            ? await (async () => {
+                await this.sendInlinePreview(
+                  Number(adminId),
+                  payload.submissionId,
+                  payload.buffer,
+                  payload.mimeType,
+                  payload.fileName,
+                );
+                return this.api.sendDocument(
+                  Number(adminId),
+                  { filename: payload.fileName, buffer: payload.buffer, mimeType: payload.mimeType },
+                  caption,
+                  {
+                    inline_keyboard: [
+                      [
+                        { text: "Approve", callback_data: `ra:approve:${payload.submissionId}` },
+                        { text: "Reject", callback_data: `ra:reject:${payload.submissionId}` },
+                      ],
+                      [{ text: "Needs info", callback_data: `ra:info:${payload.submissionId}` }],
                     ],
-                    [{ text: "Needs info", callback_data: `ra:info:${payload.submissionId}` }],
-                  ],
-                },
-              )
+                  },
+                );
+              })()
             : null;
         // Document delivery failed (size/network) — fall back to the text
         // notification so the submission is still reviewable.
@@ -415,6 +426,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       } else await this.sendHelp(chatId);
       return;
     }
+
+    // In groups, the bot answers commands only — never chatter, and never
+    // service messages. Telegram delivers every member join as a message
+    // with no text, which used to fall through to the help screen and spam
+    // the waitlist community on each arrival. Silence is the correct reply.
+    if (chatId !== telegramId) return;
 
     // Any other text continues the active conversation (only specific steps
     // accept free text; everything else uses buttons).
@@ -742,9 +759,24 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     }
     if (step === "course") {
       // Course code: validated server-side too; keep the input lenient here.
+      // The rule, in plain language: subject letters first, then the 3-digit
+      // number — with or without the space. Department-prefixed codes
+      // (D/AGE 217) are normal in Nigerian universities.
       const course = text.trim().toUpperCase().slice(0, 20);
       if (course.length < 5) {
-        await this.api!.sendMessage(chatId, "That doesn't look like a course code — e.g. <code>CHM 101</code>. Try again, or /cancel.");
+        await this.api!.sendMessage(
+          chatId,
+          [
+            "That doesn't look like a course code yet.",
+            "",
+            "The format is <b>subject letters + 3-digit number</b>, space optional:",
+            "• <code>CHM 101</code> or <code>CHM101</code>",
+            "• <code>PHY 307</code>",
+            "• Department prefixes are fine — <code>D/AGE 217</code>, <code>D/ANS 318</code>",
+            "",
+            "Try again, or /cancel.",
+          ].join("\n"),
+        );
         return;
       }
       await this.setConversation(telegramId, { ...conv, step: "type", courseCode: course });
@@ -1135,6 +1167,8 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       ]
         .filter((l) => l !== null)
         .join("\n");
+      // Inline pages first — read without downloading, then the original.
+      await this.sendInlinePreview(Number(from.id), submissionId, buffer, row.fileType, row.fileName);
       await this.api.sendDocument(
         Number(from.id),
         { filename: row.fileName, buffer, mimeType: row.fileType },
@@ -1233,6 +1267,42 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         await this.api.sendMessage(chatId, "Something failed on our side. The submission was not saved — /upload to try again.");
       }
       await this.clearConversation(telegramId);
+    }
+  }
+
+  /**
+   * Inline preview: the first pages of a submission as Telegram photos —
+   * they render right in the chat, so a reviewer reads the document
+   * without downloading anything. PDFs are rendered server-side (first 3
+   * pages); image uploads are natively previewable and pass through as-is.
+   * Best effort: a rendering failure never blocks the document delivery.
+   */
+  private async sendInlinePreview(
+    adminId: number,
+    submissionId: string,
+    buffer: Buffer,
+    mimeType: string | null,
+    fileName: string,
+  ): Promise<void> {
+    try {
+      if (mimeType === "application/pdf") {
+        const pages = await this.tools.pdfPreviewPages(buffer, 3);
+        for (let i = 0; i < pages.length; i++) {
+          await this.api.sendPhoto(
+            adminId,
+            { filename: `page-${i + 1}.jpg`, buffer: pages[i], mimeType: "image/jpeg" },
+            pages.length > 1
+              ? `Preview — page ${i + 1} of ${pages.length} (full document below)`
+              : "Preview — full document below",
+          );
+        }
+      } else if (mimeType?.startsWith("image/")) {
+        await this.api.sendPhoto(adminId, { filename: fileName, buffer, mimeType });
+      }
+    } catch (err) {
+      this.logger.warn(
+        `inline preview failed for ${submissionId.slice(0, 8)}: ${err instanceof Error ? err.message : String(err)}`,
+      );
     }
   }
 

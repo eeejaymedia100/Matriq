@@ -59,6 +59,10 @@ export type MainStackParamList = {
   /** Deep Read — premium handwriting OCR (Magic Plus). */
   DeepRead: undefined;
   ImageToPdf: undefined;
+  /** Association dashboard — the web console, embedded for executives. */
+  AssociationDashboard: undefined;
+  /** Admin console — the web console, embedded for admins. */
+  AdminConsole: undefined;
   /** Academic Library (Netflix-for-Students discovery). */
   Library: undefined;
   LibrarySearch: undefined;

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -30,7 +30,7 @@
       },
       "package": "app.matriq.mobile",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 26,
+      "versionCode": 27,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],

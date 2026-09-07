@@ -227,6 +227,19 @@ describe("ResourceAuditService — submission creation", () => {
     ).rejects.toBeInstanceOf(SubmissionValidationError);
   });
 
+  it("accepts every real-world course-code shape (spaced, unspaced, D/-prefixed)", async () => {
+    const { svc, prisma } = await buildSvc();
+    (prisma.resourceSubmission.findFirst as jest.Mock).mockResolvedValue(null);
+
+    // The campaign's actual failures: department-prefixed codes and
+    // missing spaces. None of these may bounce.
+    for (const courseCode of ["D/AGE 217", "D/AGE217", "AGE217", "D/ANS 318", "CHM 101", "CHM101"]) {
+      (prisma.resourceSubmission.create as jest.Mock).mockClear();
+      const result = await svc.submit({ ...VALID_INPUT, courseCode });
+      expect(result.courseCode).toBe(courseCode.toUpperCase().replace(/\s+/g, " "));
+    }
+  });
+
   it("rejects unsupported extensions and empty files", async () => {
     const { svc } = await buildSvc();
     await expect(
