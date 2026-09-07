@@ -22,6 +22,9 @@
   var me = null; // /miniapp/me payload
   var current = "boot";
   var libraryType = "";
+  // True when opened outside Telegram (no initData): the interface renders
+  // as an honest preview — real structure, zero state, no fake data.
+  var previewMode = false;
 
   // ── Option data — mirrors the bot wizard's button lists exactly ──
   var DELTA_UNIVERSITIES = [
@@ -166,7 +169,13 @@
     $("#tile-community").addEventListener("click", openCommunity);
     var initData = tg ? tg.initData : "";
     if (!initData) {
-      $("#boot-line").textContent = "Open Matriq from the Matriq bot — send /start to get in.";
+      // No Telegram session — show the interface with a clear banner instead
+      // of a dead boot screen, so the link is checkable before it's wired up
+      // in BotFather.
+      previewMode = true;
+      buildForm();
+      renderHome();
+      showView("home");
       return;
     }
     fetch(API + "/telegram/miniapp/auth", {
@@ -215,7 +224,7 @@
       if (name === "home" || name === "boot") tg.BackButton.hide();
       else tg.BackButton.show();
     }
-    if (name === "home") refreshMe().catch(function () { /* keep last state */ });
+    if (name === "home") { if (!previewMode) refreshMe().catch(function () { /* keep last state */ }); }
     if (name === "status") loadStatus();
     if (name === "library") loadLibrary();
     if (name === "board") loadBoard();
@@ -232,6 +241,14 @@
 
   // ── Home: gate or ledger ────────────────────────────────────────
   function renderHome() {
+    if (previewMode) {
+      $("#gate-card").hidden = true;
+      $("#ledger").hidden = false;
+      $("#ledger-points").textContent = "0";
+      $("#ledger-approved").textContent = "0";
+      $("#preview-note").hidden = false;
+      return;
+    }
     if (!me) return;
     var gate = $("#gate-card");
     var ledger = $("#ledger");
@@ -359,6 +376,10 @@
   function loadLibrary() {
     var q = $("#library-q").value.trim();
     var list = $("#library-list");
+    if (previewMode) {
+      list.innerHTML = '<p class="empty">Preview only — open this app inside Telegram to browse the live library.</p>';
+      return;
+    }
     list.innerHTML = '<p class="empty">Searching…</p>';
     var params = [];
     if (q) params.push("q=" + encodeURIComponent(q));
@@ -516,6 +537,10 @@
 
   function onSubmit(ev) {
     ev.preventDefault();
+    if (previewMode) {
+      showToast("Preview only — open this app inside Telegram to submit.");
+      return;
+    }
     if (!me.canUpload) {
       showToast(me.communityMember ? "Verify your membership first — it's on the home screen." : "Join the community first — the link is on the home screen.");
       return;
@@ -620,6 +645,10 @@
 
   function loadStatus() {
     var list = $("#status-list");
+    if (previewMode) {
+      list.innerHTML = '<p class="empty">Preview only — submissions live inside Telegram.</p>';
+      return;
+    }
     list.innerHTML = '<p class="empty">Loading…</p>';
     api("/telegram/miniapp/submissions")
       .then(function (body) {
@@ -672,6 +701,10 @@
   // ── Leaderboard ─────────────────────────────────────────────────
   function loadBoard() {
     var list = $("#board-list");
+    if (previewMode) {
+      list.innerHTML = '<p class="empty">Preview only — open this app inside Telegram to see the hunt.</p>';
+      return;
+    }
     list.innerHTML = '<p class="empty">Loading…</p>';
     api("/telegram/miniapp/leaderboard")
       .then(function (body) {
