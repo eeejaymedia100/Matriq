@@ -111,6 +111,9 @@ export class TelegramController {
     }
     const session = this.miniAppAuth.validateInitData(initData);
     if (!session) {
+      // The reason lands in the validator's warn log — this line makes the
+      // rejection visible in aggregate when debugging webview-only failures.
+      this.logger.warn(`miniapp/auth rejected initData (len=${initData.length})`);
       throw new UnauthorizedException("initData failed validation.");
     }
     const accessToken = this.jwt.sign(

@@ -164,10 +164,30 @@
   }
 
   // ── Boot ────────────────────────────────────────────────────────
-  function boot() {
-    // Static wiring — registered exactly once for the app's lifetime.
-    $("#tile-community").addEventListener("click", openCommunity);
-    var initData = tg ? tg.initData : "";
+  function bootErrorText(code) {
+    return (
+      "Session check failed" + (code ? " (" + code + ")" : "") +
+      ". Close this window and reopen it from the Matriq bot's menu button."
+    );
+  }
+
+  function tryAuth(initData) {
+    return fetch(API + "/telegram/miniapp/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ initData: initData }),
+    }).then(function (res) {
+      if (!res.ok) {
+        var err = new Error("auth failed");
+        err.code = res.status; // surfaces in the boot message — pinpoints CORS vs validation
+        throw err;
+      }
+      return res.json();
+    }).then(function (body) { token = body.token; });
+  }
+
+  function bootAuth() {
+    var initData = tg ? (tg.initDataRaw || tg.initData || "") : "";
     if (!initData) {
       // No Telegram session — show the interface with a clear banner instead
       // of a dead boot screen, so the link is checkable before it's wired up
@@ -178,27 +198,37 @@
       showView("home");
       return;
     }
-    fetch(API + "/telegram/miniapp/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ initData: initData }),
-    })
-      .then(function (res) {
-        if (!res.ok) throw new Error("auth failed");
-        return res.json();
+    $("#boot-line").textContent = "Opening Matriq…";
+    tryAuth(initData)
+      .catch(function (err) {
+        // Some older Telegram clients hand out a re-encoded initData — one
+        // retry with the raw form before giving up.
+        var raw = tg && tg.initDataRaw ? tg.initDataRaw : null;
+        if (raw && raw !== initData) return tryAuth(raw);
+        throw err;
       })
-      .then(function (body) {
-        token = body.token;
-        return refreshMe();
-      })
+      .then(function () { return refreshMe(); })
       .then(function () {
         buildForm();
         showView("home");
       })
-      .catch(function () {
-        $("#boot-line").textContent =
-          "Matriq couldn't verify this session. Close and reopen from the bot.";
+      .catch(function (err) {
+        var code = err && typeof err.code === "number" ? err.code : null;
+        $("#boot-line").textContent = code
+          ? bootErrorText(code)
+          : (err && err.message) || bootErrorText(null);
+        $("#boot-retry").hidden = false;
       });
+  }
+
+  function boot() {
+    // Static wiring — registered exactly once for the app's lifetime.
+    $("#tile-community").addEventListener("click", openCommunity);
+    $("#boot-retry").addEventListener("click", function () {
+      this.hidden = true;
+      bootAuth();
+    });
+    bootAuth();
   }
 
   function refreshMe() {

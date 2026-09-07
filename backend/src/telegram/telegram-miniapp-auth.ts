@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { TelegramConfig } from "./telegram.config";
 import { TgUser } from "./telegram.api";
 
@@ -28,15 +28,24 @@ const AUTH_TTL_SECONDS = 86400; // initData is valid for 24h per Telegram docs.
 
 @Injectable()
 export class TelegramMiniAppAuth {
+  private readonly logger = new Logger(TelegramMiniAppAuth.name);
+
   constructor(private readonly config: TelegramConfig) {}
 
   validateInitData(initData: string): MiniAppSession | null {
+    // Every rejection logs its reason — webview-only auth failures are
+    // otherwise undiagnosable from the server side.
+    const fail = (reason: string): null => {
+      this.logger.warn(`initData rejected: ${reason}`);
+      return null;
+    };
+
     const botToken = this.config.botToken;
-    if (!botToken || !initData) return null;
+    if (!botToken || !initData) return fail("missing bot token or initData");
 
     const params = new URLSearchParams(initData);
     const hash = params.get("hash");
-    if (!hash) return null;
+    if (!hash) return fail("hash field missing");
 
     // 1. Build data_check_string: every pair except hash/signature, sorted.
     const pairs: string[] = [];
@@ -53,22 +62,25 @@ export class TelegramMiniAppAuth {
 
     const given = Buffer.from(hash, "hex");
     if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
-      return null;
+      return fail(
+        `hash mismatch (botTokenId=${botToken.split(":")[0]}, keys=${pairs.length})`,
+      );
     }
 
     // 3. Freshness check — reject replayed initData.
     const authDate = Number(params.get("auth_date"));
-    if (!Number.isFinite(authDate) || Date.now() / 1000 - authDate > AUTH_TTL_SECONDS) {
-      return null;
+    const age = Math.floor(Date.now() / 1000) - authDate;
+    if (!Number.isFinite(authDate) || age > AUTH_TTL_SECONDS) {
+      return fail(`stale or invalid auth_date (age=${age}s)`);
     }
 
     let user: TgUser | null = null;
     try {
       user = JSON.parse(params.get("user") ?? "null") as TgUser | null;
     } catch {
-      return null;
+      return fail("user field unparsable");
     }
-    if (!user?.id) return null;
+    if (!user?.id) return fail("user id missing");
 
     return {
       telegramId: String(user.id),
