@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Matriq</title>
-  <meta name="description" content="The Matriq library, inside Telegram." />
+  <meta name="description" content="The Matriq Resource Hunt, inside Telegram." />
   <link rel="icon" type="image/png" href="/app-icon.png" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,7 +15,7 @@
 <body>
   <div id="app">
 
-    <!-- ── Boot / error ─────────────────────────────────────────── -->
+    <!-- ── Boot ─────────────────────────────────────────────────── -->
     <section id="view-boot" class="view">
       <div class="boot-mark" aria-hidden="true"><img src="/app-icon.png" alt="" /></div>
       <p class="boot-line" id="boot-line">Opening Matriq…</p>
@@ -24,21 +24,33 @@
     <!-- ── Home ─────────────────────────────────────────────────── -->
     <section id="view-home" class="view" hidden>
       <header class="top">
-        <div>
-          <p class="eyebrow">The library, in your pocket</p>
-          <h1 class="display">Matriq</h1>
-        </div>
+        <h1 class="display">Matriq</h1>
         <img class="top-mark" src="/app-icon.png" alt="" />
       </header>
 
-      <div id="gate-card" class="gate" hidden>
-        <h2 id="gate-title">Two steps to contribute</h2>
-        <p id="gate-body">Link your Matriq account and join the community — then every upload you send enters the audit queue.</p>
+      <!-- Gate: shown until the participant is community-verified -->
+      <div id="gate-card" class="card gate" hidden>
+        <h2 id="gate-title">Join the community first</h2>
+        <p id="gate-body">The Resource Hunt runs inside the Matriq Telegram community. Join, come back, and verify.</p>
         <div class="gate-actions">
-          <a id="gate-community" class="btn btn-primary" href="#" target="_blank" rel="noopener">Join the community</a>
-          <button id="gate-link" class="btn btn-ghost" type="button">Link account in chat</button>
+          <button id="gate-join" class="btn btn-primary" type="button">Join the community</button>
+          <button id="gate-check" class="btn btn-ghost" type="button">I've joined — check again</button>
         </div>
       </div>
+
+      <!-- Points ledger: the signature. Serif numeral, progress rule -->
+      <div id="ledger" class="card ledger" hidden>
+        <p class="eyebrow">Points earned</p>
+        <p class="ledger-num"><span id="ledger-points">0</span></p>
+        <p class="ledger-sub"><span id="ledger-approved">0</span> approved resources</p>
+        <div class="ledger-rule" id="ledger-rule" hidden><i id="ledger-fill"></i></div>
+        <p class="ledger-tier" id="ledger-tier" hidden></p>
+      </div>
+
+      <button class="btn btn-primary btn-block cta" data-nav="submit" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4L8 8"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Contribute a resource
+      </button>
 
       <nav class="tiles">
         <button class="tile" data-nav="library" type="button">
@@ -46,14 +58,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M8 7h7M8 11h7"/></svg>
           </span>
           <span class="tile-name">Library</span>
-          <span class="tile-sub">Browse what's approved</span>
-        </button>
-        <button class="tile" data-nav="submit" type="button">
-          <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0 4 4m-4-4L8 8"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-          </span>
-          <span class="tile-name">Contribute</span>
-          <span class="tile-sub">Past questions &amp; notes</span>
+          <span class="tile-sub">Everything approved so far</span>
         </button>
         <button class="tile" data-nav="status" type="button">
           <span class="tile-icon" aria-hidden="true">
@@ -62,16 +67,23 @@
           <span class="tile-name">My submissions</span>
           <span class="tile-sub">Track the audit</span>
         </button>
-        <a class="tile" id="tile-community" href="#" target="_blank" rel="noopener">
+        <button class="tile" data-nav="board" type="button">
+          <span class="tile-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8m-4-4v4M6 4h12v4a6 6 0 0 1-12 0V4Z"/><path d="M6 6H4a2 2 0 0 0 2 4m12-4h2a2 2 0 0 1-2 4"/></svg>
+          </span>
+          <span class="tile-name">Leaderboard</span>
+          <span class="tile-sub">Who's leading the hunt</span>
+        </button>
+        <button class="tile" id="tile-community" type="button">
           <span class="tile-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 21l2-5.5a8.5 8.5 0 1 1 16-4Z"/></svg>
           </span>
           <span class="tile-name">Community</span>
           <span class="tile-sub">Where students show up</span>
-        </a>
+        </button>
       </nav>
 
-      <p class="foot">Every submission is audited by AI and a human before it reaches the library.</p>
+      <p class="foot">Every submission is read by AI and a human before it reaches the library.</p>
     </section>
 
     <!-- ── Library ──────────────────────────────────────────────── -->
@@ -86,6 +98,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
         <input id="library-q" type="search" placeholder="Course code or title" autocomplete="off" />
       </div>
+      <div class="chips" role="tablist">
+        <button class="chip is-on" data-type="" type="button">All</button>
+        <button class="chip" data-type="past_question" type="button">Past questions</button>
+        <button class="chip" data-type="material" type="button">Materials</button>
+      </div>
       <div id="library-list" class="list" aria-live="polite"></div>
     </section>
 
@@ -97,48 +114,72 @@
         </button>
         <h2 class="bar-title">Contribute</h2>
       </header>
-      <form id="submit-form" class="form">
+      <form id="submit-form" class="form" novalidate>
+        <label class="field">
+          <span>University</span>
+          <select name="universityName" id="f-university" required></select>
+          <input id="f-university-other" class="other" placeholder="Type your university" autocomplete="off" hidden />
+        </label>
+        <label class="field">
+          <span>Faculty</span>
+          <select name="faculty" id="f-faculty" required></select>
+          <input id="f-faculty-other" class="other" placeholder="Type your faculty" autocomplete="off" hidden />
+        </label>
+        <label class="field">
+          <span>Department</span>
+          <select name="department" id="f-department" required></select>
+          <input id="f-department-other" class="other" placeholder="Type your department" autocomplete="off" hidden />
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>Level <em>optional</em></span>
+            <select name="level" id="f-level"></select>
+          </label>
+          <label class="field">
+            <span>Session <em>optional</em></span>
+            <select name="academicSession" id="f-session"></select>
+          </label>
+        </div>
         <label class="field">
           <span>Course code</span>
-          <input name="courseCode" required placeholder="CHM 101" autocomplete="off" />
+          <input name="courseCode" id="f-course" required placeholder="CHM 101" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+          <em class="rule">Letters first, then the 3–4 digit number — <b>CHM 101 · PHY 307 · D/AGE 217</b>. The space is optional (CHM101 works too).</em>
+          <em class="code-state" id="code-state" hidden></em>
         </label>
         <label class="field">
           <span>Material type</span>
-          <select name="materialType" required>
-            <option value="past_question">Past question</option>
-            <option value="lecture_note">Lecture note</option>
-            <option value="handout">Handout</option>
-            <option value="slide_deck">Slide deck</option>
-            <option value="textbook_summary">Textbook summary</option>
-          </select>
+          <select name="materialType" id="f-type" required></select>
         </label>
-        <label class="field">
-          <span>Session <em>optional</em></span>
-          <input name="academicSession" placeholder="2024/2025" autocomplete="off" />
-        </label>
-        <label class="field">
-          <span>File</span>
-          <input id="submit-file" name="file" type="file" required accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" />
-        </label>
+        <div class="field">
+          <span>Document</span>
+          <label class="filezone" id="file-zone">
+            <input id="f-file" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" hidden />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5"/></svg>
+            <span id="file-name">Choose a file</span>
+            <em id="file-size">PDF, JPG, PNG or WEBP · up to 20 MB</em>
+          </label>
+        </div>
         <label class="check">
-          <input type="checkbox" id="submit-rights" required />
+          <input type="checkbox" id="f-rights" />
           <span>I have the right to share this material, and it may be published in the Matriq library with credit.</span>
         </label>
         <button class="btn btn-primary btn-block" type="submit" id="submit-btn">Submit for audit</button>
-        <p class="hint">PDF, JPG, PNG, DOC or DOCX · up to 20 MB. Submissions are reviewed before publication.</p>
       </form>
       <div id="submit-success" class="success" hidden>
         <div class="success-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
         </div>
-        <h2>Submitted</h2>
+        <h2>In the queue.</h2>
         <p>Reference <code id="submit-ref"></code></p>
-        <p class="hint">Watch it move through the audit in “My submissions”.</p>
-        <button class="btn btn-ghost" data-nav="status" type="button">Track it</button>
+        <p class="hint">It's in the audit now — watch it move in “My submissions”. You'll be notified here when it's approved.</p>
+        <div class="success-actions">
+          <button class="btn btn-primary" data-nav="status" type="button">Track it</button>
+          <button class="btn btn-ghost" id="submit-again" type="button">Contribute another</button>
+        </div>
       </div>
     </section>
 
-    <!-- ── Submissions ──────────────────────────────────────────── -->
+    <!-- ── My submissions ───────────────────────────────────────── -->
     <section id="view-status" class="view" hidden>
       <header class="bar">
         <button class="back" data-nav="home" type="button" aria-label="Back">
@@ -149,8 +190,21 @@
       <div id="status-list" class="list" aria-live="polite"></div>
     </section>
 
+    <!-- ── Leaderboard ──────────────────────────────────────────── -->
+    <section id="view-board" class="view" hidden>
+      <header class="bar">
+        <button class="back" data-nav="home" type="button" aria-label="Back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 class="bar-title">Leaderboard</h2>
+      </header>
+      <p class="board-note">Ranked by approved contributions — never by raw uploads.</p>
+      <div id="board-list" class="board" aria-live="polite"></div>
+    </section>
+
   </div>
 
+  <canvas id="confetti" hidden aria-hidden="true"></canvas>
   <div id="toast" role="status" hidden></div>
 
   <script src="app.js"></script>

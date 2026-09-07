@@ -35,6 +35,7 @@ import { TelegramConfig } from "./telegram.config";
 import { TgUpdate } from "./telegram.api";
 import { TelegramMiniAppAuth, MiniAppSession } from "./telegram-miniapp-auth";
 import { TelegramMiniAppGuard, MINIAPP_SESSION_KEY } from "./telegram-miniapp.guard";
+import { loadCampaign } from "../resource-audit/resource-audit.rewards";
 
 interface MiniAppRequest extends Request {
   [MINIAPP_SESSION_KEY]?: MiniAppSession;
@@ -145,9 +146,35 @@ export class TelegramController {
       canUpload: member && participant?.verifiedAt != null,
       points: participant?.points ?? 0,
       approvedCount: participant?.approvedCount ?? 0,
+      // The academic context the chat wizard collects — the Mini App offers
+      // the same choices as editable fields instead of re-asking every time.
+      university: participant?.university ?? null,
+      faculty: participant?.faculty ?? null,
+      department: participant?.department ?? null,
       communityUrl: this.config.communityUrl,
       botUsername: this.config.botUsername,
+      // Reward tiers so the client can show progress toward the next one.
+      campaign: loadCampaign((key) => process.env[key]),
     };
+  }
+
+  /**
+   * Self-serve community verification. The Mini App asks the bot to run the
+   * same getChatMember check the chat's Verify button runs, so participants
+   * never need to leave the app to prove membership.
+   */
+  @Post("miniapp/verify")
+  @UseGuards(TelegramMiniAppGuard)
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  async miniAppVerify(@Req() req: MiniAppRequest) {
+    const session = req[MINIAPP_SESSION_KEY]!;
+    const member = await this.gateCheck(session.telegramId);
+    if (!member) {
+      return { verified: false, reason: "not_member" };
+    }
+    await this.campaign.ensureParticipant({ id: Number(session.telegramId) });
+    await this.campaign.markVerified(session.telegramId);
+    return { verified: true };
   }
 
   /** Library search — the Mini App's browse view. */
@@ -188,7 +215,16 @@ export class TelegramController {
   @Throttle({ default: { ttl: 3600000, limit: 5 } })
   async miniAppSubmit(
     @Req() req: MiniAppRequest,
-    @Body() body: { courseCode?: string; materialType?: string; academicSession?: string; level?: string; universityName?: string; rightsDeclared?: string },
+    @Body() body: {
+      courseCode?: string;
+      materialType?: string;
+      academicSession?: string;
+      level?: string;
+      universityName?: string;
+      faculty?: string;
+      department?: string;
+      rightsDeclared?: string;
+    },
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const session = req[MINIAPP_SESSION_KEY]!;
@@ -212,6 +248,8 @@ export class TelegramController {
         level: body.level ?? null,
         academicSession: body.academicSession ?? null,
         universityName: body.universityName ?? participant.university ?? null,
+        faculty: body.faculty ?? participant.faculty ?? null,
+        department: body.department ?? participant.department ?? null,
         rightsDeclared: true,
         source: "telegram",
       });
@@ -238,6 +276,7 @@ export class TelegramController {
       select: {
         id: true, fileName: true, courseCode: true, materialType: true,
         auditStatus: true, rewardStatus: true, submittedAt: true,
+        aiRecommendation: true, riskLevel: true,
       },
     });
     return { submissions: rows, points: participant.points, approvedCount: participant.approvedCount };
@@ -246,8 +285,16 @@ export class TelegramController {
   /** Campaign leaderboard for the Mini App. */
   @Get("miniapp/leaderboard")
   @UseGuards(TelegramMiniAppGuard)
-  async miniAppLeaderboard() {
-    return { items: await this.campaign.leaderboard(20) };
+  async miniAppLeaderboard(@Req() req: MiniAppRequest) {
+    const session = req[MINIAPP_SESSION_KEY]!;
+    const items = await this.campaign.leaderboard(20);
+    // The client highlights the caller's own row; telegramId never leaves
+    // the server — only the derived "you" marker does.
+    const me = items.find((r) => r.telegramId === session.telegramId);
+    return {
+      items: items.map(({ telegramId: _ignored, ...rest }) => rest),
+      you: me ? { rank: me.rank, points: me.points, approvedCount: me.approvedCount } : null,
+    };
   }
 
   // ── Admin: webhook management ────────────────────────────────────

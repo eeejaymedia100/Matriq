@@ -21,7 +21,15 @@ export class TelegramCampaignService {
     id: number | string;
     username?: string | null;
     first_name?: string | null;
-  }): Promise<{ id: string; verifiedAt: Date | null; university: string | null; points: number; approvedCount: number }> {
+  }): Promise<{
+    id: string;
+    verifiedAt: Date | null;
+    university: string | null;
+    faculty: string | null;
+    department: string | null;
+    points: number;
+    approvedCount: number;
+  }> {
     const telegramId = String(tg.id);
     return this.prisma.telegramParticipant.upsert({
       where: { telegramId },
@@ -35,7 +43,15 @@ export class TelegramCampaignService {
         username: tg.username ?? undefined,
         firstName: tg.first_name ?? undefined,
       },
-      select: { id: true, verifiedAt: true, university: true, points: true, approvedCount: true },
+      select: {
+        id: true,
+        verifiedAt: true,
+        university: true,
+        faculty: true,
+        department: true,
+        points: true,
+        approvedCount: true,
+      },
     });
   }
 
@@ -131,16 +147,17 @@ export class TelegramCampaignService {
 
   /** Public leaderboard: participant rankings by approved points. */
   async leaderboard(limit = 10): Promise<
-    Array<{ rank: number; name: string; username: string | null; points: number; approvedCount: number }>
+    Array<{ rank: number; telegramId: string; name: string; username: string | null; points: number; approvedCount: number }>
   > {
     const rows = await this.prisma.telegramParticipant.findMany({
       where: { approvedCount: { gt: 0 } },
       orderBy: [{ points: "desc" }, { approvedCount: "desc" }, { updatedAt: "asc" }],
       take: Math.min(limit, 50),
-      select: { firstName: true, username: true, points: true, approvedCount: true },
+      select: { telegramId: true, firstName: true, username: true, points: true, approvedCount: true },
     });
     return rows.map((r, i) => ({
       rank: i + 1,
+      telegramId: r.telegramId,
       name: r.firstName ?? r.username ?? "Participant",
       username: r.username,
       points: r.points,
