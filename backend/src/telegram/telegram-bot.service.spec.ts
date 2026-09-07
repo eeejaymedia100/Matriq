@@ -313,3 +313,55 @@ describe("TelegramBotService — admin review", () => {
     );
   });
 });
+
+describe("TelegramBotService — community silence", () => {
+  it("never replies to a member-join service message in the group", async () => {
+    const { bot, api } = makeBot();
+    // Telegram delivers a join as a message with new_chat_members and NO text.
+    const joinUpdate = {
+      update_id: 1,
+      message: {
+        message_id: 10,
+        from: { id: 555, is_bot: false, first_name: "Newbie" },
+        chat: { id: -1004392553526, type: "supergroup", title: "Matriq Waitlist" },
+        date: Math.floor(Date.now() / 1000),
+        new_chat_members: [{ id: 555, is_bot: false, first_name: "Newbie" }],
+      },
+    } as never;
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(joinUpdate);
+    expect(api.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("ignores ordinary chatter in the group (only commands get answers)", async () => {
+    const { bot, api } = makeBot();
+    const chatter = {
+      update_id: 2,
+      message: {
+        message_id: 11,
+        from: { id: 555, is_bot: false, first_name: "Newbie" },
+        chat: { id: -1004392553526, type: "supergroup", title: "Matriq Waitlist" },
+        date: Math.floor(Date.now() / 1000),
+        text: "hello everyone",
+      },
+    } as never;
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(chatter);
+    expect(api.sendMessage).not.toHaveBeenCalled();
+  });
+
+  it("still answers commands typed in the group (e.g. /leaderboard)", async () => {
+    const { bot, api, campaign } = makeBot();
+    campaign.leaderboard.mockResolvedValue([]);
+    const command = {
+      update_id: 3,
+      message: {
+        message_id: 12,
+        from: { id: 555, is_bot: false, first_name: "Newbie" },
+        chat: { id: -1004392553526, type: "supergroup", title: "Matriq Waitlist" },
+        date: Math.floor(Date.now() / 1000),
+        text: "/leaderboard",
+      },
+    } as never;
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(command);
+    expect(api.sendMessage).toHaveBeenCalled();
+  });
+});
