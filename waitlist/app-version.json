@@ -1,7 +1,7 @@
 {
-  "versionCode": 25,
-  "versionName": "0.7.17",
+  "versionCode": 27,
+  "versionName": "2.1.0",
   "url": "https://matriq.com.ng/download/matriq.apk",
-  "notes": "Session fixes (no more surprise logouts), general-purpose Focus Mode (courses, coding, skills), chat scrolling fix, and a more reliable updater.",
-  "publishedAt": "2026-09-02T00:00:00.000Z"
+  "notes": "Update: association and admin dashboards are now built in for authorized accounts, course codes with department prefixes (D/AGE 217) are accepted, and submitted documents show inline page previews for review.",
+  "publishedAt": "2026-09-07T18:19:08.471Z"
 }
