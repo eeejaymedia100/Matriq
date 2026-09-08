@@ -518,3 +518,45 @@ describe("ResourceAuditService — failure handling", () => {
     expect(row.auditStatus).toBe(AUDIT_STATUS.pending_human_review);
   });
 });
+
+// ── FallbackAuditor escalation contract ──────────────────────────────
+
+describe("FallbackAuditor", () => {
+  const { FallbackAuditor } = require("./resource-audit.ai-auditor");
+
+  function stubAuditor(provider: string, model: string, behavior: () => Promise<unknown>) {
+    return { provider, model, audit: behavior };
+  }
+
+  const input = {
+    declared: { materialType: "past_question", courseCode: "AGE 217", level: null, academicSession: null, faculty: null, department: null, universityName: null },
+    fileName: "t.pdf",
+    extractedText: "text",
+    usedOcr: false,
+    validation: { verdict: "pass", pageCount: 2, textDensityCharsPerPage: 900, blankPageRatio: 0, repeatedPageRatio: 0, unreadablePageRatio: 0 },
+  } as never;
+
+  it("returns the primary result without touching the fallback", async () => {
+    const primary = stubAuditor("ollama", "llama3.2:3b", async () => ({ provider: "ollama", model: "llama3.2:3b" }));
+    const fallback = stubAuditor("deepseek", "qwen", async () => { throw new Error("must not be called"); });
+    const out = await new FallbackAuditor(primary as never, fallback as never).audit(input);
+    expect(out.provider).toBe("ollama");
+  });
+
+  it("escalates to the cloud auditor when the primary fails", async () => {
+    const primary = stubAuditor("ollama", "llama3.2:3b", async () => { throw new Error("ollama audit failed: HTTP 500"); });
+    const fallback = stubAuditor("deepseek", "qwen/qwen3.5-flash:free", async () => ({ provider: "deepseek", model: "qwen/qwen3.5-flash:free" }));
+    const out = await new FallbackAuditor(primary as never, fallback as never).audit(input);
+    expect(out.provider).toBe("deepseek");
+    expect(out.model).toBe("qwen/qwen3.5-flash:free");
+  });
+
+  it("uses Ollama+cloud when both are keyed, Ollama only when cloud is absent", () => {
+    const both = FallbackAuditor.fromEnv((k: string) => (k === "OLLAMA_HOST" ? "http://x" : k === "DEEPSEEK_API_KEY" ? "sk" : undefined));
+    expect((both as { provider: string }).provider).toBe("fallback-chain");
+    const onlyOllama = FallbackAuditor.fromEnv((k: string) => (k === "OLLAMA_HOST" ? "http://x" : undefined));
+    expect((onlyOllama as { provider: string }).provider).toBe("ollama");
+    const neither = FallbackAuditor.fromEnv(() => undefined);
+    expect(neither).toBeNull();
+  });
+});

@@ -123,6 +123,9 @@ services:
       # with zero config, the AI auditor activates when a key is present).
       - RESOURCE_AUDIT_AI_KEY=${RESOURCE_AUDIT_AI_KEY:-}
       - RESOURCE_AUDIT_AI_MODEL=${RESOURCE_AUDIT_AI_MODEL:-}
+      # Cloud-only model override: the escalation auditor's model, so the
+      # self-hosted Ollama model keeps RESOURCE_AUDIT_AI_MODEL untouched.
+      - RESOURCE_AUDIT_AI_FALLBACK_MODEL=${RESOURCE_AUDIT_AI_FALLBACK_MODEL:-}
     expose:
       - "3000" # internal only — caddy routes via Docker network
     networks:
