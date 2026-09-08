@@ -59,7 +59,7 @@ import {
   ResourceAiAuditor,
   StructuredAudit,
   AuditorInput,
-  DeepSeekAuditor,
+  FallbackAuditor,
   RuleBasedAuditor,
 } from "./resource-audit.ai-auditor";
 import pdfParse from "pdf-parse";
@@ -151,7 +151,7 @@ export class ResourceAuditService {
     this.thresholds = loadThresholds((key) => configService?.get<string>(key));
     this.auditor =
       auditor ??
-      DeepSeekAuditor.fromEnv((key) => configService?.get<string>(key)) ??
+      FallbackAuditor.fromEnv((key) => configService?.get<string>(key)) ??
       new RuleBasedAuditor();
   }
 

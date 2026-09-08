@@ -9,9 +9,16 @@ import { TgUser } from "./telegram.api";
  * Telegram signs initData with HMAC-SHA256:
  *   secret_key  = HMAC_SHA256(key="WebAppData", message=bot_token)
  *   hash        = HMAC_SHA256(key=secret_key,    message=data_check_string)
- *   data_check_string = newline-joined "key=value" pairs (hash and signature
- *   excluded), sorted by key. (Mini App initData uses plain pairs — the
- *   backslash-escaping rule applies only to the third-party Login Widget.)
+ *   data_check_string = newline-joined "key=value" pairs (hash excluded),
+ *   sorted by key.
+ *
+ * Telegram's documentation and client implementations have shipped variants
+ * of this scheme: whether values are signed decoded or still URL-encoded,
+ * and whether the newer `signature` field participates in the check string.
+ * A payload is genuine if its hash verifies under ANY documented variant —
+ * every variant is a full HMAC under the bot token, so acceptance is never
+ * weakened. The matched variant is logged; a total failure logs enough to
+ * diagnose the next mismatch offline.
  *
  * A valid initData only proves "this request came from Telegram as this
  * Telegram user". It does NOT identify a Matriq account, so the Mini App
@@ -47,25 +54,54 @@ export class TelegramMiniAppAuth {
     const hash = params.get("hash");
     if (!hash) return fail("hash field missing");
 
-    // 1. Build data_check_string: every pair except hash/signature, sorted.
-    const pairs: string[] = [];
-    params.forEach((value, key) => {
-      if (key === "hash" || key === "signature") return;
-      pairs.push(`${key}=${value}`);
-    });
-    pairs.sort();
-    const dataCheckString = pairs.join("\n");
+    // 1. Verify the HMAC against every documented signing variant.
+    //    Raw pairs preserve the exact encoding the client signed; decoded
+    //    pairs are the canonical documented form. `signature` is excluded
+    //    or included per variant (newer clients sign it too).
+    const rawPairs = initData.split("&").filter(Boolean);
+    const decodedPairs: string[] = [];
+    params.forEach((value, key) => decodedPairs.push(`${key}=${value}`));
 
-    // 2. Derive the key from the bot token, then verify the HMAC.
     const secretKey = createHmac("sha256", "WebAppData").update(botToken).digest();
-    const expected = createHmac("sha256", secretKey).update(dataCheckString).digest();
-
     const given = Buffer.from(hash, "hex");
-    if (given.length !== expected.length || !timingSafeEqual(given, expected)) {
+
+    const checkStringVariants: Array<{ name: string; pairs: string[] }> = [];
+    for (const [form, pairs] of [
+      ["decoded", decodedPairs],
+      ["raw", rawPairs],
+    ] as const) {
+      for (const excludeSig of [true, false]) {
+        checkStringVariants.push({
+          name: `${form}${excludeSig ? "-nosig" : "-withsig"}`,
+          pairs: pairs.filter(
+            (p) =>
+              !p.startsWith("hash=") &&
+              (excludeSig || !p.startsWith("signature=")),
+          ),
+        });
+      }
+    }
+
+    let matchedVariant: string | null = null;
+    for (const variant of checkStringVariants) {
+      const dataCheckString = variant.pairs.sort().join("\n");
+      const expected = createHmac("sha256", secretKey)
+        .update(dataCheckString)
+        .digest();
+      if (
+        given.length === expected.length &&
+        timingSafeEqual(given, expected)
+      ) {
+        matchedVariant = variant.name;
+        break;
+      }
+    }
+    if (!matchedVariant) {
       return fail(
-        `hash mismatch (botTokenId=${botToken.split(":")[0]}, keys=${pairs.length})`,
+        `hash mismatch under all variants (botTokenId=${botToken.split(":")[0]}, keys=${decodedPairs.length}, len=${initData.length}, head=${initData.slice(0, 80)})`,
       );
     }
+    this.logger.log(`initData verified via variant ${matchedVariant}`);
 
     // 3. Freshness check — reject replayed initData.
     const authDate = Number(params.get("auth_date"));

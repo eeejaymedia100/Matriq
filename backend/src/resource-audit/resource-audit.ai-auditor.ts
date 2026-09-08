@@ -189,8 +189,13 @@ export function riskLevelFromSignals(scores: AuditScores, contradictionCount: nu
   return "green";
 }
 
-// ── DeepSeek adapter ─────────────────────────────────────────────────
+// ── Cloud adapter (OpenAI-compatible) ────────────────────────────────
 
+/**
+ * The cloud escalation auditor — speaks the standard OpenAI
+ * `/chat/completions` shape, so it fronts DeepSeek directly or any
+ * OpenAI-compatible router (e.g. xKiro) via DEEPSEEK_BASE_URL.
+ */
 export class DeepSeekAuditor implements ResourceAiAuditor {
   readonly provider = "deepseek";
   readonly model: string;
@@ -209,7 +214,9 @@ export class DeepSeekAuditor implements ResourceAiAuditor {
     return new DeepSeekAuditor(
       apiKey,
       get("DEEPSEEK_BASE_URL") || "https://api.deepseek.com",
-      get("RESOURCE_AUDIT_AI_MODEL"),
+      // Cloud-only model override: keeps Ollama on RESOURCE_AUDIT_AI_MODEL
+      // while the escalation runs a different (typically stronger) model.
+      get("RESOURCE_AUDIT_AI_FALLBACK_MODEL") || get("RESOURCE_AUDIT_AI_MODEL"),
     );
   }
 
@@ -304,6 +311,41 @@ export class OllamaAuditor implements ResourceAiAuditor {
       return parseStructuredAudit(parsed, this.provider, this.model);
     } finally {
       clearTimeout(timer);
+    }
+  }
+}
+
+// ── Escalation wrapper ───────────────────────────────────────────────
+
+/**
+ * Ollama first (free, private, on-server); if it errors or times out,
+ * escalate to the cloud adapter (xKiro router / DeepSeek) before the
+ * deterministic rules engine. The provider/model recorded on the audit
+ * always names the auditor that actually produced it.
+ */
+export class FallbackAuditor implements ResourceAiAuditor {
+  readonly provider = "fallback-chain";
+  readonly model = "ollama->cloud";
+
+  constructor(private readonly primary: ResourceAiAuditor, private readonly fallback: ResourceAiAuditor) {}
+
+  static fromEnv(get: (key: string) => string | undefined, timeoutMs?: number): ResourceAiAuditor | null {
+    const ollama = OllamaAuditor.fromEnv(get, timeoutMs);
+    const cloud = DeepSeekAuditor.fromEnv(get);
+    if (ollama && cloud) return new FallbackAuditor(ollama, cloud);
+    return ollama ?? cloud;
+  }
+
+  async audit(input: AuditorInput): Promise<StructuredAudit> {
+    try {
+      return await this.primary.audit(input);
+    } catch (primaryErr) {
+      // Structured context for ops; the pipeline itself already handles
+      // auditor failure by degrading to rules if this also throws.
+      console.warn(
+        `[auditor] ${this.primary.provider} failed (${primaryErr instanceof Error ? primaryErr.message : primaryErr}); escalating to ${this.fallback.provider}`,
+      );
+      return this.fallback.audit(input);
     }
   }
 }

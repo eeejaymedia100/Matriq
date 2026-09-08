@@ -5,7 +5,7 @@ import { ResourceAuditService } from "./resource-audit.service";
 import { ResourceAuditStorage } from "./resource-audit.storage";
 import { RuleBasedScorer } from "./resource-audit.scorer";
 import { AUDIT_SCORER } from "./resource-audit.scorer";
-import { AUDITOR_PORT, DeepSeekAuditor, OllamaAuditor, RuleBasedAuditor } from "./resource-audit.ai-auditor";
+import { AUDITOR_PORT, FallbackAuditor, RuleBasedAuditor } from "./resource-audit.ai-auditor";
 import { ResourceRewardService } from "./resource-audit.rewards";
 import { StorageModule } from "../storage/storage.module";
 import { ToolsModule } from "../tools/tools.module";
@@ -31,8 +31,10 @@ import { TELEGRAM_CAMPAIGN_PORT } from "./resource-audit.service";
     { provide: TELEGRAM_CAMPAIGN_PORT, useClass: TelegramCampaignService } as Provider,
     { provide: AUDIT_SCORER, useClass: RuleBasedScorer } as Provider,
     {
-      // AI auditor (Part 3): DeepSeek when DEEPSEEK_API_KEY is set, the
-      // deterministic rule auditor otherwise. Replaceable via AUDITOR_PORT.
+      // AI auditor (Part 3): Ollama first (self-hosted, free), escalating
+      // to the OpenAI-compatible cloud router (xKiro / DeepSeek) when the
+      // local model fails or times out, then the deterministic rule
+      // auditor last. Replaceable via AUDITOR_PORT.
       provide: AUDITOR_PORT,
       inject: [ConfigService],
       // Priority: the self-hosted Ollama model first (free, on-server, real
@@ -40,14 +42,12 @@ import { TELEGRAM_CAMPAIGN_PORT } from "./resource-audit.service";
       // Timeout is env-tunable: long documents need more than the default
       // 3 minutes on a small local model (RESOURCE_AUDIT_AI_TIMEOUT_MS).
       useFactory: (config: ConfigService) =>
-        OllamaAuditor.fromEnv(
+        FallbackAuditor.fromEnv(
           (key) => config.get<string>(key),
           config.get<string>("RESOURCE_AUDIT_AI_TIMEOUT_MS")
             ? Number(config.get<string>("RESOURCE_AUDIT_AI_TIMEOUT_MS"))
             : undefined,
-        ) ??
-        DeepSeekAuditor.fromEnv((key) => config.get<string>(key)) ??
-        new RuleBasedAuditor(),
+        ) ?? new RuleBasedAuditor(),
     } as Provider,
   ],
   exports: [ResourceAuditService],

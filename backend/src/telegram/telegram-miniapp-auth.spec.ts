@@ -84,4 +84,27 @@ describe("TelegramMiniAppAuth", () => {
     const unconfigured = new TelegramMiniAppAuth(makeConfig(""));
     expect(unconfigured.validateInitData(freshInitData(BOT_TOKEN))).toBeNull();
   });
+
+  it("accepts a payload whose values are still URL-encoded (raw-form signing)", () => {
+    // Some clients sign the pairs as they appear on the wire (values still
+    // percent-encoded). Build such a payload by hand: sign the raw pair
+    // string, then ship it verbatim.
+    const user = encodeURIComponent(JSON.stringify(USER));
+    const raw = `auth_date=${Math.floor(Date.now() / 1000)}&query_id=AAHtest123&user=${user}`;
+    const secretKey = createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+    const hash = createHmac("sha256", secretKey)
+      .update(raw.split("&").sort().join("\n"))
+      .digest("hex");
+    const session = auth.validateInitData(`${raw}&hash=${hash}`);
+    expect(session).not.toBeNull();
+    expect(session!.telegramId).toBe("987654");
+  });
+
+  it("accepts a payload signed with the signature field included", () => {
+    const base = freshInitData(BOT_TOKEN);
+    const signature = "a".repeat(64);
+    const withSig = `${base}&signature=${signature}`;
+    const session = auth.validateInitData(withSig);
+    expect(session).not.toBeNull();
+  });
 });
