@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Matriq — The smart way through semester</title>
+  <title>Matriq — Past Questions & Offline AI for Nigerian University Students</title>
   <meta name="description" content="Every past question your department has ever uploaded. An AI that answers with no data. Join the students already in line." />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <meta name="keywords" content="Matriq, past questions, Nigerian university students, offline AI, study app, course materials, CGPA calculator" />
+  <meta name="author" content="Matriq" />
   <link rel="icon" type="image/png" href="/app-icon.png" />
   <link rel="apple-touch-icon" href="/app-icon.png" />
   <link rel="canonical" href="https://matriq.com.ng/" />
@@ -15,6 +17,14 @@
   <meta property="og:title" content="Matriq — The smart way through semester" />
   <meta property="og:description" content="Every past question your department has ever uploaded. An AI that answers with no data. Join the students already in line." />
   <meta property="og:image" content="https://matriq.com.ng/assets/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Matriq — past questions and offline AI for Nigerian university students" />
+  <meta property="og:locale" content="en_NG" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Matriq — The smart way through semester" />
+  <meta name="twitter:description" content="Every past question your department has ever uploaded. An AI that answers with no data. Join the students already in line." />
+  <meta name="twitter:image" content="https://matriq.com.ng/assets/og-image.png" />
   <meta name="theme-color" content="#0a0a0a" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,12 +33,72 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Matriq",
-    "applicationCategory": "EducationalApplication",
-    "operatingSystem": "Android",
-    "description": "Past questions, offline AI and study tools for Nigerian university students. Works on bad data.",
-    "offers": { "@type": "Offer", "price": "0" }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://matriq.com.ng/#org",
+        "name": "Matriq",
+        "url": "https://matriq.com.ng/",
+        "logo": "https://matriq.com.ng/app-icon.png",
+        "description": "Matriq builds study software for Nigerian university students: a shared library of past questions and an AI study companion that runs offline on the student's phone.",
+        "sameAs": ["https://t.me/matriq_waitlist"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://matriq.com.ng/#site",
+        "url": "https://matriq.com.ng/",
+        "name": "Matriq",
+        "description": "Past questions and offline AI for Nigerian university students.",
+        "publisher": { "@id": "https://matriq.com.ng/#org" },
+        "inLanguage": "en"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "Matriq",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Android",
+        "description": "Past questions, offline AI and study tools for Nigerian university students. Works on bad data.",
+        "url": "https://matriq.com.ng/download.html",
+        "downloadUrl": "https://matriq.com.ng/download/matriq.apk",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "NGN" },
+        "publisher": { "@id": "https://matriq.com.ng/#org" }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is Matriq really free?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The Vault, tools and core AI are free. Magic Plus — deeper AI features like the study agent and handwriting reading — is a paid upgrade. The first 500 on this waitlist get it free for a semester." }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the AI work with no data?",
+            "acceptedAnswer": { "@type": "Answer", "text": "You download a small AI model once, on Wi-Fi if you can. After that it runs entirely on your phone. Ask questions, generate study maps, check your understanding — all offline. Your materials never leave your device." }
+          },
+          {
+            "@type": "Question",
+            "name": "Where do the past questions come from?",
+            "acceptedAnswer": { "@type": "Answer", "text": "From students. Your seniors upload what they have; moderation keeps junk out; everyone gets access. One upload from you keeps it alive for the set behind you." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which schools get Matriq first?",
+            "acceptedAnswer": { "@type": "Answer", "text": "We're opening department by department, starting with the largest waitlists. Add yours now — the count decides the order." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Matriq Android only?",
+            "acceptedAnswer": { "@type": "Answer", "text": "For now, yes — most Nigerian students are on Android, so we're going deep there first. iOS follows once the Android experience is perfect." }
+          },
+          {
+            "@type": "Question",
+            "name": "I run an association. What's in it for us?",
+            "acceptedAnswer": { "@type": "Answer", "text": "A dashboard for dues, verification, announcements and events — with transparency your members can see. Tell us your position in the form and we'll reach out about onboarding your association." }
+          }
+        ]
+      }
+    ]
   }
   </script>
 </head>

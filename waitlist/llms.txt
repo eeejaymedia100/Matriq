@@ -1,0 +1,22 @@
+# Matriq
+
+> Matriq is the study app for Nigerian university students: "The Vault" — a shared library of past questions, handouts and study materials organised by course code — an offline AI study companion that runs entirely on the student's phone with no internet or data cost, and everyday study tools (note scanning, photo-to-PDF, deadline tracking, NUC-scale CGPA calculation). Free to download on Android.
+
+Matriq is built for how Nigerian students actually study: heavy course loads, expensive or unreliable data, and exam preparation driven by past questions passed down through student communities. The Vault grows because students contribute — every verified upload is reviewed by a human before it enters the library, and contributors earn points through the Resource Hunt campaign on Telegram.
+
+## Pages
+
+- [Home](https://matriq.com.ng/): what Matriq is, who it's for, how the Vault and offline AI work, waitlist signup.
+- [Download](https://matriq.com.ng/download.html): the current Android APK (direct download, free) and install instructions.
+- [Terms of service](https://matriq.com.ng/terms.html): the rules for using Matriq.
+- [Privacy policy](https://matriq.com.ng/privacy.html): what data Matriq collects and how it is handled.
+
+## Key facts
+
+- Platform: Android (iOS planned after the Android experience is complete).
+- Price: free core app. Magic Plus — deeper AI features such as the study agent and handwriting reading — is a paid upgrade.
+- The offline AI: a small model downloaded once (on Wi-Fi if possible), then all AI features run fully on-device. Study materials never leave the student's phone.
+- Content: past questions, lecture notes, handouts, slide decks and textbook summaries, organised by university, faculty, department, course code and level.
+- Moderation: every submission passes deterministic file validation and a human review before publication.
+- Community: t.me/matriq_waitlist (Telegram).
+- Owner contact: via the Telegram community above.
