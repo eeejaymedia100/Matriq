@@ -18,10 +18,10 @@
 
 # ── Global server options ────────────────────────────────────────────
 {
-    # HTTP/1.1 + HTTP/2 only. HTTP/3 (QUIC) stalls large downloads on mobile
+    # HTTP/1.1 + HTTP/2 only. HTTP/3 (QUIC) stalls large transfers on mobile
     # networks — the transfer reaches 100% and never finalizes when the
-    # end-of-stream packets are lost on a lossy path. The APK download is
-    # the product's front door; keep it on the reliable transport.
+    # end-of-stream packets are lost on a lossy path. The site is the
+    # product's front door; keep it on the reliable transport.
     servers {
         protocols h1 h2
     }
@@ -69,13 +69,13 @@ matriq.com.ng {
         Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' https://telegram.org https://cdn.jsdelivr.net; connect-src 'self' https://api.matriq.com.ng; frame-ancestors 'self' https://web.telegram.org https://*.telegram.org; upgrade-insecure-requests"
     }
 
-    # APK download: serve as a clean attachment with the real type and
-    # filename so download managers finalize instead of hanging at 100%.
-    @apk path /download/matriq.apk
-    header @apk {
-        Content-Type "application/vnd.android.package-archive"
-        Content-Disposition "attachment; filename=\"matriq.apk\""
-    }
+    # PRE-LAUNCH PRIVACY (owner's rule): the app is invite-only until launch —
+    # the site builds anticipation, it must not hand out the application.
+    # The download page, APK and update manifest were removed deliberately;
+    # serve a hard 410 (not 404) so the block survives stray or resurrected
+    # files. Students get Matriq through the Telegram community instead.
+    @removed_downloads path /download.html /download/* /app-version.json
+    respond @removed_downloads "Gone — Matriq is rolling out through the Telegram community for now." 410
 
     # Assets (3D scene, og-image, icons): stable names, 1-day mutable cache.
     @assets path /assets/*
@@ -84,17 +84,8 @@ matriq.com.ng {
     @shortlived path /favicon.svg /apple-touch-icon.png /robots.txt /sitemap.xml /404.html
     header @shortlived Cache-Control "public, max-age=3600"
 
-    # The in-app updater polls app-version.json on every launch — never cache.
-    @version path /app-version.json
-    header @version Cache-Control "no-store"
-
     # Waitlist UI only — the page's form calls api.matriq.com.ng directly
     # (cross-origin, CORS-enabled). No API surface on the website domain.
-    # Stable APK download path for the app's in-app updater.
-    handle_path /download/* {
-        file_server
-    }
-
     handle {
         file_server
     }

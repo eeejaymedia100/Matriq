@@ -32,6 +32,8 @@ ios/
 *.apk
 *.aab
 *.ipa
+# In-app update manifest — build artifact; distribution is Telegram-only pre-launch
+waitlist/app-version.json
 
 # IDE
 .vscode/

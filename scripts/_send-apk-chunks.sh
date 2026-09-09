@@ -17,6 +17,11 @@
 #   cat matriq.apk.part00 matriq.apk.part01 > matriq.zip
 # (Termux or any file-manager "join/split" tool) → extract matriq.apk →
 # install. The joined zip's sha256 is printed in the instructions.
+#
+# NOTE: since the public download page was removed (pre-launch privacy), this
+# split flow is the FALLBACK. The primary delivery is a single unmodified APK
+# via scripts/_send-apk-telegram.sh, which only falls back to splitting when
+# the file exceeds Telegram's 50 MB bot-document cap.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -99,8 +104,8 @@ INSTR=$(cat <<MSG
 ✅ Verify before installing (optional): the joined zip's sha256 must be
 $SHA
 
-Prefer zero steps? The direct browser link still works:
-https://matriq.com.ng/download/matriq.apk
+Prefer zero steps? The browser link returns 410 on purpose — Matriq rolls out
+through this Telegram community; the public download page opens at launch.
 MSG
 )
 R3=$(curl -s -F chat_id="$CHAT" \
