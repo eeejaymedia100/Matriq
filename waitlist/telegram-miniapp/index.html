@@ -9,7 +9,7 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400..700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -42,9 +42,16 @@
         </div>
       </div>
 
-      <!-- Points ledger: the signature. Serif numeral, progress rule -->
+      <!-- Growth ledger: the signature. Wonky serif numeral, a vine that
+           draws itself, and a tier stem that grows with a leaf tip. -->
       <div id="ledger" class="card ledger" hidden>
-        <p class="eyebrow">Points earned</p>
+        <svg class="ledger-vine" viewBox="0 0 210 54" fill="none" aria-hidden="true">
+          <path d="M208 44 C 186 46, 178 30, 162 32 C 142 34, 140 14, 118 18 C 100 21, 96 40, 76 36 C 58 33, 52 14, 30 18 C 18 20, 12 26, 4 24"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path class="vine-leaf" d="M162 32 C 156 24, 158 16, 166 12 C 168 20, 166 27, 162 32 Z" fill="currentColor"/>
+          <path class="vine-leaf" d="M76 36 C 68 34, 64 27, 66 20 C 74 24, 77 30, 76 36 Z" fill="currentColor" opacity="0.7"/>
+        </svg>
+        <p class="eyebrow">Points grown</p>
         <p class="ledger-num"><span id="ledger-points">0</span></p>
         <p class="ledger-sub"><span id="ledger-approved">0</span> approved resources</p>
         <div class="ledger-rule" id="ledger-rule" hidden><i id="ledger-fill"></i></div>

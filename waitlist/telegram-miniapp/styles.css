@@ -1,26 +1,38 @@
 /* ═══════════════════════════════════════════════════════════════
-   Matriq Telegram Mini App — the Matriq dark system inside Telegram.
-   Void ground #0A0A0A, one lime accent, Inter + Playfair.
-   Signature: the points ledger — a serif numeral with a thin lime
-   progress rule toward the next reward tier. Everything else stays
-   quiet cards. Motion is feedback only.
+   Matriq Telegram Mini App — ORGANIC TECH edition.
+   The archive that grows: soil-toned grounds, soft asymmetric
+   geometry, Fraunces display with wonky numerals, and one
+   signature — the growth ledger: a vine draws itself across the
+   card and the tier progress grows as a stem with a leaf tip.
+   Brand colors stay: the lime is Matriq's; only its ground changed.
+   Motion is feedback only; everything else stays quiet.
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --void: #0a0a0a;
-  --surface: #141416;
-  --surface-alt: #1d1d20;
-  --line: #2a2a2e;
-  --line-strong: #3a3a40;
-  --text: #f5f4f1;
-  --text-dim: #9b9aa0;
+  /* Grounds — neutral void shifted toward soil/moss */
+  --void: #0b0d09;
+  --surface: #141810;
+  --surface-alt: #1d2216;
+  --surface-grow: #232a19;      /* the tone of the archive when it grows */
+  --line: #2c3323;
+  --line-strong: #3d462e;
+  /* Ink */
+  --text: #f2f3ea;
+  --text-dim: #a2a694;
+  /* Brand — untouched */
   --lime: #c6ff3d;
   --lime-deep: #8fb32e;
   --lime-soft: #e4ff9e;
   --ink-on-lime: #0c0f04;
+  /* Signals */
   --warn: #ffd23d;
   --danger: #ff6b6b;
-  --radius: 14px;
+
+  /* Organic geometry — soft, asymmetric, hand-set */
+  --r-leaf: 20px 8px 20px 8px;    /* leaf-form: two soft, two tight */
+  --r-stone: 24px 12px 20px 14px; /* river-stone: no two corners alike */
+  --r-soft: 16px;
+  --r-pill: 999px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +47,9 @@ html, body {
 body {
   min-height: 100vh;
   padding: max(16px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+  /* A quiet soil horizon behind everything — barely there */
+  background-image: radial-gradient(120% 60% at 85% -10%, rgba(198, 255, 61, 0.05), transparent 60%);
+  background-repeat: no-repeat;
 }
 
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
@@ -43,17 +58,30 @@ img { display: block; }
 
 /* ── Views ─────────────────────────────────────────────────────── */
 
-.view { max-width: 520px; margin: 0 auto; animation: rise 240ms ease both; }
+.view { max-width: 520px; margin: 0 auto; animation: sprout 300ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-@keyframes rise {
-  from { opacity: 0; transform: translateY(8px); }
+/* Views don't slide in — they sprout: rise + unfurl */
+@keyframes sprout {
+  from { opacity: 0; transform: translateY(10px) scale(0.995); }
   to { opacity: 1; transform: none; }
 }
 
 /* ── Boot ──────────────────────────────────────────────────────── */
 
-.boot-mark { width: 64px; height: 64px; margin: 18vh auto 20px; border-radius: 16px; overflow: hidden; }
+/* The mark sits in a leaf mask and breathes. */
+.boot-mark {
+  width: 76px; height: 76px; margin: 17vh auto 20px;
+  border-radius: 38% 62% 56% 44% / 48% 42% 58% 52%;
+  overflow: hidden;
+  animation: breathe 3.6s ease-in-out infinite;
+}
 .boot-mark img { width: 100%; height: 100%; object-fit: cover; }
+
+@keyframes breathe {
+  0%, 100% { border-radius: 38% 62% 56% 44% / 48% 42% 58% 52%; transform: scale(1); }
+  50% { border-radius: 56% 44% 42% 58% / 44% 56% 44% 56%; transform: scale(1.035); }
+}
+
 .boot-line { text-align: center; color: var(--text-dim); font-size: 14px; }
 
 /* ── Home header ───────────────────────────────────────────────── */
@@ -61,11 +89,18 @@ img { display: block; }
 .top { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 22px; }
 
 .display {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 32px; font-weight: 700; line-height: 1.05;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 34px;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 60, "WONK" 1;
+  line-height: 1.02;
+  letter-spacing: -0.01em;
 }
 
-.top-mark { width: 42px; height: 42px; border-radius: 12px; }
+.top-mark {
+  width: 44px; height: 44px;
+  border-radius: 40% 60% 52% 48% / 46% 44% 56% 54%;
+}
 
 /* Browser preview banner — the only state the outside world sees. */
 .preview-note {
@@ -74,7 +109,7 @@ img { display: block; }
   color: var(--lime-soft);
   border: 1px solid var(--line);
   border-left: 2px solid var(--lime);
-  border-radius: 10px;
+  border-radius: var(--r-leaf);
   padding: 10px 12px;
   margin: 0 0 16px;
 }
@@ -87,8 +122,10 @@ img { display: block; }
 /* ── Cards ─────────────────────────────────────────────────────── */
 
 .card {
-  background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-stone);
+  padding: 20px 18px;
 }
 
 /* ── Gate ──────────────────────────────────────────────────────── */
@@ -98,47 +135,101 @@ img { display: block; }
 .gate p { font-size: 14px; color: var(--text-dim); line-height: 1.5; margin-bottom: 14px; }
 .gate-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-/* ── Points ledger — the signature ─────────────────────────────── */
+/* ── Growth ledger — the signature ─────────────────────────────── */
 
-.ledger { margin-bottom: 16px; }
+.ledger { margin-bottom: 16px; overflow: hidden; position: relative; }
 .ledger .eyebrow { margin-bottom: 8px; }
 
 .ledger-num {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 56px; font-weight: 700; line-height: 1;
-  color: var(--text); font-variant-numeric: lining-nums;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 60px;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 100, "WONK" 1;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.01em;
 }
 
 .ledger-sub { margin-top: 8px; font-size: 13.5px; color: var(--text-dim); }
 
-.ledger-rule {
-  margin-top: 16px; height: 3px; border-radius: 2px;
-  background: var(--surface-alt); overflow: hidden;
+/* The vine: an SVG that draws itself across the card top on load. */
+.ledger-vine {
+  position: absolute;
+  top: 10px; right: 0;
+  width: 210px; height: 54px;
+  color: var(--lime-deep);
+  opacity: 0.5;
+  pointer-events: none;
 }
-.ledger-rule i {
-  display: block; height: 100%; border-radius: 2px;
-  background: var(--lime); width: 0;
-  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+.ledger-vine path {
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  animation: vine-grow 1.6s cubic-bezier(0.22, 1, 0.36, 1) 250ms forwards;
+}
+.ledger-vine .vine-leaf {
+  opacity: 0;
+  animation: leaf-in 500ms ease 1.5s forwards;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+@keyframes vine-grow { to { stroke-dashoffset: 0; } }
+@keyframes leaf-in {
+  from { opacity: 0; transform: scale(0.4) rotate(-18deg); }
+  to { opacity: 1; transform: none; }
 }
 
-.ledger-tier { margin-top: 8px; font-size: 12.5px; color: var(--text-dim); }
+/* Tier progress: a growing stem with a leaf at its tip.
+   The app JS sets #ledger-fill's width — same contract as before. */
+.ledger-rule {
+  margin-top: 18px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--surface-alt);
+  overflow: visible;
+  position: relative;
+}
+.ledger-rule i {
+  display: block; height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--lime-deep), var(--lime));
+  width: 0;
+  transition: width 900ms cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+/* The tip leaf — unfurls at the current end of growth */
+.ledger-rule i::after {
+  content: "";
+  position: absolute;
+  right: -7px; top: 50%;
+  width: 13px; height: 13px;
+  background: var(--lime);
+  border-radius: 72% 28% 63% 37% / 56% 60% 40% 44%;
+  transform: translateY(-50%);
+  box-shadow: 0 0 10px rgba(198, 255, 61, 0.35);
+}
+
+.ledger-tier { margin-top: 10px; font-size: 12.5px; color: var(--text-dim); }
 .ledger-tier b { color: var(--lime); font-weight: 600; }
 
 /* ── CTA + tiles ───────────────────────────────────────────────── */
 
-.cta { gap: 8px; }
+.cta { gap: 8px; border-radius: var(--r-leaf); }
 .cta svg { width: 18px; height: 18px; }
 
 .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
 
+/* Each tile is its own river-stone — no two corners match, and the
+   shapes alternate so the grid never reads as a form. */
 .tile {
   display: flex; flex-direction: column; gap: 10px; text-align: left;
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 16px;
-  transition: border-color 120ms ease, transform 120ms ease;
+  border-radius: var(--r-stone); padding: 16px;
+  transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
 }
+.tile:nth-child(2n) { border-radius: 14px 22px 12px 24px; }
 .tile:active { transform: scale(0.98); }
-.tile:hover { border-color: var(--line-strong); }
+.tile:hover { border-color: var(--line-strong); background: var(--surface-alt); }
 
 .tile-icon { width: 26px; height: 26px; color: var(--lime); }
 .tile-icon svg { width: 100%; height: 100%; }
@@ -151,13 +242,21 @@ img { display: block; }
 /* ── Bars (inner screens) ──────────────────────────────────────── */
 
 .bar { display: flex; align-items: center; gap: 10px; margin: 4px 0 18px; }
-.bar-title { font-size: 20px; font-weight: 600; }
+.bar-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 50, "WONK" 1;
+}
 
 .back {
-  width: 36px; height: 36px; border-radius: 10px;
+  width: 38px; height: 38px;
+  border-radius: 60% 40% 55% 45% / 50% 45% 55% 50%;
   border: 1px solid var(--line); display: grid; place-items: center;
   background: var(--surface);
+  transition: border-color 140ms ease;
 }
+.back:hover { border-color: var(--line-strong); }
 .back svg { width: 18px; height: 18px; }
 
 .board-note { margin: -8px 0 14px; font-size: 12.5px; color: var(--text-dim); }
@@ -167,8 +266,9 @@ img { display: block; }
 .search {
   display: flex; align-items: center; gap: 10px;
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+  border-radius: var(--r-soft); padding: 12px 14px; margin-bottom: 12px;
 }
+.search:focus-within { border-color: var(--lime-deep); }
 .search svg { width: 18px; height: 18px; color: var(--text-dim); flex: none; }
 .search input {
   flex: 1; background: none; border: none; outline: none;
@@ -179,9 +279,9 @@ img { display: block; }
 .chips { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
 
 .chip {
-  padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: var(--r-pill); font-size: 13px; font-weight: 500;
   background: var(--surface); border: 1px solid var(--line); color: var(--text-dim);
-  transition: border-color 120ms ease, color 120ms ease;
+  transition: border-color 140ms ease, color 140ms ease, background 140ms ease;
 }
 .chip.is-on { color: var(--ink-on-lime); background: var(--lime); border-color: var(--lime); font-weight: 600; }
 
@@ -191,31 +291,38 @@ img { display: block; }
 
 .item {
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 14px 16px;
+  border-radius: var(--r-leaf); padding: 15px 17px;
 }
 .item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .item-title { font-size: 15px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
 .item-code {
   font-size: 12px; font-weight: 600; color: var(--lime); flex: none;
   background: rgba(198, 255, 61, 0.09); border: 1px solid rgba(198, 255, 61, 0.25);
-  padding: 2px 8px; border-radius: 7px; font-variant-numeric: tabular-nums;
+  padding: 2px 9px; border-radius: 8px 3px 8px 3px; font-variant-numeric: tabular-nums;
 }
 .item-sub { margin-top: 5px; font-size: 12.5px; color: var(--text-dim); }
 .item-note { margin-top: 8px; font-size: 12.5px; color: var(--text-dim); line-height: 1.45; }
 
-/* Pipeline dots — the audit sequence, five stages */
-.pipe { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+/* Pipeline: spores. Done = settled, current = breathing. */
+.pipe { display: flex; align-items: center; gap: 7px; margin-top: 11px; }
 .pipe i {
-  width: 7px; height: 7px; border-radius: 50%;
+  width: 8px; height: 8px;
+  border-radius: 55% 45% 50% 50% / 48% 52% 48% 52%;
   background: var(--surface-alt); border: 1px solid var(--line-strong);
 }
 .pipe i.done { background: var(--lime); border-color: var(--lime); }
-.pipe i.now { background: transparent; border-color: var(--lime); animation: pulse 1.4s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(198, 255, 61, 0.35); } 50% { box-shadow: 0 0 0 4px rgba(198, 255, 61, 0.12); } }
+.pipe i.now {
+  background: transparent; border-color: var(--lime);
+  animation: spore 1.6s ease-in-out infinite;
+}
+@keyframes spore {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 255, 61, 0.3); }
+  50% { box-shadow: 0 0 0 5px rgba(198, 255, 61, 0.08); }
+}
 
 .badge {
-  display: inline-block; padding: 3px 9px; flex: none;
-  font-size: 11px; font-weight: 600; border-radius: 999px;
+  display: inline-block; padding: 3px 10px; flex: none;
+  font-size: 11px; font-weight: 600; border-radius: var(--r-pill);
   background: var(--surface-alt); color: var(--text-dim);
   border: 1px solid var(--line);
 }
@@ -232,13 +339,15 @@ img { display: block; }
 .row {
   display: flex; align-items: center; gap: 12px;
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: var(--radius); padding: 13px 16px;
+  border-radius: var(--r-leaf); padding: 13px 16px;
 }
 .row.you { border-color: rgba(198, 255, 61, 0.45); background: rgba(198, 255, 61, 0.05); }
 
 .rank {
   width: 26px; flex: none; text-align: center;
-  font-size: 14px; font-weight: 700; color: var(--text-dim);
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 15px; font-weight: 600; color: var(--text-dim);
+  font-variation-settings: "SOFT" 80, "WONK" 1;
   font-variant-numeric: tabular-nums;
 }
 .rank.top { color: var(--lime); }
@@ -250,12 +359,16 @@ img { display: block; }
 .youchip {
   flex: none; font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
   text-transform: uppercase; color: var(--ink-on-lime);
-  background: var(--lime); border-radius: 5px; padding: 2px 6px;
+  background: var(--lime); border-radius: 6px 2px 6px 2px; padding: 2px 6px;
 }
 
 .pts { flex: none; text-align: right; }
-.pts-num { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.pts-num small { font-size: 11px; font-weight: 500; color: var(--text-dim); margin-left: 2px; }
+.pts-num {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums;
+  font-variation-settings: "SOFT" 80, "WONK" 1;
+}
+.pts-num small { font-size: 11px; font-weight: 500; color: var(--text-dim); margin-left: 2px; font-family: "Inter", sans-serif; }
 .pts-sub { font-size: 11px; color: var(--text-dim); }
 
 /* ── Forms ─────────────────────────────────────────────────────── */
@@ -270,13 +383,13 @@ img { display: block; }
 
 .field input, .field select {
   background: var(--surface); border: 1px solid var(--line);
-  border-radius: 12px; padding: 13px 14px;
+  border-radius: var(--r-soft); padding: 13px 14px;
   color: var(--text); font: inherit; font-size: 15px; outline: none;
-  transition: border-color 120ms ease;
+  transition: border-color 140ms ease;
   appearance: none; -webkit-appearance: none;
 }
 .field select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239b9aa0' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23a2a694' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center;
   padding-right: 36px;
 }
@@ -295,12 +408,17 @@ img { display: block; }
 
 .filezone {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
-  border: 1.5px dashed var(--line-strong); border-radius: var(--radius);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r-stone);
   padding: 22px 16px; text-align: center; cursor: pointer;
-  transition: border-color 120ms ease, background 120ms ease;
+  transition: border-color 140ms ease, background 140ms ease;
 }
 .filezone:hover { border-color: var(--lime-deep); }
-.filezone.has { border-color: var(--lime); border-style: solid; background: rgba(198, 255, 61, 0.04); }
+.filezone.has {
+  border-color: var(--lime); border-style: solid;
+  background: rgba(198, 255, 61, 0.04);
+  border-radius: var(--r-leaf);
+}
 .filezone svg { width: 26px; height: 26px; color: var(--lime); }
 .filezone span { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .filezone em { font-style: normal; font-size: 12px; color: var(--text-dim); }
@@ -314,9 +432,9 @@ img { display: block; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 12px; padding: 12px 18px;
+  border-radius: var(--r-leaf); padding: 13px 18px;
   font-size: 14px; font-weight: 600;
-  transition: transform 120ms ease, opacity 120ms ease;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 .btn:active { transform: scale(0.98); }
 
@@ -329,16 +447,20 @@ img { display: block; }
 
 /* ── Success + celebration ─────────────────────────────────────── */
 
-.success { text-align: center; padding: 36px 8px 8px; animation: rise 240ms ease both; }
+.success { text-align: center; padding: 36px 8px 8px; animation: sprout 300ms ease both; }
 .success-icon {
   width: 58px; height: 58px; margin: 0 auto 16px;
-  border-radius: 50%; display: grid; place-items: center;
+  display: grid; place-items: center;
   background: rgba(198, 255, 61, 0.12); color: var(--lime);
+  border-radius: 62% 38% 54% 46% / 46% 58% 42% 54%;
+  animation: breathe 3.6s ease-in-out infinite;
 }
 .success-icon svg { width: 28px; height: 28px; }
 .success h2 {
-  font-family: "Playfair Display", Georgia, serif;
-  font-size: 26px; margin-bottom: 10px;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 28px;
+  font-variation-settings: "SOFT" 70, "WONK" 1;
+  margin-bottom: 10px;
 }
 .success p { color: var(--text-dim); font-size: 14px; margin-bottom: 6px; }
 .success code { color: var(--lime); font-size: 13px; overflow-wrap: anywhere; }
@@ -354,17 +476,29 @@ img { display: block; }
 #toast {
   position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
   background: var(--surface-alt); color: var(--text);
-  border: 1px solid var(--line); border-radius: 12px;
+  border: 1px solid var(--line); border-radius: var(--r-leaf);
   padding: 11px 18px; font-size: 13.5px; max-width: 90vw;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
   z-index: 50;
 }
 
-/* ── Reduced motion ────────────────────────────────────────────── */
+/* ── Focus (keyboard users get a visible ring) ─────────────────── */
+
+.btn:focus-visible, .tile:focus-visible, .chip:focus-visible,
+.back:focus-visible, .search input:focus-visible {
+  outline: 2px solid var(--lime);
+  outline-offset: 2px;
+}
+
+/* ── Reduced motion — everything stills, nothing is lost ───────── */
 
 @media (prefers-reduced-motion: reduce) {
   .view, .success { animation: none; }
+  .boot-mark, .success-icon { animation: none; }
+  .ledger-vine path { animation: none; stroke-dashoffset: 0; }
+  .ledger-vine .vine-leaf { animation: none; opacity: 1; }
   .ledger-rule i { transition: none; }
+  .ledger-rule i::after { display: none; }
   .pipe i.now { animation: none; background: var(--lime); }
-  .tile, .btn { transition: none; }
+  .tile, .btn, .back { transition: none; }
 }
