@@ -74,8 +74,12 @@ matriq.com.ng {
     # The download page, APK and update manifest were removed deliberately;
     # serve a hard 410 (not 404) so the block survives stray or resurrected
     # files. Students get Matriq through the Telegram community instead.
+    # (Must be a handle block: handles sort ahead of site-level respond, and
+    # the catch-all file_server handle below would otherwise swallow these.)
     @removed_downloads path /download.html /download/* /app-version.json
-    respond @removed_downloads "Gone — Matriq is rolling out through the Telegram community for now." 410
+    handle @removed_downloads {
+        respond "Gone — Matriq is rolling out through the Telegram community for now." 410
+    }
 
     # Assets (3D scene, og-image, icons): stable names, 1-day mutable cache.
     @assets path /assets/*
