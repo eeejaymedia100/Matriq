@@ -38,7 +38,12 @@
 }
 
 # ── Public waitlist landing page (UI only — API lives at api.*) ────
-matriq.com.ng, www.matriq.com.ng {
+# www → apex: one canonical host keeps all SEO signals in one place.
+www.matriq.com.ng {
+    redir https://matriq.com.ng{uri} permanent
+}
+
+matriq.com.ng {
     root * /srv/waitlist
     encode zstd gzip
     import security_headers
