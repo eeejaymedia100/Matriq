@@ -749,6 +749,7 @@ export const ResourceSubmissionScalarFieldEnum = {
   fileType: 'fileType',
   fileSize: 'fileSize',
   fileHash: 'fileHash',
+  contentFingerprint: 'contentFingerprint',
   pageCount: 'pageCount',
   storageRef: 'storageRef',
   institutionId: 'institutionId',

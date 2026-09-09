@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit, ConflictException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
@@ -272,8 +272,24 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       return;
     }
     if (this.config.webhookUrl) {
-      const result = await this.setWebhook();
+      // All cluster workers race to register the webhook on boot and
+      // Telegram rate-limits setWebhook (429) — a bare single attempt left
+      // the bot with NO update channel at all (webhook failed, polling
+      // never started). Retry with backoff, then fall back to polling so
+      // the bot is never silently deaf.
+      let result = await this.setWebhook();
+      for (const delayMs of [2_000, 5_000]) {
+        if (result.ok) break;
+        this.logger.warn(`webhook setup failed (${result.message}) — retrying`);
+        await new Promise((r) => setTimeout(r, delayMs));
+        result = await this.setWebhook();
+      }
       this.logger.log(`webhook setup: ${result.message}`);
+      if (!result.ok) {
+        this.logger.error("webhook setup failed after retries — falling back to long-polling");
+        await this.deleteWebhook();
+        this.startPollingIfLeader();
+      }
     } else {
       this.startPollingIfLeader();
     }
@@ -608,8 +624,8 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       [
         "<b>Contribute a resource</b>",
         "",
-        "Send the file now — PDF, image (JPG/PNG), DOC or DOCX, up to 20 MB.",
-        "Best results: a clean scan or export.",
+        "Send the file now — PDF or a clear photo (JPG/PNG/WEBP), up to 20 MB.",
+        "Word documents aren't supported: export to PDF first.",
         "",
         "/cancel to stop.",
       ].join("\n"),
@@ -630,6 +646,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
 
   // ── Documents & photos ───────────────────────────────────────────
 
+  /** File extensions the audit engine can actually process. Anything else
+   *  is told to the participant IMMEDIATELY (at file-receive time) instead
+   *  of after they finish the whole wizard — and .doc/.docx get a concrete
+   *  fix (export to PDF) because those are the most common rejections. */
+  private static readonly ACCEPTED_EXTENSIONS = ["pdf", "jpg", "jpeg", "png", "webp"];
+
   private async handleDocument(message: TgMessage): Promise<void> {
     if (!this.config.isConfigured) return;
     const telegramId = message.from!.id;
@@ -642,6 +664,25 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     const doc = message.document!;
     if (doc.file_size && doc.file_size > 20 * 1024 * 1024) {
       await this.api.sendMessage(chatId, "That file is over Telegram's 20 MB limit for bots. Compress or split it, then resend.");
+      return;
+    }
+    // Reject unsupported formats BEFORE the wizard collects faculty,
+    // department, course… — failing fast is kinder than failing at submit.
+    const ext = (doc.file_name ?? "").split(".").pop()?.toLowerCase() ?? "";
+    if (ext && !TelegramBotService.ACCEPTED_EXTENSIONS.includes(ext)) {
+      await this.clearConversation(telegramId);
+      const docHint = ext === "doc" || ext === "docx";
+      await this.api.sendMessage(
+        chatId,
+        [
+          docHint
+            ? "Word documents (.doc/.docx) can't be processed yet — but there's a 10-second fix:"
+            : `.${ext} files can't be processed — the auditors read PDFs and images only.`,
+          ...(docHint
+            ? ["", "Open the file → <b>Export / Save as PDF</b> (Word, WPS and Google Docs all have it), then /upload the PDF."]
+            : ["", "Export it as PDF or send clear page photos instead — /upload to start over."]),
+        ].join("\n"),
+      );
       return;
     }
     await this.setConversation(telegramId, {
@@ -1262,6 +1303,20 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       if (err instanceof SubmissionValidationError) {
         const reason = (err.getResponse() as { reason?: string } | undefined)?.reason;
         await this.api.sendMessage(chatId, `That submission can't be accepted: ${reason ?? "invalid details"}. /upload to try again.`);
+      } else if (err instanceof ConflictException) {
+        // Duplicate submissions surface here as ConflictException — say what
+        // actually happened instead of the generic "failed on our side".
+        const body = err.getResponse() as { reason?: string } | undefined;
+        await this.api.sendMessage(
+          chatId,
+          [
+            "<b>Already submitted.</b>",
+            "",
+            body?.reason ?? "This exact file has already been submitted.",
+            "",
+            "Only genuinely different material can earn points — /upload when you have a new resource.",
+          ].join("\n"),
+        );
       } else {
         this.logger.error(`telegram submit failed: ${String(err)}`);
         await this.api.sendMessage(chatId, "Something failed on our side. The submission was not saved — /upload to try again.");

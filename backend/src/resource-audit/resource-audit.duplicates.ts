@@ -76,6 +76,14 @@ export interface DuplicateCheckResult {
 const NEAR_FLAG_THRESHOLD = 70;
 const NEAR_CERTAIN_THRESHOLD = 92;
 
+/**
+ * Compare two content fingerprints: identical → exact (the byte stream is
+ * the same document); different → fall through to normal scoring.
+ */
+export function contentFingerprintMatches(a: string | null | undefined, b: string | null | undefined): boolean {
+  return a != null && b != null && a === b;
+}
+
 export function checkDuplicates(input: DuplicateCheckInput): DuplicateCheckResult {
   const hits: DuplicateHit[] = [];
   let exactOf: string | null = null;
@@ -147,4 +155,110 @@ export function toEvidence(result: DuplicateCheckResult): DuplicateEvidence {
 /** Stable hash helper reused by the reward engine for abuse windows. */
 export function bucketKey(prefix: string, ...parts: (string | number)[]): string {
   return crypto.createHash("sha1").update(`${prefix}:${parts.join(":")}`).digest("hex").slice(0, 24);
+}
+
+/**
+ * Content fingerprint of the RAW BYTE STREAM — the metadata-immune duplicate
+ * key. Re-Encoding (re-export, re-scan, re-save) rewrites every container
+ * header/timestamp, which is exactly what breaks a plain SHA-256 match. This
+ * fingerprint hashes the file's largest deterministic byte chunks instead:
+ *   • PDF   → every `N 0 obj … endobj` body, skipping generation numbers
+ *   • Media → every RIFF/PNG/JP2/JPEG chunk segment (ffD8 ffD8-chunked)
+ * Only chunks ≥ 64 bytes are included, so tiny structural noise (object
+ * counts, xref offsets, EXIF timestamps) can never shift the fingerprint
+ * when a file is repackaged. Collisions are theoretically possible but
+ * practically negligible — and a hit here routes to a deterministic
+ * owner-scoped rejection, the same posture as the exact SHA-256 gate.
+ */
+export function contentFingerprint(buffer: Buffer, mimeType: string | null | undefined): string | null {
+  if (!buffer || buffer.length < 512) return null;
+  const head = buffer.subarray(0, 16).toString("latin1");
+  let chunks: Buffer[];
+  if (head.startsWith("%PDF-")) {
+    chunks = pdfObjectChunks(buffer);
+  } else if (
+    buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+    buffer.subarray(8, 12).toString("ascii") === "WEBP"
+  ) {
+    chunks = riffChunkBodies(buffer);
+  } else if (
+    buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47
+  ) {
+    chunks = pngChunkBodies(buffer);
+  } else if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    // JPEG is a sequence of ffxx markers, not length-prefixed from offset 0.
+    // Hash the entropy-coded stream between the SOF markers as one chunk —
+    // re-saves preserve scan data byte-for-byte while EXIF/comment segments
+    // (the parts that change) are excluded.
+    chunks = jpegScanChunks(buffer);
+  } else {
+    return null; // unknown container — no honest fingerprint
+  }
+  const significant = chunks.filter((c) => c.length >= 64);
+  if (significant.length === 0) return null;
+  const hash = crypto.createHash("sha256");
+  for (const c of significant) {
+    hash.update(c.length.toString(16));
+    hash.update(":");
+    hash.update(c);
+  }
+  return hash.digest("hex").slice(0, 32);
+}
+
+/** PDF bodies: every `N G obj` … `endobj`, generation number excluded. */
+function pdfObjectChunks(buffer: Buffer): Buffer[] {
+  const chunks: Buffer[] = [];
+  const re = /[^0-9]\d{1,10} \d obj/g;
+  const latin = buffer.toString("latin1");
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(latin)) !== null) {
+    const start = m.index + m[0].length;
+    const end = latin.indexOf("endobj", start);
+    if (end === -1) break;
+    chunks.push(buffer.subarray(start, end));
+    re.lastIndex = end;
+  }
+  return chunks;
+}
+
+/** RIFF bodies: every length-prefixed sub-chunk after the 12-byte header. */
+function riffChunkBodies(buffer: Buffer): Buffer[] {
+  const chunks: Buffer[] = [];
+  let off = 12;
+  while (off + 8 <= buffer.length) {
+    const size = buffer.readUInt32LE(off + 4);
+    const body = buffer.subarray(off + 8, Math.min(off + 8 + size, buffer.length));
+    if (body.length > 0) chunks.push(body);
+    off += 8 + size + (size % 2); // chunks are word-aligned
+    if (size === 0) break; // guard against corrupt/zero-size loops
+  }
+  return chunks;
+}
+
+/** PNG bodies: every length-prefixed chunk after the 8-byte signature. */
+function pngChunkBodies(buffer: Buffer): Buffer[] {
+  const chunks: Buffer[] = [];
+  let off = 8;
+  while (off + 8 <= buffer.length) {
+    const size = buffer.readUInt32BE(off);
+    const body = buffer.subarray(off + 8, Math.min(off + 8 + size, buffer.length));
+    if (body.length > 0) chunks.push(body);
+    off += 12 + size; // 4 len + 4 type + body + 4 crc
+    if (size === 0 && body.length === 0) break;
+  }
+  return chunks;
+}
+
+/**
+ * JPEG entropy-coded data: the bytes between each RST-marker-bounded scan
+ * segment. We approximate by slicing from the first SOS (ffDA) to EOI
+ * (ffD9), then splitting on restart-interval-safe boundaries at ffD0–ffD7
+ * runs — re-encoders preserve scan bytes even when they reshuffle metadata.
+ */
+function jpegScanChunks(buffer: Buffer): Buffer[] {
+  const latin = buffer.toString("latin1");
+  const sos = latin.indexOf("\xff\xda");
+  const eoi = latin.lastIndexOf("\xff\xd9");
+  if (sos === -1 || eoi <= sos) return [];
+  return [buffer.subarray(sos + 2, eoi)];
 }

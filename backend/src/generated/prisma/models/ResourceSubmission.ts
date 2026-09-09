@@ -51,6 +51,7 @@ export type ResourceSubmissionMinAggregateOutputType = {
   fileType: string | null
   fileSize: number | null
   fileHash: string | null
+  contentFingerprint: string | null
   pageCount: number | null
   storageRef: string | null
   institutionId: string | null
@@ -102,6 +103,7 @@ export type ResourceSubmissionMaxAggregateOutputType = {
   fileType: string | null
   fileSize: number | null
   fileHash: string | null
+  contentFingerprint: string | null
   pageCount: number | null
   storageRef: string | null
   institutionId: string | null
@@ -153,6 +155,7 @@ export type ResourceSubmissionCountAggregateOutputType = {
   fileType: number
   fileSize: number
   fileHash: number
+  contentFingerprint: number
   pageCount: number
   storageRef: number
   institutionId: number
@@ -225,6 +228,7 @@ export type ResourceSubmissionMinAggregateInputType = {
   fileType?: true
   fileSize?: true
   fileHash?: true
+  contentFingerprint?: true
   pageCount?: true
   storageRef?: true
   institutionId?: true
@@ -276,6 +280,7 @@ export type ResourceSubmissionMaxAggregateInputType = {
   fileType?: true
   fileSize?: true
   fileHash?: true
+  contentFingerprint?: true
   pageCount?: true
   storageRef?: true
   institutionId?: true
@@ -327,6 +332,7 @@ export type ResourceSubmissionCountAggregateInputType = {
   fileType?: true
   fileSize?: true
   fileHash?: true
+  contentFingerprint?: true
   pageCount?: true
   storageRef?: true
   institutionId?: true
@@ -468,6 +474,7 @@ export type ResourceSubmissionGroupByOutputType = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint: string | null
   pageCount: number | null
   storageRef: string
   institutionId: string | null
@@ -545,6 +552,7 @@ export type ResourceSubmissionWhereInput = {
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileSize?: Prisma.IntFilter<"ResourceSubmission"> | number
   fileHash?: Prisma.StringFilter<"ResourceSubmission"> | string
+  contentFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   pageCount?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   storageRef?: Prisma.StringFilter<"ResourceSubmission"> | string
   institutionId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -602,6 +610,7 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   fileType?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   fileHash?: Prisma.SortOrder
+  contentFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   pageCount?: Prisma.SortOrderInput | Prisma.SortOrder
   storageRef?: Prisma.SortOrder
   institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -663,6 +672,7 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileSize?: Prisma.IntFilter<"ResourceSubmission"> | number
   fileHash?: Prisma.StringFilter<"ResourceSubmission"> | string
+  contentFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   pageCount?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   storageRef?: Prisma.StringFilter<"ResourceSubmission"> | string
   institutionId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -720,6 +730,7 @@ export type ResourceSubmissionOrderByWithAggregationInput = {
   fileType?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   fileHash?: Prisma.SortOrder
+  contentFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   pageCount?: Prisma.SortOrderInput | Prisma.SortOrder
   storageRef?: Prisma.SortOrder
   institutionId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -782,6 +793,7 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   fileType?: Prisma.StringWithAggregatesFilter<"ResourceSubmission"> | string
   fileSize?: Prisma.IntWithAggregatesFilter<"ResourceSubmission"> | number
   fileHash?: Prisma.StringWithAggregatesFilter<"ResourceSubmission"> | string
+  contentFingerprint?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   pageCount?: Prisma.IntNullableWithAggregatesFilter<"ResourceSubmission"> | number | null
   storageRef?: Prisma.StringWithAggregatesFilter<"ResourceSubmission"> | string
   institutionId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
@@ -834,6 +846,7 @@ export type ResourceSubmissionCreateInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -890,6 +903,7 @@ export type ResourceSubmissionUncheckedCreateInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -942,6 +956,7 @@ export type ResourceSubmissionUpdateInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -998,6 +1013,7 @@ export type ResourceSubmissionUncheckedUpdateInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1052,6 +1068,7 @@ export type ResourceSubmissionCreateManyInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -1104,6 +1121,7 @@ export type ResourceSubmissionUpdateManyMutationInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1157,6 +1175,7 @@ export type ResourceSubmissionUncheckedUpdateManyInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1227,6 +1246,7 @@ export type ResourceSubmissionCountOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   fileHash?: Prisma.SortOrder
+  contentFingerprint?: Prisma.SortOrder
   pageCount?: Prisma.SortOrder
   storageRef?: Prisma.SortOrder
   institutionId?: Prisma.SortOrder
@@ -1289,6 +1309,7 @@ export type ResourceSubmissionMaxOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   fileHash?: Prisma.SortOrder
+  contentFingerprint?: Prisma.SortOrder
   pageCount?: Prisma.SortOrder
   storageRef?: Prisma.SortOrder
   institutionId?: Prisma.SortOrder
@@ -1340,6 +1361,7 @@ export type ResourceSubmissionMinOrderByAggregateInput = {
   fileType?: Prisma.SortOrder
   fileSize?: Prisma.SortOrder
   fileHash?: Prisma.SortOrder
+  contentFingerprint?: Prisma.SortOrder
   pageCount?: Prisma.SortOrder
   storageRef?: Prisma.SortOrder
   institutionId?: Prisma.SortOrder
@@ -1547,6 +1569,7 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -1602,6 +1625,7 @@ export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -1684,6 +1708,7 @@ export type ResourceSubmissionScalarWhereInput = {
   fileType?: Prisma.StringFilter<"ResourceSubmission"> | string
   fileSize?: Prisma.IntFilter<"ResourceSubmission"> | number
   fileHash?: Prisma.StringFilter<"ResourceSubmission"> | string
+  contentFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   pageCount?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
   storageRef?: Prisma.StringFilter<"ResourceSubmission"> | string
   institutionId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
@@ -1736,6 +1761,7 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -1790,6 +1816,7 @@ export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -1868,6 +1895,7 @@ export type ResourceSubmissionCreateWithoutParticipantInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -1922,6 +1950,7 @@ export type ResourceSubmissionUncheckedCreateWithoutParticipantInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -2002,6 +2031,7 @@ export type ResourceSubmissionCreateManyInstitutionInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   universityName?: string | null
@@ -2053,6 +2083,7 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2108,6 +2139,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2161,6 +2193,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2213,6 +2246,7 @@ export type ResourceSubmissionCreateManyStudentInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -2265,6 +2299,7 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2319,6 +2354,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2372,6 +2408,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2425,6 +2462,7 @@ export type ResourceSubmissionCreateManyParticipantInput = {
   fileType: string
   fileSize: number
   fileHash: string
+  contentFingerprint?: string | null
   pageCount?: number | null
   storageRef: string
   institutionId?: string | null
@@ -2477,6 +2515,7 @@ export type ResourceSubmissionUpdateWithoutParticipantInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   universityName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2531,6 +2570,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutParticipantInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2584,6 +2624,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutParticipantInput = {
   fileType?: Prisma.StringFieldUpdateOperationsInput | string
   fileSize?: Prisma.IntFieldUpdateOperationsInput | number
   fileHash?: Prisma.StringFieldUpdateOperationsInput | string
+  contentFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pageCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   storageRef?: Prisma.StringFieldUpdateOperationsInput | string
   institutionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2640,6 +2681,7 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   fileType?: boolean
   fileSize?: boolean
   fileHash?: boolean
+  contentFingerprint?: boolean
   pageCount?: boolean
   storageRef?: boolean
   institutionId?: boolean
@@ -2697,6 +2739,7 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   fileType?: boolean
   fileSize?: boolean
   fileHash?: boolean
+  contentFingerprint?: boolean
   pageCount?: boolean
   storageRef?: boolean
   institutionId?: boolean
@@ -2754,6 +2797,7 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   fileType?: boolean
   fileSize?: boolean
   fileHash?: boolean
+  contentFingerprint?: boolean
   pageCount?: boolean
   storageRef?: boolean
   institutionId?: boolean
@@ -2811,6 +2855,7 @@ export type ResourceSubmissionSelectScalar = {
   fileType?: boolean
   fileSize?: boolean
   fileHash?: boolean
+  contentFingerprint?: boolean
   pageCount?: boolean
   storageRef?: boolean
   institutionId?: boolean
@@ -2856,7 +2901,7 @@ export type ResourceSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewerSource" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
+export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "contentFingerprint" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewerSource" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
 export type ResourceSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
   participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
@@ -2889,6 +2934,7 @@ export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.
     fileType: string
     fileSize: number
     fileHash: string
+    contentFingerprint: string | null
     pageCount: number | null
     storageRef: string
     institutionId: string | null
@@ -3366,6 +3412,7 @@ export interface ResourceSubmissionFieldRefs {
   readonly fileType: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly fileSize: Prisma.FieldRef<"ResourceSubmission", 'Int'>
   readonly fileHash: Prisma.FieldRef<"ResourceSubmission", 'String'>
+  readonly contentFingerprint: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly pageCount: Prisma.FieldRef<"ResourceSubmission", 'Int'>
   readonly storageRef: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly institutionId: Prisma.FieldRef<"ResourceSubmission", 'String'>

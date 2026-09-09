@@ -52,6 +52,7 @@ import {
 import {
   checkDuplicates,
   toEvidence,
+  contentFingerprint,
   DuplicateEvidence,
 } from "./resource-audit.duplicates";
 import {
@@ -283,8 +284,21 @@ export class ResourceAuditService {
     // 6. Rate limit per owner (config-driven rolling window).
     this.enforceSubmissionRate(studentId ?? participantId!);
 
-    // 7. Hash + exact-duplicate check (same owner, same file, same course).
+    // 7. Hash + duplicate gates — three layers, cheapest first:
+    //    a) exact SHA-256 (same owner, same file, same course) — re-uploads
+    //       of a byte-identical file for a course already have a row;
+    //    b) content fingerprint (same owner, ANY course/department/faculty/
+    //       session) — the metadata-immune check: re-saving a file changes
+    //       its SHA-256 but not its content chunks, so re-uploading the
+    //       same document under new labels is still a duplicate;
+    //    c) global published documents — the same file already lives in the
+    //       public archive, from anyone; a second copy adds nothing.
+    //    Rows a human explicitly rejected (or asked info on / that failed
+    //    processing) are excluded — the reviewer's verdict stands and the
+    //    contributor may retry.
     const fileHash = this.storageAdapter.hash(input.buffer);
+    const contentFp = contentFingerprint(input.buffer, detected);
+
     const duplicate = await this.prisma.resourceSubmission.findFirst({
       where: studentId
         ? { studentId, fileHash, courseCode }
@@ -300,6 +314,33 @@ export class ResourceAuditService {
         submissionId: duplicate.id,
         reason: "You've already submitted this exact file for this course.",
       });
+    }
+    if (contentFp) {
+      const fingerprintDuplicate = await this.prisma.resourceSubmission.findFirst({
+        where: {
+          contentFingerprint: contentFp,
+          auditStatus: {
+            notIn: [AUDIT_STATUS.rejected, AUDIT_STATUS.needs_information, AUDIT_STATUS.failed],
+          },
+          OR: [
+            studentId ? { studentId } : { participantId: participantId! },
+            { auditStatus: AUDIT_STATUS.published },
+          ],
+        },
+        select: { id: true },
+        orderBy: { submittedAt: "desc" },
+      });
+      if (fingerprintDuplicate) {
+        this.log("submit", null, studentId ?? participantId, "rejected: content duplicate", {
+          duplicateId: fingerprintDuplicate.id,
+        });
+        throw new ConflictException({
+          error: "duplicate_submission",
+          submissionId: fingerprintDuplicate.id,
+          reason:
+            "This document is already in the system — changing the course code, department or university doesn't change the file itself. Only genuinely different material can be submitted.",
+        });
+      }
     }
 
     // 8. Owner context: app users get their profile; participants bring
@@ -356,6 +397,7 @@ export class ResourceAuditService {
         fileType: detected,
         fileSize: input.buffer.length,
         fileHash,
+        contentFingerprint: contentFp,
         storageRef,
         institutionId: input.institutionId ?? student?.institutionId ?? null,
         universityName: input.universityName ?? null, // enrichment pass may refine

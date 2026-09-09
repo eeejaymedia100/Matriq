@@ -1201,6 +1201,11 @@ model ResourceSubmission {
   fileSize             Int                   @map("file_size") // bytes
   // SHA-256 of the original bytes — duplicate-detection key.
   fileHash             String                @map("file_hash")
+  // Metadata-immune content fingerprint (hash of deterministic byte chunks:
+  // PDF objects, RIFF/PNG/JPEG scan data). Survives re-saves that change
+  // container headers/timestamps, so a re-uploaded duplicate is caught even
+  // when the declared course/department/faculty all change.
+  contentFingerprint   String?               @map("content_fingerprint")
   pageCount            Int?                  @map("page_count")
   // Object-storage key of the ORIGINAL, untouched upload (private bucket).
   storageRef           String                @map("storage_ref")
@@ -1274,6 +1279,7 @@ model ResourceSubmission {
   @@index([participantId, createdAt])
   @@index([auditStatus])
   @@index([fileHash])
+  @@index([contentFingerprint])
   @@index([textFingerprint])
   @@index([riskLevel])
   @@index([institutionId, courseCode])

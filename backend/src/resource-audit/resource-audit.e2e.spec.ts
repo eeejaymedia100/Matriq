@@ -312,12 +312,31 @@ describe("Resource Audit — end-to-end lifecycle", () => {
   it("intake refuses a second submission with the same student+hash+course", async () => {
     const prismaMock = makePrisma();
     const { svc, prisma } = await buildHarness(prismaMock, OCR_TEXT);
-    (prisma.resourceSubmission.findFirst as jest.Mock)
-      .mockResolvedValueOnce(null) // first submit passes
-      .mockResolvedValue({ id: "first" }); // second submit: same key exists
-    await svc.submit(INPUT);
+    // Mock honors the where-clause shape: exact-duplicate lookups filter on
+    // fileHash; the metadata-immune content-fingerprint lookup filters on
+    // contentFingerprint. Both must fire for the second submit to conflict.
+    (prisma.resourceSubmission.findFirst as jest.Mock).mockImplementation(({ where }: { where: Record<string, any> }) =>
+      "contentFingerprint" in where
+        ? Promise.resolve(null)
+        : Promise.resolve({ id: "first" }),
+    );
     await expect(svc.submit(INPUT)).rejects.toBeInstanceOf(ConflictException);
     await expect(svc.submit(INPUT)).rejects.toBeInstanceOf(ConflictException);
+  });
+
+  it("intake refuses a re-uploaded document even with a new course code (content fingerprint)", async () => {
+    const prismaMock = makePrisma();
+    const { svc, prisma } = await buildHarness(prismaMock, OCR_TEXT);
+    // Same bytes already live in the system under a DIFFERENT course code —
+    // the exact-hash lookup misses, but the content-fingerprint gate fires.
+    (prisma.resourceSubmission.findFirst as jest.Mock).mockImplementation(({ where }: { where: Record<string, any> }) =>
+      "contentFingerprint" in where
+        ? Promise.resolve({ id: "first" })
+        : Promise.resolve(null),
+    );
+    await expect(svc.submit({ ...INPUT, courseCode: "PHY 109" })).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it("rights declaration is never bypassed", async () => {
