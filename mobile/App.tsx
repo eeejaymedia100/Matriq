@@ -10,6 +10,7 @@ import {
 } from "@react-navigation/native";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ThemeProvider, useTheme } from "./src/theme/ThemeContext";
 import { AuthProvider } from "./src/contexts/AuthContext";
 import { NotificationsProvider } from "./src/contexts/NotificationsContext";
@@ -43,9 +44,17 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <AppInner />
-        </ThemeProvider>
+        {/* One keyboard strategy for the whole app. KeyboardProvider delivers
+            the Android IME as animated insets (edge-to-edge SDK 35+ never
+            resizes the window — adjustResize is enforced-away, which is why
+            RN's KeyboardAvoidingView could not see the keyboard). It also
+            reads the keyboard inside native Modals, so sheets and composers
+            ride above the keyboard with the same primitives as screens. */}
+        <KeyboardProvider statusBarTranslucent navigationBarTranslucent>
+          <ThemeProvider>
+            <AppInner />
+          </ThemeProvider>
+        </KeyboardProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );

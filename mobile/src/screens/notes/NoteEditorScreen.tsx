@@ -9,8 +9,8 @@ import {
   upsertNote,
   deleteNote,
   newNoteId,
-  type Note,
-} from "../../utils/notes";
+} from "../../services/repositories";
+import type { Note } from "../../utils/notes";
 import { logStudyActivity } from "../../utils/streak";
 
 /**
@@ -161,7 +161,7 @@ export function NoteEditorScreen({
         placeholder="Title"
         placeholderTextColor={colors.textMuted}
         style={{
-          fontFamily: "Inter_700Bold",
+          fontFamily: theme.typography.bodyBold.fontFamily,
           fontSize: 22,
           color: colors.textPrimary,
           paddingVertical: 10,
@@ -187,7 +187,7 @@ export function NoteEditorScreen({
           minHeight: 320,
           marginTop: 12,
           padding: 14,
-          fontFamily: "Inter_400Regular",
+          fontFamily: theme.typography.body.fontFamily,
           fontSize: 16,
           lineHeight: 26,
           color: colors.textPrimary,

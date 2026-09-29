@@ -11,9 +11,9 @@ import { AppState, type AppStateStatus } from "react-native";
 import { api } from "../api/client";
 import { getItem, setItem } from "../utils/storage";
 import { getStreak } from "../utils/streak";
-import { listNotes } from "../utils/notes";
+import { listNotes } from "../services/repositories";
 import { allTodosDone } from "../utils/todos";
-import { loadHistory } from "../offline/history";
+import { listConversations } from "../services/repositories";
 import { awardBadge } from "../utils/badges";
 import { queueCelebrations } from "../utils/celebrations";
 import type { AchievementBoard, BoardAchievement } from "../utils/achievements";
@@ -25,7 +25,7 @@ const REFRESH_TTL_MS = 60 * 1000;
 /** Count completed AI Q&As in the offline chat history (user turns). */
 async function countOfflineAiExchanges(): Promise<number> {
   try {
-    const conversations = await loadHistory();
+    const conversations = await listConversations();
     return conversations.reduce(
       (sum, c) => sum + c.messages.filter((m) => m.role === "user").length,
       0,

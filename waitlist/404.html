@@ -6,7 +6,7 @@
 <title>Page not found (404) — Matriq</title>
 <meta name="description" content="That page doesn't exist. Head back to the Matriq homepage, or join the Telegram community." />
 <meta name="robots" content="noindex, nofollow" />
-<meta name="theme-color" content="#0d0620" />
+<meta name="theme-color" content="#0a0a0a" />
 <link rel="canonical" href="https://matriq.com.ng/404.html" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <meta property="og:title" content="Page not found — Matriq" />
@@ -15,23 +15,21 @@
 <meta property="og:site_name" content="Matriq" />
 <style>
   :root {
-    --bg: #0d0620;
-    --bg-2: #140b2e;
-    --border: rgba(255, 255, 255, 0.09);
-    --border-strong: rgba(139, 92, 246, 0.4);
-    --text: #f8f6fc;
-    --text-dim: #b9a8d9;
-    --text-muted: #8b7aae;
-    --primary: #8b5cf6;
-    --primary-2: #6c3baa;
-    --accent: #c084fc;
+    --bg: #0a0a0a;
+    --bg-2: #141416;
+    --border: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(198, 255, 61, 0.4);
+    --text: #f5f4f1;
+    --text-dim: #c8c6c1;
+    --text-muted: #8e8c88;
     --lime: #c6ff3d;
+    --ink: #17181a;
     --radius: 16px;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background: radial-gradient(120% 90% at 50% 0%, #1a0f3d 0%, var(--bg) 55%, #0a0418 100%);
+    background: radial-gradient(120% 90% at 50% 0%, #161618 0%, var(--bg) 55%, #050505 100%);
     color: var(--text);
     line-height: 1.6;
     min-height: 100svh;
@@ -45,12 +43,10 @@
     max-width: 560px;
     width: 100%;
     text-align: center;
-    background: rgba(20, 11, 46, 0.6);
+    background: rgba(20, 20, 22, 0.6);
     border: 1px solid var(--border);
     border-radius: 24px;
     padding: 48px 32px;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
   }
   .logo {
@@ -60,36 +56,33 @@
   }
   .logo-mark {
     width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    display: grid; place-items: center; font-size: 18px; color: #fff;
+    background: var(--lime);
+    color: var(--ink);
+    display: grid; place-items: center; font-size: 18px;
   }
   .status {
-    font-family: "Space Grotesk", "Inter", sans-serif;
     font-size: clamp(64px, 16vw, 96px);
     font-weight: 700;
     letter-spacing: -2px;
-    background: linear-gradient(90deg, var(--primary), var(--accent), var(--lime));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
+    color: var(--lime);
     line-height: 1;
   }
   h1 { font-size: clamp(22px, 4vw, 28px); margin: 14px 0 10px; letter-spacing: -0.5px; }
   p { color: var(--text-dim); font-size: 15px; max-width: 420px; margin: 0 auto 8px; }
   .actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 26px; }
   .btn {
-    display: inline-block; padding: 13px 24px; border-radius: 12px;
+    display: inline-block; padding: 13px 24px; border-radius: 999px;
     font-size: 15px; font-weight: 700; text-decoration: none;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    color: #fff;
-    box-shadow: 0 8px 24px rgba(108, 59, 170, 0.45);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    background: var(--lime);
+    color: var(--ink);
+    transition: transform 0.15s ease, filter 0.2s ease;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(108, 59, 170, 0.55); }
+  .btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
   .btn-ghost {
     background: transparent; color: var(--text);
     border: 1px solid var(--border-strong);
-    box-shadow: none;
   }
-  .btn-ghost:hover { background: rgba(139, 92, 246, 0.15); color: #fff; }
+  .btn-ghost:hover { background: rgba(198, 255, 61, 0.1); color: var(--text); filter: none; }
   .links { margin-top: 26px; }
   .links a {
     color: var(--text-muted); font-size: 13px; text-decoration: none;
@@ -115,7 +108,7 @@
       <a class="btn btn-ghost" href="https://t.me/+Bk-Wbby2_Cc3Njk0" target="_blank" rel="noopener">Join the Telegram</a>
     </div>
     <nav class="links" aria-label="More pages">
-      <a href="/#features">Features</a>
+      <a href="/#why">Why Matriq</a>
       <a href="/#how">How it works</a>
       <a href="/terms.html">Terms</a>
       <a href="/privacy.html">Privacy</a>

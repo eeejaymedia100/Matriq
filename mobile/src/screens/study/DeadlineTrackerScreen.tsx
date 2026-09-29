@@ -6,8 +6,10 @@ import {
   TextInput,
 } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
+import { EmptyState } from "../../components/EmptyState";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
+import { typographyBase } from "../../theme/themes";
 import {
   getDeadlines,
   addDeadline,
@@ -108,7 +110,7 @@ export function DeadlineTrackerScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "Inter_600SemiBold",
+                      fontFamily: theme.typography.bodyBold.fontFamily,
                       fontSize: 12,
                       color: dueDays === q.days ? "#17181A" : colors.textPrimary,
                     }}
@@ -133,7 +135,7 @@ export function DeadlineTrackerScreen() {
                 borderColor: colors.borderStrong,
               }}
             >
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>Add deadline</Text>
+              <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 15, color: "#17181A" }}>Add deadline</Text>
             </Pressable>
           </View>
 
@@ -200,12 +202,12 @@ export function DeadlineTrackerScreen() {
               })}
             </View>
           ) : (
-            <View style={{ marginTop: 28, alignItems: "center" }}>
-              <Icon name="calendar" size={34} color={colors.textMuted} />
-              <Text style={[theme.typography.body, { color: colors.textMuted, marginTop: 12, textAlign: "center", maxWidth: 260 }]}>
-                No deadlines yet. Add your first assignment above.
-              </Text>
-            </View>
+            <EmptyState
+              icon="calendar"
+              title="No deadlines yet"
+              body="Add your first assignment above — reminders fire even offline."
+              style={{ marginTop: 12 }}
+            />
           )}
     </KeyboardScreen>
   );
@@ -218,7 +220,7 @@ function field(colors: import("../../theme/themes").MatriqThemeColors, radii: { 
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typographyBase.body.fontFamily,
     fontSize: 15,
     paddingHorizontal: 12,
     paddingVertical: 11,

@@ -79,3 +79,13 @@ export async function logStudyActivity(): Promise<StreakState> {
 export function streakLabel(streak: StreakState): string {
   return `${streak.current} day${streak.current === 1 ? "" : "s"}`;
 }
+
+/**
+ * True when the student hasn't studied today — the streak genuinely ends at
+ * midnight. Powers the honest "ends tonight" cue (loss aversion applied to
+ * something the student actually has). Never true on a zero streak: there
+ * is nothing to lose yet, and fake urgency reads as a gimmick.
+ */
+export function streakAtRisk(streak: StreakState): boolean {
+  return streak.current > 0 && streak.lastActiveDay !== dayKey(new Date());
+}

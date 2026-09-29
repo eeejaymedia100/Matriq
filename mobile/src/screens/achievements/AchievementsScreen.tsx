@@ -564,7 +564,7 @@ function AchievementDetailModal({
                   ) : (
                     <Text
                       style={{
-                        fontFamily: "Inter_700Bold",
+                        fontFamily: theme.typography.bodyBold.fontFamily,
                         fontSize: 13,
                         color: achievement.earned ? "#17181A" : colors.textMuted,
                       }}

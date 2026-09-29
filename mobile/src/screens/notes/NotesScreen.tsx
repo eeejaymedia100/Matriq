@@ -4,9 +4,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Surface } from "../../components/Surface";
+import { EmptyState } from "../../components/EmptyState";
 import { Icon } from "../../components/icons";
 import { ConfirmSheet } from "../../components/ConfirmSheet";
-import { listNotes, deleteNote, type Note } from "../../utils/notes";
+import { listNotes, deleteNote } from "../../services/repositories";
+import type { Note } from "../../utils/notes";
 import { timeAgo } from "../../utils/relativeTime";
 
 /**
@@ -63,12 +65,10 @@ export function NotesScreen({
             paddingHorizontal: 14,
             borderRadius: theme.radii.pill,
             backgroundColor: colors.accent,
-            borderWidth: theme.mode === "pop" ? 2 : 0,
-            borderColor: colors.borderStrong,
           }}
         >
           <Icon name="plus" size={15} color="#17181A" />
-          <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+          <Text style={[theme.typography.captionBold, { color: colors.onAccent ?? "#17181A" }]}>
             New note
           </Text>
         </Pressable>
@@ -79,46 +79,26 @@ export function NotesScreen({
           <ActivityIndicator color={colors.brand} />
         </View>
       ) : notes.length === 0 ? (
-        <View style={{ alignItems: "center", paddingVertical: 40 }}>
-          <View
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 20,
-              backgroundColor: colors.surfaceAlt,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Icon name="pen" size={28} color={colors.brand} />
-          </View>
-          <Text style={[theme.typography.bodyBold, { color: colors.textPrimary, marginTop: 14 }]}>
-            Nothing here yet
-          </Text>
-          <Text
-            style={[
-              theme.typography.caption,
-              { color: colors.textMuted, marginTop: 4, textAlign: "center", maxWidth: 280, lineHeight: 20 },
-            ]}
-          >
-            Jot down lecture points, ideas or a to-study list. Your notes stay on this device — no
-            internet needed.
-          </Text>
-          <Pressable
-            onPress={() => navigation.navigate("NoteEditor", {})}
-            style={{
-              marginTop: 18,
-              paddingVertical: 10,
-              paddingHorizontal: 18,
-              borderRadius: theme.radii.pill,
-              backgroundColor: colors.accent,
-            }}
-          >
-            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
-              Write your first note
-            </Text>
-          </Pressable>
-        </View>
+        <EmptyState
+          icon="pen"
+          title="Nothing here yet"
+          body="Jot down lecture points, ideas or a to-study list. Your notes stay on this device — no internet needed."
+          action={
+            <Pressable
+              onPress={() => navigation.navigate("NoteEditor", {})}
+              style={{
+                paddingVertical: 10,
+                paddingHorizontal: 18,
+                borderRadius: theme.radii.pill,
+                backgroundColor: colors.accent,
+              }}
+            >
+              <Text style={[theme.typography.captionBold, { color: colors.onAccent ?? "#17181A" }]}>
+                Write your first note
+              </Text>
+            </Pressable>
+          }
+        />
       ) : (
         <View style={{ marginTop: 20, gap: 10 }}>
           {notes.map((note) => (

@@ -171,7 +171,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                   backgroundColor: colors.accent,
                 }}
               >
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: "#17181A" }}>
                   Coming soon
                 </Text>
               </View>
@@ -231,7 +231,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
                         borderColor: colors.borderStrong,
                       }}
                     >
-                      <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
+                      <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 13, color: "#17181A" }}>
                         Pay dues
                       </Text>
                     </Pressable>

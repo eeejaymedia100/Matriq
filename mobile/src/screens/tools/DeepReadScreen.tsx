@@ -19,7 +19,7 @@ import { api } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
 import { optimizeImageForUpload } from "../../utils/imageOptimize";
 import { appendFileToFormData } from "../../utils/upload";
-import { newNoteId, upsertNote } from "../../utils/notes";
+import { newNoteId, upsertNote } from "../../services/repositories";
 
 /**
  * Deep Read — premium handwriting OCR (Magic Plus).

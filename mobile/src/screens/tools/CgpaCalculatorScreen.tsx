@@ -8,6 +8,7 @@ import {
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Icon } from "../../components/icons";
+import { typographyBase } from "../../theme/themes";
 import {
   calculateCgpa,
   cgpaClassification,
@@ -136,7 +137,7 @@ export function CgpaCalculatorScreen() {
                   borderWidth: 1,
                   borderColor: colors.border,
                   color: colors.textPrimary,
-                  fontFamily: theme.typography.body.fontFamily,
+                  fontFamily: typographyBase.body.fontFamily,
                   fontSize: 15,
                   paddingHorizontal: 12,
                   paddingVertical: 11,
@@ -250,7 +251,7 @@ export function CgpaCalculatorScreen() {
                   backgroundColor: colors.accent,
                 }}
               >
-                <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 13, color: "#17181A" }}>
+                <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 13, color: "#17181A" }}>
                   Save to history
                 </Text>
               </Pressable>
@@ -335,7 +336,7 @@ export function CgpaCalculatorScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "Inter_600SemiBold",
+                      fontFamily: theme.typography.bodyBold.fontFamily,
                       fontSize: 12,
                       color: timeframe.label === t.label ? "#17181A" : colors.textPrimary,
                     }}
@@ -419,7 +420,7 @@ function inputStyle(colors: import("../../theme/themes").MatriqThemeColors, radi
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typographyBase.body.fontFamily,
     fontSize: 15,
     paddingHorizontal: 12,
     paddingVertical: 11,

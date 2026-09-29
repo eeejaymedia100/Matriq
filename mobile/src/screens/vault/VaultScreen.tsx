@@ -450,13 +450,11 @@ export function VaultScreen({ navigation }: Props) {
                   paddingVertical: 10,
                   paddingHorizontal: 14,
                   borderRadius: theme.radii.pill,
-                  backgroundColor: colors.surface,
-                  borderWidth: 1.5,
-                  borderColor: colors.borderStrong,
+                  backgroundColor: colors.surfaceAlt,
                 }}
               >
                 <Icon name="book" size={15} color={colors.textPrimary} />
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: colors.textPrimary }}>
+                <Text style={[theme.typography.captionBold, { color: colors.textPrimary }]}>
                   Discover
                 </Text>
               </Pressable>
@@ -470,12 +468,10 @@ export function VaultScreen({ navigation }: Props) {
                   paddingHorizontal: 14,
                   borderRadius: theme.radii.pill,
                   backgroundColor: colors.accent,
-                  borderWidth: theme.mode === "pop" ? 2 : 0,
-                  borderColor: colors.borderStrong,
                 }}
               >
-                <Icon name="plus" size={15} color="#17181A" />
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                <Icon name="plus" size={15} color={colors.onAccent} />
+                <Text style={[theme.typography.captionBold, { color: colors.onAccent }]}>
                   Upload
                 </Text>
               </Pressable>
@@ -514,7 +510,7 @@ export function VaultScreen({ navigation }: Props) {
               >
                 <Text
                   style={{
-                    fontFamily: "Inter_700Bold",
+                    fontFamily: theme.typography.bodyBold.fontFamily,
                     fontSize: 12,
                     color: tab === t.id ? "#17181A" : colors.textPrimary,
                   }}
@@ -593,7 +589,7 @@ export function VaultScreen({ navigation }: Props) {
                   >
                     <Text
                       style={{
-                        fontFamily: "Inter_600SemiBold",
+                        fontFamily: theme.typography.bodyBold.fontFamily,
                         fontSize: 12,
                         color: filter === f.id ? "#17181A" : colors.textPrimary,
                       }}
@@ -621,7 +617,7 @@ export function VaultScreen({ navigation }: Props) {
                   >
                     <Text
                       style={{
-                        fontFamily: "Inter_600SemiBold",
+                        fontFamily: theme.typography.bodyBold.fontFamily,
                         fontSize: 11,
                         color: levelFilter === lvl ? "#17181A" : colors.textSecondary,
                       }}
@@ -705,7 +701,7 @@ export function VaultScreen({ navigation }: Props) {
                       onPress={() => stackNav?.navigate("VaultUpload")}
                       style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
                     >
-                      <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                      <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: "#17181A" }}>
                         Be the first to contribute
                       </Text>
                     </Pressable>
@@ -731,7 +727,7 @@ export function VaultScreen({ navigation }: Props) {
                     onPress={() => stackNav?.navigate("VaultUpload")}
                     style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 18, borderRadius: theme.radii.pill, backgroundColor: colors.accent }}
                   >
-                    <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                    <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: "#17181A" }}>
                       Upload a file
                     </Text>
                   </Pressable>
@@ -801,7 +797,7 @@ export function VaultScreen({ navigation }: Props) {
             borderWidth: 1.5,
             borderColor: renameError ? colors.error : colors.borderStrong,
             color: colors.textPrimary,
-            fontFamily: "Inter_400Regular",
+            fontFamily: theme.typography.body.fontFamily,
             fontSize: 15,
             paddingHorizontal: 14,
             paddingVertical: 12,

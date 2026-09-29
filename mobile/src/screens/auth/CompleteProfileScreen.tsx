@@ -71,24 +71,14 @@ export function CompleteProfileScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardScreen themed={false} paddingTop={40}>
+    <KeyboardScreen
+      themed={false}
+      paddingTop={8}
+      paddingBottom={40}
+      edges={["top", "bottom", "left", "right"]}
+    >
 
         <View style={{ alignItems: "center", marginBottom: 20 }}>
-          <View
-            style={{
-              width: 56,
-              height: 56,
-              borderRadius: 18,
-              backgroundColor: colors.surfaceAlt,
-              borderWidth: 1,
-              borderColor: colors.border,
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: 12,
-            }}
-          >
-            <Icon name="calendar" size={26} color={colors.brand} />
-          </View>
           <Text style={[theme.typography.h2, { color: colors.textPrimary }]}>
             When were you born?
           </Text>

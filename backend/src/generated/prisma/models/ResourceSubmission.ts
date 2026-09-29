@@ -184,6 +184,7 @@ export type ResourceSubmissionCountAggregateOutputType = {
   textFingerprint: number
   duplicateOfId: number
   duplicateSimilarity: number
+  ocrCorrection: number
   humanDecision: number
   decisionReason: number
   reviewerId: number
@@ -361,6 +362,7 @@ export type ResourceSubmissionCountAggregateInputType = {
   textFingerprint?: true
   duplicateOfId?: true
   duplicateSimilarity?: true
+  ocrCorrection?: true
   humanDecision?: true
   decisionReason?: true
   reviewerId?: true
@@ -503,6 +505,7 @@ export type ResourceSubmissionGroupByOutputType = {
   textFingerprint: string | null
   duplicateOfId: string | null
   duplicateSimilarity: number | null
+  ocrCorrection: runtime.JsonValue | null
   humanDecision: string | null
   decisionReason: string | null
   reviewerId: string | null
@@ -581,6 +584,7 @@ export type ResourceSubmissionWhereInput = {
   textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
+  ocrCorrection?: Prisma.JsonNullableFilter<"ResourceSubmission">
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -639,6 +643,7 @@ export type ResourceSubmissionOrderByWithRelationInput = {
   textFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   duplicateOfId?: Prisma.SortOrderInput | Prisma.SortOrder
   duplicateSimilarity?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocrCorrection?: Prisma.SortOrderInput | Prisma.SortOrder
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -701,6 +706,7 @@ export type ResourceSubmissionWhereUniqueInput = Prisma.AtLeast<{
   textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
+  ocrCorrection?: Prisma.JsonNullableFilter<"ResourceSubmission">
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -759,6 +765,7 @@ export type ResourceSubmissionOrderByWithAggregationInput = {
   textFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
   duplicateOfId?: Prisma.SortOrderInput | Prisma.SortOrder
   duplicateSimilarity?: Prisma.SortOrderInput | Prisma.SortOrder
+  ocrCorrection?: Prisma.SortOrderInput | Prisma.SortOrder
   humanDecision?: Prisma.SortOrderInput | Prisma.SortOrder
   decisionReason?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewerId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -822,6 +829,7 @@ export type ResourceSubmissionScalarWhereWithAggregatesInput = {
   textFingerprint?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   duplicateOfId?: Prisma.UuidNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   duplicateSimilarity?: Prisma.IntNullableWithAggregatesFilter<"ResourceSubmission"> | number | null
+  ocrCorrection?: Prisma.JsonNullableWithAggregatesFilter<"ResourceSubmission">
   humanDecision?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.StringNullableWithAggregatesFilter<"ResourceSubmission"> | string | null
@@ -874,6 +882,7 @@ export type ResourceSubmissionCreateInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -932,6 +941,7 @@ export type ResourceSubmissionUncheckedCreateInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -984,6 +994,7 @@ export type ResourceSubmissionUpdateInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1042,6 +1053,7 @@ export type ResourceSubmissionUncheckedUpdateInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1097,6 +1109,7 @@ export type ResourceSubmissionCreateManyInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1149,6 +1162,7 @@ export type ResourceSubmissionUpdateManyMutationInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1204,6 +1218,7 @@ export type ResourceSubmissionUncheckedUpdateManyInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1275,6 +1290,7 @@ export type ResourceSubmissionCountOrderByAggregateInput = {
   textFingerprint?: Prisma.SortOrder
   duplicateOfId?: Prisma.SortOrder
   duplicateSimilarity?: Prisma.SortOrder
+  ocrCorrection?: Prisma.SortOrder
   humanDecision?: Prisma.SortOrder
   decisionReason?: Prisma.SortOrder
   reviewerId?: Prisma.SortOrder
@@ -1597,6 +1613,7 @@ export type ResourceSubmissionCreateWithoutInstitutionInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1653,6 +1670,7 @@ export type ResourceSubmissionUncheckedCreateWithoutInstitutionInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1737,6 +1755,7 @@ export type ResourceSubmissionScalarWhereInput = {
   textFingerprint?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   duplicateOfId?: Prisma.UuidNullableFilter<"ResourceSubmission"> | string | null
   duplicateSimilarity?: Prisma.IntNullableFilter<"ResourceSubmission"> | number | null
+  ocrCorrection?: Prisma.JsonNullableFilter<"ResourceSubmission">
   humanDecision?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   decisionReason?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
   reviewerId?: Prisma.StringNullableFilter<"ResourceSubmission"> | string | null
@@ -1789,6 +1808,7 @@ export type ResourceSubmissionCreateWithoutStudentInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1845,6 +1865,7 @@ export type ResourceSubmissionUncheckedCreateWithoutStudentInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1923,6 +1944,7 @@ export type ResourceSubmissionCreateWithoutParticipantInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -1979,6 +2001,7 @@ export type ResourceSubmissionUncheckedCreateWithoutParticipantInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -2059,6 +2082,7 @@ export type ResourceSubmissionCreateManyInstitutionInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -2111,6 +2135,7 @@ export type ResourceSubmissionUpdateWithoutInstitutionInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2167,6 +2192,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutInstitutionInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2221,6 +2247,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutInstitutionInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2275,6 +2302,7 @@ export type ResourceSubmissionCreateManyStudentInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -2327,6 +2355,7 @@ export type ResourceSubmissionUpdateWithoutStudentInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2383,6 +2412,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutStudentInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2437,6 +2467,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutStudentInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2491,6 +2522,7 @@ export type ResourceSubmissionCreateManyParticipantInput = {
   textFingerprint?: string | null
   duplicateOfId?: string | null
   duplicateSimilarity?: number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: string | null
   decisionReason?: string | null
   reviewerId?: string | null
@@ -2543,6 +2575,7 @@ export type ResourceSubmissionUpdateWithoutParticipantInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2599,6 +2632,7 @@ export type ResourceSubmissionUncheckedUpdateWithoutParticipantInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2653,6 +2687,7 @@ export type ResourceSubmissionUncheckedUpdateManyWithoutParticipantInput = {
   textFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateOfId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   duplicateSimilarity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ocrCorrection?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   humanDecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   decisionReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reviewerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2710,6 +2745,7 @@ export type ResourceSubmissionSelect<ExtArgs extends runtime.Types.Extensions.In
   textFingerprint?: boolean
   duplicateOfId?: boolean
   duplicateSimilarity?: boolean
+  ocrCorrection?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -2768,6 +2804,7 @@ export type ResourceSubmissionSelectCreateManyAndReturn<ExtArgs extends runtime.
   textFingerprint?: boolean
   duplicateOfId?: boolean
   duplicateSimilarity?: boolean
+  ocrCorrection?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -2826,6 +2863,7 @@ export type ResourceSubmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.
   textFingerprint?: boolean
   duplicateOfId?: boolean
   duplicateSimilarity?: boolean
+  ocrCorrection?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -2884,6 +2922,7 @@ export type ResourceSubmissionSelectScalar = {
   textFingerprint?: boolean
   duplicateOfId?: boolean
   duplicateSimilarity?: boolean
+  ocrCorrection?: boolean
   humanDecision?: boolean
   decisionReason?: boolean
   reviewerId?: boolean
@@ -2901,7 +2940,7 @@ export type ResourceSubmissionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "contentFingerprint" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewerSource" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
+export type ResourceSubmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "studentId" | "participantId" | "source" | "fileName" | "fileType" | "fileSize" | "fileHash" | "contentFingerprint" | "pageCount" | "storageRef" | "institutionId" | "universityName" | "faculty" | "department" | "courseCode" | "level" | "materialType" | "academicSession" | "rightsDeclared" | "rightsVersion" | "submittedAt" | "auditStatus" | "extractedText" | "aiRecommendation" | "aiConfidence" | "aiSummary" | "aiAuditedAt" | "aiProvider" | "aiModel" | "riskLevel" | "aiAuditReport" | "validationResults" | "qualityMetrics" | "textFingerprint" | "duplicateOfId" | "duplicateSimilarity" | "ocrCorrection" | "humanDecision" | "decisionReason" | "reviewerId" | "reviewerSource" | "reviewedAt" | "rewardStatus" | "rewardReason" | "libraryStatus" | "publishedVaultItemId" | "attemptCount" | "failureReason" | "lastStageError" | "reviewerNotes" | "createdAt" | "updatedAt", ExtArgs["result"]["resourceSubmission"]>
 export type ResourceSubmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   student?: boolean | Prisma.ResourceSubmission$studentArgs<ExtArgs>
   participant?: boolean | Prisma.ResourceSubmission$participantArgs<ExtArgs>
@@ -2963,6 +3002,7 @@ export type $ResourceSubmissionPayload<ExtArgs extends runtime.Types.Extensions.
     textFingerprint: string | null
     duplicateOfId: string | null
     duplicateSimilarity: number | null
+    ocrCorrection: runtime.JsonValue | null
     humanDecision: string | null
     decisionReason: string | null
     reviewerId: string | null
@@ -3441,6 +3481,7 @@ export interface ResourceSubmissionFieldRefs {
   readonly textFingerprint: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly duplicateOfId: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly duplicateSimilarity: Prisma.FieldRef<"ResourceSubmission", 'Int'>
+  readonly ocrCorrection: Prisma.FieldRef<"ResourceSubmission", 'Json'>
   readonly humanDecision: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly decisionReason: Prisma.FieldRef<"ResourceSubmission", 'String'>
   readonly reviewerId: Prisma.FieldRef<"ResourceSubmission", 'String'>

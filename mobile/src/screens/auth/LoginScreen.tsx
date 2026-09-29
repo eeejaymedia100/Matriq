@@ -3,7 +3,6 @@ import { View, Text } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Field, Button, ErrorBanner, OtpInput } from "../../components";
-import { Icon } from "../../components/icons";
 import { useAuth } from "../../contexts/AuthContext";
 import { ApiError } from "../../api/client";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
@@ -30,11 +29,15 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   });
 
   const emailInvalid = email.length > 0 && !isValidEmail(email);
-  const emailError = emailInvalid
-    ? "That email doesn't look right."
-    : touched.email && !isRequired(email)
-      ? "Please enter your email."
-      : undefined;
+  // Format errors surface after blur, not mid-keystroke — a half-typed
+  // address isn't wrong, it's just not finished. Empty-after-touch is the
+  // other case that earns an error.
+  const emailError =
+    touched.email && email.length > 0 && !isValidEmail(email)
+      ? "That email doesn't look right."
+      : touched.email && !isRequired(email)
+        ? "Please enter your email."
+        : undefined;
   const passwordError =
     touched.password && !isRequired(password)
       ? "Please enter your password."
@@ -93,28 +96,14 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
   };
 
   return (
-    <KeyboardScreen themed={false} center paddingTop={48}>
+    <KeyboardScreen
+      themed={false}
+      center
+      paddingTop={8}
+      edges={["top", "bottom", "left", "right"]}
+    >
 
           <View style={{ alignItems: "center", marginBottom: 24 }}>
-            <View
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 999,
-                backgroundColor: colors.surfaceAlt,
-                borderWidth: 1,
-                borderColor: colors.border,
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 16,
-              }}
-            >
-              <Icon
-                name={challengeToken ? "shield" : "user"}
-                size={28}
-                color={colors.brand}
-              />
-            </View>
             <Text
               style={[
                 theme.typography.h1,
@@ -183,6 +172,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 value={email}
                 onChangeText={(t) => {
                   setEmail(t);
+                  if (t) setTouched((p) => ({ ...p, email: false }));
                   if (error) setError(null);
                 }}
                 onBlur={() => setTouched((t) => ({ ...t, email: true }))}
@@ -196,6 +186,7 @@ export function LoginScreen({ navigation }: LoginScreenProps) {
                 value={password}
                 onChangeText={(t) => {
                   setPassword(t);
+                  if (t) setTouched((p) => ({ ...p, password: false }));
                   if (error) setError(null);
                 }}
                 onBlur={() => setTouched((t) => ({ ...t, password: true }))}

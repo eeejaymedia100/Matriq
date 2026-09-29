@@ -1,11 +1,137 @@
 {
   "version": 1,
   "skills": {
+    "backend-patterns": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/backend-patterns/SKILL.md",
+      "computedHash": "1080fcdc65786651e1d2bad3fb7f3d2d1c28ebcc2f0daebde0d6aa7da5240f60"
+    },
+    "brag": {
+      "source": "latent-spaces/brag",
+      "sourceType": "github",
+      "skillPath": "skills/brag/SKILL.md",
+      "computedHash": "23538f72c11ab6e872e54d156d8fe76b0966e88f5365167e9166e58709d9aa86"
+    },
+    "clickhouse-io": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/clickhouse-io/SKILL.md",
+      "computedHash": "dc01575a26008304b60e71c06dceafcc7eefd6e9cb74033bfff2fcbd1c245815"
+    },
+    "coding-standards": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/coding-standards/SKILL.md",
+      "computedHash": "cfd3b584567b581684ecfeaf8bfdbe0518f1924a6287a0d2316e8cb21254c878"
+    },
+    "continuous-learning": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/continuous-learning/SKILL.md",
+      "computedHash": "1145edf8a84aa713fa4c404b97bbdb6ac81b87ed7de61f7511daab516a87db95"
+    },
     "frontend-design": {
       "source": "anthropics/skills",
       "sourceType": "github",
       "skillPath": "skills/frontend-design/SKILL.md",
       "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    },
+    "frontend-patterns": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-patterns/SKILL.md",
+      "computedHash": "d09902e6be25b21c02a9fe04d43cdd399d22033285d983ea5e4a16296b226a27"
+    },
+    "remotion-best-practices": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-best-practices/SKILL.md",
+      "computedHash": "9dd8faff25dcecec3997605995c2b834abca542829d0bd7ed59b62baf5c36f6d"
+    },
+    "remotion-captions": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-captions/SKILL.md",
+      "computedHash": "bc7ca846a8ae8bab2ce313729207311d1923f244aa65704c8062a2fe35104146"
+    },
+    "remotion-create": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-create/SKILL.md",
+      "computedHash": "46c39e336a7bc8b33014580380c25f971a4a5f63c89064002c8d07c0af394033"
+    },
+    "remotion-docs": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-docs/SKILL.md",
+      "computedHash": "d28b4a6f64ed548b492f0dc7ad08a480c471f767716a3e2c32d1042823dc73de"
+    },
+    "remotion-interactivity": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-interactivity/SKILL.md",
+      "computedHash": "9016fa211a853742bff2c7693106eb63f1af4ab5b3c4ef2d393d82f82cc66c2b"
+    },
+    "remotion-maps": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-maps/SKILL.md",
+      "computedHash": "ffd09887d7928745c2c626fee3def89ce1123e80f793aec3b0eaeb877819b023"
+    },
+    "remotion-markup": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-markup/SKILL.md",
+      "computedHash": "ba7ac05f686126eafbe9e6593a6a3943b457598ed19b638d6a39f3d443e979c4"
+    },
+    "remotion-multimedia": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-multimedia/SKILL.md",
+      "computedHash": "ec7f5f95e18937d844aaae9713c46d045bacf97b3dd8292f0be9d0206320e902"
+    },
+    "remotion-render": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-render/SKILL.md",
+      "computedHash": "de16484b558503dc8b8a551413c9f6e0d46063ddfcdcf6146c5459b23799ae06"
+    },
+    "remotion-saas": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-saas/SKILL.md",
+      "computedHash": "36c6b2ed8a6c7a5f48e1abee5cef3b28e05a1249e37a0a06c23b35d48ed8c612"
+    },
+    "remotion-studio": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-studio/SKILL.md",
+      "computedHash": "3e790f9517fb06b5075368b1907e9b251758e96298409874878f3d72654e5803"
+    },
+    "remotion-upgrade": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-upgrade/SKILL.md",
+      "computedHash": "a59f4020e1bc7336409a575b8691d55b910d5b3ad74d1503644cbf6bf8b04d61"
+    },
+    "security-review": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/security-review/SKILL.md",
+      "computedHash": "78b27569f2c3caa9744c540695abf1c5b61f23c53d68e01b6dbd18b9f48b6fc9"
+    },
+    "strategic-compact": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/strategic-compact/SKILL.md",
+      "computedHash": "f31725d9612483098fb37e2de3d695aa79c6d203985668f8d4f1aef32d6f2864"
+    },
+    "tdd-workflow": {
+      "source": "WorldFlowAI/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/tdd-workflow/SKILL.md",
+      "computedHash": "fc3274947bea3a5b18a505aeaf06aebc5d6ad459b767e850a2d810d3339577bf"
     }
   }
 }

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../theme/ThemeContext";
 import { TAGLINE, brand } from "../../theme/tokens";
 import { MatriqMark } from "../../components/MatriqMark";
+import { typographyBase } from "../../theme/themes";
 
 /**
  * The very first screen (spec §4) — before onboarding, before anything else.
@@ -26,7 +27,7 @@ export function ThemePickerScreen() {
 
   return (
     <View style={styles.root}>
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
+      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%" aria-hidden={true}>
         <Defs>
           <LinearGradient id="neutralBg" x1="0" y1="0" x2="1" y2="1">
             <Stop offset="0%" stopColor="#1C1C1E" />
@@ -200,13 +201,13 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { flex: 1, paddingHorizontal: 28, paddingTop: 72 },
   wordmark: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 44 },
-  name: { color: "#F5F4F1", fontSize: 26, fontFamily: "Inter_800ExtraBold" },
+  name: { color: "#F5F4F1", fontSize: 26, fontFamily: typographyBase.bodyBold.fontFamily },
   heading: { marginBottom: 28 },
-  title: { color: "#F5F4F1", fontSize: 30, fontFamily: "Inter_700Bold" },
+  title: { color: "#F5F4F1", fontSize: 30, fontFamily: typographyBase.bodyBold.fontFamily },
   subtitle: {
     color: "#C8C6C1",
     fontSize: 15,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typographyBase.body.fontFamily,
     lineHeight: 22,
     marginTop: 6,
     maxWidth: 300,
@@ -242,18 +243,18 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 2,
   },
-  cardTitle: { color: "#F5F4F1", fontSize: 19, fontFamily: "Inter_700Bold" },
-  cardSub: { color: "#9B9995", fontSize: 13, fontFamily: "Inter_400Regular", marginTop: 2 },
+  cardTitle: { color: "#F5F4F1", fontSize: 19, fontFamily: typographyBase.bodyBold.fontFamily },
+  cardSub: { color: "#9B9995", fontSize: 13, fontFamily: typographyBase.body.fontFamily, marginTop: 2 },
   cardCta: {
     color: brand.lime500,
     fontSize: 13,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: typographyBase.bodyBold.fontFamily,
   },
   tagline: {
     textAlign: "center",
     color: "#8E8C88",
     fontSize: 13,
-    fontFamily: "Inter_500Medium",
+    fontFamily: typographyBase.bodyMedium.fontFamily,
     paddingBottom: 48,
     letterSpacing: 1,
     textTransform: "uppercase",

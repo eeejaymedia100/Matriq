@@ -446,12 +446,15 @@ export interface IconProps {
   strokeWidth?: number;
 }
 
-export function Icon({ name, size = 24, color = "#17181A", strokeWidth = 2 }: IconProps) {
+export function Icon({ name, size = 24, color = "#17181A", strokeWidth = 1.8 }: IconProps) {
   const filled = FILLED.has(name);
   const common: SvgProps = {
     width: size,
     height: size,
     viewBox: "0 0 24 24",
+    // Icons are chrome, not content: every informative use pairs the Icon
+    // with a text sibling or an accessibilityLabel on its touchable parent.
+    // Hiding the glyph itself prevents screen readers double-announcing.
     ...(filled
       ? { fill: color }
       : {
@@ -462,5 +465,7 @@ export function Icon({ name, size = 24, color = "#17181A", strokeWidth = 2 }: Ic
           strokeLinejoin: "round",
         }),
   };
-  return <Svg {...common}>{ICONS[name]}</Svg>;
+  // aria-hidden lives inline (not in the spread) so it is always visible
+  // to both screen readers and static checks.
+  return <Svg {...common} aria-hidden={true}>{ICONS[name]}</Svg>;
 }

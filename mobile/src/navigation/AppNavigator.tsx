@@ -136,7 +136,10 @@ function MainNavigator() {
     <MainStack.Navigator
       initialRouteName={needsDob ? "CompleteProfile" : "Home"}
       screenOptions={{
-        headerStyle: { backgroundColor: theme.colors.surface },
+        // Restraint pass: headers sit on the screen background (no separate
+        // band, no shadow) — one system across all pushed screens. Content
+        // separation comes from the screen's own hairline, not a header band.
+        headerStyle: { backgroundColor: theme.colors.bg },
         headerTintColor: theme.colors.textPrimary,
         headerTitleStyle: {
           fontFamily: theme.typography.h3.fontFamily,

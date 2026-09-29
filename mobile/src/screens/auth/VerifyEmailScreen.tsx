@@ -84,24 +84,14 @@ export function VerifyEmailScreen({ route, navigation }: Props) {
   const formatCountdown = (s: number) => `0:${s.toString().padStart(2, "0")}`;
 
   return (
-    <KeyboardScreen themed={false} center paddingTop={48}>
+    <KeyboardScreen
+      themed={false}
+      center
+      paddingTop={8}
+      edges={["top", "bottom", "left", "right"]}
+    >
 
           <View style={{ alignItems: "center", marginBottom: 24 }}>
-            <View
-              style={{
-                width: 64,
-                height: 64,
-                borderRadius: 999,
-                backgroundColor: colors.surfaceAlt,
-                borderWidth: 1,
-                borderColor: colors.border,
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 16,
-              }}
-            >
-              <Icon name="mail" size={28} color={colors.brand} />
-            </View>
             <Text style={[theme.typography.h1, { color: colors.textPrimary, textAlign: "center" }]}>
               Verify your email
             </Text>

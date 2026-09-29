@@ -14,8 +14,8 @@ import {
   getMaterials,
   addMaterial,
   removeMaterial,
-  type Material,
-} from "../../utils/materials";
+} from "../../services/repositories";
+import type { Material } from "../../utils/materials";
 import { markTodoDone } from "../../utils/todos";
 import { checkTodoBadge } from "../../utils/badges";
 import { logStudyActivity } from "../../utils/streak";

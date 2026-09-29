@@ -264,7 +264,7 @@ export function LibraryDetailScreen({
             }}
           >
             <Icon name="book" size={17} color="#17181A" />
-            <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 15, color: "#17181A" }}>
               {doc.opens > 0 ? "Continue reading" : "Read now"}
             </Text>
           </Pressable>
@@ -406,7 +406,11 @@ export function LibraryDetailScreen({
   );
 }
 
-function metaChip(typography: any, colors: any, label: string) {
+function metaChip(
+  typography: import("../../theme/themes").MatriqTheme["typography"],
+  colors: import("../../theme/themes").MatriqThemeColors,
+  label: string,
+) {
   return (
     <View style={{ borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4, backgroundColor: colors.surfaceAlt, borderWidth: 1, borderColor: colors.border }}>
       <Text style={[typography.small, { color: colors.textSecondary }]}>{label}</Text>

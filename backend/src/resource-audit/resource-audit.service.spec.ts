@@ -48,6 +48,7 @@ function baseRow(overrides: Record<string, unknown> = {}) {
     submittedAt: new Date("2026-09-09T00:00:00Z"),
     auditStatus: AUDIT_STATUS.received,
     extractedText: null,
+    ocrCorrection: null,
     aiRecommendation: null,
     aiConfidence: null,
     aiSummary: null,
@@ -558,5 +559,64 @@ describe("FallbackAuditor", () => {
     expect((onlyOllama as { provider: string }).provider).toBe("ollama");
     const neither = FallbackAuditor.fromEnv(() => undefined);
     expect(neither).toBeNull();
+  });
+});
+
+// ── OCR auto-correction stage (keyboard-style, context-driven) ──────
+
+describe("ResourceAuditService — ocr_processing correction stage", () => {
+  it("corrects garbled OCR text, stores a correction report, and advances to auditing", async () => {
+    const prismaMock = makePrisma(
+      baseRow({
+        auditStatus: AUDIT_STATUS.ocr_processing,
+        fileType: "image/jpeg",
+        extractedText: "The quantm tunnling experiment was repated three times. NUC approved the course.",
+      }),
+    );
+    const module = await build(prismaMock);
+    const svc = module.get<ResourceAuditService>(ResourceAuditService);
+    await (svc as unknown as { runPipeline(id: string): Promise<void> }).runPipeline("s-1");
+
+    const row = prismaMock.rows.get("s-1")!;
+    // "quantm" and "tunnling" are corrected; protected tokens are not.
+    expect(row.extractedText).toContain("quantum");
+    expect(row.extractedText).toContain("NUC");
+    expect(row.ocrCorrection).toBeDefined();
+    const report = row.ocrCorrection as unknown as {
+      version: number;
+      tokensCorrected: number;
+      corrections: Array<{ from: string; to: string }>;
+    };
+    expect(report.version).toBe(1);
+    expect(report.tokensCorrected).toBeGreaterThanOrEqual(2);
+    expect(report.corrections.map((c) => c.to)).toContain("quantum");
+    expect(row.auditStatus).toBe(AUDIT_STATUS.pending_human_review);
+  });
+
+  it("leaves clean text untouched and still records a zero-correction report", async () => {
+    const cleanText =
+      "Physics is the study of matter, energy, motion and force through space and time.";
+    const prismaMock = makePrisma(
+      baseRow({ auditStatus: AUDIT_STATUS.ocr_processing, fileType: "image/jpeg", extractedText: cleanText }),
+    );
+    const module = await build(prismaMock);
+    const svc = module.get<ResourceAuditService>(ResourceAuditService);
+    await (svc as unknown as { runPipeline(id: string): Promise<void> }).runPipeline("s-1");
+
+    const row = prismaMock.rows.get("s-1")!;
+    expect(row.extractedText).toBe(cleanText);
+    expect(row.ocrCorrection).toMatchObject({ version: 1, tokensCorrected: 0 });
+    expect(row.auditStatus).toBe(AUDIT_STATUS.pending_human_review);
+  });
+
+  it("handles a missing extractedText without crashing", async () => {
+    const prismaMock = makePrisma(
+      baseRow({ auditStatus: AUDIT_STATUS.ocr_processing, fileType: "image/jpeg", extractedText: null }),
+    );
+    const module = await build(prismaMock);
+    const svc = module.get<ResourceAuditService>(ResourceAuditService);
+    await (svc as unknown as { runPipeline(id: string): Promise<void> }).runPipeline("s-1");
+    const row = prismaMock.rows.get("s-1")!;
+    expect(row.auditStatus).toBe(AUDIT_STATUS.pending_human_review);
   });
 });

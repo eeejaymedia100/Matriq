@@ -45,6 +45,8 @@ www.matriq.com.ng {
 
 matriq.com.ng {
     root * /srv/waitlist
+    # OTA bundles are served from /srv/updates (see the /updates/* handle).
+    # The app's updates.url points here: https://matriq.com.ng/api/updates/manifest
     encode zstd gzip
     import security_headers
 
@@ -79,6 +81,31 @@ matriq.com.ng {
     @removed_downloads path /download.html /download/* /app-version.json
     handle @removed_downloads {
         respond "Gone — Matriq is rolling out through the Telegram community for now." 410
+    }
+
+    # OTA update assets (Expo Updates protocol): hash-addressed immutable
+    # files published by scripts/_publish-ota.sh onto the `updates` volume.
+    # URLs never change for the same content → cache forever. Handled before
+    # the catch-all file_server so they win over the waitlist UI.
+    handle /updates/* {
+        root * /srv
+        file_server
+        header Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # OTA manifest: expo-updates in the app requests
+    # /api/updates/manifest → the backend assembles it from the published
+    # metadata (must reach the backend BEFORE the user authenticates, so no
+    # auth here). Inserted before the waitlist catch-all handle.
+    handle_path /api/updates/* {
+        # handle_path strips the FULL matched prefix (/api/updates) before
+        # inner directives run — leaving e.g. /manifest — so the rewrite
+        # re-adds /v1/updates to land on the backend's /v1/updates/manifest.
+        # (A plain `handle` + `uri strip_prefix` + `rewrite` combination does
+        # NOT work: Caddy executes `rewrite` before `uri`, so the strip never
+        # applied and the backend saw /v1/api/updates/manifest → 404.)
+        rewrite * /v1/updates{uri}
+        reverse_proxy backend:3000
     }
 
     # Assets (3D scene, og-image, icons): stable names, 1-day mutable cache.

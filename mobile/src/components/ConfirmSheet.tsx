@@ -1,5 +1,6 @@
 import React from "react";
-import { Modal, View, Text, Pressable, KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
+import { Modal, View, Text, Pressable, Platform, StyleSheet } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
@@ -36,7 +37,10 @@ export function ConfirmSheet({
 
   // react-native-web's Modal is historically quirky; the web build renders
   // the sheet as a position:fixed overlay instead, which always covers the
-  // viewport. Native keeps the real Modal.
+  // viewport. Native keeps the real Modal. KeyboardAvoidingView is the
+  // react-native-keyboard-controller one — it drives the sheet above the
+  // keyboard on edge-to-edge Android and inside the native Modal alike
+  // (type-to-confirm inputs sit above the keyboard, never under it).
   const sheet = (
     <KeyboardAvoidingView
       behavior="padding"
@@ -110,9 +114,6 @@ export function ConfirmSheet({
                 paddingVertical: 14,
                 borderRadius: theme.radii.md,
                 backgroundColor: destructive ? colors.error : colors.accent,
-                ...(theme.mode === "pop"
-                  ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "3px 3px 0 #17181A" }
-                  : {}),
               }}
             >
               <Text

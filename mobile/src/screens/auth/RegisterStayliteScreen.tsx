@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { View, Text, Platform } from "react-native";
 import { useTheme } from "../../theme/ThemeContext";
 import { KeyboardScreen } from "../../components/KeyboardScreen";
 import { Field, Button, ErrorBanner, PasswordStrength, TermsCheckbox, InstitutionCascadePicker } from "../../components";
-import { Icon } from "../../components/icons";
 import { useAuth, type StayliteData } from "../../contexts/AuthContext";
 import { formatApiError, type FriendlyError } from "../../utils/errors";
 import {
@@ -26,6 +25,23 @@ type FieldKey = keyof Pick<
 
 const INSTITUTION_HINT =
   "Pick your school so your faculty association finds you automatically. Not listed? Just type your faculty and department below.";
+
+/**
+ * Validate everything, but only surface errors for fields the user has
+ * engaged with (typed then cleared, or a failed submit). Showing live errors
+ * for untouched fields painted the whole form red on arrival — noisy, and it
+ * read as broken. Errors appear after blur or a submit attempt instead.
+ */
+function visibleErrors(
+  live: Partial<Record<FieldKey, string>>,
+  touched: Partial<Record<FieldKey, boolean>>,
+): Partial<Record<FieldKey, string>> {
+  const shown: Partial<Record<FieldKey, string>> = {};
+  (Object.keys(live) as FieldKey[]).forEach((k) => {
+    if (touched[k]) shown[k] = live[k];
+  });
+  return shown;
+}
 
 function validate(form: StayliteData): Partial<Record<FieldKey, string>> {
   const e: Partial<Record<FieldKey, string>> = {};
@@ -64,10 +80,17 @@ export function RegisterStayliteScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<FriendlyError | null>(null);
 
-  const errors = validate(form);
+  // Errors only for engaged fields — see visibleErrors above.
+  const errors = useMemo(
+    () => visibleErrors(validate(form), touched),
+    [form, touched],
+  );
 
   const update = (key: FieldKey, value: string) => {
     setForm((f) => ({ ...f, [key]: value }));
+    // Typing resumes → clear the field's error state; it gets re-evaluated on
+    // blur (or submit). Red text while a value is still being typed is noise.
+    if (value) setTouched((t) => ({ ...t, [key]: false }));
     if (error) setError(null);
   };
 
@@ -115,25 +138,14 @@ export function RegisterStayliteScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardScreen themed={false} paddingTop={24} paddingBottom={48}>
+    <KeyboardScreen
+      themed={false}
+      paddingTop={8}
+      paddingBottom={48}
+      edges={["top", "bottom", "left", "right"]}
+    >
 
           <View style={{ marginBottom: 16 }}>
-            <View
-              style={{
-                alignSelf: "flex-start",
-                width: 48,
-                height: 48,
-                borderRadius: 16,
-                backgroundColor: colors.surfaceAlt,
-                borderWidth: 1,
-                borderColor: colors.border,
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: 8,
-              }}
-            >
-              <Icon name="graduationCap" size={24} color={colors.brand} />
-            </View>
             <Text style={[theme.typography.h2, { color: colors.textPrimary, marginBottom: 4 }]}>
               Staylite Registration
             </Text>
@@ -147,7 +159,7 @@ export function RegisterStayliteScreen({ navigation }: Props) {
 
           <Field
             label="Full Name"
-            placeholder="John Doe"
+            placeholder="e.g. Adaeze Okafor"
             autoCapitalize="words"
             value={form.fullName}
             onChangeText={(v) => update("fullName", v)}

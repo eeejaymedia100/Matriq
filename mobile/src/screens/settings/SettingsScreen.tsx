@@ -402,7 +402,7 @@ export function SettingsScreen({ navigation }: Props) {
                     backgroundColor: colors.warning,
                   }}
                 >
-                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
+                  <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 13, color: "#17181A" }}>
                     {deleting ? "Working…" : "Cancel deletion"}
                   </Text>
                 </Pressable>

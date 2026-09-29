@@ -152,6 +152,11 @@ if (container) {
     group.add(shadow);
 
     scene.add(group);
+
+    // Mount the canvas — without this the whole scene renders to a
+    // detached element and the hero's Stack is invisible.
+    container.appendChild(renderer.domElement);
+
     layout();
     window.addEventListener("resize", layout);
 

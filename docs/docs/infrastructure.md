@@ -24,8 +24,8 @@ DDoS protection) and forwards to the origin:
 
 | Subdomain | Service | Hosting | Notes |
 |---|---|---|---|
-| `matriq.com.ng` | Waitlist landing page (static) | GCP VM (Caddy) | DNS-only Cloudflare A → `35.204.163.157`; Caddy serves `/srv/waitlist` + issues Let's Encrypt |
-| `api.matriq.com.ng` | NestJS backend | GCP VM (Caddy) | DNS-only Cloudflare A → `35.204.163.157`; Caddy reverse-proxies to `backend:3000` |
+| `matriq.com.ng` | Waitlist landing page (static) | GCP VM (Caddy) | DNS-only Cloudflare A → `34.141.128.15`; Caddy serves `/srv/waitlist` + issues Let's Encrypt |
+| `api.matriq.com.ng` | NestJS backend | GCP VM (Caddy) | DNS-only Cloudflare A → `34.141.128.15`; Caddy reverse-proxies to `backend:3000` |
 | `admin.matriq.com.ng` | Admin Console (Next.js) | **Vercel** | `admin/` root dir; separate Vercel project; DNS-only CNAME → `cname.vercel-dns.com` |
 | `dashboard.matriq.com.ng` | Association Dashboard (Next.js) | **Vercel** | `dashboard/` root dir; `NEXT_PUBLIC_API_URL=https://api.matriq.com.ng/v1`; DNS-only CNAME → `cname.vercel-dns.com` |
 
@@ -91,12 +91,13 @@ rates. The load-bearing pieces (all configurable via `.env`):
 
 1. **Right-size the VM → 4 vCPU / 16 GB — DONE (Aug 2026).** Production moved
    from the 2 vCPU / 4 GB box (`cliptonite-server`, 34.28.210.233, e2-medium)
-   to `matriq-server` (35.204.163.157, europe-west4, **e2-standard-4**). The
+   to `matriq-server` (originally 35.204.163.157, now **34.141.128.15** after
+   the 2026-09-22 stop/start; europe-west4, **e2-standard-4**). The
    old box stays as a warm standby/failover until launch is verified. Cluster
    mode now forks 4 workers; login-stampede capacity doubled. See
    `docs/progress-log.md`.
 2. **Open GCP firewall for TCP 443** on `matriq-server` (port 80 is already
-   open) and flip the Cloudflare A records (`api`, root) to `35.204.163.157`
+   open) and flip the Cloudflare A records (`api`, root) to `34.141.128.15`
    so `https://api.matriq.com.ng` terminates with a Let's Encrypt cert issued
    by Caddy (plain `Caddyfile`, DNS-only records).
 3. **Decouple Ollama** to its own instance (ideally GPU, or at least a separate

@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { ImageSearchService } from "./image-search.service";
 import type { AgentToolResult } from "./agent.schema";
 
 /**
@@ -16,7 +17,10 @@ export class AgentToolsService {
 
   private readonly logger = new Logger(AgentToolsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly imageSearch: ImageSearchService,
+  ) {}
 
   /** The tool manifest — also rendered into the model's plan prompt. */
   static readonly MANIFEST: { name: string; description: string }[] = [
@@ -40,6 +44,11 @@ export class AgentToolsService {
       description:
         "Explain a concept simply, grounded in the student's own material when available. Use only when the student asks for an explanation rather than a search.",
     },
+    {
+      name: "search_images",
+      description:
+        'Find real educational images (diagrams, anatomy, maps, equipment) for a visual subject. Use ONLY when seeing the thing materially helps the answer (e.g. "structure of the heart", "water cycle diagram"). Never for purely textual questions. Input: {"query": "<2-6 word visual subject>"}.',
+    },
   ];
 
   /** Allowlist + dispatch. Unknown tools fail safely. */
@@ -57,6 +66,8 @@ export class AgentToolsService {
         return this.searchLibrary(userId, input);
       case "explain":
         return this.explain(userId, input);
+      case "search_images":
+        return this.searchImages(input);
       default:
         return { error: `Unknown tool "${tool}"` };
     }
@@ -275,6 +286,35 @@ export class AgentToolsService {
 
     const answer = await this.generateWithDeepSeek(prompt);
     return { result: { explanation: answer, grounded: own.length > 0 } };
+  }
+
+  /**
+   * search_images — real educational images via the provider chain.
+   * The model only supplies a query; the service sanitizes every URL
+   * before anything reaches the student's phone.
+   */
+  private async searchImages(
+    input?: Record<string, unknown>,
+  ): Promise<AgentToolResult> {
+    const query = this.readString(input, "query", 200);
+    if (!query) return { error: "query is required" };
+    const res = await this.imageSearch.search(query, 4);
+    if (res.results.length === 0) {
+      return {
+        result: {
+          found: false,
+          message:
+            "No suitable images found. Answer in text; don't mention image search.",
+        },
+      };
+    }
+    return {
+      result: {
+        found: true,
+        images: res.results,
+        note: "Show these after your answer. Keep the caption text short.",
+      },
+    };
   }
 
   /** Direct DeepSeek call (same env config as the chat path). */

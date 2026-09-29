@@ -12,11 +12,8 @@ import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../theme/ThemeContext";
 import { ThemedScreen } from "../../components/Surface";
 import { Icon } from "../../components/icons";
-import {
-  deleteConversation,
-  loadHistory,
-  type Conversation,
-} from "../../offline/history";
+import { listConversations, deleteConversation } from "../../services/repositories";
+import type { Conversation } from "../../offline/history";
 import { relativeTimeFrom } from "../../utils/relativeTime";
 import type { MainStackParamList } from "../../navigation/types";
 
@@ -37,7 +34,7 @@ export function AiHistoryScreen({ navigation }: Props) {
     useCallback(() => {
       let mounted = true;
       setLoading(true);
-      void loadHistory().then((list) => {
+      void listConversations().then((list) => {
         if (!mounted) return;
         setItems(list);
         setLoading(false);

@@ -35,10 +35,11 @@ import {
 } from "../../offline/OfflineAiContext";
 import {
   loadHistory,
-  saveConversation,
   titleFromMessages,
   type Conversation,
 } from "../../offline/history";
+// Persistence goes through the SQLite repositories (fallback: legacy store).
+import { saveConversation as saveConversationDb } from "../../services/repositories";
 import { extractFileText } from "../../offline/extract";
 import { appendFileToFormData } from "../../utils/upload";
 import {
@@ -46,8 +47,8 @@ import {
   addMaterial,
   removeMaterial,
   setMaterialText,
-  type Material,
-} from "../../utils/materials";
+} from "../../services/repositories";
+import type { Material } from "../../utils/materials";
 import {
   isWhisperAvailable,
   hasVoiceModel,
@@ -56,6 +57,8 @@ import {
 } from "../../offline/whisper";
 import { logStudyActivity } from "../../utils/streak";
 import type { MatriqTheme, MatriqThemeColors } from "../../theme/themes";
+import { ImageCarousel } from "../../components/chat/ImageCarousel";
+import type { ChatImage } from "../../components/chat/types";
 
 interface Message {
   id: string;
@@ -63,6 +66,8 @@ interface Message {
   content: string;
   timestamp: Date;
   streaming?: boolean;
+  /** Related images the server attached (Premium visual enrichment). */
+  images?: ChatImage[];
 }
 
 type Nav = NativeStackNavigationProp<MainStackParamList>;
@@ -146,6 +151,7 @@ function streamAiQuery(
   onChunk: (text: string) => void,
   onError: (message: string, code?: string) => void,
   onDone: () => void,
+  onImages?: (images: ChatImage[]) => void,
 ): { abort: () => void } {
   const xhr = new XMLHttpRequest();
   let finished = false;
@@ -174,9 +180,12 @@ function streamAiQuery(
               text?: string;
               message?: string;
               code?: string;
+              images?: ChatImage[];
             };
             if (event.type === "content" && event.text) {
               onChunk(event.text);
+            } else if (event.type === "images" && Array.isArray(event.images)) {
+              onImages?.(event.images);
             } else if (event.type === "error") {
               onError(event.message ?? "Stream failed", event.code);
             }
@@ -397,7 +406,7 @@ export function AiCompanionScreen() {
       updatedAt: Date.now(),
       messages: turns,
     };
-    void saveConversation(conv);
+    void saveConversationDb(conv);
   }, []);
 
   const appendToStreaming = useCallback((text: string) => {
@@ -748,13 +757,28 @@ export function AiCompanionScreen() {
     }
   }, []);
 
+  /** Attach server images to a message (Premium visual enrichment). */
+  const setMessagesImages = useCallback(
+    (aiMsgId: string, images: ChatImage[] | undefined) => {
+      if (!images || images.length === 0) return;
+      setMessages((prev) =>
+        prev.map((m) => (m.id === aiMsgId ? { ...m, images } : m)),
+      );
+    },
+    [],
+  );
+
   const fallbackToNonStreaming = useCallback(
     async (aiMsgId: string, text: string) => {
       try {
-        const data = await api.post<{ response: string }>("/ai/query", {
+        const data = await api.post<{
+          response: string;
+          images?: ChatImage[];
+        }>("/ai/query", {
           query: text,
         });
         replaceStreamingContent(aiMsgId, data.response);
+        setMessagesImages(aiMsgId, data.images);
         // A completed server answer counts as a study day too (streak §1).
         void logStudyActivity();
       } catch (err) {
@@ -765,7 +789,7 @@ export function AiCompanionScreen() {
         );
       }
     },
-    [replaceStreamingContent],
+    [replaceStreamingContent, setMessagesImages],
   );
 
   const answerLocally = useCallback(
@@ -920,6 +944,8 @@ export function AiCompanionScreen() {
             finishStreaming();
             void refreshQuota();
           },
+          // Premium image enrichment arrives as its own SSE event, before done.
+          (images) => setMessagesImages(aiMsgId, images),
         );
         streamRef.current = stream;
         armSafetyNet();
@@ -1185,6 +1211,16 @@ export function AiCompanionScreen() {
                     </View>
                   </View>
 
+                  {/* Related images the server found (Premium visual answers) */}
+                  {item.role === "assistant" &&
+                  !item.streaming &&
+                  item.images &&
+                  item.images.length > 0 ? (
+                    <View style={styles.chatImages}>
+                      <ImageCarousel images={item.images} />
+                    </View>
+                  ) : null}
+
                   {/* Clickable follow-up questions */}
                   {showFollowUps ? (
                     <View style={styles.followUps}>
@@ -1281,7 +1317,7 @@ export function AiCompanionScreen() {
                         >
                           {quota.remainingToday === 0
                             ? "Daily limit reached"
-                            : `${quota.remainingToday} free ${quota.remainingToday === 1 ? "question" : "questions"} left today`}
+                            : `${quota.remainingToday} free ${quota.remainingToday === 1 ? "question" : "questions"} left today — they don't roll over`}
                         </Text>
                       </View>
                     )}
@@ -1740,6 +1776,11 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     copyText: {
       ...theme.typography.small,
       color: colors.textMuted,
+    },
+    chatImages: {
+      width: "100%",
+      marginTop: theme.spacing.xs,
+      paddingLeft: theme.spacing.md,
     },
     followUps: {
       gap: theme.spacing.xs,

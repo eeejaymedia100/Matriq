@@ -705,7 +705,7 @@ export function FocusModeScreen() {
           <Icon name="sparkle" size={15} color={colors.accent} />
           <Text style={[theme.typography.caption, { color: colors.textSecondary, flex: 1 }]}>
             Feature powered by cloud AI. You have{" "}
-            <Text style={{ fontFamily: "Inter_700Bold", color: colors.textPrimary }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, color: colors.textPrimary }}>
               {ent.freeRemaining}
             </Text>{" "}
             free{" "}
@@ -773,7 +773,7 @@ export function FocusModeScreen() {
       >
         <Text
           style={{
-            fontFamily: "Inter_700Bold",
+            fontFamily: theme.typography.bodyBold.fontFamily,
             fontSize: 14,
             color: topicInput.trim() ? "#17181A" : colors.textMuted,
           }}
@@ -1022,7 +1022,7 @@ export function FocusModeScreen() {
               }}
             >
               <Text
-                style={{ fontFamily: "Inter_700Bold", fontSize: 11, color: "#17181A" }}
+                style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 11, color: "#17181A" }}
               >
                 Map
               </Text>
@@ -1047,8 +1047,8 @@ export function FocusModeScreen() {
               canvasStyle,
             ]}
           >
-            {/* Connection lines */}
-            <Svg
+            {/* Connection lines (decorative) */}
+            <Svg aria-hidden={true}
               width={layout.canvasWidth}
               height={layout.canvasHeight}
               style={{ position: "absolute", left: 0, top: 0 }}
@@ -1365,7 +1365,7 @@ export function FocusModeScreen() {
                               <Icon name="plus" size={13} color="#17181A" />
                               <Text
                                 style={{
-                                  fontFamily: "Inter_700Bold",
+                                  fontFamily: theme.typography.bodyBold.fontFamily,
                                   fontSize: 12,
                                   color: "#17181A",
                                 }}
@@ -1439,7 +1439,7 @@ function ZoomBtn({ label, onPress }: { label: string; onPress: () => void }) {
         elevation: 5,
       }}
     >
-      <Text style={{ fontSize: 18, color: colors.textPrimary, fontFamily: "Inter_700Bold" }}>
+      <Text style={{ fontSize: 18, color: colors.textPrimary, fontFamily: theme.typography.bodyBold.fontFamily }}>
         {label}
       </Text>
     </Pressable>

@@ -74,7 +74,7 @@ export function FocusTimerScreen() {
           </Text>
 
           <View style={{ marginTop: 28, alignItems: "center" }}>
-            <Text style={{ fontFamily: "Inter_800ExtraBold", fontSize: 76, color: colors.textPrimary, fontVariant: ["tabular-nums"] }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 76, color: colors.textPrimary, fontVariant: ["tabular-nums"] }}>
               {mins}:{secs.toString().padStart(2, "0")}
             </Text>
             <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
@@ -114,12 +114,10 @@ export function FocusTimerScreen() {
                 paddingHorizontal: 34,
                 borderRadius: theme.radii.pill,
                 backgroundColor: colors.accent,
-                borderWidth: theme.mode === "pop" ? 2 : 0,
-                borderColor: colors.borderStrong,
               }}
             >
-              <Icon name={running ? "x" : "zap"} size={18} color="#17181A" />
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>
+              <Icon name={running ? "x" : "zap"} size={18} color={colors.onAccent} />
+              <Text style={[theme.typography.bodyBold, { color: colors.onAccent, fontSize: 15 }]}>
                 {running ? "Pause" : "Start"}
               </Text>
             </Pressable>
@@ -132,8 +130,6 @@ export function FocusTimerScreen() {
                 height: 52,
                 borderRadius: theme.radii.pill,
                 backgroundColor: colors.surfaceAlt,
-                borderWidth: 1,
-                borderColor: colors.border,
               }}
             >
               <Icon name="refresh" size={20} color={colors.textPrimary} />

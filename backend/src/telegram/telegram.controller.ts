@@ -31,6 +31,8 @@ import {
   SubmissionValidationError,
 } from "../resource-audit/resource-audit.service";
 import { TelegramBotService } from "./telegram-bot.service";
+import { ToolsService } from "../tools/tools.service";
+import { correctOcrText } from "../resource-audit/resource-audit.ocr-correct";
 import { TelegramConfig } from "./telegram.config";
 import { TgUpdate } from "./telegram.api";
 import { TelegramMiniAppAuth, MiniAppSession } from "./telegram-miniapp-auth";
@@ -53,6 +55,7 @@ export class TelegramController {
     private readonly audit: ResourceAuditService,
     private readonly config: TelegramConfig,
     private readonly campaign: TelegramCampaignService,
+    private readonly tools: ToolsService,
   ) {}
 
   // ── Webhook (Telegram → us) ──────────────────────────────────────
@@ -263,6 +266,61 @@ export class TelegramController {
       }
       throw err;
     }
+  }
+
+  /**
+   * Scan to Text — the OCR + keyboard auto-suggestion feature, playable
+   * inside the Mini App. One endpoint: the photo goes through the same
+   * server OCR pipeline the mobile app uses (Tesseract, with the Gemini
+   * rescue pass for handwriting), then the keyboard-style corrector repairs
+   * garbled words. Every applied fix is returned with its evidence so the
+   * client can show exactly what changed — nothing here is silent.
+   *
+   * Open to every Mini App user (not gated on verification): it's a
+   * try-it feature, reads nothing personal, and writes nothing anywhere.
+   */
+  @Post("miniapp/scan")
+  @UseGuards(TelegramMiniAppGuard)
+  @UseInterceptors(FileInterceptor("image", { limits: { fileSize: 10.5 * 1024 * 1024 } }))
+  @Throttle({ default: { ttl: 60000, limit: 10 } })
+  async miniAppScan(@Req() req: MiniAppRequest, @UploadedFile() file?: Express.Multer.File) {
+    if (!file?.buffer) {
+      throw new BadRequestException("Choose a photo with text to scan.");
+    }
+    if (!/^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype)) {
+      throw new BadRequestException("That file type isn't supported — upload a photo (JPG, PNG or WebP).");
+    }
+
+    let ocr: { text: string; confidence: number; readable: boolean; engine: string };
+    try {
+      ocr = await this.tools.ocrBuffer(file.buffer, file.mimetype);
+    } catch (err) {
+      this.logger.warn(
+        `miniapp scan OCR failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      throw new BadRequestException(
+        "The text engine couldn't read that image. Try a clearer, closer, better-lit shot.",
+      );
+    }
+
+    const raw = (ocr.text ?? "").trim();
+    if (!ocr.readable || raw.length < 4) {
+      return { readable: false, engine: ocr.engine };
+    }
+
+    const report = correctOcrText(raw.slice(0, 12000));
+    return {
+      readable: true,
+      engine: ocr.engine,
+      confidence: ocr.confidence,
+      /** The corrected text — what the student copies. */
+      text: (report.corrected || raw).trim().slice(0, 5000),
+      /** The untouched OCR output, for the "show original" toggle. */
+      rawText: raw.slice(0, 5000),
+      tokensTotal: report.tokensTotal,
+      tokensCorrected: report.tokensCorrected,
+      corrections: report.corrections.slice(0, 12),
+    };
   }
 
   /** My submissions, for the Mini App status view. */

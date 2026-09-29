@@ -17,8 +17,16 @@
 // school and can be added/corrected through the admin Institutions page.
 
 import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient();
+// Prisma 7 requires a driver adapter (same pattern as src/prisma/prisma.service.ts).
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString:
+      process.env.DATABASE_URL ??
+      "postgresql://matriq:matriq@localhost:5432/matriq",
+  }),
+});
 
 // ── Faculty / school department templates ─────────────────────────
 

@@ -233,7 +233,7 @@ async function refreshAccessToken(): Promise<RefreshResult> {
 
     let res: Response;
     try {
-      res = await fetch(`${API_BASE}/auth/refresh`, {
+      res = await fetchWithTimeout(`${API_BASE}/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken: tokens.refreshToken }),
@@ -296,6 +296,30 @@ export function isSessionDeadError(err: unknown): boolean {
   );
 }
 
+/**
+ * Hard ceiling for every API call. Without it a silent network drop (server
+ * unreachable, DNS stale, radio handoff) leaves the button spinner running
+ * forever — the user gets NO feedback at all. 15s is well past the slowest
+ * legitimate request on a bad Nigerian connection, and the rejection flows
+ * into the existing "request took too long" friendly error.
+ */
+const REQUEST_TIMEOUT_MS = 15_000;
+
+/** fetch with a timeout — AbortController + setTimeout (AbortSignal.timeout
+ * isn't available on the Hermes runtime this app ships with). */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function apiRequest<T>(
   path: string,
   options: RequestInit = {},
@@ -314,7 +338,7 @@ export async function apiRequest<T>(
     headers["Authorization"] = `Bearer ${tokens.accessToken}`;
   }
 
-  let res = await fetch(`${API_BASE}${path}`, {
+  let res = await fetchWithTimeout(`${API_BASE}${path}`, {
     ...options,
     headers,
   });
@@ -332,7 +356,7 @@ export async function apiRequest<T>(
     const { accessToken, sessionDead } = await refreshAccessToken();
     if (accessToken) {
       headers["Authorization"] = `Bearer ${accessToken}`;
-      res = await fetch(`${API_BASE}${path}`, {
+      res = await fetchWithTimeout(`${API_BASE}${path}`, {
         ...options,
         headers,
       });

@@ -28,7 +28,7 @@ import {
   FONT_SCALE_DEFAULT,
   type ReflowHighlight,
 } from "../utils/reflowHighlights";
-import { newNoteId, upsertNote } from "../utils/notes";
+import { newNoteId, upsertNote } from "../services/repositories";
 
 /**
  * ReflowReader — the "mobile view" for A4 documents.
@@ -73,7 +73,7 @@ export function ReflowReader({
 }) {
   const { theme } = useTheme();
   const colors = theme.colors;
-  const styles = makeStyles(colors);
+  const styles = makeStyles(theme);
 
   const blocks = useMemo<ReflowBlock[]>(
     () => parseReflowBlocks(text, { firstLineIsTitle }),
@@ -340,8 +340,9 @@ export function ReflowReader({
   );
 }
 
-const makeStyles = (colors: any) =>
-  StyleSheet.create({
+const makeStyles = (theme: import("../theme/themes").MatriqTheme) => {
+  const colors = theme.colors;
+  return StyleSheet.create({
     wrap: { flex: 1, backgroundColor: colors.bg },
     progressTrack: {
       height: 3,
@@ -425,7 +426,7 @@ const makeStyles = (colors: any) =>
       backgroundColor: colors.brand + "1A",
     },
     agentButtonText: {
-      fontFamily: "Inter_700Bold",
+      fontFamily: theme.typography.bodyBold.fontFamily,
       fontSize: 12,
       color: colors.brand,
     },
@@ -443,3 +444,4 @@ const makeStyles = (colors: any) =>
     emptyWrap: { flex: 1, alignItems: "center", justifyContent: "center" },
     emptyText: { color: colors.textMuted, fontSize: 14 },
   });
+};

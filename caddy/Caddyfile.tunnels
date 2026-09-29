@@ -8,7 +8,9 @@
 # ⚠ This is a temporary development aid, not part of the production surface.
 
 # ── Raw VM IP API endpoint ───────────────────────────────────────────
-http://35.204.163.157 {
+# (IP updated 2026-09-22: VM stop/start changed the external IP
+#  35.204.163.157 → 34.141.128.15)
+http://34.141.128.15 {
     handle /v1/* {
         reverse_proxy backend:3000 {
             header_up Host api.matriq.com.ng

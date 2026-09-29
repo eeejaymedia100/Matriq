@@ -28,6 +28,7 @@ import { BannersModule } from "./banners/banners.module";
 import { AchievementsModule } from "./achievements/achievements.module";
 import { DeepReadModule } from "./deepread/deepread.module";
 import { WaitlistModule } from "./waitlist/waitlist.module";
+import { UpdatesModule } from "./updates/updates.module";
 import { InstitutionsModule } from "./institutions/institutions.module";
 import { TimetableModule } from "./timetable/timetable.module";
 import { ActivityModule } from "./activity/activity.module";
@@ -80,6 +81,7 @@ import { TelegramModule } from "./telegram/telegram.module";
     ActivityModule,
     DeepReadModule,
     WaitlistModule,
+    UpdatesModule,
     InstitutionsModule,
     TimetableModule,
     HealthModule,

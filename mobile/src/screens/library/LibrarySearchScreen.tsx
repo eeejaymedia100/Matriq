@@ -167,7 +167,7 @@ export function LibrarySearchScreen({
         {TYPES.map((t) => (
           <Pressable
             key={t.id || "all"}
-            onPress={() => setType(t.id as any)}
+            onPress={() => setType(t.id as "past_question" | "material" | "")}
             style={{
               paddingVertical: 7,
               paddingHorizontal: 14,
@@ -177,7 +177,7 @@ export function LibrarySearchScreen({
               borderColor: type === t.id ? "transparent" : colors.border,
             }}
           >
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 12, color: type === t.id ? "#17181A" : colors.textPrimary }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: type === t.id ? "#17181A" : colors.textPrimary }}>
               {t.label}
             </Text>
           </Pressable>
@@ -199,7 +199,7 @@ export function LibrarySearchScreen({
               borderColor: level === lvl ? "transparent" : colors.border,
             }}
           >
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 11, color: level === lvl ? "#17181A" : colors.textSecondary }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 11, color: level === lvl ? "#17181A" : colors.textSecondary }}>
               {lvl || "All levels"}
             </Text>
           </Pressable>

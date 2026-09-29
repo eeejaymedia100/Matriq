@@ -7,8 +7,8 @@ import {
   TextInput,
   Modal,
   ActivityIndicator,
-  KeyboardAvoidingView,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTheme } from "../../theme/ThemeContext";
 import { Surface } from "../../components/Surface";
 import { Icon } from "../../components/icons";
@@ -261,7 +261,7 @@ export function FocusJourneyView({
         >
           <Text
             style={{
-              fontFamily: "Inter_700Bold",
+              fontFamily: theme.typography.bodyBold.fontFamily,
               fontSize: 11,
               color: "#17181A",
             }}
@@ -319,7 +319,7 @@ export function FocusJourneyView({
           >
             <Text
               style={{
-                fontFamily: "Inter_700Bold",
+                fontFamily: theme.typography.bodyBold.fontFamily,
                 fontSize: 11,
                 color: meta.color,
               }}
@@ -353,7 +353,7 @@ export function FocusJourneyView({
 
         {expanded ? (
           <Surface style={{ padding: 14, marginTop: 6, marginBottom: 0 }}>
-            <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: meta.color, letterSpacing: 0.9, textTransform: "uppercase" }}>
+            <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 10, color: meta.color, letterSpacing: 0.9, textTransform: "uppercase" }}>
               {meta.label}
             </Text>
             <Text
@@ -482,7 +482,7 @@ export function FocusJourneyView({
                 backgroundColor: colors.accent,
               }}
             >
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
+              <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 13, color: "#17181A" }}>
                 Review the map
               </Text>
             </Pressable>
@@ -519,7 +519,7 @@ export function FocusJourneyView({
                   ) : (
                     <Text
                       style={{
-                        fontFamily: "Inter_700Bold",
+                        fontFamily: theme.typography.bodyBold.fontFamily,
                         fontSize: 13,
                         color: isCurrent ? "#17181A" : colors.textMuted,
                       }}
@@ -600,7 +600,7 @@ export function FocusJourneyView({
                     >
                       <Text
                         style={{
-                          fontFamily: "Inter_700Bold",
+                          fontFamily: theme.typography.bodyBold.fontFamily,
                           fontSize: 13,
                           color: readyForCheckpoint ? "#17181A" : colors.textMuted,
                         }}

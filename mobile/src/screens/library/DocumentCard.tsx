@@ -128,7 +128,7 @@ export function DocumentCard({
 function saveIndicator(
   _doc: LibraryDoc,
   saved: boolean,
-  colors: any,
+  colors: import("../../theme/themes").MatriqThemeColors,
 ) {
   return (
     <View

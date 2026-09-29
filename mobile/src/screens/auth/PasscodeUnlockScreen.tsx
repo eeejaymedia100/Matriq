@@ -70,7 +70,7 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
   };
 
   return (
-    <KeyboardScreen center scroll={false}>
+    <KeyboardScreen center scroll={false} edges={["top", "bottom", "left", "right"]}>
 
           <View style={{ alignItems: "center", marginBottom: 30 }}>
             <View
@@ -88,7 +88,7 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
             >
               <Text
                 style={{
-                  fontFamily: "Inter_800ExtraBold",
+                  fontFamily: theme.typography.bodyBold.fontFamily,
                   fontSize: 30,
                   color: colors.accent,
                 }}

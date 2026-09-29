@@ -2,7 +2,15 @@
   "expo": {
     "name": "Matriq",
     "slug": "matriq",
-    "version": "2.1.0",
+    "version": "2.2.1",
+  "runtimeVersion": { "policy": "appVersion" },
+  "updates": {
+    "url": "https://matriq.com.ng/api/updates/manifest",
+    "fallbackToCacheTimeout": 0,
+    "requestHeaders": {
+      "expo-channel-name": "production"
+    }
+  },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -30,7 +38,7 @@
       },
       "package": "app.matriq.mobile",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 27,
+      "versionCode": 29,
       "permissions": [
         "android.permission.REQUEST_INSTALL_PACKAGES"
       ],
@@ -90,7 +98,8 @@
           "color": "#C6FF3D",
           "sounds": []
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "extra": {
       "apiUrl": "https://api.matriq.com.ng/v1"

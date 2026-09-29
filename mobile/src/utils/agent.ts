@@ -7,6 +7,7 @@
  * the tool trail for transparency.
  */
 import { api, ApiError } from "../api/client";
+import type { ChatImage } from "../components/chat/types";
 
 export type AgentSurface = "reader" | "focus" | "chat";
 
@@ -27,6 +28,8 @@ export interface AgentResponse {
   elapsedMs: number;
   mode: "model" | "degraded" | "failed";
   surface: string;
+  /** Related images when the agent decided visuals help (search_images tool). */
+  images?: ChatImage[];
 }
 
 export async function runAgent(req: AgentRequest): Promise<AgentResponse> {

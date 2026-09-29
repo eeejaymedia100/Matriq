@@ -163,7 +163,7 @@ function DriftingBlob({ blob, animate }: { blob: BlobSpec; animate: boolean }) {
         animatedStyle,
       ]}
     >
-      <Svg width={blob.size} height={blob.size}>
+      <Svg width={blob.size} height={blob.size} aria-hidden={true}>
         <Defs>
           <RadialGradient id={`blob-${blob.key}`} cx="50%" cy="50%" r="50%">
             <Stop offset="0%" stopColor={blob.color} stopOpacity={0.85} />

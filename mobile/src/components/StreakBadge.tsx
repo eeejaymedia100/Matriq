@@ -16,7 +16,7 @@ import Animated, {
 import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
 import { GameBadge } from "./GameBadge";
-import type { StreakState } from "../utils/streak";
+import { streakAtRisk, type StreakState } from "../utils/streak";
 
 /** easeOutCubic — game-feel count-up pacing (fast start, gentle landing). */
 function easeOutCubic(t: number): number {
@@ -201,6 +201,16 @@ export function StreakBadge({ streak }: { streak: StreakState }) {
         {streak.best > streak.current ? (
           <Text style={[theme.typography.small, { color: colors.textMuted }]}>
             · best {streak.best}
+          </Text>
+        ) : null}
+        {/* Loss-framing cue — only when the streak genuinely ends tonight
+            (no study logged today). Real stake, real deadline; never faked. */}
+        {streakAtRisk(streak) ? (
+          <Text
+            style={[theme.typography.captionBold, { color: colors.warning }]}
+            accessibilityLabel="Study today or your streak ends tonight"
+          >
+            · ends tonight
           </Text>
         ) : null}
       </View>

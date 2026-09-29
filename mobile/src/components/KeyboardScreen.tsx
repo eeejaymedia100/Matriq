@@ -1,13 +1,18 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
-  KeyboardAvoidingView,
   ScrollView,
   View,
   type StyleProp,
   type ViewStyle,
 } from "react-native";
-import { SafeAreaView, type Edge } from "react-native-safe-area-context";
-import { HeaderHeightContext } from "@react-navigation/elements";
+// Keyboard avoidance comes from react-native-keyboard-controller (see the
+// comment at the KeyboardAvoidingView below). RN core's KeyboardAvoidingView
+// cannot see the keyboard on edge-to-edge Android (SDK 35+ enforcement), so
+// it silently applied zero padding — the root cause of "text fields stay
+// static when the keyboard opens". The RNKC variant reads the real IME
+// insets via the root KeyboardProvider and drives layout on the UI thread.
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
+import { SafeAreaView, useSafeAreaInsets, type Edge } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeContext";
 import { ThemedScreen } from "./Surface";
 
@@ -16,23 +21,20 @@ import { ThemedScreen } from "./Surface";
  * app, on both platforms.
  *
  *   - SafeAreaView (react-native-safe-area-context) for notch/home-bar insets
- *   - KeyboardAvoidingView with `behavior="padding"`. On iOS the keyboard
- *     overlays the window, so the KAV pads the bottom of its content by the
- *     keyboard height. On Android the app is edge-to-edge (Expo SDK 53+,
- *     gradle `edgeToEdgeEnabled=true`, manifest `adjustResize` via
- *     android.softwareKeyboardLayoutMode), so the OS never resizes the
- *     window — the IME is delivered as an inset and React Native reports it
- *     through the keyboard events. The KAV measures the exact overlap against
- *     its own frame, so the padding it applies is exactly the space the
- *     keyboard covers: flex:1 children (chat lists, forms) re-layout into the
+ *   - KeyboardAvoidingView from react-native-keyboard-controller with
+ *     `behavior="padding"` + `automaticOffset`. On both platforms the KAV
+ *     pads the bottom of its content by exactly the keyboard overlap: on iOS
+ *     the keyboard overlays the window; on Android the app is edge-to-edge
+ *     (SDK 35+ enforces it), the window is NEVER resized, and the keyboard
+ *     arrives as an animated IME inset that only react-native-keyboard-controller
+ *     reports faithfully (RN core's KeyboardAvoidingView sees nothing — that
+ *     was the app-wide bug). `automaticOffset` self-measures the screen's
+ *     position (navigation header, modal stack) so header height math is no
+ *     longer needed; `keyboardVerticalOffset` stays available for unusual
+ *     floating bars. flex:1 children (chat lists, forms) re-layout into the
  *     remaining viewport and the `footer` (chat composer) stays in the normal
- *     layout flow, directly above the keyboard. When the keyboard hides the
- *     padding returns to zero, so the screen snaps back to full height.
- *   - keyboardVerticalOffset = the native header height (from
- *     react-navigation's HeaderHeightContext). The header sits above the KAV's
- *     frame but inside the window, so without this offset the computed padding
- *     would be short by exactly the header height on both platforms. Screens
- *     without a header get 0 automatically.
+ *     layout flow, directly above the keyboard. Padding returns to zero when
+ *     the keyboard hides.
  *   - ScrollView with flexGrow:1 + keyboardShouldPersistTaps="handled" so
  *     inputs scroll above the keyboard and taps on buttons dismiss it.
  *
@@ -89,12 +91,30 @@ export function KeyboardScreen({
   keyboardDismissMode,
 }: KeyboardScreenProps) {
   const { theme } = useTheme();
+  const insets = useSafeAreaInsets();
 
-  // Height of the navigator's native header (incl. status bar). 0 when the
-  // screen has no header (headerShown: false, or a screen rendered outside a
-  // navigator, e.g. the passcode gates). The header is above the KAV's frame,
-  // so it must be subtracted from the keyboard frame to compute the overlap.
-  const headerHeight = useContext(HeaderHeightContext) ?? 0;
+  // The status-bar strip: opaque, exactly the theme background, sits only
+  // over the inset area. Edge-to-edge Android draws content under a
+  // translucent status bar, so scrolling text collided with the clock —
+  // the "everything is transparent" complaint. Platforms solve it by never
+  // letting content show through that zone; this does the same, quietly:
+  // on Glass it's invisible against the dark bg, on Pop against the light.
+  // pointerEvents="none" keeps it purely visual; web insets are 0 → no-op.
+  const topStrip =
+    insets.top > 0 && edges.includes("top") ? (
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: insets.top,
+          backgroundColor: theme.colors.bg,
+          zIndex: 1,
+        }}
+      />
+    ) : null;
 
   const contentStyle: StyleProp<ViewStyle> = [
     scroll ? { flexGrow: 1 } : { flex: 1 },
@@ -107,10 +127,12 @@ export function KeyboardScreen({
 
   const body = (
     <SafeAreaView style={{ flex: 1 }} edges={edges}>
+      {topStrip}
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior="padding"
-        keyboardVerticalOffset={headerHeight + keyboardVerticalOffset}
+        automaticOffset
+        keyboardVerticalOffset={keyboardVerticalOffset}
       >
         {scroll ? (
           <ScrollView

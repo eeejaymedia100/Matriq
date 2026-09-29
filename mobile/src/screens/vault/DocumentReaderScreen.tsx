@@ -10,7 +10,7 @@ import { ReflowReader } from "../../components/ReflowReader";
 import { AgentSheet } from "../../components/AgentSheet";
 import { api, API_BASE, authHeaders } from "../../api/client";
 import { formatApiError } from "../../utils/errors";
-import { newNoteId, upsertNote } from "../../utils/notes";
+import { newNoteId, upsertNote } from "../../services/repositories";
 import { vaultFileDestination, rememberVaultFile } from "../../utils/vaultCache";
 
 interface ReaderResult {
@@ -286,7 +286,7 @@ export function DocumentReaderScreen({
                   }}
                 >
                   <Icon name="image" size={15} color={colors.textSecondary} />
-                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: colors.textSecondary }}>
+                  <Text style={[theme.typography.captionBold, { color: colors.textSecondary }]}>
                     Image to Text
                   </Text>
                 </Pressable>
@@ -303,7 +303,7 @@ export function DocumentReaderScreen({
                   }}
                 >
                   <Icon name="sparkle" size={15} color="#17181A" />
-                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                  <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: "#17181A" }}>
                     Deep Read
                   </Text>
                 </Pressable>
@@ -375,7 +375,7 @@ export function DocumentReaderScreen({
                 }}
               >
                 <Icon name="pen" size={14} color="#17181A" />
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 12, color: "#17181A" }}>
+                <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 12, color: "#17181A" }}>
                   {savedNote ? "Saved to Notes" : "Save as note"}
                 </Text>
               </Pressable>

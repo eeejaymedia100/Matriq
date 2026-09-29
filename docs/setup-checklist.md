@@ -6,7 +6,9 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 ## GCP VM
 
 - [x] VM provisioned: `matriq-server`
-- [x] External IP: `35.204.163.157` (static, reserved)
+- [x] External IP: `34.141.128.15` (changed from the reserved `35.204.163.157` on
+      2026-09-22 when the VM was stopped/started — GCP released the static IP; see
+      the 2026-09-22 entry in `docs/docs/progress-log.md`)
 - [x] Region: `europe-west4` (Netherlands)
 - [x] Machine type: `e2-standard-4` (4 vCPU / 16GB RAM) — upgraded from `e2-medium` Aug 2026
 - [x] OS: Ubuntu 22.04 LTS
@@ -99,4 +101,4 @@ with its actual value (IP, region, key IDs) so this isn't re-derived from chat h
 - Ollama: container running but no model pulled. Pull a model (e.g., `llama3.1:8b`) in Phase 4.
 - Machine type upgraded to `e2-standard-4` (4 vCPU / 16GB) during the Aug 2026
   production migration (old box `cliptonite-server` kept as standby — see docs/docs/progress-log.md).
-  Production now runs on this server (`matriq-server`, 35.204.163.157).
+  Production now runs on this server (`matriq-server`, 34.141.128.15).

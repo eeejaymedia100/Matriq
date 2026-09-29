@@ -547,7 +547,7 @@ export function VoiceModeScreen() {
             {micDisabled ? (
               <ActivityIndicator size="large" color={colors.textSecondary} />
             ) : phase === "listening" ? (
-              <Icon name="x" size={30} color="#FFFFFF" strokeWidth={2.4} />
+              <Icon name="x" size={30} color="#FFFFFF" />
             ) : (
               <Icon name="mic" size={38} color="#17181A" strokeWidth={1.8} />
             )}

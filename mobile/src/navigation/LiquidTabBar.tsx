@@ -68,24 +68,25 @@ export function LiquidTabBar({ state, navigation }: BottomTabBarProps) {
             <View style={{ height: 40, alignItems: "center", justifyContent: "center" }}>
               {focused ? (
                 // Raised bubble — the bar's bg ring creates the notch silhouette.
+                // Restraint pass: smaller bubble, tighter ring, quieter glow.
                 <View
                   style={{
                     position: "absolute",
-                    top: -24,
-                    width: 46,
-                    height: 46,
-                    borderRadius: 23,
+                    top: -22,
+                    width: 42,
+                    height: 42,
+                    borderRadius: 21,
                     backgroundColor: colors.accent,
-                    borderWidth: 3,
+                    borderWidth: 2.5,
                     borderColor: colors.tabBarBg,
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: isGlass
-                      ? "0 0 26px rgba(198,255,61,0.45)"
-                      : "3px 3px 0 #17181A",
+                      ? "0 0 18px rgba(198,255,61,0.28)"
+                      : "2px 2px 0 #17181A",
                   }}
                 >
-                  <Icon name={tab.icon} size={21} color="#17181A" />
+                  <Icon name={tab.icon} size={20} color={colors.onAccent} />
                 </View>
               ) : (
                 <Icon

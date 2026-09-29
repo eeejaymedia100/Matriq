@@ -94,7 +94,10 @@ export interface MatriqTheme {
   };
 }
 
-const radii = { sm: 8, md: 14, lg: 20, xl: 28, pill: 999 };
+// Restraint pass (2026-09): the scale tightened one notch — big containers
+// no longer out-round their content. Hairline + quiet shadow does the work
+// a fat radius used to fake.
+const radii = { sm: 8, md: 12, lg: 16, xl: 20, pill: 999 };
 const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48 };
 
 const type = (font: keyof typeof FONT, size: number, lineHeight: number, weight?: number): TextStyle => ({
@@ -198,33 +201,36 @@ export const glassTheme: MatriqTheme = {
     ),
   },
   shadows: {
+    // Restraint pass: Glass cards float quietly — a whisper of depth, not a
+    // spotlight. The frosted pane + hairline carries the surface; the shadow
+    // only separates it from the background.
     card: {
       shadowColor: "#000000",
-      shadowOpacity: 0.4,
-      shadowRadius: 24,
-      shadowOffset: { width: 0, height: 12 },
-      elevation: 8,
+      shadowOpacity: 0.28,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 4,
     },
     cardPressed: {
       shadowColor: "#000000",
-      shadowOpacity: 0.25,
-      shadowRadius: 14,
-      shadowOffset: { width: 0, height: 6 },
-      elevation: 4,
+      shadowOpacity: 0.2,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 3 },
+      elevation: 2,
     },
     sticker: {
       shadowColor: "#000000",
-      shadowOpacity: 0.45,
+      shadowOpacity: 0.3,
       shadowRadius: 0,
-      shadowOffset: { width: 4, height: 4 },
-      elevation: 6,
+      shadowOffset: { width: 3, height: 3 },
+      elevation: 3,
     },
     stickerPressed: {
       shadowColor: "#000000",
-      shadowOpacity: 0.25,
+      shadowOpacity: 0.2,
       shadowRadius: 0,
       shadowOffset: { width: 1, height: 1 },
-      elevation: 2,
+      elevation: 1,
     },
   },
 };
@@ -276,21 +282,24 @@ export const popTheme: MatriqTheme = {
     ),
   },
   shadows: {
-    // Tactile: gentle dual shadow — looks faintly raised, pressable with a thumb.
+    // Restraint pass: Pop cards sit on paper with a single soft shadow —
+    // separation without the hard sticker outline everywhere. The sticker
+    // language stays reserved for hero moments (variant="sticker") only.
     card: {
-      boxShadow: "0 1px 2px rgba(23,24,26,0.05), 0 10px 24px rgba(23,24,26,0.08)",
+      boxShadow: "0 1px 2px rgba(23,24,26,0.04), 0 6px 16px rgba(23,24,26,0.06)",
     },
     cardPressed: {
-      boxShadow: "0 1px 2px rgba(23,24,26,0.04), 0 4px 10px rgba(23,24,26,0.06)",
+      boxShadow: "0 1px 2px rgba(23,24,26,0.04), 0 3px 8px rgba(23,24,26,0.05)",
     },
-    // Sticker: thick ink border + hard offset shadow, no blur.
+    // Sticker (hero surfaces only): ink border + offset shadow, softened
+    // one step so it reads intentional rather than cartoonish.
     sticker: {
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: brand.ink,
-      boxShadow: "5px 5px 0 #17181A",
+      boxShadow: "3px 3px 0 #17181A",
     },
     stickerPressed: {
-      borderWidth: 2,
+      borderWidth: 1.5,
       borderColor: brand.ink,
       boxShadow: "1px 1px 0 #17181A",
     },

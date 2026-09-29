@@ -160,7 +160,7 @@ export function GameBadge({
         style,
       ]}
     >
-      <Svg width={dims} height={dims} viewBox={`0 0 ${dims} ${dims}`}>
+      <Svg width={dims} height={dims} viewBox={`0 0 ${dims} ${dims}`} aria-hidden={true}>
         <Defs>
           <LinearGradient id={`plate-${clipId}`} x1="0" y1="0" x2="0.8" y2="1">
             <Stop offset="0" stopColor={palette.plateFrom} />
@@ -273,7 +273,7 @@ export function GameBadge({
       {/* Sparkles — earned/unlocked only */}
       {complex && earned ? (
         <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="none">
-          <Svg width={dims} height={dims} viewBox={`0 0 ${dims} ${dims}`}>
+          <Svg width={dims} height={dims} viewBox={`0 0 ${dims} ${dims}`} aria-hidden={true}>
             <Sparkle x={dims * 0.2} y={dims * 0.22} s={dims * 0.055} color="rgba(255,255,255,0.95)" />
             <Sparkle x={dims * 0.84} y={dims * 0.34} s={dims * 0.042} color="rgba(255,255,255,0.8)" />
             <Sparkle x={dims * 0.28} y={dims * 0.82} s={dims * 0.04} color="rgba(255,255,255,0.7)" />

@@ -349,8 +349,8 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
   stroke-linejoin: round;
 }
 
-.feature h3 { margin-bottom: 8px; }
-.feature p { color: var(--muted); font-size: 0.93rem; line-height: 1.6; }
+.feat-title { margin-bottom: 8px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
+.feature p:not(.feat-title) { color: var(--muted); font-size: 0.93rem; line-height: 1.6; }
 
 /* ── Split section (two-column prose + form) ────────────────── */
 
@@ -453,6 +453,14 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
 
 .form-note { margin-top: 14px; font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
 
+/* Utility classes (moved out of inline style attributes) */
+.h2-tight { margin-bottom: 18px; max-width: 22ch; }
+.lede-gap { margin-bottom: 48px; }
+.sticky-gap { margin-top: 16px; }
+.form-card { padding: 32px 28px; }
+.btn-block { width: 100%; }
+.msg-grid { grid-column: 1 / -1; }
+
 /* ── CTA band ───────────────────────────────────────────────── */
 
 .cta-band {
@@ -512,13 +520,21 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
   line-height: 1.2;
 }
 
-.step h3 { margin-bottom: 6px; }
-.step p { color: var(--muted); font-size: 0.93rem; max-width: 52ch; }
+.step-title { margin-bottom: 6px; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
+.step p:not(.step-title) { color: var(--muted); font-size: 0.93rem; max-width: 52ch; }
 
 /* ── FAQ ────────────────────────────────────────────────────── */
 
+/* Chromium lays out <details> content as a sibling box of the summary
+   even when the element is closed, painting answer text on top of the
+   next question. Author display control is the reliable fix. */
+.faq details > *:not(summary) { display: block; }
+.faq details:not([open]) > *:not(summary) { display: none; }
+
 .faq { border-top: 1px solid var(--line); }
 .faq details { border-bottom: 1px solid var(--line); }
+.faq details[open] summary { color: var(--text); }
+.faq details[open] { padding-bottom: 4px; }
 .faq summary {
   cursor: pointer;
   list-style: none;
@@ -578,22 +594,28 @@ footer {
 
 /* ── Reveal on scroll ───────────────────────────────────────── */
 
-.reveal {
+/* Hidden start state only applies when JS is running (html.js is set by
+   app.js). Without JS, content must never be hidden behind a reveal. */
+.js .reveal {
   opacity: 0;
   transform: translateY(18px);
   transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.reveal.in-view { opacity: 1; transform: none; }
+.js .reveal.in-view { opacity: 1; transform: none; }
 
 /* ── Reduced motion ─────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .js .reveal { opacity: 1; transform: none; transition: none; }
   #count.pop { animation: none; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* Browsers without IntersectionObserver: never hide content behind
+   the reveal animation. app.js adds the class when IO is missing. */
+.no-io .reveal { opacity: 1; transform: none; }
 
 /* ── Telegram strip ───────────────────────────────────────────── */
 
@@ -616,7 +638,7 @@ footer {
 }
 .tg-copy { max-width: 640px; }
 .tg-copy h2 { margin-bottom: 14px; }
-.tg-copy > p { color: var(--text-dim); line-height: 1.65; font-size: 15.5px; }
+.tg-copy > p { color: var(--text-secondary); line-height: 1.65; font-size: 15.5px; }
 
 .tg-points {
   list-style: none; margin: 20px 0 24px;

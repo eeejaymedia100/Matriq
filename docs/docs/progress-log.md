@@ -4,6 +4,56 @@
 Newest entry at the top. Keep entries skimmable — a human checking in briefly via Termux should
 understand "what happened since I last looked" in under a minute.
 
+## 2026-09-22 (later) — App-wide UX restraint pass + ROOT fix for the Android keyboard bug
+
+**Keyboard (the headline):** the real root cause was architectural. The app is
+edge-to-edge (`gradle.properties edgeToEdgeEnabled=true`; Android 15+ enforces
+it), so the OS NEVER resizes the window — `app.json`'s
+`softwareKeyboardLayoutMode: resize` / manifest `adjustResize` are silently
+ignored, and RN core's `KeyboardAvoidingView` cannot see a keyboard that never
+resizes the window. That's why three earlier KAV-based fixes didn't hold.
+One project-wide solution installed: **react-native-keyboard-controller**
+(1.22.5) — `KeyboardProvider` at the app root; `KeyboardScreen` (29 screens)
+rewritten onto its `KeyboardAvoidingView` with `automaticOffset`; all sheets
+that own inputs (AgentSheet, ConfirmSheet, InstitutionCascadePicker) plus
+FocusJourneyView/FocusQuestioner moved to the same primitive. Every field,
+search box, chat composer and type-to-confirm input now rides above the
+keyboard on both platforms, incl. inside native Modals. **Requires a native
+rebuild (the library ships Android code — an OTA/JS update cannot carry it).**
+
+**Restraint pass (identity untouched — Inter/Playfair + black/off-white/lime):**
+- Radii scale tightened one notch (md 14→12, lg 20→16, xl 28→20); pill stays for badges only.
+- Pop cards no longer render as "stickers" by default — Surface card = hairline + one soft shadow; sticker treatment is opt-in for hero surfaces. Theme shadows softened; Button primary is flat lime (no ink outline/offset glow); ConfirmSheet confirm button flattened.
+- Icon language: global stroke 2→1.8, aria-hidden on all decorative glyphs, header icon-chips stripped (notification bell bare, auth medallions removed), 6 loud pill borders flattened (Notes/FocusTimer/Vault/DocumentReader), Tab-bar bubble calmed (42px, quieter glow).
+- Typography: 76 hardcoded `Inter_*` refs across 29 files replaced with theme/`typographyBase` tokens; removed the dead `Input` component (Field is the single input primitive).
+- States: new shared `EmptyState` (Notes, Deadlines adopted); ErrorBanner/offline copy already structured — unchanged.
+- `uxskill lint`: 0 critical/high (was 6 high), 28 findings left are N/A web rules + pre-existing `any` contexts.
+- `tsc --noEmit` clean. Realistic register placeholders ("e.g. Adaeze Okafor") replace John/Jane Doe.
+
+**Next session:** rebuild the APK (`_release-and-ship.sh`), then verify keyboard behavior on a small + large Android device, forms, AI chat, and every sheet.
+
+## 2026-09-22 — VM external IP changed after stop/start: 35.204.163.157 → 34.141.128.15
+
+- The `matriq-server` VM was powered off and back on; GCP released the previously
+  reserved static IP `35.204.163.157` and the box came back on an ephemeral IP,
+  **34.141.128.15** (same zone, europe-west4-a; hostname still `matriq-server`).
+  All containers (backend/caddy/postgres/redis/ollama/minio/ntfy) came up healthy;
+  ports 80/443/22 verified reachable on the new IP.
+- **What still points at the old IP (manual):** the Cloudflare A records for
+  `matriq.com.ng` (root, www, api) — DNS-only, they still resolve to `34.91.191.164`
+  (an even older address) so the domain is offline until flipped to `34.141.128.15`.
+  Also note the previously configured SSH key `~/.ssh/matriq` is now REJECTED by the
+  VM; only the GCP metadata key (`~/.ssh/google_compute_engine`) authenticates.
+- Updated in repo: `~/.ssh/config` (Host matriq → new IP + working key),
+  `caddy/Caddyfile.tunnels` (dev-only raw-IP block), `docs/setup-checklist.md`,
+  `docs/docs/cloudflare-vercel.md`, `docs/docs/infrastructure.md`. The production
+  `caddy/Caddyfile` and all VM `.env` files contain no IP references — nothing to
+  restart on the VM for the IP change itself.
+- Same-day side note: with the VM unreachable earlier, the 41.6 MB `app-release.apk`
+  (v2.1.0, build 27) was delivered to the owner's Telegram directly from this machine
+  using the Matriq Docs Bot token recovered into local `~/.hermes/.env` — the send
+  path in `scripts/_send-apk-telegram.sh` normally runs via the VM.
+
 ## 2026-09-02 (deployed) — v0.7.17 (build 25) SHIPPED to production
 
 - APK built locally (`./gradlew assembleRelease`, 23 min incremental), verified versionCode 25 / 0.7.17 with the SAME signing cert as the served build (in-place upgrades work), shipped by `scripts/_finalize-apk.sh` → `https://matriq.com.ng/download/matriq.apk` + manifest regenerated from the APK (25/0.7.17).
@@ -1993,3 +2043,66 @@ interactive dismiss).
 `docs/docs/magic-plus.md` strategy — no paywall, no subscription system yet;
 documents the free-forever core, candidate premium capabilities, and
 student-friendly pricing posture.
+
+## 2026-09-22 — Last planned rebuild: OTA updates (expo-updates) + SQLite local database
+
+**Release posture change — this should be the last routine APK rebuild.**
+JS-only changes now ship as silent background OTA updates via
+`expo-updates`; the 42 MB APK path is reserved for native-level changes only
+(new native module, SDK bump, permission/plugin change). Publishing a
+JS-only update is now: edit code → `bash scripts/_publish-ota.sh` →
+rsync `ota/` to the server. Done — every signed-in device picks it up in
+the background (launch/foreground/30-min re-check loop that already
+existed in `UpdateOverlay`) and applies it at the next cold start. No
+prompt, no reinstall.
+
+- **Wiring:** `app.json` gets `runtimeVersion: {policy: "appVersion"}`
+  (OTA updates are scoped to a matching native runtime — JS can never
+  break a native build it doesn't match), `updates.url`
+  (matriq.com.ng/api/updates/manifest), channel `production`, and
+  `expo-updates ~57.0.23`. `updateChecker.ts` gained
+  `checkForOtaUpdate/downloadOtaUpdate`; `UpdateOverlay` runs the OTA check
+  after the existing APK check finds nothing. APK path untouched as
+  fallback.
+- **Server side (stateless, no DB):** `backend/src/updates/` serves the
+  Expo Updates protocol v1 manifest from published export files
+  (`./ota/<runtimeVersion>/android/…` bind-mounted read-only into the
+  backend and Caddy). Assets are hash-addressed and served by Caddy from
+  `https://matriq.com.ng/updates/*` with `immutable` caching; the manifest
+  endpoint reads only two small JSON files per request and answers 204 when
+  a runtime has no published update (embedded bundle is latest). Exact
+  manifest field conventions (MD5 asset keys, base64url SHA-256 hashes,
+  UUID-formatted update id) taken from Expo's reference server.
+- **Release rule of thumb:** JS-only → publish OTA; anything touching
+  native code/config or the `version` field → bump `versionCode`, rebuild,
+  ship APK (and the OTA stream then targets that new runtime version).
+
+**SQLite local database added (expo-sqlite ~57.0.3, embedded in every app
+build).** Research verdict: the use cases outweigh the tradeoffs for Matriq
+because the app already holds large per-user text on-device (extracted
+material text, AI transcripts, notes) in single JSON blobs — SecureStore is
+Keystore-backed on Android (silent `.catch(()=>{})` drops are exactly how
+its oversized-value failures hide) and whole-file JSON rewrites scale badly
+as a semester of notes grows.
+- **Layer:** `services/db.ts` — one `matriq.db`, lazy singleton, WAL,
+  idempotent v1 schema (materials / conversations / notes), plus a one-time
+  copy-only legacy import (runs in a transaction, legacy stores stay
+  untouched and remain the fallback readers on any DB error — migration
+  can never lose data).
+- **Repos:** `services/materialsRepo.ts`, `conversationsRepo.ts`,
+  `notesRepo.ts` (barrel: `services/repositories.ts`) — same public shapes
+  as the legacy utils, so screens migrate by changing imports only. Row-level
+  writes replace whole-collection JSON rewrites; capped growth (50 convs);
+  indexed ordering. Notes import wired into the legacy migration.
+- **Migrated callers:** AI companion/history + AchievementsProvider
+  (conversations), Notes screens + OCR/DeepRead/DocumentReader/ReflowReader
+  (notes), MyMaterials + AI companion (materials). Timetable, deadlines,
+  todos, CGPA history etc. stay on key-value storage deliberately — they are
+  small, config-shaped data (policy documented in db.ts).
+- **Not encrypted by SQLCipher:** the DB holds no secrets (tokens/passcode
+  remain in SecureStore); SDK 57's expo-sqlite has no SQLCipher hook —
+  decision documented in db.ts.
+
+**Build:** v2.2.0, versionCode 28. Includes the previous session's keyboard
+fix (react-native-keyboard-controller — needs a native rebuild to reach
+devices, which this build provides).

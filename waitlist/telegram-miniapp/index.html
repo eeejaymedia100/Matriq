@@ -66,28 +66,35 @@
       <nav class="tiles">
         <button class="tile" data-nav="library" type="button">
           <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M8 7h7M8 11h7"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5a2 2 0 0 1 2-2h13v18H6a2 2 0 0 1-2-2Z"/><path d="M8 7h7M8 11h7"/></svg>
           </span>
           <span class="tile-name">Library</span>
           <span class="tile-sub">Everything approved so far</span>
         </button>
+        <button class="tile" data-nav="scan" type="button">
+          <span class="tile-icon" aria-hidden="true">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8V5a2 2 0 0 1 2-2h3m8 0h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3m-8 0H5a2 2 0 0 1-2-2v-3"/><path d="M3 12h18"/></svg>
+          </span>
+          <span class="tile-name">Scan to Text</span>
+          <span class="tile-sub">Read a page, fix the bad words</span>
+        </button>
         <button class="tile" data-nav="status" type="button">
           <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </span>
           <span class="tile-name">My submissions</span>
           <span class="tile-sub">Track the audit</span>
         </button>
         <button class="tile" data-nav="board" type="button">
           <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8m-4-4v4M6 4h12v4a6 6 0 0 1-12 0V4Z"/><path d="M6 6H4a2 2 0 0 0 2 4m12-4h2a2 2 0 0 1-2 4"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 21h8m-4-4v4M6 4h12v4a6 6 0 0 1-12 0V4Z"/><path d="M6 6H4a2 2 0 0 0 2 4m12-4h2a2 2 0 0 1-2 4"/></svg>
           </span>
           <span class="tile-name">Leaderboard</span>
           <span class="tile-sub">Who's leading the hunt</span>
         </button>
         <button class="tile" id="tile-community" type="button">
           <span class="tile-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 21l2-5.5a8.5 8.5 0 1 1 16-4Z"/></svg>
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-4-1L3 21l2-5.5a8.5 8.5 0 1 1 16-4Z"/></svg>
           </span>
           <span class="tile-name">Community</span>
           <span class="tile-sub">Where students show up</span>
@@ -101,7 +108,7 @@
     <section id="view-library" class="view" hidden>
       <header class="bar">
         <button class="back" data-nav="home" type="button" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <h2 class="bar-title">Library</h2>
       </header>
@@ -121,11 +128,12 @@
     <section id="view-submit" class="view" hidden>
       <header class="bar">
         <button class="back" data-nav="home" type="button" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <h2 class="bar-title">Contribute</h2>
       </header>
       <form id="submit-form" class="form" novalidate>
+        <p id="form-progress" class="form-progress" hidden></p>
         <label class="field">
           <span>University</span>
           <select name="universityName" id="f-university" required></select>
@@ -178,7 +186,7 @@
       </form>
       <div id="submit-success" class="success" hidden>
         <div class="success-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 13 4 4L19 7"/></svg>
         </div>
         <h2>In the queue.</h2>
         <p>Reference <code id="submit-ref"></code></p>
@@ -194,7 +202,7 @@
     <section id="view-status" class="view" hidden>
       <header class="bar">
         <button class="back" data-nav="home" type="button" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <h2 class="bar-title">My submissions</h2>
       </header>
@@ -205,12 +213,55 @@
     <section id="view-board" class="view" hidden>
       <header class="bar">
         <button class="back" data-nav="home" type="button" aria-label="Back">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </button>
         <h2 class="bar-title">Leaderboard</h2>
       </header>
       <p class="board-note">Ranked by approved contributions — never by raw uploads.</p>
       <div id="board-list" class="board" aria-live="polite"></div>
+    </section>
+
+    <!-- ── Scan to Text ─────────────────────────────────────── -->
+    <section id="view-scan" class="view" hidden>
+      <header class="bar">
+        <button class="back" data-nav="home" type="button" aria-label="Back">
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 class="bar-title">Scan to Text</h2>
+      </header>
+      <p class="scan-intro">Point at a page, whiteboard or slide — Matriq reads the text out of the photo, then repairs the garbled words the way your keyboard auto-suggests. Every fix is shown, nothing silent.</p>
+
+      <div id="scan-form">
+        <div class="field">
+          <span>Photo</span>
+          <label class="filezone" id="scan-zone">
+            <input id="scan-file" type="file" accept="image/jpeg,image/png,image/webp" hidden />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+            <span id="scan-file-name">Choose a photo</span>
+            <em id="scan-meta">JPG, PNG or WEBP · up to 10 MB</em>
+          </label>
+        </div>
+        <button class="btn btn-primary btn-block" type="button" id="scan-btn">Read the text</button>
+        <p class="scan-hint">A clear, close, well-lit shot reads best — screenshots with big text are perfect.</p>
+      </div>
+
+      <div id="scan-empty" class="scan-empty" hidden>
+        <p>No readable text found — try a clearer, closer shot, or a screenshot with bigger text.</p>
+        <button class="btn btn-ghost" type="button" id="scan-retry">Try another photo</button>
+      </div>
+
+      <div id="scan-result" hidden>
+        <article class="scan-output">
+          <p id="scan-text" class="scan-text" tabindex="0"></p>
+          <p id="scan-raw" class="scan-text scan-raw" hidden tabindex="0"></p>
+        </article>
+        <div id="scan-summary" class="scan-summary"></div>
+        <div class="scan-actions">
+          <button class="btn btn-primary" type="button" id="scan-copy">Copy text</button>
+          <button class="btn btn-ghost" type="button" id="scan-original-toggle" hidden>Show original OCR</button>
+          <button class="btn btn-ghost" type="button" id="scan-again">Scan another</button>
+        </div>
+      </div>
     </section>
 
   </div>

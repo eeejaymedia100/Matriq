@@ -7,13 +7,15 @@ import {
   Pressable,
   ScrollView,
   ActivityIndicator,
-  KeyboardAvoidingView,
   StyleSheet,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
 import { ApiError } from "../api/client";
 import { runAgent, type AgentRequest, type AgentSurface } from "../utils/agent";
+import { ImageCarousel } from "./chat/ImageCarousel";
+import type { ChatImage } from "./chat/types";
 
 /**
  * AgentSheet — the Agent v2 companion. A bottom sheet that takes the page
@@ -36,11 +38,12 @@ export function AgentSheet({
 }) {
   const { theme } = useTheme();
   const colors = theme.colors;
-  const styles = makeStyles(colors);
+  const styles = makeStyles(theme);
 
   const [query, setQuery] = useState("");
   const [running, setRunning] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
+  const [images, setImages] = useState<ChatImage[] | undefined>(undefined);
   const [toolsUsed, setToolsUsed] = useState<string[]>([]);
   const [errorText, setErrorText] = useState<string | null>(null);
   const inputRef = useRef<TextInput>(null);
@@ -52,10 +55,12 @@ export function AgentSheet({
       setRunning(true);
       setErrorText(null);
       setAnswer(null);
+      setImages(undefined);
       setToolsUsed([]);
       try {
         const res = await runAgent({ ...baseRequest, query: text });
         setAnswer(res.answer);
+        setImages(res.images);
         setToolsUsed(res.toolCalls.filter((t) => t.ok).map((t) => t.tool));
       } catch (err) {
         if (err instanceof ApiError && err.code === "MAGIC_PLUS_REQUIRED") {
@@ -82,6 +87,7 @@ export function AgentSheet({
     read_document: "read the document",
     search_library: "searched the library",
     explain: "explained with AI",
+    search_images: "found related images",
   };
 
   return (
@@ -94,10 +100,11 @@ export function AgentSheet({
       navigationBarTranslucent
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        {/* KeyboardAvoidingView so the composer rides above the keyboard —
-            text fields must never be covered while typing. On Android the
-            app is edge-to-edge (no window resize), so padding is required
-            here exactly as on iOS. */}
+        {/* KeyboardAvoidingView (react-native-keyboard-controller) so the
+            composer rides above the keyboard — text fields must never be
+            covered while typing. RNKC reads the real IME insets on
+            edge-to-edge Android AND inside native Modal windows, so this
+            works identically on both platforms. */}
         <KeyboardAvoidingView style={styles.sheetStack} behavior="padding">
         <Pressable style={styles.sheet} onPress={() => {}}>
           <View style={styles.handleRow}>
@@ -133,6 +140,11 @@ export function AgentSheet({
               <Text selectable style={styles.answerText}>
                 {answer}
               </Text>
+              {images && images.length > 0 ? (
+                <View style={{ marginTop: 14 }}>
+                  <ImageCarousel images={images} />
+                </View>
+              ) : null}
               {toolsUsed.length > 0 ? (
                 <View style={styles.toolRow}>
                   {toolsUsed.map((t) => (
@@ -200,8 +212,9 @@ export function AgentSheet({
   );
 }
 
-const makeStyles = (colors: any) =>
-  StyleSheet.create({
+const makeStyles = (theme: ReturnType<typeof useTheme>["theme"]) => {
+  const colors = theme.colors;
+  return StyleSheet.create({
     overlay: {
       flex: 1,
       backgroundColor: colors.overlay,
@@ -236,7 +249,7 @@ const makeStyles = (colors: any) =>
     },
     title: {
       flex: 1,
-      fontFamily: "Inter_700Bold",
+      fontFamily: theme.typography.bodyBold.fontFamily,
       fontSize: 16,
       color: colors.textPrimary,
     },
@@ -249,7 +262,7 @@ const makeStyles = (colors: any) =>
       borderColor: colors.border,
     },
     contextLabel: {
-      fontFamily: "Inter_700Bold",
+      fontFamily: theme.typography.bodyBold.fontFamily,
       fontSize: 10,
       letterSpacing: 1,
       textTransform: "uppercase",
@@ -281,7 +294,7 @@ const makeStyles = (colors: any) =>
     },
     toolChipText: {
       fontSize: 11,
-      fontFamily: "Inter_700Bold",
+      fontFamily: theme.typography.bodyBold.fontFamily,
       color: colors.brand,
     },
     errorBox: {
@@ -340,3 +353,4 @@ const makeStyles = (colors: any) =>
     },
     sendDisabled: { opacity: 0.4 },
   });
+};

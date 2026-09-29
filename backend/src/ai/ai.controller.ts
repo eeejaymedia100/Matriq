@@ -27,6 +27,7 @@ import { Throttle } from "@nestjs/throttler";
 import { AiService } from "./ai.service";
 import { AiQuotaService } from "./ai-quota.service";
 import { AiAgentService } from "./ai-agent.service";
+import { AiImagesService } from "./ai-images.service";
 import { AuditService } from "../audit/audit.service";
 import { EntitlementService } from "../entitlement/entitlement.service";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
@@ -102,6 +103,7 @@ export class AiController {
     private readonly aiService: AiService,
     private readonly quota: AiQuotaService,
     private readonly agentService: AiAgentService,
+    private readonly aiImages: AiImagesService,
     private readonly entitlements: EntitlementService,
     private readonly audit: AuditService,
   ) {}
@@ -116,8 +118,10 @@ export class AiController {
   @Post("ai/query")
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60000, limit: 10 } })
-  query(@CurrentUser() user: JwtPayload, @Body() dto: { query: string }) {
-    return this.aiService.query(user.sub, dto);
+  async query(@CurrentUser() user: JwtPayload, @Body() dto: { query: string }) {
+    const result = await this.aiService.query(user.sub, dto);
+    const images = await this.maybeChatImages(user.sub, dto?.query);
+    return images ? { ...result, images } : result;
   }
 
   /**
@@ -125,6 +129,21 @@ export class AiController {
    * material (vault uploads + Deep Read transcriptions). Premium-gated,
    * owner-scoped retrieval; distinct from Quickie's daily cap.
    */
+  /**
+   * Chat-time image enrichment — premium only, conservative heuristic,
+   * hard time budget. Null (and no images field) for text-only answers.
+   */
+  private async maybeChatImages(userId: string, query?: string) {
+    try {
+      const ent = await this.entitlements.status(userId);
+      if (!ent.isPremium || !query) return null;
+      const res = await this.aiImages.maybeForQuery(query);
+      return res?.results?.length ? res.results : null;
+    } catch {
+      return null; // enrichment must never fail the chat request
+    }
+  }
+
   @Post("ai/ask-my-notes")
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { ttl: 60000, limit: 10 } })
@@ -185,7 +204,7 @@ export class AiController {
 
   /**
    * SSE streaming variant of /ai/query. Emits `data:` events with
-   * { type: "content" | "sources" | "done" } payloads, then closes.
+   * { type: "content" | "sources" | "done" | "images" } payloads, then closes.
    * Falls back to a single content event on any streaming failure.
    */
   @Post("ai/query/stream")
@@ -209,6 +228,14 @@ export class AiController {
 
     try {
       await this.aiService.streamQuery(user.sub, dto, res);
+      // Visual enrichment (Premium, conservative heuristic, hard time budget).
+      // Emitted AFTER done so the answer streams and completes at full speed —
+      // images trail the finished text by a moment. Clients that don't know
+      // the event ignore it; the connection closes right after.
+      const images = await this.maybeChatImages(user.sub, dto?.query);
+      if (images && images.length > 0) {
+        res.write(`data: ${JSON.stringify({ type: "images", images })}\n\n`);
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Stream failed";
       res.write(`data: ${JSON.stringify({ type: "error", message })}\n\n`);

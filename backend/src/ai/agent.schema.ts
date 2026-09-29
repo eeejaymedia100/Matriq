@@ -5,6 +5,7 @@ import {
   IsObject,
   MaxLength,
 } from "class-validator";
+import type { ImageSearchResult } from "./image-search.service";
 
 /**
  * Agent v2 contracts. The model proposes; validation disposes.
@@ -54,6 +55,8 @@ export interface AgentRunResult {
   mode: "model" | "degraded" | "failed";
   /** Where the agent was invoked from (reader / focus / chat). */
   surface: string;
+  /** Sanitized images the agent chose to show (empty when none). */
+  images?: ImageSearchResult[];
 }
 
 /** Where the agent was opened from — shapes the page-context snapshot. */

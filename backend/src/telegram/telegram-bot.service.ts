@@ -11,6 +11,7 @@ import { TelegramApi, TgMessage, TgUpdate, TgUser } from "./telegram.api";
 import { TelegramConfig } from "./telegram.config";
 import { TelegramGate } from "./telegram-gate";
 import { ToolsService } from "../tools/tools.service";
+import { correctOcrText } from "../resource-audit/resource-audit.ocr-correct";
 
 /**
  * The Matriq Resource Hunt bot.
@@ -27,6 +28,9 @@ import { ToolsService } from "../tools/tools.service";
  *                  (text) → rights (buttons) → submit
  *   /status      → simple "Under review" style states (no AI internals)
  *   /leaderboard → campaign rankings (points + approved counts)
+ *   /scan        → photo/document with /scan in the caption: OCR reads the
+ *                  text, then keyboard-style auto-suggestion repairs the
+ *                  garbled words (every fix listed with evidence)
  *
  * Every choice with a fixed answer set is a Telegram button, so arbitrary
  * text can never corrupt the flow. Text input is only requested for things
@@ -45,6 +49,14 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   private static readonly UPLOAD_RATE_KEY = (tg: number) => `tg:uploads:${tg}`;
   private static readonly UPLOAD_RATE_MAX = 5;
   private static readonly UPLOAD_RATE_WINDOW_SEC = 3600;
+
+  private static readonly SCAN_RATE_KEY = (tg: number) => `tg:scans:${tg}`;
+  private static readonly SCAN_RATE_MAX = 10;
+  private static readonly SCAN_RATE_WINDOW_SEC = 3600;
+  /** Telegram messages cap at 4096 chars — leave room for the fix list. */
+  private static readonly SCAN_REPLY_TEXT_LIMIT = 2800;
+  /** Upper bound on text handed to the correction pass. */
+  private static readonly SCAN_CORRECT_INPUT_LIMIT = 12000;
 
   /** Delta State universities first — the campaign's home state. Buttons;
    *  free text via "Other…" for anything not listed. */
@@ -415,13 +427,19 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     const telegramId = message.from.id;
     const text = (message.text ?? "").trim();
 
-    // Files/photos feed the upload conversation directly.
+    // A /scan caption routes the file to OCR + keyboard correction instead
+    // of the upload wizard.
+    const caption = (message.caption ?? "").trim().toLowerCase();
+    const scanCaptioned = caption === "/scan" || caption.startsWith("/scan ");
+
     if (message.document) {
-      await this.handleDocument(message);
+      if (scanCaptioned) await this.handleScanDocument(message);
+      else await this.handleDocument(message);
       return;
     }
     if (message.photo && message.photo.length > 0) {
-      await this.handlePhoto(message);
+      if (scanCaptioned) await this.handleScanPhoto(message);
+      else await this.handlePhoto(message);
       return;
     }
 
@@ -429,6 +447,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       // Commands always win — they also escape any stuck wizard state.
       if (text.startsWith("/start")) await this.onStart(chatId, message.from);
       else if (text.startsWith("/upload")) await this.beginUpload(telegramId, chatId);
+      else if (text.startsWith("/scan")) await this.onScanCommand(chatId);
       else if (text.startsWith("/status")) await this.onStatus(telegramId, chatId);
       else if (text.startsWith("/leaderboard")) await this.onLeaderboard(chatId);
       // Announce to the community — admins only, targets the community chat.
@@ -467,6 +486,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         "<b>Matriq Resource Hunt</b>",
         "",
         "/upload — contribute a resource (+1 point when approved)",
+        "/scan — read text out of a photo, auto-correct the garbled words",
         "/status — your submissions",
         "/leaderboard — campaign rankings",
         "/announce — post the leaderboard to the community (admins)",
@@ -657,6 +677,16 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     const telegramId = message.from!.id;
     const chatId = message.chat.id;
     const conv = await this.getConversation(telegramId);
+    if (conv && conv.flow === "scan") {
+      // Sticky scan mode: after the first /scan, plain documents keep being
+      // scanned until /cancel.
+      const scanDoc = message.document!;
+      await this.runScan(telegramId, chatId, {
+        fileId: scanDoc.file_id,
+        fileName: scanDoc.file_name ?? `scan-${Date.now()}`,
+      });
+      return;
+    }
     if (!conv || conv.flow !== "upload" || conv.step !== "file") {
       await this.api.sendMessage(chatId, "Send /upload first — I'll take the file from there.");
       return;
@@ -702,6 +732,19 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     const telegramId = message.from!.id;
     const chatId = message.chat.id;
     const conv = await this.getConversation(telegramId);
+    if (conv && conv.flow === "scan") {
+      // Sticky scan mode: after the first /scan, plain photos keep being
+      // scanned until /cancel.
+      const scanPhotos = message.photo ?? [];
+      const scanBest = scanPhotos.length > 0 ? scanPhotos[scanPhotos.length - 1] : null;
+      if (scanBest) {
+        await this.runScan(telegramId, chatId, {
+          fileId: scanBest.file_id,
+          fileName: `scan-${Date.now()}.jpg`,
+        });
+      }
+      return;
+    }
     if (!conv || conv.flow !== "upload" || conv.step !== "file") {
       await this.api.sendMessage(chatId, "Send /upload first — I'll take the photo from there.");
       return;
@@ -720,6 +763,202 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     await this.api.sendMessage(chatId, "Got the scan. Which faculty is it from?", {
       inline_keyboard: this.facultyKeyboard(),
     });
+  }
+
+  // ── /scan — OCR + keyboard-style auto-correction ─────────────────
+
+  /**
+   * The app's Image-to-Text tool, in chat. Two stages:
+   *
+   *   1. OCR through the same server pipeline the mobile app falls back to
+   *      (ToolsService.ocrBuffer — Tesseract, with the Gemini rescue pass
+   *      for handwriting / messy photos).
+   *   2. The keyboard auto-suggestion pass (resource-audit.ocr-correct): the
+   *      phone-keyboard trick applied to OCR output — know the language,
+   *      generate near-neighbour words with OCR-aware edit distance, let
+   *      the document's own context pick the winner. Conservative: only
+   *      confident fixes apply, course codes / acronyms / numbers / roman
+   *      numerals are never touched, and every applied fix is reported.
+   *
+   * Entry: /scan, or any photo/document captioned /scan. After the first
+   * run the conversation stays in scan mode — plain photos keep being
+   * scanned until /cancel.
+   */
+  private async onScanCommand(chatId: number): Promise<void> {
+    await this.api.sendMessage(
+      chatId,
+      [
+        "<b>Scan to Text</b> 🔍",
+        "",
+        "Send a photo of a page, whiteboard or screenshot with <b>/scan</b> as the caption (a document works too). I'll:",
+        "",
+        "1. Read the text out of the image",
+        "2. Run the keyboard auto-suggestion pass — near-neighbour words ranked by the document's own context — to repair OCR-garbled words",
+        "",
+        "Every change is listed with its evidence. Course codes, acronyms, numbers and roman numerals are never touched.",
+        "",
+        "After the first scan, plain photos keep getting scanned — /cancel to stop.",
+      ].join("\n"),
+    );
+  }
+
+  private async handleScanPhoto(message: TgMessage): Promise<void> {
+    const telegramId = message.from!.id;
+    const chatId = message.chat.id;
+    const photos = message.photo ?? [];
+    const best = photos.length > 0 ? photos[photos.length - 1] : null;
+    if (!best) {
+      await this.api.sendMessage(chatId, "I couldn't read that photo — try sending it again.");
+      return;
+    }
+    await this.runScan(telegramId, chatId, {
+      fileId: best.file_id,
+      fileName: `scan-${Date.now()}.jpg`,
+    });
+  }
+
+  private async handleScanDocument(message: TgMessage): Promise<void> {
+    const telegramId = message.from!.id;
+    const chatId = message.chat.id;
+    const doc = message.document!;
+    await this.runScan(telegramId, chatId, {
+      fileId: doc.file_id,
+      fileName: doc.file_name ?? `scan-${Date.now()}`,
+    });
+  }
+
+  private async runScan(
+    telegramId: number,
+    chatId: number,
+    pending: { fileId: string; fileName: string },
+  ): Promise<void> {
+    if (await this.scanRateLimited(telegramId)) {
+      await this.api.sendMessage(
+        chatId,
+        "You've hit the hourly scan cap (10). The OCR engine needs breathing room — try again later.",
+      );
+      return;
+    }
+    await this.api.sendMessage(chatId, "Reading the image…");
+
+    const buffer = await this.api.downloadFileById(pending.fileId);
+    if (!buffer) {
+      await this.api.sendMessage(chatId, "I couldn't download that file from Telegram. Send it again — or /cancel.");
+      return;
+    }
+    const mime = this.sniffScanMime(buffer);
+    if (!mime) {
+      await this.api.sendMessage(
+        chatId,
+        "That file type can't be scanned — send a photo (JPG/PNG/WEBP) or a PDF with /scan.",
+      );
+      return;
+    }
+
+    let ocr: { text: string; confidence: number; readable: boolean; engine: string };
+    try {
+      ocr = await this.tools.ocrBuffer(buffer, mime);
+    } catch (err) {
+      this.logger.warn(
+        `scan OCR failed for ${telegramId}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      await this.api.sendMessage(
+        chatId,
+        "The text engine couldn't read that image. Try a clearer, closer, better-lit shot — or /cancel.",
+      );
+      return;
+    }
+
+    const raw = (ocr.text ?? "").trim();
+    if (!ocr.readable || raw.length < 4) {
+      await this.api.sendMessage(
+        chatId,
+        "No readable text found — try a clearer, closer shot, or a screenshot with bigger text.",
+      );
+      return;
+    }
+
+    const report = correctOcrText(raw.slice(0, TelegramBotService.SCAN_CORRECT_INPUT_LIMIT));
+    const corrected = (report.corrected || raw).trim();
+    const changed = report.corrections.length > 0;
+
+    const lines: string[] = ["<b>Scan read.</b>", ""];
+    const textLimit = TelegramBotService.SCAN_REPLY_TEXT_LIMIT;
+    lines.push(this.escHtml(corrected.length > textLimit ? `${corrected.slice(0, textLimit)}…` : corrected));
+    lines.push("");
+    lines.push(
+      [
+        `<b>Keyboard pass:</b> ${report.tokensCorrected} of ${report.tokensTotal} words fixed`,
+        `engine: ${ocr.engine}`,
+        ocr.confidence > 0 ? `${ocr.confidence}% confidence` : null,
+      ]
+        .filter((l) => l !== null)
+        .join(" · "),
+    );
+    if (changed) {
+      for (const c of report.corrections.slice(0, 12)) {
+        lines.push(`• ${this.escHtml(c.from)} → <b>${this.escHtml(c.to)}</b> (${c.evidence}, d=${c.distance})`);
+      }
+      if (report.corrections.length > 12) {
+        lines.push(`…and ${report.corrections.length - 12} more`);
+      }
+    } else {
+      lines.push("No bad words found — the text came out clean.");
+    }
+
+    await this.api.sendMessage(
+      chatId,
+      lines.join("\n"),
+      changed
+        ? { inline_keyboard: [[{ text: "Original OCR text", callback_data: "scan:original" }]] }
+        : undefined,
+    );
+
+    // Keep the raw text for the "Original OCR text" button, and hold the
+    // conversation in scan mode so plain photos keep being scanned.
+    await this.setConversation(telegramId, {
+      flow: "scan",
+      scanText: raw.slice(0, 4000),
+    });
+  }
+
+  /** The raw OCR text behind the last scan (the "Original OCR text" button). */
+  private async sendScanOriginal(telegramId: number, chatId: number): Promise<void> {
+    const conv = await this.getConversation(telegramId);
+    const scanText = typeof conv?.scanText === "string" ? (conv.scanText as string) : "";
+    if (!scanText) {
+      await this.api.sendMessage(chatId, "The original text expired — run /scan again.");
+      return;
+    }
+    await this.api.sendMessage(chatId, `<b>Original OCR text</b>\n\n${this.escHtml(scanText)}`);
+  }
+
+  /** Magic-byte sniffing — Telegram's mime labels are unreliable on documents. */
+  private sniffScanMime(buffer: Buffer): string | null {
+    if (buffer.length < 12) return null;
+    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return "image/png";
+    if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+    const head = buffer.slice(0, 12).toString("latin1");
+    if (head.startsWith("GIF8")) return "image/gif";
+    if (head.startsWith("%PDF")) return "application/pdf";
+    if (head.startsWith("RIFF") && head.slice(8, 12) === "WEBP") return "image/webp";
+    return null;
+  }
+
+  private async scanRateLimited(telegramId: number): Promise<boolean> {
+    if (!this.redis) return false;
+    const key = TelegramBotService.SCAN_RATE_KEY(telegramId);
+    try {
+      const count = await this.redis.incr(key);
+      if (count === 1) await this.redis.expire(key, TelegramBotService.SCAN_RATE_WINDOW_SEC);
+      return count > TelegramBotService.SCAN_RATE_MAX;
+    } catch {
+      return false;
+    }
+  }
+
+  private escHtml(s: string): string {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   // ── Conversation state (Redis) ───────────────────────────────────
@@ -753,6 +992,14 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     conv: Record<string, unknown>,
   ): Promise<void> {
     const flow = conv.flow as string;
+
+    if (flow === "scan") {
+      await this.api.sendMessage(
+        chatId,
+        "Send a photo with /scan as the caption (or a document) and I'll read it. /cancel to stop.",
+      );
+      return;
+    }
 
     if (flow === "university") {
       // Only reachable via the "Other…" button.
@@ -979,6 +1226,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     if (data === "verify") {
       await this.api.answerCallbackQuery(callbackId);
       await this.onVerify(telegramId, chatId);
+      return;
+    }
+    // Scan — show the raw OCR text behind the corrected reply.
+    if (data === "scan:original") {
+      await this.api.answerCallbackQuery(callbackId);
+      await this.sendScanOriginal(telegramId, chatId);
       return;
     }
     // University selection

@@ -17,6 +17,8 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       # Public waitlist landing page (static site served at matriq.com.ng)
       - ./waitlist:/srv/waitlist:ro
+      # Published OTA update bundles → https://matriq.com.ng/updates/*
+      - ./ota:/srv/updates:ro
       # Cloudflare origin certs (gitignored) — used by Caddyfile.cloudflare
       - ./caddy/certs:/certs:ro
       - caddy_data:/data
@@ -80,6 +82,11 @@ services:
       - S3_USE_SSL=${S3_USE_SSL:-false}
       # Comma-separated allowed browser origins (Vercel dashboards; see docs/cloudflare-vercel.md)
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:8081}
+      # OTA updates (Expo Updates protocol): published bundles live on the
+      # `updates` volume; the manifest endpoint reads metadata from here and
+      # asset URLs point at Caddy (https://matriq.com.ng/updates/...).
+      - UPDATES_DIR=/srv/updates
+      - PUBLIC_ORIGIN=${PUBLIC_ORIGIN:-https://matriq.com.ng}
       # Gemini API (cloud AI: OCR, quiz gen, facts) — key lives server-side only
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.7-flash}
@@ -128,6 +135,11 @@ services:
       - RESOURCE_AUDIT_AI_FALLBACK_MODEL=${RESOURCE_AUDIT_AI_FALLBACK_MODEL:-}
     expose:
       - "3000" # internal only — caddy routes via Docker network
+    volumes:
+      # Published OTA bundles (expo export output, written by
+      # scripts/_publish-ota.sh). Read by the /v1/updates/manifest endpoint.
+      # A repo bind dir (not a named volume) so publishing is a plain rsync.
+      - ./ota:/srv/updates:ro
     networks:
       - matriq-net
     depends_on:

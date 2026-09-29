@@ -4568,6 +4568,7 @@ export const ResourceSubmissionScalarFieldEnum = {
   textFingerprint: 'textFingerprint',
   duplicateOfId: 'duplicateOfId',
   duplicateSimilarity: 'duplicateSimilarity',
+  ocrCorrection: 'ocrCorrection',
   humanDecision: 'humanDecision',
   decisionReason: 'decisionReason',
   reviewerId: 'reviewerId',

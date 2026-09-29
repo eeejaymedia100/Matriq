@@ -1,9 +1,11 @@
 export { Button } from "./Button";
-export { Input } from "./Input";
+// Field is the single text-input primitive across the app (Input was removed
+// in the restraint pass — it duplicated Field with a louder focus halo).
 export { Field } from "./Field";
 export { MatriqMark } from "./MatriqMark";
 export { Card } from "./Card";
 export { ErrorBanner } from "./ErrorBanner";
+export { EmptyState } from "./EmptyState";
 export { PasswordStrength } from "./PasswordStrength";
 export { WheelPicker } from "./WheelPicker";
 export { LoadingScreen } from "./LoadingScreen";

@@ -28,6 +28,7 @@ import {
 } from "../../utils/timetable";
 import { markTodoDone } from "../../utils/todos";
 import { checkTodoBadge } from "../../utils/badges";
+import { typographyBase } from "../../theme/themes";
 
 /** Weekly timetable (spec §9 #3) — stored on-device, offline-first. */
 export function TimetableScreen() {
@@ -307,7 +308,7 @@ export function TimetableScreen() {
                 >
                   <Text
                     style={{
-                      fontFamily: "Inter_600SemiBold",
+                      fontFamily: theme.typography.bodyBold.fontFamily,
                       fontSize: 12,
                       color: day === i ? "#17181A" : colors.textPrimary,
                     }}
@@ -366,7 +367,7 @@ export function TimetableScreen() {
                 borderColor: colors.borderStrong,
               }}
             >
-              <Text style={{ fontFamily: "Inter_700Bold", fontSize: 15, color: "#17181A" }}>Add to timetable</Text>
+              <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 15, color: "#17181A" }}>Add to timetable</Text>
             </Pressable>
           </View>
 
@@ -434,7 +435,7 @@ function field(colors: import("../../theme/themes").MatriqThemeColors, radii: { 
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typographyBase.body.fontFamily,
     fontSize: 15,
     paddingHorizontal: 12,
     paddingVertical: 11,

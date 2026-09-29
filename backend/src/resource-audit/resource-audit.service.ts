@@ -55,6 +55,7 @@ import {
   contentFingerprint,
   DuplicateEvidence,
 } from "./resource-audit.duplicates";
+import { correctOcrText } from "./resource-audit.ocr-correct";
 import {
   AUDITOR_PORT,
   ResourceAiAuditor,
@@ -798,11 +799,49 @@ export class ResourceAuditService {
           }
         }
 
-        // ── ocr_processing: OCR output is already captured; Part 2 adds a
-        // heavier recognition pass here. Advance to audit.
+        // ── ocr_processing: keyboard-style auto-correction of the OCR
+        // output. The document is its own context: topic words are mined
+        // from the text, near-neighbours are generated for garbled tokens,
+        // and only confident, evidence-backed corrections are applied.
+        // Protected classes (course codes, acronyms, numbers, names) are
+        // never touched, and every change is stored for the reviewer.
         case AUDIT_STATUS.ocr_processing: {
-          await this.stageTransition(submissionId, AUDIT_STATUS.ocr_processing, AUDIT_STATUS.auditing);
-          continue;
+          try {
+            const raw = (row.extractedText ?? "").trim();
+            if (raw) {
+              const report = correctOcrText(raw, {
+                topicLexicon: [row.courseCode, row.department, row.faculty]
+                  .filter((x): x is string => !!x)
+                  .flatMap((x) => x.toLowerCase().split(/[^a-z]+/))
+                  .filter((w) => w.length > 2),
+              });
+              await this.prisma.resourceSubmission.update({
+                where: { id: submissionId, auditStatus: AUDIT_STATUS.ocr_processing },
+                data: {
+                  extractedText: report.corrected,
+                  ocrCorrection: {
+                    version: 1,
+                    tokensTotal: report.tokensTotal,
+                    tokensCorrected: report.tokensCorrected,
+                    oovRatio: Number(report.oovRatio.toFixed(3)),
+                    corrections: report.corrections,
+                  } as unknown as Prisma.InputJsonValue,
+                },
+              });
+              if (report.tokensCorrected > 0) {
+                this.log("ocr_processing", submissionId, row.studentId, "auto-corrected OCR text", {
+                  corrected: report.tokensCorrected,
+                  of: report.tokensTotal,
+                  oovRatio: Number(report.oovRatio.toFixed(3)),
+                });
+              }
+            }
+            await this.stageTransition(submissionId, AUDIT_STATUS.ocr_processing, AUDIT_STATUS.auditing);
+            continue;
+          } catch (err) {
+            await this.failStage(submissionId, "ocr_processing", String(err));
+            return;
+          }
         }
 
         // ── auditing: deep validation → duplicates → AI audit → human ──

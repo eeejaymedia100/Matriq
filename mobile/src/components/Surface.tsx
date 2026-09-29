@@ -59,17 +59,10 @@ export function Surface({
             backgroundColor: theme.colors.surfaceAlt,
           };
   } else if (variant === "card") {
-    // Round-2 QA §10: in Pop, the thick ink border + offset shadow IS the
-    // default container style now — not an occasional accent. Glass keeps
-    // its soft float.
-    variantStyle =
-      theme.mode === "pop"
-        ? pressed
-          ? theme.shadows.stickerPressed
-          : theme.shadows.sticker
-        : pressed
-          ? theme.shadows.cardPressed
-          : theme.shadows.card;
+    // Restraint pass: every card is a quiet surface — hairline border (set in
+    // `base`) + one soft shadow from the theme. The sticker treatment is
+    // opt-in for hero moments only; borders never stack on borders.
+    variantStyle = pressed ? theme.shadows.cardPressed : theme.shadows.card;
   } else {
     variantStyle = {
       backgroundColor: theme.colors.surfaceAlt,

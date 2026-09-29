@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { View, TextInput, Text, type NativeSyntheticEvent, type TextInputKeyPressEventData } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useTheme } from "../theme/ThemeContext";
+import { typographyBase } from "../theme/themes";
 
 interface OtpInputProps {
   length?: number;
@@ -168,7 +169,7 @@ const DigitBox = React.forwardRef<TextInput, DigitBoxProps>(function DigitBox(
           height: "100%",
           textAlign: "center",
           fontSize: 22,
-          fontFamily: "Inter_700Bold",
+          fontFamily: typographyBase.bodyBold.fontFamily,
           color: colors.text,
           padding: 0,
         }}

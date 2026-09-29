@@ -39,24 +39,9 @@ export function PasscodeSetupScreen({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <KeyboardScreen center>
+    <KeyboardScreen center edges={["top", "bottom", "left", "right"]}>
 
             <View style={{ alignItems: "center", marginBottom: 28 }}>
-              <View
-                style={{
-                  width: 68,
-                  height: 68,
-                  borderRadius: 999,
-                  backgroundColor: colors.surfaceAlt,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginBottom: 18,
-                }}
-              >
-                <Icon name="lock" size={30} color={colors.accent} />
-              </View>
               <Text style={[theme.typography.h1, { color: colors.textPrimary, textAlign: "center" }]}>
                 {step === 1 ? "Create a passcode" : "Confirm your passcode"}
               </Text>

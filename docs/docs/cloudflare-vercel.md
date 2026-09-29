@@ -2,9 +2,10 @@
 
 > **UPDATE (Aug 2026):** the live domain is `matriq.com.ng` (not `.app` — see
 > `caddy/Caddyfile` and `docs/progress-log.md`), and production now runs on the
-> `matriq-server` VM at **35.204.163.157** (`e2-standard-4`). The `matriq.app`
-> plan below is superseded; keep the A records (`api`, root) pointed at the
-> new VM IP.
+> `matriq-server` VM at **34.141.128.15** (`e2-standard-4`; IP changed from the
+> reserved `35.204.163.157` on 2026-09-22 when the VM was stopped/started). The
+> `matriq.app` plan below is superseded; keep the A records (`api`, root) pointed
+> at the current VM IP.
 
 Target architecture (everything behind Cloudflare, dashboards on Vercel):
 
@@ -27,7 +28,7 @@ Target architecture (everything behind Cloudflare, dashboards on Vercel):
   certificate; Cloudflare proxies + protects it).
 - `admin.matriq.app` — Admin Console (`admin/`), deployed on Vercel.
 - `dashboard.matriq.app` — Association Dashboard (`dashboard/`), deployed on Vercel.
-- Mobile APK points at `https://api.matriq.com.ng/v1` (release) / `http://35.204.163.157/v1` (dev, until the domain + 443 are live).
+- Mobile APK points at `https://api.matriq.com.ng/v1` (release) / `http://34.141.128.15/v1` (dev, until the domain + 443 are live).
 
 Estimated cost: domain ~$12–15/yr (`.app` TLD) + Cloudflare Free + Vercel Hobby (both free).
 
@@ -74,7 +75,7 @@ Cloudflare protection):
 
 | Type | Name | Content | Proxy |
 |---|---|---|---|
-| A | `api` | `35.204.163.157` (`matriq-server` VM's static IP) | DNS-only (grey cloud) — Caddy issues Let's Encrypt on :80 |
+| A | `api` | `34.141.128.15` (`matriq-server` VM's current IP) | DNS-only (grey cloud) — Caddy issues Let's Encrypt on :80 |
 | CNAME | `admin` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `dashboard` | `cname.vercel-dns.com` | ⛅ Proxied |
 | CNAME | `@` (root) | `cname.vercel-dns.com` *(optional — see note)* | ⛅ Proxied |

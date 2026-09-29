@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   TouchableOpacity,
   Text,
@@ -45,7 +45,6 @@ export function Button({
   fullWidth = true,
 }: ButtonProps) {
   const { theme, isGlass } = useTheme();
-  const [pressed, setPressed] = useState(false);
   const scale = useSharedValue(1);
 
   const colors = theme.colors;
@@ -61,30 +60,19 @@ export function Button({
     variant === "primary"
       ? {
           backgroundColor: colors.accent,
-          ...(theme.mode === "pop"
-            ? {
-                borderWidth: 2,
-                borderColor: colors.borderStrong,
-                boxShadow: pressed
-                  ? "1px 1px 0 #17181A"
-                  : "4px 4px 0 #17181A",
-              }
-            : {
-                boxShadow:
-                  "0 6px 24px rgba(198,255,61,0.22), 0 2px 6px rgba(0,0,0,0.35)",
-              }),
+          // Restraint pass: flat lime, no ink outline, no glow. The press
+          // scale (below) is the tactile feedback — decoration isn't.
         }
       : variant === "secondary"
         ? {
             backgroundColor: isGlass ? colors.surfaceAlt : colors.brand,
-            ...(theme.mode === "pop"
-              ? { borderWidth: 2, borderColor: colors.borderStrong }
-              : { borderWidth: 1, borderColor: colors.border }),
+            borderWidth: 1.5,
+            borderColor: colors.borderStrong,
           }
         : variant === "outline"
           ? {
               backgroundColor: "transparent",
-              borderWidth: 1.5,
+              borderWidth: 1,
               borderColor: colors.borderStrong,
             }
           : { backgroundColor: "transparent" };
@@ -116,11 +104,9 @@ export function Button({
   }));
 
   const handlePressIn = () => {
-    setPressed(true);
-    scale.value = withSpring(0.96, { damping: 20, stiffness: 340, mass: 0.4 });
+    scale.value = withSpring(0.97, { damping: 20, stiffness: 340, mass: 0.4 });
   };
   const handlePressOut = () => {
-    setPressed(false);
     scale.value = withSpring(1, { damping: 12, stiffness: 220, mass: 0.5 });
   };
 

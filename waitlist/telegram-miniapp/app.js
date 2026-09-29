@@ -258,6 +258,13 @@
     if (name === "status") loadStatus();
     if (name === "library") loadLibrary();
     if (name === "board") loadBoard();
+    if (name === "scan" && previewMode) {
+      // Honest preview outside Telegram: structure only, nothing runs.
+      $("#scan-form").hidden = true;
+      var pv = $("#scan-empty");
+      pv.hidden = false;
+      pv.innerHTML = '<p>Preview only — open this app inside Telegram to scan.</p>';
+    }
   }
 
   document.addEventListener("click", function (ev) {
@@ -521,6 +528,26 @@
       rebuildDepartments($("#f-faculty").value);
       prefillSelect($("#f-department"), me.department, $("#f-department-other"));
       if (me.department) $("#f-department-other").hidden = $("#f-department").value !== OTHER;
+    }
+    // Smart defaults (session + level): current session and the student's
+    // own level are the overwhelmingly common answers — pre-select them.
+    var currentSession = new Date().getFullYear() + "/" + (new Date().getFullYear() + 1);
+    var sessionSel = $("#f-session");
+    for (var i = 0; i < sessionSel.options.length; i++) {
+      if (sessionSel.options[i].value === currentSession) { sessionSel.value = currentSession; break; }
+    }
+    if (me.account && me.account.level) $("#f-level").value = String(me.account.level);
+    // Goal-gradient rule (never start at zero): fields we could prefill from
+    // the profile are already-done steps. Say so, honestly.
+    var done = 0;
+    if ($("#f-university").value && $("#f-university").value !== OTHER) done++;
+    if ($("#f-faculty").value && $("#f-faculty").value !== OTHER) done++;
+    if ($("#f-department").value && $("#f-department").value !== OTHER) done++;
+    if (done > 0) {
+      var progress = $("#form-progress");
+      progress.hidden = false;
+      progress.textContent = done + " of 3 details already filled from your profile — you're " +
+        Math.round((done / 3) * 100) + "% done before you start.";
     }
   }
 
@@ -829,6 +856,107 @@
     }
     requestAnimationFrame(frame);
   }
+
+  // ── Scan to Text (OCR + keyboard auto-suggestion) ────────────────
+  var scanFile = null;
+
+  $("#scan-file").addEventListener("change", function () {
+    scanFile = this.files && this.files[0] ? this.files[0] : null;
+    var zone = $("#scan-zone");
+    if (scanFile) {
+      if (scanFile.size > 10 * 1024 * 1024) {
+        showToast("That photo is over 10 MB — a screenshot or a smaller shot reads better anyway.");
+        scanFile = null;
+        this.value = "";
+        zone.classList.remove("has");
+        $("#scan-file-name").textContent = "Choose a photo";
+        return;
+      }
+      $("#scan-file-name").textContent = scanFile.name || "Photo selected";
+      $("#scan-meta").textContent = Math.max(1, Math.round(scanFile.size / 1024)) + " KB · ready to read";
+      zone.classList.add("has");
+      haptic("light");
+    } else {
+      zone.classList.remove("has");
+      $("#scan-file-name").textContent = "Choose a photo";
+      $("#scan-meta").textContent = "JPG, PNG or WEBP · up to 10 MB";
+    }
+  });
+
+  function scanReset() {
+    $("#scan-result").hidden = true;
+    $("#scan-empty").hidden = true;
+    $("#scan-form").hidden = false;
+  }
+  $("#scan-retry").addEventListener("click", scanReset);
+  $("#scan-again").addEventListener("click", scanReset);
+
+  $("#scan-btn").addEventListener("click", function () {
+    if (previewMode) { showToast("Preview only — open this app inside Telegram to scan."); return; }
+    if (!scanFile) { showToast("Choose a photo with text first."); return; }
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = "Reading the text…";
+    haptic("light");
+
+    var data = new FormData();
+    data.append("image", scanFile);
+    api("/telegram/miniapp/scan", { method: "POST", body: data })
+      .then(function (res) {
+        if (!res.readable) {
+          $("#scan-form").hidden = true;
+          $("#scan-empty").hidden = false;
+          return;
+        }
+        $("#scan-text").textContent = res.text;
+        $("#scan-raw").textContent = res.rawText;
+        var chips = "";
+        if (res.tokensCorrected > 0) {
+          chips += '<span class="scan-chip on">' + res.tokensCorrected + " of " + res.tokensTotal + " words repaired</span>";
+        } else {
+          chips += '<span class="scan-chip on">Clean read — no bad words</span>';
+        }
+        chips += '<span class="scan-chip">' + escapeHtml(res.engine) + (res.confidence ? " · " + res.confidence + "% confident" : "") + "</span>";
+        if (res.corrections && res.corrections.length) {
+          chips += res.corrections.map(function (c) {
+            return '<span class="scan-chip fix">' + escapeHtml(c.from) + " → " + escapeHtml(c.to) + "</span>";
+          }).join("");
+        }
+        $("#scan-summary").innerHTML = chips;
+        $("#scan-original-toggle").hidden = !(res.rawText && res.rawText !== res.text);
+        $("#scan-original-toggle").textContent = "Show original OCR";
+        $("#scan-form").hidden = true;
+        $("#scan-result").hidden = false;
+        haptic("success");
+      })
+      .catch(function (err) {
+        haptic("error");
+        showToast(err.message || "Couldn't read that photo — try a clearer shot.");
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "Read the text";
+      });
+  });
+
+  $("#scan-original-toggle").addEventListener("click", function () {
+    var corrected = $("#scan-text");
+    var raw = $("#scan-raw");
+    var showingRaw = !raw.hidden;
+    raw.hidden = showingRaw;
+    corrected.hidden = !showingRaw;
+    this.textContent = showingRaw ? "Show original OCR" : "Show corrected text";
+  });
+
+  $("#scan-copy").addEventListener("click", function () {
+    var text = $("#scan-raw").hidden ? $("#scan-text").textContent : $("#scan-raw").textContent;
+    if (!text) return;
+    var done = function () { showToast("Copied to clipboard."); haptic("success"); };
+    navigator.clipboard.writeText(text).then(done).catch(function () {
+      // WebView denied clipboard write — the selectable text block is right there.
+      showToast("Long-press the text to copy it.");
+    });
+  });
 
   boot();
 })();

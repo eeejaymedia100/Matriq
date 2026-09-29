@@ -25,6 +25,7 @@ import {
 } from "../../utils/chunkedUpload";
 import { TERMS_URL } from "../../constants/legal";
 import type { VaultItemDto } from "./VaultScreen";
+import { typographyBase } from "../../theme/themes";
 
 const TERMS_VERSION = "1.0";
 const MAX_SINGLE_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -371,7 +372,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               >
                 <Text
                   style={{
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: theme.typography.bodyBold.fontFamily,
                     fontSize: 13,
                     color: type === t.id ? "#17181A" : colors.textPrimary,
                   }}
@@ -545,7 +546,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
               <View style={{ alignItems: "center" }}>
                 <ActivityIndicator size="small" color="#17181A" />
                 {largeFile ? (
-                  <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 11, color: "#17181A", marginTop: 6 }}>
+                  <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 11, color: "#17181A", marginTop: 6 }}>
                     Uploading {Math.round(progress * 100)}%
                   </Text>
                 ) : null}
@@ -553,7 +554,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
             ) : (
               <Text
                 style={{
-                  fontFamily: "Inter_700Bold",
+                  fontFamily: theme.typography.bodyBold.fontFamily,
                   fontSize: 15,
                   color: canSubmit ? "#17181A" : colors.textMuted,
                 }}
@@ -603,7 +604,7 @@ function inputStyle(
     borderWidth: 1,
     borderColor: colors.border,
     color: colors.textPrimary,
-    fontFamily: "Inter_400Regular",
+    fontFamily: typographyBase.body.fontFamily,
     fontSize: 15,
     paddingHorizontal: 14,
     paddingVertical: 12,

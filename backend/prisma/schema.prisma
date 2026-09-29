@@ -1250,6 +1250,10 @@ model ResourceSubmission {
   textFingerprint      String?               @map("text_fingerprint")
   duplicateOfId        String?               @map("duplicate_of_id") @db.Uuid
   duplicateSimilarity  Int?                  @map("duplicate_similarity") // 0-100
+  // Keyboard-style OCR auto-correction audit trail (what changed, from→to,
+  // evidence, OOV ratio). Deterministic — separate from ai_audit_report so
+  // it survives even when the AI auditor is unavailable. Null = no OCR text.
+  ocrCorrection        Json?                 @map("ocr_correction")
   // ── Human decision (authoritative) ──
   humanDecision        String?               @map("human_decision") // approved | rejected | needs_information
   decisionReason       String?               @map("decision_reason")

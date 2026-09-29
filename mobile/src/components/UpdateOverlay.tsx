@@ -16,6 +16,8 @@ import { useTheme } from "../theme/ThemeContext";
 import { Icon } from "./icons";
 import {
   checkForUpdate,
+  checkForOtaUpdate,
+  downloadOtaUpdate,
   getCurrentVersionCode,
   type AppUpdateInfo,
 } from "../services/updateChecker";
@@ -175,13 +177,23 @@ export function UpdateOverlay() {
 
       // 2. Otherwise check the manifest and download silently in the background.
       const info = await checkForUpdate();
-      if (!info) return;
-      const ok = await downloadSilently(info);
-      if (ok) {
-        // A previously-deferred update re-prompts until applied (No defers,
-        // it never cancels).
-        setReady(info);
-        setShowPrompt(true);
+      if (info) {
+        const ok = await downloadSilently(info);
+        if (ok) {
+          // A previously-deferred update re-prompts until applied (No
+          // defers, it never cancels).
+          setReady(info);
+          setShowPrompt(true);
+        }
+        return;
+      }
+
+      // 3. No APK-level update — check the OTA manifest (JS-only updates).
+      //    Silent by design: the update stages in the background and applies
+      //    at the next natural cold start. No prompt, no interruption — the
+      //    user just gets the new version the next time they open Matriq.
+      if (await checkForOtaUpdate()) {
+        await downloadOtaUpdate();
       }
     } finally {
       checking.current = false;
@@ -313,7 +325,7 @@ export function UpdateOverlay() {
           style={[
             styles.card,
             {
-              backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.98)" : colors.surface,
+              backgroundColor: theme.mode === "glass" ? "rgba(23,24,26,0.98)" : colors.surface,
               borderColor: colors.border,
               ...(theme.mode === "pop"
                 ? { borderWidth: 2, borderColor: colors.borderStrong, boxShadow: "5px 5px 0 #17181A" }
@@ -380,7 +392,7 @@ export function UpdateOverlay() {
               {installing ? (
                 <ActivityIndicator size="small" color="#17181A" />
               ) : (
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
+                <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 14, color: "#17181A" }}>
                   Restart now
                 </Text>
               )}
@@ -410,7 +422,7 @@ export function UpdateOverlay() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Text style={{ fontFamily: "Inter_700Bold", fontSize: 14, color: "#17181A" }}>
+                <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 14, color: "#17181A" }}>
                   Download in browser
                 </Text>
               </Pressable>

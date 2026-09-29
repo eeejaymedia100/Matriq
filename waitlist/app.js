@@ -2,6 +2,10 @@
 (function () {
   "use strict";
 
+  // Flag that JS is running — CSS hooks .js for anything that must not
+  // apply in a no-JS environment (e.g. reveal-on-scroll start state).
+  document.documentElement.classList.add("js");
+
   // The site domain (matriq.com.ng) serves the waitlist UI only; the API
   // lives exclusively at the api subdomain (see Caddyfile).
   var API = "https://api.matriq.com.ng/v1";
@@ -278,6 +282,8 @@
     }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
     revealEls.forEach(function (el) { io.observe(el); });
   } else {
+    // No IntersectionObserver: show everything immediately.
+    document.documentElement.classList.add("no-io");
     revealEls.forEach(function (el) { el.classList.add("in-view"); });
   }
 
@@ -314,30 +320,6 @@
       });
     });
   }
-
-  // ── Cursor glow (fine pointers only) ──────────────────────────
-  var glow = document.getElementById("cursor-glow");
-  if (glow && window.matchMedia("(pointer: fine)").matches && !reduceMotion) {
-    var gx = 0, gy = 0, gtx = 0, gty = 0, graf = null;
-    window.addEventListener("pointermove", function (e) {
-      gtx = e.clientX; gty = e.clientY;
-      glow.classList.add("is-on");
-      if (!graf) {
-        graf = requestAnimationFrame(function loop() {
-          gx += (gtx - gx) * 0.12;
-          gy += (gty - gy) * 0.12;
-          glow.style.transform = "translate(" + gx + "px, " + gy + "px) translate(-50%, -50%)";
-          if (Math.abs(gtx - gx) > 0.5 || Math.abs(gty - gy) > 0.5) {
-            graf = requestAnimationFrame(loop);
-          } else {
-            graf = null;
-          }
-        });
-      }
-    });
-    window.addEventListener("pointerleave", function () { glow.classList.remove("is-on"); });
-  }
-
   // ── Load the Three.js scene (importmap + dynamic import) ──────
   function supportsImportMap() {
     return typeof HTMLScriptElement !== "undefined" && "supports" in HTMLScriptElement &&
@@ -383,7 +365,9 @@
   var started = false;
   function startWhenVisible() {
     if (started) return;
-    var hero = document.getElementById("join");
+    // The hero header is #top — #join was the wrong element here and
+    // delayed/never started the scene depending on scroll position.
+    var hero = document.getElementById("top");
     var r = hero && hero.getBoundingClientRect();
     if (!r || r.top < window.innerHeight * 1.2) {
       started = true;

@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AgentToolsService } from "./ai-agent-tools.service";
 import { AiAgentService } from "./ai-agent.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { ImageSearchService } from "./image-search.service";
 
 describe("AgentToolsService — allowlist & ownership", () => {
   let tools: AgentToolsService;
@@ -20,6 +21,7 @@ describe("AgentToolsService — allowlist & ownership", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AgentToolsService,
+        ImageSearchService,
         { provide: PrismaService, useValue: mockPrisma },
       ],
     }).compile();
@@ -33,6 +35,7 @@ describe("AgentToolsService — allowlist & ownership", () => {
       "read_document",
       "search_library",
       "explain",
+      "search_images",
     ]);
   });
 

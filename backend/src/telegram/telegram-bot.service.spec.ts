@@ -113,7 +113,10 @@ function makeBot(overrides: Record<string, unknown> = {}) {
     audit as unknown as ResourceAuditService,
     gate as unknown as TelegramGate,
     api as unknown as TelegramApi,
-    { pdfPreviewPages: jest.fn().mockResolvedValue([]) } as never,
+    {
+      pdfPreviewPages: jest.fn().mockResolvedValue([]),
+      ocrBuffer: jest.fn().mockResolvedValue({ text: "", confidence: 0, readable: false, engine: "tesseract" }),
+    } as never,
     { get: jest.fn().mockReturnValue("redis://fake") } as never,
   );
   return { bot, config, prisma, campaign, audit, gate, api };
@@ -311,6 +314,132 @@ describe("TelegramBotService — admin review", () => {
       111,
       expect.stringContaining("+1 point"),
     );
+  });
+});
+
+describe("TelegramBotService — /scan (OCR + keyboard auto-correction)", () => {
+  /** A buffer with real JPEG magic bytes — the scanner sniffs, not trusts. */
+  const jpegBytes = Buffer.concat([
+    Buffer.from([0xff, 0xd8, 0xff, 0xe0]),
+    Buffer.alloc(64, 7),
+  ]);
+
+  function scanPhotoUpdate(caption?: string) {
+    return {
+      update_id: 1,
+      message: {
+        message_id: 1,
+        from: USER_A,
+        chat: { id: 111, type: "private" },
+        date: 0,
+        ...(caption ? { caption } : {}),
+        photo: [{ file_id: "p1", width: 640, height: 480 }],
+      },
+    } as never;
+  }
+
+  it("tells the sender how /scan works", async () => {
+    const { bot, api } = makeBot();
+    await (bot as unknown as { onScanCommand: (c: number) => Promise<void> }).onScanCommand(111);
+    const text = String(api.sendMessage.mock.calls[0][1]);
+    expect(text).toContain("Scan to Text");
+    expect(text).toContain("/scan");
+  });
+
+  it("reads a captioned photo, then repairs OCR-garbled words with evidence", async () => {
+    const { bot, api } = makeBot();
+    api.downloadFileById.mockResolvedValue(jpegBytes);
+    (bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer.mockResolvedValue({
+      text: "The quantm thoery of moton explains nergy",
+      confidence: 88,
+      readable: true,
+      engine: "tesseract",
+    });
+
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(scanPhotoUpdate("/scan"));
+
+    // The same server OCR pipeline the app's Image-to-Text tool falls back to.
+    expect(api.downloadFileById).toHaveBeenCalledWith("p1");
+    const ocrCall = (bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer.mock.calls[0];
+    expect(ocrCall[0]).toEqual(jpegBytes);
+    expect(ocrCall[1]).toBe("image/jpeg");
+
+    const reply = String(api.sendMessage.mock.calls.at(-1)![1]);
+    expect(reply).toContain("quantum theory of motion explains energy");
+    expect(reply).toContain("4 of 7 words fixed");
+    expect(reply).toContain("quantm → <b>quantum</b>");
+    expect(reply).toContain("thoery → <b>theory</b>");
+  });
+
+  it("never touches protected tokens — course codes, acronyms, numbers, roman numerals", async () => {
+    const { bot, api } = makeBot();
+    api.downloadFileById.mockResolvedValue(jpegBytes);
+    (bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer.mockResolvedValue({
+      text: "PHY202 NUC IV 2.5 matric",
+      confidence: 91,
+      readable: true,
+      engine: "tesseract",
+    });
+
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(scanPhotoUpdate("/scan"));
+
+    const reply = String(api.sendMessage.mock.calls.at(-1)![1]);
+    expect(reply).toContain("PHY202 NUC IV 2.5 matric");
+    expect(reply).toContain("No bad words found");
+    expect(reply).not.toContain("→");
+  });
+
+  it("says honestly when there is no readable text", async () => {
+    const { bot, api } = makeBot();
+    api.downloadFileById.mockResolvedValue(jpegBytes);
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(scanPhotoUpdate("/scan"));
+    const text = String(api.sendMessage.mock.calls.at(-1)![1]);
+    expect(text).toContain("No readable text found");
+  });
+
+  it("keeps scanning plain photos after the first /scan, and serves the raw OCR text via the button", async () => {
+    const { bot, api } = makeBot();
+    api.downloadFileById.mockResolvedValue(jpegBytes);
+    (bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer.mockResolvedValue({
+      text: "The quantm thoery of moton",
+      confidence: 88,
+      readable: true,
+      engine: "tesseract",
+    });
+
+    // 1. Captioned photo starts it.
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(scanPhotoUpdate("/scan"));
+    // 2. A plain photo (no caption) keeps being scanned — sticky mode.
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate(scanPhotoUpdate());
+    const ocrCalls = (bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer.mock.calls.length;
+    expect(ocrCalls).toBe(2);
+
+    // 3. The "Original OCR text" button shows the un-corrected OCR output.
+    await (bot as unknown as { onCallback: (id: string, from: { id: number }, data: string) => Promise<void> })
+      .onCallback("cb", USER_A, "scan:original");
+    const originals = api.sendMessage.mock.calls.filter((c) => String(c[1]).includes("Original OCR text"));
+    expect(originals.length).toBeGreaterThan(0);
+    expect(String(originals.at(-1)![1])).toContain("quantm thoery of moton");
+  });
+
+  it("routes captioned /upload photos to the wizard, never to OCR", async () => {
+    const { bot, api } = makeBot();
+    api.downloadFileById.mockResolvedValue(jpegBytes);
+    await (bot as unknown as { handleUpdate: (u: never) => Promise<void> }).handleUpdate({
+      update_id: 1,
+      message: {
+        message_id: 1,
+        from: USER_A,
+        chat: { id: 111, type: "private" },
+        date: 0,
+        caption: "/upload",
+        photo: [{ file_id: "p9", width: 640, height: 480 }],
+      },
+    } as never);
+    // No active conversation → the wizard's own nudge, and no scan ran.
+    const text = String(api.sendMessage.mock.calls.at(-1)![1]);
+    expect(text).toContain("Send /upload first");
+    expect((bot as unknown as { tools: { ocrBuffer: jest.Mock } }).tools.ocrBuffer).not.toHaveBeenCalled();
   });
 });
 

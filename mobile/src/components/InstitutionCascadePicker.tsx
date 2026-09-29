@@ -10,6 +10,7 @@ import {
   Platform,
   TextInput,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../theme/ThemeContext";
 import { api } from "../api/client";
@@ -74,6 +75,11 @@ export function InstitutionCascadePicker({
   const [loading, setLoading] = useState(true);
   const [target, setTarget] = useState<PickerTarget | null>(null);
   const [customInput, setCustomInput] = useState("");
+  // A school the student typed that isn't in the catalogue. Kept for display
+  // (and to keep faculty/department selectable) — the API only receives the
+  // institutionId for catalogue schools, so custom names send no id at all.
+  const [customInstitution, setCustomInstitution] = useState<string | null>(null);
+  const hasInstitution = Boolean(institutionId) || customInstitution !== null;
 
   const load = useCallback(() => {
     setLoading(true);
@@ -112,28 +118,50 @@ export function InstitutionCascadePicker({
   };
 
   const currentValue = (t: PickerTarget): string => {
-    if (t === "institution") return institutionId ? selectedInstitution?.name ?? "" : "";
+    if (t === "institution") {
+      if (institutionId) return selectedInstitution?.name ?? "";
+      return customInstitution ?? "";
+    }
     if (t === "faculty") return faculty;
     return department;
   };
 
   const isPlaceholder = (t: PickerTarget): boolean => {
-    if (t === "institution") return !institutionId;
+    if (t === "institution") return !hasInstitution;
     if (t === "faculty") return !faculty;
     return !department;
   };
 
   const open = (t: PickerTarget) => {
     setTarget(t);
-    setCustomInput("");
+    // Re-typing a school should never start from scratch — prefill what the
+    // student already chose (catalogue picks prefill their name too).
+    if (t === "institution" && !institutionId && customInstitution) {
+      setCustomInput(customInstitution);
+    } else {
+      setCustomInput("");
+    }
   };
 
   const close = () => setTarget(null);
 
   const select = (t: PickerTarget, value: string) => {
     if (t === "institution") {
-      const inst = data?.institutions.find((i) => i.name === value);
-      onChange(inst ? inst.id : "", "", "");
+      // Case-insensitive match first — "university of ibadan" should resolve
+      // to the real record instead of being treated as a custom school.
+      const inst = data?.institutions.find(
+        (i) => i.name.toLowerCase() === value.trim().toLowerCase(),
+      );
+      if (inst) {
+        setCustomInstitution(null);
+        onChange(inst.id, "", "");
+      } else {
+        // Typed school not in the catalogue: keep the name visible, send no
+        // id, and leave faculty/department selectable (previously this reset
+        // everything, which made the input look broken).
+        setCustomInstitution(value.trim());
+        onChange("", "", "");
+      }
     } else if (t === "faculty") {
       onChange(institutionId, value, "");
     } else {
@@ -150,11 +178,12 @@ export function InstitutionCascadePicker({
   };
 
   const sheet = (
-    <View
+    <KeyboardAvoidingView
       style={{
         flex: 1,
         justifyContent: "flex-end",
       }}
+      behavior="padding"
     >
       <Pressable
         style={{
@@ -169,7 +198,7 @@ export function InstitutionCascadePicker({
       />
       <View
         style={{
-          backgroundColor: theme.mode === "glass" ? "rgba(30,12,48,0.96)" : colors.surface,
+          backgroundColor: theme.mode === "glass" ? "rgba(22,22,24,0.96)" : colors.surface,
           borderTopLeftRadius: 28,
           borderTopRightRadius: 28,
           padding: 24,
@@ -344,7 +373,7 @@ export function InstitutionCascadePicker({
               </>
             )}
 
-            {target === "faculty" && !institutionId && (
+            {target === "faculty" && !hasInstitution && (
               <Text
                 style={[theme.typography.bodySmall, { color: colors.textMuted, marginTop: 12 }]}
               >
@@ -354,14 +383,18 @@ export function InstitutionCascadePicker({
           </ScrollView>
         )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 
   const row = (t: PickerTarget) => {
     const value = currentValue(t);
     const placeholder = isPlaceholder(t);
     const disabled =
-      t === "faculty" ? !institutionId : t === "department" ? !faculty : false;
+      t === "faculty"
+        ? !hasInstitution
+        : t === "department"
+          ? !hasInstitution && !faculty
+          : false;
     return (
       <Pressable
         onPress={() => !disabled && open(t)}

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import { useTheme } from "../../theme/ThemeContext";
@@ -176,7 +176,7 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
             backgroundColor: colors.accent,
           }}
         >
-          <Text style={{ fontFamily: "Inter_700Bold", fontSize: 13, color: "#17181A" }}>
+          <Text style={{ fontFamily: theme.typography.bodyBold.fontFamily, fontSize: 13, color: "#17181A" }}>
             Build the map anyway
           </Text>
         </Pressable>
@@ -284,7 +284,7 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
               >
                 <Text
                   style={{
-                    fontFamily: "Inter_600SemiBold",
+                    fontFamily: theme.typography.bodyBold.fontFamily,
                     fontSize: 15,
                     color: active ? "#17181A" : colors.textPrimary,
                   }}
@@ -347,7 +347,7 @@ export function FocusQuestioner({ topic, onDone, onCancel }: Props) {
                 >
                   <Text
                     style={{
-                      fontFamily: "Inter_700Bold",
+                      fontFamily: theme.typography.bodyBold.fontFamily,
                       fontSize: 12,
                       color: custom.trim() ? "#17181A" : colors.textMuted,
                     }}

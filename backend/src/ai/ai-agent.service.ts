@@ -8,6 +8,7 @@ import type {
   AgentRunResult,
   AgentToolResult,
 } from "./agent.schema";
+import type { ImageSearchResult } from "./image-search.service";
 
 /**
  * The deterministic half of Agent v2.
@@ -38,6 +39,8 @@ export class AiAgentService {
     const safeQuery = query.trim().slice(0, 1_000);
     const toolCalls: { tool: string; ms: number; ok: boolean }[] = [];
     const observations: string[] = [];
+    /** Images returned by an executed search_images call (sanitized upstream). */
+    let images: ImageSearchResult[] = [];
 
     const snapshot = this.buildSnapshot(context);
     let answer: string | null = null;
@@ -72,6 +75,16 @@ export class AiAgentService {
       const toolName = plan.tool ?? "unknown";
       toolCalls.push({ tool: toolName, ms, ok: !result.error });
 
+      // search_images results ride straight to the client — they are already
+      // URL-sanitized inside ImageSearchService; the model never authors them.
+      if (toolName === "search_images" && !result.error) {
+        const found = (result.result as { images?: ImageSearchResult[] } | undefined)
+          ?.images;
+        if (Array.isArray(found) && found.length > 0) {
+          images = found.slice(0, 4);
+        }
+      }
+
       observations.push(
         this.truncate(
           `Tool ${toolName} → ${result.error ? `error: ${result.error}` : JSON.stringify(result.result)}`,
@@ -95,6 +108,7 @@ export class AiAgentService {
       stepsUsed: toolCalls.length,
       mode,
       surface: context.surface,
+      images,
     } as AgentRunResult & { stepsUsed: number };
   }
 

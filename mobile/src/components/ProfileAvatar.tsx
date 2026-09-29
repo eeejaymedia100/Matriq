@@ -74,9 +74,11 @@ export function ProfileAvatar({
   );
 }
 
+import { typographyBase } from "../theme/themes";
+
 const styles = StyleSheet.create({
   initial: {
-    fontFamily: "Inter_800ExtraBold",
+    fontFamily: typographyBase.bodyBold.fontFamily,
     color: "#FFFFFF",
   },
 });
