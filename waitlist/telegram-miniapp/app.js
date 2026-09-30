@@ -171,7 +171,24 @@
     );
   }
 
-  function tryAuth(initData) {
+  /**
+   * Get a working session + loaded profile, then resolve. Fast path: a
+   * cached session token skips the auth round-trip (a dead one falls
+   * through to a fresh initData exchange). Resolves once `me` is loaded.
+   */
+  function enterApp(initData) {
+    var cached = loadCachedToken();
+    if (cached) {
+      token = cached;
+      return refreshMe().catch(function () {
+        token = null;
+        return authFresh(initData).then(function () { return refreshMe(); });
+      });
+    }
+    return authFresh(initData).then(function () { return refreshMe(); });
+  }
+
+  function authFresh(initData) {
     return fetch(API + "/telegram/miniapp/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -183,7 +200,10 @@
         throw err;
       }
       return res.json();
-    }).then(function (body) { token = body.token; });
+    }).then(function (body) {
+      token = body.token;
+      saveCachedToken(token);
+    });
   }
 
   function bootAuth() {
@@ -199,15 +219,14 @@
       return;
     }
     $("#boot-line").textContent = "Opening Matriq…";
-    tryAuth(initData)
+    enterApp(initData)
       .catch(function (err) {
         // Some older Telegram clients hand out a re-encoded initData — one
         // retry with the raw form before giving up.
         var raw = tg && tg.initDataRaw ? tg.initDataRaw : null;
-        if (raw && raw !== initData) return tryAuth(raw);
+        if (raw && raw !== initData) return enterApp(raw);
         throw err;
       })
-      .then(function () { return refreshMe(); })
       .then(function () {
         buildForm();
         showView("home");
@@ -857,30 +876,78 @@
     requestAnimationFrame(frame);
   }
 
+  // ── Cached Mini App session ─────────────────────────────────
+  // Telegram WebViews destroy localStorage at any moment, but while it
+  // survives, reusing the session token skips the auth round-trip on every
+  // open — the boot screen becomes a blink instead of a wait.
+  var SESSION_KEY = "matriq_miniapp_session";
+  function loadCachedToken() {
+    try { return window.localStorage.getItem(SESSION_KEY); } catch (e) { return null; }
+  }
+  function saveCachedToken(t) {
+    try { window.localStorage.setItem(SESSION_KEY, t); } catch (e) { /* ephemeral */ }
+  }
+
   // ── Scan to Text (OCR + keyboard auto-suggestion) ────────────────
-  var scanFile = null;
+  var scanBlob = null; // always a real JPEG Blob — Telegram WebViews deliver
+  // nameless/generic-typed File objects that fail server-side mime checks.
+
+  /** Re-encode any picked image to a clean JPEG via canvas (max 1600px). */
+  function toJpeg(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file) { reject(new Error("no file")); return; }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        try {
+          var max = 1600;
+          var scale = Math.min(1, max / Math.max(img.width, img.height));
+          var canvas = document.createElement("canvas");
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(function (blob) {
+            if (blob) resolve(blob);
+            else reject(new Error("encode failed"));
+          }, "image/jpeg", 0.9);
+        } catch (e) { reject(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("Couldn't read that image")); };
+      img.src = url;
+    });
+  }
 
   $("#scan-file").addEventListener("change", function () {
-    scanFile = this.files && this.files[0] ? this.files[0] : null;
+    var picked = this.files && this.files[0] ? this.files[0] : null;
     var zone = $("#scan-zone");
-    if (scanFile) {
-      if (scanFile.size > 10 * 1024 * 1024) {
-        showToast("That photo is over 10 MB — a screenshot or a smaller shot reads better anyway.");
-        scanFile = null;
-        this.value = "";
-        zone.classList.remove("has");
-        $("#scan-file-name").textContent = "Choose a photo";
-        return;
-      }
-      $("#scan-file-name").textContent = scanFile.name || "Photo selected";
-      $("#scan-meta").textContent = Math.max(1, Math.round(scanFile.size / 1024)) + " KB · ready to read";
-      zone.classList.add("has");
-      haptic("light");
-    } else {
-      zone.classList.remove("has");
-      $("#scan-file-name").textContent = "Choose a photo";
-      $("#scan-meta").textContent = "JPG, PNG or WEBP · up to 10 MB";
+    if (!picked) { scanBlob = null; zone.classList.remove("has"); return; }
+    if (picked.size > 25 * 1024 * 1024) {
+      showToast("That photo is too large — try a smaller one.");
+      this.value = "";
+      return;
     }
+    var btn = $("#scan-btn");
+    btn.disabled = true;
+    btn.textContent = "Preparing…";
+    toJpeg(picked)
+      .then(function (blob) {
+        scanBlob = blob;
+        $("#scan-file-name").textContent = "Photo ready";
+        $("#scan-meta").textContent = Math.max(1, Math.round(blob.size / 1024)) + " KB · tap Read the text";
+        zone.classList.add("has");
+        haptic("light");
+      })
+      .catch(function () {
+        scanBlob = null;
+        showToast("Couldn't read that image — try another photo.");
+        zone.classList.remove("has");
+        $("#scan-file-name").textContent = "Choose a photo or scan a page";
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = "Read the text";
+      });
   });
 
   function scanReset() {
@@ -893,14 +960,14 @@
 
   $("#scan-btn").addEventListener("click", function () {
     if (previewMode) { showToast("Preview only — open this app inside Telegram to scan."); return; }
-    if (!scanFile) { showToast("Choose a photo with text first."); return; }
+    if (!scanBlob) { showToast("Choose a photo with text first."); return; }
     var btn = this;
     btn.disabled = true;
-    btn.textContent = "Reading the text…";
+    btn.textContent = "Reading…";
     haptic("light");
 
     var data = new FormData();
-    data.append("image", scanFile);
+    data.append("image", scanBlob, "scan.jpg"); // explicit filename+type
     api("/telegram/miniapp/scan", { method: "POST", body: data })
       .then(function (res) {
         if (!res.readable) {
@@ -951,9 +1018,8 @@
   $("#scan-copy").addEventListener("click", function () {
     var text = $("#scan-raw").hidden ? $("#scan-text").textContent : $("#scan-raw").textContent;
     if (!text) return;
-    var done = function () { showToast("Copied to clipboard."); haptic("success"); };
+    var done = function () { showToast("Copied."); haptic("success"); };
     navigator.clipboard.writeText(text).then(done).catch(function () {
-      // WebView denied clipboard write — the selectable text block is right there.
       showToast("Long-press the text to copy it.");
     });
   });

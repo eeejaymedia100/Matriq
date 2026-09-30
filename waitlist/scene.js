@@ -40,17 +40,28 @@ if (container) {
     function layout() {
       width = container.clientWidth || window.innerWidth;
       height = container.clientHeight || window.innerHeight;
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      // Phones get a harder DPR cap — the pile is fill-rate heavy.
+      const compact = width < 860;
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, compact ? 1.6 : 2));
       renderer.setSize(width, height);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
 
-      // The Stack sits right-of-center on wide screens; centered on phones.
-      const wide = width > 860;
-      const scale = Math.min(width / 1280, 1.15);
-      group.scale.setScalar(wide ? scale : scale * 0.72);
-      group.position.x = wide ? 2.6 : 0;
-      group.position.y = wide ? -0.4 : -1.6;
+      if (compact) {
+        // Mobile: the scene is a dedicated band at the hero's foot — one
+        // neat tower, centred, with the camera moved in so it fills the
+        // frame instead of floating as a distant mush behind the copy.
+        group.scale.setScalar(0.8);
+        group.position.set(0, -0.55, 0);
+        camera.position.set(0, 2.7, 7.0);
+      } else {
+        // Desktop: the Stack sits right-of-center beside the copy.
+        const scale = Math.min(width / 1280, 1.15);
+        group.scale.setScalar(scale);
+        group.position.set(2.6, -0.4, 0);
+        camera.position.set(0, 3.4, 9.2);
+      }
+      camera.lookAt(0, 0.6, 0);
     }
 
     /* ── Lights: a study-lamp mood — warm key, cool fill, lime rim ── */
@@ -65,27 +76,19 @@ if (container) {
     rim.position.set(2.5, 2, 3);
     scene.add(rim);
 
-    /* ── Materials ── */
-    const paperMatA = new THREE.MeshStandardMaterial({
-      color: PAPER_A, roughness: 0.92, metalness: 0,
-    });
-    const paperMatB = new THREE.MeshStandardMaterial({
-      color: PAPER_B, roughness: 0.95, metalness: 0,
-    });
-    const limeMat = new THREE.MeshStandardMaterial({
-      color: LIME, roughness: 0.55, metalness: 0,
-      emissive: LIME, emissiveIntensity: 0.55,
-    });
-
-    /* Ruled-paper texture, generated on device (no downloads). */
-    function sheetTexture(withLime) {
+    /* Ruled-paper textures, generated on device (no downloads). A handful
+       of SHARED materials instead of one per sheet — the old loop created
+       ~90 canvases (~30MB GPU memory) for identical paper, which is what
+       made phones crawl. */
+    function sheetTexture(kind) {
       const c = document.createElement("canvas");
       c.width = 256; c.height = 340;
       const g = c.getContext("2d");
-      g.fillStyle = withLime ? "#c6ff3d" : (Math.random() > 0.5 ? "#e9e6df" : "#d8d4cb");
+      const lime = kind === "lime";
+      g.fillStyle = lime ? "#c6ff3d" : kind === "b" ? "#d8d4cb" : "#e9e6df";
       g.fillRect(0, 0, c.width, c.height);
-      // Ruled lines — the exam-hall vernacular.
-      if (!withLime) {
+      if (!lime) {
+        // Ruled lines — the exam-hall vernacular.
         g.strokeStyle = "rgba(23,24,26,0.14)";
         g.lineWidth = 1;
         for (let y = 46; y < c.height - 20; y += 22) {
@@ -110,22 +113,24 @@ if (container) {
       return tex;
     }
 
+    const matPaperA = new THREE.MeshStandardMaterial({ map: sheetTexture("a"), roughness: 0.92, metalness: 0 });
+    const matPaperB = new THREE.MeshStandardMaterial({ map: sheetTexture("b"), roughness: 0.95, metalness: 0 });
+    const matLime = new THREE.MeshStandardMaterial({
+      map: sheetTexture("lime"), roughness: 0.55, metalness: 0,
+      emissive: LIME, emissiveIntensity: 0.35,
+    });
+
     const geo = new THREE.BoxGeometry(2.1, 0.035, 2.9);
 
     /* ── Build the Stack: slight rotations + offsets = human handling ── */
     const group = new THREE.Group();
-    const SHEETS = reduceMotion ? 46 : 92;
+    // Fewer sheets on phones (fill rate); fewer still for reduced motion.
+    const compact = window.innerWidth < 860;
+    const SHEETS = reduceMotion ? 46 : compact ? 72 : 92;
     const stack = new THREE.Group();
     for (let i = 0; i < SHEETS; i++) {
       const isLime = i % 17 === 11; // a few "smart" sheets inside the pile
-      const mat = new THREE.MeshStandardMaterial({
-        map: sheetTexture(isLime),
-        roughness: 0.92,
-        metalness: 0,
-        emissive: isLime ? LIME : 0x000000,
-        emissiveIntensity: isLime ? 0.35 : 0,
-      });
-      const sheet = new THREE.Mesh(geo, mat);
+      const sheet = new THREE.Mesh(geo, isLime ? matLime : i % 2 ? matPaperA : matPaperB);
       sheet.position.y = i * 0.038;
       sheet.rotation.y = (Math.random() - 0.5) * 0.14;
       sheet.position.x = (Math.random() - 0.5) * 0.06;
@@ -179,7 +184,8 @@ if (container) {
       dragging = true;
       lastX = e.clientX;
       velocity = 0;
-      container.setPointerCapture?.(e.pointerId);
+      // No setPointerCapture: on touch it fights the browser's own
+      // pan-y handling; vertical swipes must keep scrolling the page.
     });
     container.addEventListener("pointermove", (e) => {
       if (dragging) {
@@ -222,9 +228,7 @@ if (container) {
       raf = requestAnimationFrame(tick);
     }
 
-    // Camera framing.
-    camera.position.set(0, 3.4, 9.2);
-    camera.lookAt(0, 0.6, 0);
+    // Camera framing happens in layout() — desktop and mobile differ.
 
     if (reduceMotion) {
       // One still frame — beautiful, silent, cheap.

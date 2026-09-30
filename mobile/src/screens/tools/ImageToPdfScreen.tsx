@@ -124,7 +124,7 @@ export function ImageToPdfScreen() {
         >
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Image to PDF</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Turn photos of notes, handouts or board work into one clean PDF. Built on your phone.
+            Photos of notes into one clean PDF.
           </Text>
 
           <Pressable

@@ -192,7 +192,9 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     },
     pinText: { ...theme.typography.small, color: colors.brand, fontWeight: "600" },
     unreadBadge: {
-      backgroundColor: colors.brand,
+      // "New" badge: ink pill + white text in both themes — Glass `brand`
+      // is near-white, which used to erase the label entirely.
+      backgroundColor: theme.mode === "glass" ? colors.bgDeep : colors.brand,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: 2,
       borderRadius: theme.radii.pill,

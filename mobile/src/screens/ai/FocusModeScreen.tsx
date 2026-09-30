@@ -729,10 +729,7 @@ export function FocusModeScreen() {
           { color: colors.textSecondary, marginTop: 4, lineHeight: 23 },
         ]}
       >
-        Turn any complex thing — a course topic, a coding concept, a skill, a
-        hard problem — into a guided learning journey. Walk it step by step,
-        prove you've got each stage, then explore the full map freely.
-        Powered by cloud AI (a Magic Plus feature).
+        Any hard topic becomes a guided, step-by-step learning map.
       </Text>
 
       {/* Premium / free-allowance messaging */}

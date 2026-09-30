@@ -157,10 +157,10 @@ export function HomeScreen({ navigation }: Props) {
   };
   const goTab = (tab: keyof MainTabParamList) => navigation.navigate(tab);
 
-  // With a model downloaded, the AI entry opens the chat directly;
-  // otherwise it opens the model picker to download one first.
-  const hasModels = Object.keys(downloaded).length > 0;
-  const goAi = () => go(hasModels ? "AiChat" : "OfflineModels");
+  // The AI entry ALWAYS opens the chat — cloud AI works with no download,
+  // and the offline model is an optional upgrade inside the chat, never a
+  // gate in front of it (Focus Mode and Quickie must be reachable at once).
+  const goAi = () => go("AiChat");
 
   const firstName = user?.fullName?.split(" ")[0] ?? "there";
 
@@ -313,7 +313,7 @@ export function HomeScreen({ navigation }: Props) {
                     accessibilityLabel={todo.label}
                   >
                     <Icon name={todo.icon} size={19} color={colors.textSecondary} />
-                    <Text style={[theme.typography.body, { color: colors.textPrimary, flex: 1, marginLeft: 12 }]}>
+                    <Text style={[theme.typography.body, { color: colors.textPrimary, flex: 1, marginLeft: 12 }]} numberOfLines={1}>
                       {todo.label}
                     </Text>
                     <Icon name="chevronRight" size={16} color={colors.textMuted} />
@@ -361,7 +361,7 @@ export function HomeScreen({ navigation }: Props) {
                       <Text style={[theme.typography.body, { color: colors.textPrimary }]} numberOfLines={1}>
                         {nextClassEntry.title}
                       </Text>
-                      <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]}>
+                      <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 1 }]} numberOfLines={1}>
                         Next class · {DAY_LABELS[nextClassEntry.day]} · {minutesToLabel(nextClassEntry.startMin)}
                       </Text>
                     </View>

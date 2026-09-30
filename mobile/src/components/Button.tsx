@@ -65,7 +65,10 @@ export function Button({
         }
       : variant === "secondary"
         ? {
-            backgroundColor: isGlass ? colors.surfaceAlt : colors.brand,
+            // Secondary: lime fill + ink label in BOTH themes (ink-on-lime is
+            // the brand pairing). The old black fill forced white text —
+            // banned by the contrast rules.
+            backgroundColor: colors.accent,
             borderWidth: 1.5,
             borderColor: colors.borderStrong,
           }
@@ -94,9 +97,7 @@ export function Button({
     variant === "primary"
       ? "#17181A"
       : variant === "secondary"
-        ? isGlass
-          ? colors.textPrimary
-          : "#FFFFFF"
+        ? "#17181A"
         : colors.textPrimary;
 
   const animatedStyle = useAnimatedStyle(() => ({

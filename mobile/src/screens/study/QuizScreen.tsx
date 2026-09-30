@@ -98,7 +98,7 @@ export function QuizScreen() {
 
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Quiz maker</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Questions built from your uploaded materials — not generic.
+            Quizzes from your own materials.
           </Text>
 
           {phase === "setup" ? (

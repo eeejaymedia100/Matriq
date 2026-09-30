@@ -437,7 +437,7 @@ export function VaultScreen({ navigation }: Props) {
             <View style={{ flex: 1 }}>
               <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Library</Text>
               <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-                Your private files &amp; your school's public library.
+                Your files + your school's library.
               </Text>
             </View>
             <View style={{ flexDirection: "row", gap: 8 }}>

@@ -121,7 +121,12 @@ export class TelegramController {
     }
     const accessToken = this.jwt.sign(
       { tgId: session.telegramId, username: session.telegramUsername, scope: session.scope },
-      { secret: process.env.JWT_SECRET, expiresIn: "12h" },
+      // 30 days: Mini Apps are ephemeral — Telegram can destroy the WebView
+      // at any moment, and a student who reopens the app next week should
+      // land straight in the hunt, not on a boot screen asking to re-auth
+      // (initData is re-validated server-side whenever the client re-sends it,
+      // so the window only extends how long a STALE token keeps working).
+      { secret: process.env.JWT_SECRET, expiresIn: "30d" },
     );
     const linked = await this.prisma.user.findFirst({
       where: { telegramId: session.telegramId },
@@ -284,16 +289,20 @@ export class TelegramController {
   @UseInterceptors(FileInterceptor("image", { limits: { fileSize: 10.5 * 1024 * 1024 } }))
   @Throttle({ default: { ttl: 60000, limit: 10 } })
   async miniAppScan(@Req() req: MiniAppRequest, @UploadedFile() file?: Express.Multer.File) {
-    if (!file?.buffer) {
+    if (!file?.buffer || file.buffer.length < 12) {
       throw new BadRequestException("Choose a photo with text to scan.");
     }
-    if (!/^image\/(jpeg|png|webp|gif)$/i.test(file.mimetype)) {
+    // Trust bytes, not labels: Telegram's Android WebView often delivers
+    // blobs with a generic or missing content type, so the sniffed type is
+    // the authority (an octet-stream label is fine if the bytes are an image).
+    const mime = this.sniffImageMime(file.buffer) ?? file.mimetype;
+    if (!mime || !/^image\/(jpeg|png|webp|gif)$/i.test(mime)) {
       throw new BadRequestException("That file type isn't supported — upload a photo (JPG, PNG or WebP).");
     }
 
     let ocr: { text: string; confidence: number; readable: boolean; engine: string };
     try {
-      ocr = await this.tools.ocrBuffer(file.buffer, file.mimetype);
+      ocr = await this.tools.ocrBuffer(file.buffer, mime);
     } catch (err) {
       this.logger.warn(
         `miniapp scan OCR failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -321,6 +330,16 @@ export class TelegramController {
       tokensCorrected: report.tokensCorrected,
       corrections: report.corrections.slice(0, 12),
     };
+  }
+
+  /** Magic-byte sniffing — WebView mime labels are unreliable. */
+  private sniffImageMime(buffer: Buffer): string | null {
+    if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) return "image/png";
+    if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return "image/jpeg";
+    const head = buffer.slice(0, 12).toString("latin1");
+    if (head.startsWith("GIF8")) return "image/gif";
+    if (head.startsWith("RIFF") && head.slice(8, 12) === "WEBP") return "image/webp";
+    return null;
   }
 
   /** My submissions, for the Mini App status view. */

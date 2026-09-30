@@ -1712,7 +1712,9 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
       flexDirection: "row",
       alignItems: "center",
       gap: theme.spacing.sm,
-      backgroundColor: colors.brand,
+      // Banner ground must stay dark in both themes (Glass `brand` is
+      // near-white — its white label used to vanish).
+      backgroundColor: theme.mode === "glass" ? colors.bgDeep : colors.brand,
       borderRadius: theme.radii.md,
       paddingHorizontal: theme.spacing.md,
       paddingVertical: theme.spacing.sm,
@@ -1745,7 +1747,9 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     },
     userBubble: {
       alignSelf: "flex-end",
-      backgroundColor: colors.brand,
+      // The user's own messages: near-black in both themes so the white text
+      // always passes contrast (Glass `brand` is near-white).
+      backgroundColor: theme.mode === "glass" ? colors.bgDeep : colors.brand,
       marginLeft: "auto",
     },
     aiBubble: {
@@ -1757,7 +1761,7 @@ function makeStyles(theme: MatriqTheme, colors: MatriqThemeColors) {
     bubbleText: { ...theme.typography.body },
     userText: { color: "#FFFFFF" },
     aiText: { color: colors.textPrimary },
-    cursor: { color: colors.accent },
+    cursor: { color: colors.accentText },
     bubbleMeta: {
       flexDirection: "row",
       alignItems: "center",

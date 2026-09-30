@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   AccessibilityInfo,
   View,
@@ -40,12 +40,22 @@ const RARITY_LABEL: Record<string, string> = {
   epic: "Epic",
 };
 
+function progressPct(a: BoardAchievement): number {
+  if (!a.progress || a.progress.target <= 0) return 0;
+  return Math.min(100, Math.round((a.progress.current / a.progress.target) * 100));
+}
+
 /**
- * Achievement Board (UI direction §Achievement System). Earned, locked and
- * in-progress achievements grouped into meaningful categories; cards feel
- * collectible (game-quality badges) rather than CSS boxes. Tapping one opens
- * the detail view with how it was earned + a shareable achievement card
- * generated from the student's real data.
+ * Achievement Board — built like a trophy room, not a settings page.
+ *
+ * Hierarchy:
+ *  1. Hero count + progress rail (the scoreboard).
+ *  2. "Next up" — the badge closest to unlocking (goal gradient: always a
+ *     visible next step).
+ *  3. The board, per category. Earned badges sit in proper cases (lime
+ *     hairline, stronger for rare/epic); locked badges are borderless ghosts
+ *     on the background. Earning one visibly promotes it out of the void and
+ *     into a case — that promotion IS the reward loop.
  */
 export function AchievementsScreen() {
   const { theme } = useTheme();
@@ -53,8 +63,20 @@ export function AchievementsScreen() {
   const { board, loading, refresh } = useAchievements();
   const [selected, setSelected] = useState<BoardAchievement | null>(null);
 
+  const achievements = board?.achievements ?? [];
   const earnedCount = board?.earnedCount ?? 0;
-  const total = board?.achievements.length ?? 0;
+  const total = achievements.length;
+
+  // Closest to unlocking: earned items excluded, then highest progress.
+  const nextUp = useMemo(() => {
+    const locked = achievements.filter((a) => !a.earned);
+    if (locked.length === 0) return null;
+    return (
+      [...locked]
+        .sort((a, b) => progressPct(b) - progressPct(a))
+        .find((a) => progressPct(a) > 0) ?? locked[0]
+    );
+  }, [achievements]);
 
   return (
     <KeyboardScreen
@@ -66,54 +88,58 @@ export function AchievementsScreen() {
       <Text style={[theme.typography.display, { color: colors.textPrimary }]}>
         Achievements
       </Text>
-      <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-        Earned from real study — nothing here is free.
-      </Text>
 
-      {/* Progress summary */}
-      <Surface
-        variant="sticker"
-        style={{ padding: 16, marginTop: 16, flexDirection: "row", alignItems: "center", gap: 12 }}
-      >
-        <View
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 13,
-            backgroundColor: colors.surfaceAlt,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Icon name="trophy" size={21} color={colors.brand} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
-            {earnedCount} of {total} earned
-          </Text>
-          <View
+      {/* Scoreboard — big count, slim rail, refresh */}
+      <View style={{ marginTop: 18 }}>
+        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+          <Text
             style={{
-              marginTop: 7,
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: colors.surfaceAlt,
-              overflow: "hidden",
+              fontFamily: theme.typography.bodyBold.fontFamily,
+              fontWeight: "800",
+              fontSize: 34,
+              lineHeight: 38,
+              color: colors.textPrimary,
             }}
           >
-            <View
-              style={{
-                width: `${total ? Math.round((earnedCount / total) * 100) : 0}%`,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: colors.accent,
-              }}
-            />
-          </View>
+            {earnedCount}
+          </Text>
+          <Text
+            style={[
+              theme.typography.body,
+              { color: colors.textMuted, marginLeft: 7, marginBottom: 3 },
+            ]}
+          >
+            of {total} earned
+          </Text>
+          <View style={{ flex: 1 }} />
+          <PressableScale
+            onPress={() => void refresh()}
+            hitSlop={8}
+            accessibilityLabel="Refresh achievements"
+            style={{ padding: 6, marginBottom: 2 }}
+          >
+            <Icon name="refresh" size={18} color={colors.textMuted} />
+          </PressableScale>
         </View>
-        <PressableScale onPress={() => void refresh()} hitSlop={8} accessibilityLabel="Refresh achievements" style={{ padding: 4 }}>
-          <Icon name="refresh" size={18} color={colors.textMuted} />
-        </PressableScale>
-      </Surface>
+        <View
+          style={{
+            marginTop: 10,
+            height: 5,
+            borderRadius: 3,
+            backgroundColor: colors.surfaceAlt,
+            overflow: "hidden",
+          }}
+        >
+          <View
+            style={{
+              width: `${total ? Math.round((earnedCount / total) * 100) : 0}%`,
+              height: 5,
+              borderRadius: 3,
+              backgroundColor: colors.accent,
+            }}
+          />
+        </View>
+      </View>
 
       {loading && !board ? (
         <View style={{ alignItems: "center", paddingVertical: 60 }}>
@@ -129,95 +155,241 @@ export function AchievementsScreen() {
           </Text>
         </View>
       ) : (
-        CATEGORY_ORDER.map((category) => {
-          const items = board.achievements.filter(
-            (a) => a.category === category,
-          );
-          if (items.length === 0) return null;
-          const earnedInCategory = items.filter((a) => a.earned).length;
-          return (
-            <View key={category} style={{ marginTop: 26 }}>
-              <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between" }}>
-                <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
-                  {CATEGORY_META[category].label}
-                </Text>
-                <Text style={[theme.typography.small, { color: colors.textMuted }]}>
-                  {earnedInCategory}/{items.length}
-                </Text>
-              </View>
-              <Text style={[theme.typography.caption, { color: colors.textMuted, marginTop: 2 }]}>
-                {CATEGORY_META[category].blurb}
-              </Text>
-
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 12 }}>
-                {items.map((a) => (
-                  <PressableScale
-                    key={a.id}
-                    onPress={() => setSelected(a)}
-                    style={{ width: "47%" }}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${a.title}, ${a.earned ? "earned" : "locked"}`}
-                  >
-                    <Surface
-                      style={{
-                        padding: 14,
-                        alignItems: "center",
-                        marginBottom: 0,
-                        opacity: a.earned ? 1 : 0.9,
-                      }}
+        <>
+          {/* Next up — the one closest to unlocking */}
+          {nextUp ? (
+            <PressableScale
+              onPress={() => setSelected(nextUp)}
+              accessibilityRole="button"
+              accessibilityLabel={`Next up: ${nextUp.title}, ${progressPct(nextUp)} percent`}
+              style={{ marginTop: 18 }}
+            >
+              <Surface style={{ padding: 14 }}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 13 }}>
+                  <GameBadge
+                    rarity={nextUp.rarity}
+                    icon={nextUp.icon as never}
+                    earned={false}
+                    size="sm"
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        theme.typography.small,
+                        {
+                          color: colors.accentText,
+                          textTransform: "uppercase",
+                          letterSpacing: 1,
+                          fontSize: 10,
+                        },
+                      ]}
                     >
-                      <GameBadge
-                        rarity={a.rarity}
-                        icon={a.icon as never}
-                        earned={a.earned}
-                        size="md"
-                      />
-                      <Text
-                        numberOfLines={2}
-                        style={[
-                          theme.typography.captionBold,
-                          {
-                            color: a.earned ? colors.textPrimary : colors.textSecondary,
-                            marginTop: 10,
-                            textAlign: "center",
-                            lineHeight: 17,
-                          },
-                        ]}
-                      >
-                        {a.title}
-                      </Text>
-                      <Text
-                        style={[
-                          theme.typography.small,
-                          {
-                            color: a.earned ? colors.textMuted : colors.textMuted,
-                            marginTop: 3,
-                            fontSize: 10,
-                          },
-                        ]}
-                      >
-                        {a.earned
-                          ? `Earned${a.earnedAt ? ` · ${new Date(a.earnedAt).toLocaleDateString()}` : ""}`
-                          : a.progress
-                            ? `${a.progress.current} / ${a.progress.target}`
-                            : "Locked"}
-                      </Text>
-                    </Surface>
-                  </PressableScale>
-                ))}
+                      Next up
+                    </Text>
+                    <Text
+                      numberOfLines={1}
+                      style={[
+                        theme.typography.captionBold,
+                        { color: colors.textPrimary, marginTop: 2 },
+                      ]}
+                    >
+                      {nextUp.title}
+                    </Text>
+                    {nextUp.progress ? (
+                      <>
+                        <View
+                          style={{
+                            marginTop: 8,
+                            height: 5,
+                            borderRadius: 3,
+                            backgroundColor: colors.surfaceAlt,
+                            overflow: "hidden",
+                          }}
+                        >
+                          <View
+                            style={{
+                              width: `${progressPct(nextUp)}%`,
+                              height: 5,
+                              borderRadius: 3,
+                              backgroundColor: colors.accent,
+                            }}
+                          />
+                        </View>
+                        <Text
+                          style={[theme.typography.small, { color: colors.textMuted, marginTop: 5 }]}
+                        >
+                          {nextUp.progress.current} / {nextUp.progress.target}
+                        </Text>
+                      </>
+                    ) : null}
+                  </View>
+                  <Icon name="chevronRight" size={16} color={colors.textMuted} />
+                </View>
+              </Surface>
+            </PressableScale>
+          ) : null}
+
+          {/* The board */}
+          {CATEGORY_ORDER.map((category) => {
+            const items = achievements.filter((a) => a.category === category);
+            if (items.length === 0) return null;
+            const earnedInCategory = items.filter((a) => a.earned).length;
+            return (
+              <View key={category} style={{ marginTop: 28 }}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "baseline",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={[theme.typography.h3, { color: colors.textPrimary }]}>
+                    {CATEGORY_META[category].label}
+                  </Text>
+                  <Text style={[theme.typography.small, { color: colors.textMuted }]}>
+                    {earnedInCategory}/{items.length}
+                  </Text>
+                </View>
+
+                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 14 }}>
+                  {items.map((a) =>
+                    a.earned ? (
+                      <EarnedCase key={a.id} achievement={a} onPress={() => setSelected(a)} />
+                    ) : (
+                      <LockedGhost key={a.id} achievement={a} onPress={() => setSelected(a)} />
+                    ),
+                  )}
+                </View>
               </View>
-            </View>
-          );
-        })
+            );
+          })}
+        </>
       )}
 
       <AchievementDetailModal
         achievement={selected}
-        items={board?.achievements.filter((a) => a.earned) ?? []}
+        items={achievements.filter((a) => a.earned)}
         onSelect={setSelected}
         onClose={() => setSelected(null)}
       />
     </KeyboardScreen>
+  );
+}
+
+/** Earned badge in its case — lime hairline, stronger for rare/epic. */
+function EarnedCase({
+  achievement,
+  onPress,
+}: {
+  achievement: BoardAchievement;
+  onPress: () => void;
+}) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+  const showcase = achievement.rarity === "epic" || achievement.rarity === "rare";
+
+  return (
+    <PressableScale
+      onPress={onPress}
+      style={{ width: "47%" }}
+      accessibilityRole="button"
+      accessibilityLabel={`${achievement.title}, earned`}
+    >
+      <Surface
+        style={{
+          padding: 14,
+          alignItems: "center",
+          marginBottom: 0,
+          borderColor: showcase ? colors.accent : `${colors.accent}45`,
+          borderWidth: 1,
+        }}
+      >
+        <GameBadge
+          rarity={achievement.rarity}
+          icon={achievement.icon as never}
+          earned={true}
+          size="md"
+        />
+        <Text
+          numberOfLines={2}
+          ellipsizeMode="tail"
+          style={[
+            theme.typography.captionBold,
+            {
+              color: colors.textPrimary,
+              marginTop: 10,
+              textAlign: "center",
+              lineHeight: 17,
+            },
+          ]}
+        >
+          {achievement.title}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[theme.typography.small, { color: colors.textMuted, marginTop: 3, fontSize: 10 }]}
+        >
+          {achievement.earnedAt
+            ? new Date(achievement.earnedAt).toLocaleDateString()
+            : RARITY_LABEL[achievement.rarity]}
+        </Text>
+      </Surface>
+    </PressableScale>
+  );
+}
+
+/** Locked badge — a ghost on the background, no box. Earning it promotes it
+ *  into a case; the visual jump between the two states is the point. */
+function LockedGhost({
+  achievement,
+  onPress,
+}: {
+  achievement: BoardAchievement;
+  onPress: () => void;
+}) {
+  const { theme } = useTheme();
+  const colors = theme.colors;
+
+  return (
+    <PressableScale
+      onPress={onPress}
+      style={{ width: "47%" }}
+      accessibilityRole="button"
+      accessibilityLabel={`${achievement.title}, locked`}
+    >
+      <View style={{ alignItems: "center", paddingVertical: 14, paddingHorizontal: 14 }}>
+        <GameBadge
+          rarity={achievement.rarity}
+          icon={achievement.icon as never}
+          earned={false}
+          size="md"
+        />
+        <Text
+          numberOfLines={2}
+          ellipsizeMode="tail"
+          style={[
+            theme.typography.captionBold,
+            {
+              color: colors.textSecondary,
+              marginTop: 10,
+              textAlign: "center",
+              lineHeight: 17,
+            },
+          ]}
+        >
+          {achievement.title}
+        </Text>
+        <Text
+          numberOfLines={1}
+          style={[theme.typography.small, { color: colors.textMuted, marginTop: 3, fontSize: 10 }]}
+        >
+          {achievement.progress
+            ? `${achievement.progress.current} / ${achievement.progress.target}`
+            : "Locked"}
+        </Text>
+      </View>
+    </PressableScale>
   );
 }
 
@@ -316,7 +488,7 @@ function AchievementDetailModal({
     transform: [{ translateX: translateX.value }],
   }));
 
-  const share = useCallback(async () => {
+  const share = async () => {
     if (!achievement || !shareRef.current) return;
     setSharing(true);
     setShareError(null);
@@ -341,12 +513,10 @@ function AchievementDetailModal({
     } finally {
       setSharing(false);
     }
-  }, [achievement]);
+  };
 
   if (!achievement) return null;
-  const pct = achievement.progress
-    ? Math.min(100, Math.round((achievement.progress.current / achievement.progress.target) * 100))
-    : 0;
+  const pct = progressPct(achievement);
 
   return (
     <Modal

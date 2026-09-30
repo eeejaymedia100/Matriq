@@ -472,7 +472,7 @@ export function InstitutionCascadePicker({
             <Text
               style={[
                 theme.typography.captionBold,
-                { color: colors.accent, textDecorationLine: "underline" },
+                { color: colors.accentText, textDecorationLine: "underline" },
               ]}
             >
               Retry

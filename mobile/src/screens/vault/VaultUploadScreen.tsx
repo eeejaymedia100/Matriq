@@ -203,8 +203,7 @@ export function VaultUploadScreen({ navigation }: { navigation: { goBack: () => 
 
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Add to the Library</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4, lineHeight: 22 }]}>
-            Share a past question or material with students in your school —
-            or keep it private for yourself.
+            Share with your school, or keep it private.
           </Text>
 
           {/* File picker */}

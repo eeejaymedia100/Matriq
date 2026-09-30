@@ -437,7 +437,7 @@ export function UpdateOverlay() {
                   borderColor: colors.borderStrong,
                 }}
               >
-                <Text style={[theme.typography.bodyBold, { color: colors.accent }]}>
+                <Text style={[theme.typography.bodyBold, { color: colors.accentText }]}>
                   Open install settings
                 </Text>
               </Pressable>

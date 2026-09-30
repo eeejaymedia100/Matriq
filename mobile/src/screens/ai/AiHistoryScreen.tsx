@@ -65,7 +65,7 @@ export function AiHistoryScreen({ navigation }: Props) {
             Chat history
           </Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-            Past conversations with the offline AI.
+            Your past conversations.
           </Text>
 
           {loading ? (
@@ -138,7 +138,7 @@ export function AiHistoryScreen({ navigation }: Props) {
                       >
                         {conv.title}
                       </Text>
-                      <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]}>
+                      <Text style={[theme.typography.small, { color: colors.textMuted, marginTop: 2 }]} numberOfLines={1}>
                         {conv.messages.filter((m) => m.role === "user").length} questions ·{" "}
                         {relativeTimeFrom(conv.updatedAt)}
                       </Text>

@@ -87,7 +87,7 @@ export function LibraryScreen({ navigation }: { navigation: Nav }) {
       <KeyboardScreen edges={["top", "left", "right"]} padding={0} contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40 }}>
         <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Discover</Text>
         <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-          Past questions &amp; materials from students across institutions.
+          Past questions &amp; shared materials.
         </Text>
         <View style={{ alignItems: "center", paddingVertical: 60 }}>
           <ActivityIndicator color={colors.brand} />
@@ -105,7 +105,7 @@ export function LibraryScreen({ navigation }: { navigation: Nav }) {
         <View style={{ flex: 1 }}>
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Discover</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-            Study materials from institutions near you.
+            Past questions &amp; shared materials.
           </Text>
         </View>
         <Pressable

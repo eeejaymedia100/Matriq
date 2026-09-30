@@ -44,7 +44,9 @@ export function ProfileAvatar({
         width: size,
         height: size,
         borderRadius: 999,
-        backgroundColor: colors.brand,
+        // Initials avatar needs a dark ground for the white initial in BOTH
+        // themes (Glass `brand` is near-white — white-on-white before this).
+        backgroundColor: theme.mode === "glass" ? colors.bgDeep : colors.brand,
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",

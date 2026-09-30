@@ -229,20 +229,14 @@
         </button>
         <h2 class="bar-title">Scan to Text</h2>
       </header>
-      <p class="scan-intro">Point at a page, whiteboard or slide — Matriq reads the text out of the photo, then repairs the garbled words the way your keyboard auto-suggests. Every fix is shown, nothing silent.</p>
-
       <div id="scan-form">
-        <div class="field">
-          <span>Photo</span>
-          <label class="filezone" id="scan-zone">
-            <input id="scan-file" type="file" accept="image/jpeg,image/png,image/webp" hidden />
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4Z"/><circle cx="12" cy="13" r="3.5"/></svg>
-            <span id="scan-file-name">Choose a photo</span>
-            <em id="scan-meta">JPG, PNG or WEBP · up to 10 MB</em>
-          </label>
-        </div>
+        <label class="filezone" id="scan-zone">
+          <input id="scan-file" type="file" accept="image/*" capture="environment" hidden />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+          <span id="scan-file-name">Choose a photo or scan a page</span>
+          <em id="scan-meta">JPG, PNG, screenshots — anything</em>
+        </label>
         <button class="btn btn-primary btn-block" type="button" id="scan-btn">Read the text</button>
-        <p class="scan-hint">A clear, close, well-lit shot reads best — screenshots with big text are perfect.</p>
       </div>
 
       <div id="scan-empty" class="scan-empty" hidden>

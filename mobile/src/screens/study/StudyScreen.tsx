@@ -70,7 +70,7 @@ export function StudyScreen({ navigation }: Props) {
         >
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Study</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Your corner for learning — on or off the network.
+            Learn on or off the network.
           </Text>
 
           {/* 1 — Rotating fact card (shared with Home) */}
@@ -116,7 +116,7 @@ export function StudyScreen({ navigation }: Props) {
                 <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
                   <Icon name="sparkle" size={18} color={colors.accent} />
                   <View style={{ flex: 1 }}>
-                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]}>
+                    <Text style={[theme.typography.bodyBold, { color: colors.textPrimary }]} numberOfLines={1}>
                       {activeModel.name} ready
                     </Text>
                     <Text style={[theme.typography.caption, { color: colors.textMuted }]}>

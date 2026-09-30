@@ -44,7 +44,13 @@ export async function appendFileToFormData(
   }
 
   const { File: ExpoFile } = await import("expo-file-system");
-  const fileUri = await ensureRealFilePath(uri, fileName);
+  // ALWAYS stage a copy under the caller's filename. `File` derives the
+  // multipart part's filename from the URI basename, and Android document
+  // pickers hand out cache names like "document" (no extension) — passing a
+  // picked URI through stored every vault file as "document" with no type.
+  // The staged copy guarantees the part carries the real name + extension
+  // (and thus the right MIME), which is what extraction/pdf-preview key off.
+  const fileUri = await stageFileForUpload(uri, fileName);
   formData.append(field, new ExpoFile(fileUri));
 }
 
@@ -53,17 +59,21 @@ function sanitizeFileName(name: string): string {
 }
 
 /**
- * Returns a `file://` URI for the upload. `file://` paths pass through
- * untouched; `content://` (Android) and other provider URIs are copied into
- * the app cache under the given filename so the native reader can always
- * open the file.
+ * Returns a `file://` URI that ends with the caller's filename. Provider
+ * URIs (Android `content://`, iOS `ph://`) are copied into the app cache;
+ * plain `file://` paths are ALSO copied when their basename doesn't match
+ * the intended filename (the derived multipart name must be right).
  */
-async function ensureRealFilePath(uri: string, fileName: string): Promise<string> {
-  if (uri.startsWith("file://")) return uri;
-
+async function stageFileForUpload(uri: string, fileName: string): Promise<string> {
   const dir = FileSystem.cacheDirectory ?? FileSystem.documentDirectory;
   if (!dir) return uri; // No writable dir — let the upload surface the error.
-  const target = `${dir}${sanitizeFileName(fileName)}`;
+
+  const base = uri.split("?")[0].split("/").pop() ?? "";
+  const wanted = sanitizeFileName(fileName);
+  const alreadyRight = uri.startsWith("file://") && base === wanted;
+  if (alreadyRight) return uri;
+
+  const target = `${dir}${Date.now().toString(36)}-${wanted}`;
   await FileSystem.copyAsync({ from: uri, to: target }).catch(() => {
     // Some provider URIs (e.g. iOS ph://) can't be copied directly; the
     // caller's error path reports the failure.

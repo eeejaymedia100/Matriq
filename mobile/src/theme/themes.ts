@@ -47,9 +47,13 @@ export interface MatriqThemeColors {
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
-  /** Lime accent — "this is alive, look here". */
+  /** Lime accent — "this is alive, look here" (fills/treatments). */
   accent: string;
   accentBright: string;
+  /** Accent as TEXT on the current background — darkened olive on Pop's
+   *  light paper (lime text on white fails contrast and is banned), raw
+   *  lime on Glass's void. Every accent-colored TEXT uses this. */
+  accentText: string;
   /** Color for text/icons sitting on the lime accent. */
   onAccent: string;
   /** Secondary brand hue (chrome, chips, selection). */
@@ -169,6 +173,8 @@ export const glassTheme: MatriqTheme = {
     textMuted: "#8E8C88",
     accent: brand.lime500,
     accentBright: brand.lime400,
+    // Lime on void passes contrast; accentText == accent on the dark theme.
+    accentText: brand.lime500,
     onAccent: brand.onAccent,
     // Secondary hue on dark: pure white chrome (was purple). Chips, selection
     // states and "brand" moments are now monochrome + lime only.
@@ -248,8 +254,13 @@ export const popTheme: MatriqTheme = {
     textPrimary: brand.ink,
     textSecondary: "#56585A",
     textMuted: "#8C8E90",
+    // Accent roles: lime stays the accent for FILLS/treatments (always with
+    // ink-on-lime labels). As a TEXT color on light paper, lime fails contrast
+    // (user rule: no lime text on white) — accentText is a darkened olive
+    // with the same hue family, readable on paper.
     accent: brand.lime500,
     accentBright: "#D9F97D",
+    accentText: "#4A6212",
     onAccent: brand.onAccent,
     // Secondary hue on light: ink (was purple). Sticker borders, chips and
     // secondary buttons are ink — monochrome + lime only.

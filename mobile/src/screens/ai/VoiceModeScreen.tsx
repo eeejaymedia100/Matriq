@@ -323,7 +323,7 @@ export function VoiceModeScreen() {
         Voice Mode
       </Text>
       <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-        Speak a question, hear the answer. Hands-free study.
+        Speak a question, hear the answer.
       </Text>
 
       {/* Privacy / engine note */}

@@ -245,6 +245,8 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
   inset: 0;
   z-index: 0;
   cursor: grab;
+  /* Horizontal pans spin the stack; vertical pans belong to the page. */
+  touch-action: pan-y;
 }
 #scene:active { cursor: grabbing; }
 #scene canvas { display: block; }
@@ -292,6 +294,22 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
   100% { transform: scale(1); }
 }
 
+/* Mobile-first hero: the Stack becomes its own stage at the hero's foot —
+   text stays readable on top, the tower sits below where fingers can spin
+   it. The old full-bleed background turned into mud behind the copy. */
+@media (max-width: 859px) {
+  .hero { padding-top: 96px; padding-bottom: 40vh; }
+  .hero .eyebrow { margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(2.05rem, 8.5vw, 2.6rem); margin-bottom: 16px; }
+  .hero .lede { font-size: 1rem; margin-bottom: 24px; }
+  .hero-actions { gap: 10px; }
+  .hero-actions .btn-lg { padding: 14px 24px; font-size: 0.98rem; }
+  .hero-meta { margin-top: 20px; font-size: 0.82rem; gap: 8px; flex-wrap: wrap; }
+  #count { font-size: 1.15rem; }
+  .hero-tg { font-size: 13px; }
+  #scene { top: auto; height: 40vh; }
+}
+
 /* Drag hint */
 .drag-hint {
   position: absolute;
@@ -309,7 +327,9 @@ h3 { font-size: 1.05rem; font-weight: 600; letter-spacing: -0.005em; }
   transition: opacity 0.6s ease;
 }
 .drag-hint svg { width: 16px; height: 16px; stroke: var(--lime); }
-@media (max-width: 720px) { .drag-hint { display: none; } }
+@media (max-width: 720px) {
+  .drag-hint { bottom: 10px; font-size: 0.68rem; }
+}
 
 /* ── Cards ──────────────────────────────────────────────────── */
 

@@ -217,7 +217,7 @@ export function TimetableScreen() {
                   hitSlop={8}
                   style={{ marginTop: 8, alignSelf: "flex-start" }}
                 >
-                  <Text style={[theme.typography.captionBold, { color: colors.accent }]}>
+                  <Text style={[theme.typography.captionBold, { color: colors.accentText }]}>
                     Try again
                   </Text>
                 </Pressable>

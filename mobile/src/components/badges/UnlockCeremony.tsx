@@ -274,7 +274,7 @@ export function UnlockCeremony({
                 style={[
                   theme.typography.captionBold,
                   styles.eyebrow,
-                  { color: colors.accent },
+                  { color: colors.accentText },
                 ]}
               >
                 {total > 1 ? `Badge ${index + 1} of ${total} unlocked` : "Badge unlocked"}

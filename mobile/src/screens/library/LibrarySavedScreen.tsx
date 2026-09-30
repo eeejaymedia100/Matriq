@@ -54,7 +54,7 @@ export function LibrarySavedScreen({
     <KeyboardScreen paddingBottom={40}>
       <Text style={[theme.typography.display, { color: colors.textPrimary }]}>My saved library</Text>
       <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-        Your bookmarks — a reference, never a paid-for copy.
+        Your saved past questions &amp; materials.
       </Text>
 
       {error ? (

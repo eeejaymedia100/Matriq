@@ -73,3 +73,8 @@ caddy/certs/
 .claude/secrets/
 .vercel-token
 .cloudflare-token
+backend/eng.traineddata
+brag-output/
+brag-output-*/
+ota/
+video/

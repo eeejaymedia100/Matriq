@@ -90,7 +90,7 @@ export function PasscodeUnlockScreen({ onUnlocked }: { onUnlocked: () => void })
                 style={{
                   fontFamily: theme.typography.bodyBold.fontFamily,
                   fontSize: 30,
-                  color: colors.accent,
+                  color: colors.accentText,
                 }}
               >
                 {(user?.fullName?.trim().charAt(0) ?? "S").toUpperCase()}

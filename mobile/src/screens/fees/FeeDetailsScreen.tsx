@@ -97,7 +97,7 @@ export function FeeDetailsScreen({ navigation }: Props) {
         >
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Dues &amp; Payments</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Only ever here in Settings — never on Home.
+            Balances and receipts in one place.
           </Text>
 
           {error ? (

@@ -100,7 +100,7 @@ export function LibrarySearchScreen({
     <KeyboardScreen paddingBottom={40}>
       <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Search the library</Text>
       <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-        Past questions &amp; materials across institutions.
+        Past questions &amp; shared materials.
       </Text>
 
       {/* Search */}

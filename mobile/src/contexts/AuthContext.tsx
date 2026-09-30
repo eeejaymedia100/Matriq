@@ -252,7 +252,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      await api.post("/auth/logout", { refreshToken: "" });
+      // Revoke THIS session's refresh token (single-session logout). Sending
+      // an empty token skipped the server-side revocation entirely.
+      const tokens = await getTokens();
+      await api.post("/auth/logout", { refreshToken: tokens?.refreshToken ?? "" });
     } catch {
       // Ignore — the token clear is what matters
     }

@@ -52,7 +52,7 @@ export function NotesScreen({
         <View style={{ flex: 1 }}>
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Notes</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 2 }]}>
-            Your private notes — saved on this phone.
+            Notes, saved on this phone.
           </Text>
         </View>
         <Pressable

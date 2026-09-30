@@ -204,7 +204,7 @@ export function OcrScreen({
 
           <Text style={[theme.typography.display, { color: colors.textPrimary }]}>Image to Text</Text>
           <Text style={[theme.typography.body, { color: colors.textSecondary, marginTop: 4 }]}>
-            Read text out of a photo — a whiteboard, a printed note, a screenshot.
+            Copy text straight out of a photo.
           </Text>
 
           {offlineAvailable ? (
